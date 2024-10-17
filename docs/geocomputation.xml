@@ -10,7 +10,694 @@
 <atom:link href="https://aditya-dahiya.github.io/visage/index.html/geocomputation.xml" rel="self" type="application/rss+xml"/>
 <description>Visualizing Information and Spatial Analysis with ggplot2 Extensions</description>
 <generator>quarto-1.4.555</generator>
-<lastBuildDate>Mon, 14 Oct 2024 18:30:00 GMT</lastBuildDate>
+<lastBuildDate>Tue, 15 Oct 2024 18:30:00 GMT</lastBuildDate>
+<item>
+  <title>Creating Maps in R with ggplot2 having background Raster Images using ggmap</title>
+  <dc:creator>Aditya Dahiya</dc:creator>
+  <link>https://aditya-dahiya.github.io/visage/index.html/geocomputation/ggmap_rasters.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>On this page, we’ll explore how to create visually appealing maps in R using the <code>ggmap</code> package <span class="citation" data-cites="ggmap">(<strong>ggmap?</strong>)</span>, a popular extension of <code>ggplot2</code> designed for easy integration of raster map tiles from online mapping services. Let us see how to set up the required tools and generate maps with custom base layers, using both <code>ggmap</code> and functions like <code>get_stadiamap()</code>.</p>
+<p><code>ggmap</code> is an extension of the <code>ggplot2</code> package that enables users to overlay data on geographic maps. It retrieves raster map tiles from sources such as <a href="https://developers.google.com/maps">Google Maps</a>, <a href="https://maps.stamen.com/">Stamen Maps</a>, and <a href="https://stadiamaps.com/">Stadia Maps</a>, making it easier to create maps and integrate geospatial data visualization with familiar <code>ggplot2</code> workflows.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggmap)</span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(sf)</span>
+<span id="cb1-4"></span>
+<span id="cb1-5">sysfonts<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">font_add_google</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Saira Condensed"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"caption_font"</span>)</span>
+<span id="cb1-6">sysfonts<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">font_add_google</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Saira"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>)</span>
+<span id="cb1-7">showtext<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">showtext_auto</span>()</span></code></pre></div>
+</details>
+</div>
+<p><strong>About the Sample Dataset:</strong> The <code>lnd</code> dataset, part of the <code>spData</code> package <span class="citation" data-cites="spData">(Bivand, Nowosad, and Lovelace 2024)</span> in R, contains polygons representing the large administrative boroughs of London. This dataset includes attributes such as the borough name (<code>NAME</code>), official code (<code>GSS_CODE</code>), land area in hectares (<code>HECTARES</code>), and geometry data in the <code>sfc_MULTIPOLYGON</code> format. You can explore the dataset’s source <a href="https://github.com/Robinlovelace/Creating-maps-in-R">here</a>.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Data on The boroughs of London</span></span>
+<span id="cb2-2">spData<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span>lnd <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(</span>
+<span id="cb2-4">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb2-5">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> NAME,</span>
+<span id="cb2-6">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> NAME,</span>
+<span id="cb2-7">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> HECTARES</span>
+<span id="cb2-8">    )</span>
+<span id="cb2-9">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb2-11">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.75</span></span>
+<span id="cb2-12">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf_text</span>(</span>
+<span id="cb2-14">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">check_overlap =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>,</span>
+<span id="cb2-15">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"caption_font"</span></span>
+<span id="cb2-16">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-17">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-18">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_grey</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-19">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb2-20">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"none"</span></span>
+<span id="cb2-21">  )</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/ggmap_rasters_files/figure-html/fig-1-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: A basic map of the boroughs of London drawn with geom_sf() and data from {spData} plotted using {ggplot2} and geom_sf()
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="getting-started-with-ggmap" class="level2">
+<h2 class="anchored" data-anchor-id="getting-started-with-ggmap">Getting Started with <code>ggmap</code></h2>
+<p>Before creating maps, you’ll need to install the <a href="https://github.com/dkahle/ggmap"><code>ggmap</code> package</a>, which is available through CRAN.</p>
+<div class="sourceCode" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">install.packages</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ggmap"</span>)</span></code></pre></div>
+<p>To ensure that you can access map tiles from Stadia Maps, you will need an API key. This key allows you to authenticate and use their map services within your R scripts.</p>
+<p>Setting Up API Key Authentication: To access Stadia Maps, follow these steps:</p>
+<ol type="1">
+<li><a href="https://client.stadiamaps.com/signup/">Sign up</a> for a free Stadia Maps account and generate an API key.</li>
+<li>Save the API key securely in your environment using the <code>register_stadiamaps()</code> function.</li>
+</ol>
+<div class="sourceCode" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">register_stadiamaps</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"YOUR-API-KEY-HERE"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">write =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span></code></pre></div>
+<p>By saving the key in your <code>.Renviron</code> file, you ensure it will automatically load in new R sessions, avoiding the need to hard code it into your script.</p>
+</section>
+<section id="retrieving-a-base-map-with-get_stadiamap" class="level2">
+<h2 class="anchored" data-anchor-id="retrieving-a-base-map-with-get_stadiamap">Retrieving a Base-map with <code>get_stadiamap()</code></h2>
+<p>Once your API key is set, you can start generating maps using functions such as <code>get_stadiamap()</code> etc. This function allows you to fetch base maps by specifying the bounding box coordinates of your area of interest. The function will return a <code>ggmap</code> object that you can further customize using <code>ggplot2</code> syntax.</p>
+</section>
+<section id="exploring-various-ggmap-functions" class="level2">
+<h2 class="anchored" data-anchor-id="exploring-various-ggmap-functions">Exploring various <code>ggmap</code> Functions</h2>
+<section id="base-functions-get_stadiamap-ggmap" class="level3">
+<h3 class="anchored" data-anchor-id="base-functions-get_stadiamap-ggmap"><strong>Base functions: <code>get_stadiamap()</code> &amp; <code>ggmap()</code></strong></h3>
+<p>Fetches map tiles from Stadia Maps and <a href="https://stadiamaps.com/stamen">Stamen Design</a>, after choosing the design from <a href="https://docs.stadiamaps.com/themes/"><strong>Map Style Library</strong></a>, for a specified bounding box or region and zoom level, and displays them using <code>ggmap()</code>. The various map styles available under the <code>get_stadiamap(maptype = "your-map-type-here")</code> argument are: —</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 75%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Map Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>stamen_terrain</code></td>
+<td>A detailed terrain map highlighting elevation and natural features like hills and rivers.</td>
+</tr>
+<tr class="even">
+<td><code>stamen_toner</code></td>
+<td>A bold, high-contrast map design with stark black-and-white features, ideal for print or urban areas.</td>
+</tr>
+<tr class="odd">
+<td><code>stamen_toner_lite</code></td>
+<td>A lighter version of the toner map, providing clearer backgrounds with less emphasis on contrast.</td>
+</tr>
+<tr class="even">
+<td><code>stamen_watercolor</code></td>
+<td>A unique, artistic map style that looks like a watercolor painting, perfect for creative visualizations.</td>
+</tr>
+<tr class="odd">
+<td><code>stamen_terrain_background</code></td>
+<td>A terrain map focusing only on the background without labels, useful for overlaying custom data.</td>
+</tr>
+<tr class="even">
+<td><code>stamen_toner_background</code></td>
+<td>A simplified toner map background without labels, ideal for adding data layers on top.</td>
+</tr>
+<tr class="odd">
+<td><code>stamen_terrain_lines</code></td>
+<td>Terrain map with added contour lines to emphasize elevation changes.</td>
+</tr>
+<tr class="even">
+<td><code>stamen_terrain_labels</code></td>
+<td>Terrain map that includes place labels, enhancing context for geographic features.</td>
+</tr>
+<tr class="odd">
+<td><code>stamen_toner_lines</code></td>
+<td>Toner map with a focus on roads and paths, outlined clearly against the background.</td>
+</tr>
+<tr class="even">
+<td><code>stamen_toner_labels</code></td>
+<td>A toner map style with added labels for places, roads, and other key features.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note:</strong> It is very important is to add the <code>inherit.aes = FALSE</code> argument in <code>geom_sf()</code> if overlaying <code>sf</code> objects on the the {ggmap} raster tiles.</p>
+<p>The R code below demonstrates how to overlay spatial geometries from <code>sf</code> objects onto raster base maps using <code>ggmap</code> and <code>geom_sf()</code>. The <code>get_stadiamap()</code> function from <strong>Stadia Maps</strong> is used to fetch raster tiles (specifically with the <code>stamen_toner_lines</code> style) for the London area, which are then transformed into EPSG:3857 (Web Mercator) using a custom function <code>ggmap_bbox()</code> (credits: <a href="https://stackoverflow.com/users/1736291/andyteucher">andyteuchner</a> on <a href="https://stackoverflow.com/questions/47749078/how-to-put-a-geom-sf-produced-map-on-top-of-a-ggmap-produced-raster">stackoverflow post</a>) to ensure the map tiles align correctly with the CRS of the spatial data. The London Boroughs dataset (<code>spData::lnd</code>) is similarly projected to EPSG:3857, and the boroughs are visualized with semi-transparent polygons and labeled with their names using <code>geom_sf()</code> and <code>geom_sf_text()</code>. This approach ensures the raster background and vector geometries are properly aligned.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Obtain the bounding box of London Boroughs</span></span>
+<span id="cb5-2">london_bbox <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> sf<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_bbox</span>(spData<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span>lnd)</span>
+<span id="cb5-3"></span>
+<span id="cb5-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># A bounding box in the format c(lowerleftlon, lowerleftlat, upperrightlon, upperrightlat)</span></span>
+<span id="cb5-5">london_bbox <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(</span>
+<span id="cb5-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">left =</span> london_bbox<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>xmin,</span>
+<span id="cb5-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">right =</span> london_bbox<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>xmax,</span>
+<span id="cb5-8">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bottom =</span> london_bbox<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>ymin,</span>
+<span id="cb5-9">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">top =</span> london_bbox<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>ymax</span>
+<span id="cb5-10">)</span>
+<span id="cb5-11"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">names</span>(london_bbox) <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"left"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"right"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bottom"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"top"</span>)</span>
+<span id="cb5-12"></span>
+<span id="cb5-13"></span>
+<span id="cb5-14"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Getting the map tiles</span></span>
+<span id="cb5-15">london_base1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">get_stadiamap</span>(</span>
+<span id="cb5-16">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bbox =</span> london_bbox,</span>
+<span id="cb5-17">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">zoom =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>,</span>
+<span id="cb5-18">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">maptype =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"stamen_toner_lines"</span></span>
+<span id="cb5-19">)</span>
+<span id="cb5-20"></span>
+<span id="cb5-21"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(london_base1)</span>
+<span id="cb5-22"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># As we can see the raster images have no CRS system</span></span>
+<span id="cb5-23"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Empirically we know that the coordinate refence system is 3857</span></span>
+<span id="cb5-24"></span>
+<span id="cb5-25"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Getting London Boroughs Data</span></span>
+<span id="cb5-26">df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> spData<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span>lnd <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb5-27">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_transform</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3857</span>))</span>
+<span id="cb5-28"></span>
+<span id="cb5-29"></span>
+<span id="cb5-30"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Starting the process of Overlaying the geom_sf() data on this</span></span>
+<span id="cb5-31"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Most important is to add the inherit.aes = FALSE argument.</span></span>
+<span id="cb5-32"></span>
+<span id="cb5-33"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Step: 1: </span></span>
+<span id="cb5-34"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Credits: https://stackoverflow.com/questions/47749078/how-to-put-a-geom-sf-produced-map-on-top-of-a-ggmap-produced-raster by andyteucher on StackOverFlow (https://stackoverflow.com/users/1736291/andyteucher)</span></span>
+<span id="cb5-35"></span>
+<span id="cb5-36"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define a function to fix the bbox to be in CRS EPSG:3857</span></span>
+<span id="cb5-37">ggmap_bbox <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(map) {</span>
+<span id="cb5-38">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Extract the bounding box (in lat/lon) from the ggmap</span></span>
+<span id="cb5-39">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># to a numeric vector, and set the names to what</span></span>
+<span id="cb5-40">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># sf::st_bbox expects:</span></span>
+<span id="cb5-41">  map_bbox <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">setNames</span>(</span>
+<span id="cb5-42">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unlist</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">attr</span>(map, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bb"</span>)),</span>
+<span id="cb5-43">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ymin"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xmin"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ymax"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xmax"</span>)</span>
+<span id="cb5-44">  )</span>
+<span id="cb5-45"></span>
+<span id="cb5-46">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Coonvert the bbox to an sf polygon, transform it to 3857,</span></span>
+<span id="cb5-47">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># and convert back to a bbox (convoluted, but it works)</span></span>
+<span id="cb5-48">  bbox_3857 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_bbox</span>(</span>
+<span id="cb5-49">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_transform</span>(</span>
+<span id="cb5-50">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_as_sfc</span>(</span>
+<span id="cb5-51">        <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_bbox</span>(map_bbox, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span>)</span>
+<span id="cb5-52">        ), </span>
+<span id="cb5-53">      <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3857</span></span>
+<span id="cb5-54">    )</span>
+<span id="cb5-55">  )</span>
+<span id="cb5-56"></span>
+<span id="cb5-57">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Overwrite the bbox of the ggmap object with the transformed coordinates</span></span>
+<span id="cb5-58">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">attr</span>(map, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bb"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>ll.lat <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> bbox_3857[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ymin"</span>]</span>
+<span id="cb5-59">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">attr</span>(map, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bb"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>ll.lon <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> bbox_3857[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xmin"</span>]</span>
+<span id="cb5-60">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">attr</span>(map, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bb"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>ur.lat <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> bbox_3857[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ymax"</span>]</span>
+<span id="cb5-61">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">attr</span>(map, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bb"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>ur.lon <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> bbox_3857[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xmax"</span>]</span>
+<span id="cb5-62">  map</span>
+<span id="cb5-63">}</span>
+<span id="cb5-64"></span>
+<span id="cb5-65"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use the function to convert our downloaded Raster Files into </span></span>
+<span id="cb5-66"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># the new CRS and new bounding box CRS</span></span>
+<span id="cb5-67">london_base2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggmap_bbox</span>(london_base1)</span>
+<span id="cb5-68"></span>
+<span id="cb5-69"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Plotting the actual map</span></span>
+<span id="cb5-70"></span>
+<span id="cb5-71"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Starting with base map tiles</span></span>
+<span id="cb5-72">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggmap</span>(london_base2) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-73">  </span>
+<span id="cb5-74">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Plotting the actual sf object data on london boroughs</span></span>
+<span id="cb5-75">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb5-76">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> df,</span>
+<span id="cb5-77">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> NAME),</span>
+<span id="cb5-78">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">inherit.aes =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>,</span>
+<span id="cb5-79">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>,</span>
+<span id="cb5-80">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">alpha</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span>
+<span id="cb5-81">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-82">  </span>
+<span id="cb5-83">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Plotting names of London Boroughs on top of the geom_sf</span></span>
+<span id="cb5-84">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf_text</span>(</span>
+<span id="cb5-85">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> df,</span>
+<span id="cb5-86">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> NAME),</span>
+<span id="cb5-87">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">inherit.aes =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>,</span>
+<span id="cb5-88">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"caption_font"</span>,</span>
+<span id="cb5-89">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fontface =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span>,</span>
+<span id="cb5-90">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">check_overlap =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span></span>
+<span id="cb5-91">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-92">  </span>
+<span id="cb5-93">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Forcing the ggplot2 map to be in CRS: 3857</span></span>
+<span id="cb5-94">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb5-95">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3857</span>)</span>
+<span id="cb5-96">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-97">  </span>
+<span id="cb5-98">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Some theme elements</span></span>
+<span id="cb5-99">  ggthemes<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_map</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-100">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb5-101">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"none"</span></span>
+<span id="cb5-102">  )</span>
+<span id="cb5-103"></span>
+<span id="cb5-104"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb5-105">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>, </span>
+<span id="cb5-106">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ggmap_rasters"</span>, </span>
+<span id="cb5-107">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"fig_2.png"</span>),</span>
+<span id="cb5-108">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g</span>
+<span id="cb5-109">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/ggmap_rasters/fig_2.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: “Overlapping a geom_sf() object over and above ggmap raster tiles obtained from Stadia Maps”
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="section" class="level3">
+<h3 class="anchored" data-anchor-id="section"></h3>
+<p><strong><code>qmplot()</code></strong>: Similar to <code>qplot()</code>, but automatically adds a background map. It simplifies mapping by automatically computing the bounding box.</p>
+</section>
+<section id="work-in-progress-other-ggmap-functions" class="level3">
+<h3 class="anchored" data-anchor-id="work-in-progress-other-ggmap-functions"><strong>Work-in-Progress: Other <code>ggmap()</code> functions</strong></h3>
+<ol type="1">
+<li><strong><code>make_bbox()</code></strong>: Computes a bounding box for a dataset based on latitude and longitude columns.</li>
+<li><strong><code>geom_hdr()</code> and <code>geom_labeldensity2d()</code></strong>: Useful for plotting density and contour maps on top of ggmap layers, commonly used for visualizing spatial data like crime maps.</li>
+<li><strong><code>get_googlemap()</code></strong>: Retrieves maps from Google Maps by specifying a location and zoom level. Different map types are supported (e.g., satellite, terrain, hybrid).</li>
+<li><strong><code>geocode()</code> and <code>revgeocode()</code></strong>: Provides geocoding and reverse geocoding services using Google Maps API to convert addresses to coordinates and vice versa.</li>
+<li><strong><code>mutate_geocode()</code></strong>: Works like <code>mutate()</code> in dplyr, adding latitude and longitude columns to a data frame based on an address.</li>
+<li><strong><code>trek()</code> and <code>route()</code></strong>: Calculates routes between locations using Google’s routing API, which can be plotted as paths on a map using <code>geom_path()</code>.</li>
+<li><strong><code>mapdist()</code></strong>: Computes distances and travel times between multiple locations. It’s vectorized for multiple origin-destination pairs.</li>
+<li><strong><code>register_google()</code></strong>: Registers a Google Maps API key for use with the ggmap package, allowing access to various Google Maps services. The key can be saved for future sessions.</li>
+</ol>
+
+
+
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0">
+<div id="ref-spData" class="csl-entry">
+Bivand, Roger, Jakub Nowosad, and Robin Lovelace. 2024. <span>“spData: Datasets for Spatial Analysis.”</span> <a href="https://CRAN.R-project.org/package=spData">https://CRAN.R-project.org/package=spData</a>.
+</div>
+</div></section></div> ]]></description>
+  <guid>https://aditya-dahiya.github.io/visage/index.html/geocomputation/ggmap_rasters.html</guid>
+  <pubDate>Tue, 15 Oct 2024 18:30:00 GMT</pubDate>
+</item>
 <item>
   <title>Starting Document</title>
   <dc:creator>Aditya Dahiya</dc:creator>

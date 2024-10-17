@@ -1,0 +1,256 @@
+---
+title: "Creating Maps in R with ggplot2 having background Raster Images using ggmap"
+subtitle: "Learning how to create maps in R using the {ggmap} package, integrating custom raster base maps with {ggplot2} for geospatial data visualization. This page covers the setup, API authentication, and plotting functions to map data effectively."
+date: "2024-10-16"
+author: "Aditya Dahiya"
+bibliography: references.bib
+format:
+  html:
+    code-fold: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: false
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/geocomputation/ggmap_rasters.html"
+  description: "Creating Maps in R with ggplot2 having background Raster Images using ggmap"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+On this page, we’ll explore how to create visually appealing maps in R using the `ggmap` package [@ggmap], a popular extension of `ggplot2` designed for easy integration of raster map tiles from online mapping services. Let us see how to set up the required tools and generate maps with custom base layers, using both `ggmap` and functions like `get_stadiamap()`.
+
+`ggmap` is an extension of the `ggplot2` package that enables users to overlay data on geographic maps. It retrieves raster map tiles from sources such as [Google Maps](https://developers.google.com/maps), [Stamen Maps](https://maps.stamen.com/), and [Stadia Maps](https://stadiamaps.com/), making it easier to create maps and integrate geospatial data visualization with familiar `ggplot2` workflows.
+
+```{r}
+#| label: setup
+#| eval: true
+
+library(tidyverse)
+library(ggmap)
+library(sf)
+
+sysfonts::font_add_google("Saira Condensed", "caption_font")
+sysfonts::font_add_google("Saira", "body_font")
+showtext::showtext_auto()
+```
+
+**About the Sample Dataset:** The `lnd` dataset, part of the `spData` package [@spData] in R, contains polygons representing the large administrative boroughs of London. This dataset includes attributes such as the borough name (`NAME`), official code (`GSS_CODE`), land area in hectares (`HECTARES`), and geometry data in the `sfc_MULTIPOLYGON` format. You can explore the dataset's source [here](https://github.com/Robinlovelace/Creating-maps-in-R).
+
+```{r}
+#| label: fig-1
+#| eval: true
+#| fig-cap: "A basic map of the boroughs of London drawn with geom_sf() and data from {spData} plotted using {ggplot2} and geom_sf()"
+
+# Data on The boroughs of London
+spData::lnd |> 
+  ggplot(
+    aes(
+      fill = NAME,
+      label = NAME,
+      size = HECTARES
+    )
+  ) +
+  geom_sf(
+    alpha = 0.75
+  ) +
+  geom_sf_text(
+    check_overlap = TRUE,
+    family = "caption_font"
+  ) +
+  coord_sf() +
+  theme_grey() +
+  theme(
+    legend.position = "none"
+  )
+```
+
+## Getting Started with `ggmap`
+
+Before creating maps, you’ll need to install the [`ggmap` package](https://github.com/dkahle/ggmap), which is available through CRAN.
+
+``` r
+install.packages("ggmap")
+```
+
+To ensure that you can access map tiles from Stadia Maps, you will need an API key. This key allows you to authenticate and use their map services within your R scripts.
+
+Setting Up API Key Authentication: To access Stadia Maps, follow these steps:
+
+1.  [Sign up](https://client.stadiamaps.com/signup/) for a free Stadia Maps account and generate an API key.
+2.  Save the API key securely in your environment using the `register_stadiamaps()` function.
+
+``` r
+register_stadiamaps("YOUR-API-KEY-HERE", write = TRUE)
+```
+
+By saving the key in your `.Renviron` file, you ensure it will automatically load in new R sessions, avoiding the need to hard code it into your script.
+
+## Retrieving a Base-map with `get_stadiamap()`
+
+Once your API key is set, you can start generating maps using functions such as `get_stadiamap()` etc. This function allows you to fetch base maps by specifying the bounding box coordinates of your area of interest. The function will return a `ggmap` object that you can further customize using `ggplot2` syntax.
+
+## Exploring various `ggmap` Functions
+
+### **Base functions: `get_stadiamap()` & `ggmap()`**
+
+Fetches map tiles from Stadia Maps and [Stamen Design](https://stadiamaps.com/stamen), after choosing the design from [**Map Style Library**](https://docs.stadiamaps.com/themes/), for a specified bounding box or region and zoom level, and displays them using `ggmap()`. The various map styles available under the `get_stadiamap(maptype = "your-map-type-here")` argument are: —
+
+| **Map Type**                | **Description**                                                                                          |
+|------------------|------------------------------------------------------|
+| `stamen_terrain`            | A detailed terrain map highlighting elevation and natural features like hills and rivers.                |
+| `stamen_toner`              | A bold, high-contrast map design with stark black-and-white features, ideal for print or urban areas.    |
+| `stamen_toner_lite`         | A lighter version of the toner map, providing clearer backgrounds with less emphasis on contrast.        |
+| `stamen_watercolor`         | A unique, artistic map style that looks like a watercolor painting, perfect for creative visualizations. |
+| `stamen_terrain_background` | A terrain map focusing only on the background without labels, useful for overlaying custom data.         |
+| `stamen_toner_background`   | A simplified toner map background without labels, ideal for adding data layers on top.                   |
+| `stamen_terrain_lines`      | Terrain map with added contour lines to emphasize elevation changes.                                     |
+| `stamen_terrain_labels`     | Terrain map that includes place labels, enhancing context for geographic features.                       |
+| `stamen_toner_lines`        | Toner map with a focus on roads and paths, outlined clearly against the background.                      |
+| `stamen_toner_labels`       | A toner map style with added labels for places, roads, and other key features.                           |
+
+**Note:** It is very important is to add the `inherit.aes = FALSE` argument in `geom_sf()` if overlaying `sf` objects on the the {ggmap} raster tiles.
+
+The R code below demonstrates how to overlay spatial geometries from `sf` objects onto raster base maps using `ggmap` and `geom_sf()`. The `get_stadiamap()` function from **Stadia Maps** is used to fetch raster tiles (specifically with the `stamen_toner_lines` style) for the London area, which are then transformed into EPSG:3857 (Web Mercator) using a custom function `ggmap_bbox()` (credits: [andyteuchner](https://stackoverflow.com/users/1736291/andyteucher) on [stackoverflow post](https://stackoverflow.com/questions/47749078/how-to-put-a-geom-sf-produced-map-on-top-of-a-ggmap-produced-raster)) to ensure the map tiles align correctly with the CRS of the spatial data. The London Boroughs dataset (`spData::lnd`) is similarly projected to EPSG:3857, and the boroughs are visualized with semi-transparent polygons and labeled with their names using `geom_sf()` and `geom_sf_text()`. This approach ensures the raster background and vector geometries are properly aligned.
+
+```{r}
+#| label: overlap-ggmap-geom_sf
+#| fig-cap: "Overlapping a geom_sf() object over and above ggmap raster tiles obtained from Stadia Maps"
+
+# Obtain the bounding box of London Boroughs
+london_bbox <- sf::st_bbox(spData::lnd)
+
+# A bounding box in the format c(lowerleftlon, lowerleftlat, upperrightlon, upperrightlat)
+london_bbox <- c(
+  left = london_bbox$xmin,
+  right = london_bbox$xmax,
+  bottom = london_bbox$ymin,
+  top = london_bbox$ymax
+)
+names(london_bbox) <- c("left", "right", "bottom", "top")
+
+
+# Getting the map tiles
+london_base1 <- get_stadiamap(
+  bbox = london_bbox,
+  zoom = 10,
+  maptype = "stamen_toner_lines"
+)
+
+st_crs(london_base1)
+# As we can see the raster images have no CRS system
+# Empirically we know that the coordinate refence system is 3857
+
+# Getting London Boroughs Data
+df <- spData::lnd |>
+  st_transform(crs = st_crs(3857))
+
+
+# Starting the process of Overlaying the geom_sf() data on this
+# Most important is to add the inherit.aes = FALSE argument.
+
+# Step: 1: 
+# Credits: https://stackoverflow.com/questions/47749078/how-to-put-a-geom-sf-produced-map-on-top-of-a-ggmap-produced-raster by andyteucher on StackOverFlow (https://stackoverflow.com/users/1736291/andyteucher)
+
+# Define a function to fix the bbox to be in CRS EPSG:3857
+ggmap_bbox <- function(map) {
+  # Extract the bounding box (in lat/lon) from the ggmap
+  # to a numeric vector, and set the names to what
+  # sf::st_bbox expects:
+  map_bbox <- setNames(
+    unlist(attr(map, "bb")),
+    c("ymin", "xmin", "ymax", "xmax")
+  )
+
+  # Coonvert the bbox to an sf polygon, transform it to 3857,
+  # and convert back to a bbox (convoluted, but it works)
+  bbox_3857 <- st_bbox(
+    st_transform(
+      st_as_sfc(
+        st_bbox(map_bbox, crs = 4326)
+        ), 
+      3857
+    )
+  )
+
+  # Overwrite the bbox of the ggmap object with the transformed coordinates
+  attr(map, "bb")$ll.lat <- bbox_3857["ymin"]
+  attr(map, "bb")$ll.lon <- bbox_3857["xmin"]
+  attr(map, "bb")$ur.lat <- bbox_3857["ymax"]
+  attr(map, "bb")$ur.lon <- bbox_3857["xmax"]
+  map
+}
+
+# Use the function to convert our downloaded Raster Files into 
+# the new CRS and new bounding box CRS
+london_base2 <- ggmap_bbox(london_base1)
+
+# Plotting the actual map
+
+# Starting with base map tiles
+g <- ggmap(london_base2) +
+  
+  # Plotting the actual sf object data on london boroughs
+  geom_sf(
+    data = df,
+    aes(fill = NAME),
+    inherit.aes = FALSE,
+    alpha = 0.5,
+    colour = alpha("white", 0.5)
+  ) +
+  
+  # Plotting names of London Boroughs on top of the geom_sf
+  geom_sf_text(
+    data = df,
+    aes(label = NAME),
+    inherit.aes = FALSE,
+    family = "caption_font",
+    fontface = "bold",
+    check_overlap = TRUE
+  ) +
+  
+  # Forcing the ggplot2 map to be in CRS: 3857
+  coord_sf(
+    crs = st_crs(3857)
+  ) +
+  
+  # Some theme elements
+  ggthemes::theme_map() +
+  theme(
+    legend.position = "none"
+  )
+
+ggsave(
+  filename = here::here("geocomputation", 
+                        "ggmap_rasters", 
+                        "fig_2.png"),
+  plot = g
+)
+  
+
+```
+
+!["Overlapping a geom_sf() object over and above ggmap raster tiles obtained from Stadia Maps"](ggmap_rasters/fig_2.png){#fig-2}
+
+### 
+
+**`qmplot()`**: Similar to `qplot()`, but automatically adds a background map. It simplifies mapping by automatically computing the bounding box.
+
+### **Work-in-Progress: Other `ggmap()` functions**
+
+1.  **`make_bbox()`**: Computes a bounding box for a dataset based on latitude and longitude columns.
+2.  **`geom_hdr()` and `geom_labeldensity2d()`**: Useful for plotting density and contour maps on top of ggmap layers, commonly used for visualizing spatial data like crime maps.
+3.  **`get_googlemap()`**: Retrieves maps from Google Maps by specifying a location and zoom level. Different map types are supported (e.g., satellite, terrain, hybrid).
+4.  **`geocode()` and `revgeocode()`**: Provides geocoding and reverse geocoding services using Google Maps API to convert addresses to coordinates and vice versa.
+5.  **`mutate_geocode()`**: Works like `mutate()` in dplyr, adding latitude and longitude columns to a data frame based on an address.
+6.  **`trek()` and `route()`**: Calculates routes between locations using Google's routing API, which can be plotted as paths on a map using `geom_path()`.
+7.  **`mapdist()`**: Computes distances and travel times between multiple locations. It's vectorized for multiple origin-destination pairs.
+8.  **`register_google()`**: Registers a Google Maps API key for use with the ggmap package, allowing access to various Google Maps services. The key can be saved for future sessions.
