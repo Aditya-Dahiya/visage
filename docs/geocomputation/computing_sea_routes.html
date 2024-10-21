@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.555">
+<meta name="generator" content="quarto-1.4.549">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -105,19 +105,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <script src="../site_libs/core-js-2.5.3/shim.min.js"></script>
-
 <script src="../site_libs/react-18.2.0/react.min.js"></script>
-
 <script src="../site_libs/react-18.2.0/react-dom.min.js"></script>
-
 <script src="../site_libs/reactwidget-2.0.0/react-tools.umd.cjs"></script>
-
 <script src="../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
-
 <link href="../site_libs/reactable-0.4.4/reactable.css" rel="stylesheet">
-
 <script src="../site_libs/reactable-binding-0.4.4/reactable.js"></script>
-
 
 
 <link rel="stylesheet" href="../styles.css">
@@ -165,7 +158,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a href="../index.xml" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-rss"></i></a>
     <div class="dropdown">
       <a href="" title="" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" aria-label=""><i class="bi bi-github"></i></a>
-      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="quarto-navigation-tool-dropdown-0">
           <li>
             <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/Aditya-Dahiya/visage">
             Source Code
@@ -199,7 +192,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#method-1-using-geosphere-and-sf" id="toc-method-1-using-geosphere-and-sf" class="nav-link active" data-scroll-target="#method-1-using-geosphere-and-sf">Method 1: Using {geosphere} and {sf}</a>
   <ul class="collapse">
   <li><a href="#step-1-loading-libraries-getting-the-data-and-cleaning-it" id="toc-step-1-loading-libraries-getting-the-data-and-cleaning-it" class="nav-link" data-scroll-target="#step-1-loading-libraries-getting-the-data-and-cleaning-it">Step 1: Loading libraries, getting the data and cleaning it</a></li>
-  <li><a href="#step-2-clean-the-data-make-it-in-sf-format" id="toc-step-2-clean-the-data-make-it-in-sf-format" class="nav-link" data-scroll-target="#step-2-clean-the-data-make-it-in-sf-format">Step 2: Clean the data, make it in {sf} format</a></li>
+  <li><a href="#step-2-clean-the-data-make-it-in-sf-format" id="toc-step-2-clean-the-data-make-it-in-sf-format" class="nav-link" data-scroll-target="#step-2-clean-the-data-make-it-in-sf-format">Step 2: Clean the data, make it in {<code>sf</code>} format</a></li>
   <li><a href="#step-3-computing-routes-using-geospheregcintermediate" id="toc-step-3-computing-routes-using-geospheregcintermediate" class="nav-link" data-scroll-target="#step-3-computing-routes-using-geospheregcintermediate">Step 3: Computing routes using <code>geosphere::gcIntermediate()</code></a></li>
   <li><a href="#step-4-getting-background-maps-for-the-salish-sea-area-usa-and-canada" id="toc-step-4-getting-background-maps-for-the-salish-sea-area-usa-and-canada" class="nav-link" data-scroll-target="#step-4-getting-background-maps-for-the-salish-sea-area-usa-and-canada">Step 4: Getting background maps for the Salish Sea area: USA and Canada</a></li>
   <li><a href="#step-5-computing-and-removing-routes-intersecting-with-land-i.e.-erroneous-data" id="toc-step-5-computing-and-removing-routes-intersecting-with-land-i.e.-erroneous-data" class="nav-link" data-scroll-target="#step-5-computing-and-removing-routes-intersecting-with-land-i.e.-erroneous-data">Step 5: Computing and Removing routes intersecting with land (i.e., erroneous data)</a></li>
@@ -761,7 +754,7 @@ Table&nbsp;1: List of packages used during this analysis and their versions
 </div>
 </section>
 <section id="step-2-clean-the-data-make-it-in-sf-format" class="level3">
-<h3 class="anchored" data-anchor-id="step-2-clean-the-data-make-it-in-sf-format">Step 2: Clean the data, make it in {sf} format</h3>
+<h3 class="anchored" data-anchor-id="step-2-clean-the-data-make-it-in-sf-format">Step 2: Clean the data, make it in {<code>sf</code>} format</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -2037,15 +2030,16 @@ Figure&nbsp;4: This map visualizes the movements of Southern Resident killer wha
 <span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(package, </span>
 <span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>         <span class="at">version =</span> loadedversion, </span>
 <span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>         date, source) <span class="sc">|&gt;</span> </span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(package) <span class="sc">|&gt;</span> </span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>(</span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">case =</span> <span class="st">"title"</span></span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">opt_interactive</span>(</span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">use_search =</span> <span class="cn">TRUE</span></span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>  gtExtras<span class="sc">::</span><span class="fu">gt_theme_espn</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(package <span class="sc">%in%</span> <span class="fu">.packages</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(package) <span class="sc">|&gt;</span> </span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>(</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">case =</span> <span class="st">"title"</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">opt_interactive</span>(</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">use_search =</span> <span class="cn">TRUE</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>  gtExtras<span class="sc">::</span><span class="fu">gt_theme_espn</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div id="tbl-env" class="cell quarto-float anchored">
 <figure class="quarto-float quarto-float-tbl figure">
@@ -2054,24 +2048,24 @@ Table&nbsp;4: List of packages used during this analysis and their versions
 </figcaption>
 <div aria-describedby="tbl-env-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="cadjdopngo" class=".gt_table" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="bbmvhnxaba" class=".gt_table" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#cadjdopngo table {
+#bbmvhnxaba table {
   font-family: Lato, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#cadjdopngo thead, #cadjdopngo tbody, #cadjdopngo tfoot, #cadjdopngo tr, #cadjdopngo td, #cadjdopngo th {
+#bbmvhnxaba thead, #bbmvhnxaba tbody, #bbmvhnxaba tfoot, #bbmvhnxaba tr, #bbmvhnxaba td, #bbmvhnxaba th {
   border-style: none;
 }
 
-#cadjdopngo p {
+#bbmvhnxaba p {
   margin: 0;
   padding: 0;
 }
 
-#cadjdopngo .gt_table {
+#bbmvhnxaba .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2097,12 +2091,12 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   border-left-color: #D3D3D3;
 }
 
-#cadjdopngo .gt_caption {
+#bbmvhnxaba .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#cadjdopngo .gt_title {
+#bbmvhnxaba .gt_title {
   color: #333333;
   font-size: 24px;
   font-weight: initial;
@@ -2114,7 +2108,7 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   border-bottom-width: 0;
 }
 
-#cadjdopngo .gt_subtitle {
+#bbmvhnxaba .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2126,7 +2120,7 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   border-top-width: 0;
 }
 
-#cadjdopngo .gt_heading {
+#bbmvhnxaba .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -2138,13 +2132,13 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   border-right-color: #D3D3D3;
 }
 
-#cadjdopngo .gt_bottom_border {
+#bbmvhnxaba .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#cadjdopngo .gt_col_headings {
+#bbmvhnxaba .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2159,7 +2153,7 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   border-right-color: #D3D3D3;
 }
 
-#cadjdopngo .gt_col_heading {
+#bbmvhnxaba .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 80%;
@@ -2179,7 +2173,7 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   overflow-x: hidden;
 }
 
-#cadjdopngo .gt_column_spanner_outer {
+#bbmvhnxaba .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 80%;
@@ -2191,15 +2185,15 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   padding-right: 4px;
 }
 
-#cadjdopngo .gt_column_spanner_outer:first-child {
+#bbmvhnxaba .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#cadjdopngo .gt_column_spanner_outer:last-child {
+#bbmvhnxaba .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#cadjdopngo .gt_column_spanner {
+#bbmvhnxaba .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2211,11 +2205,11 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   width: 100%;
 }
 
-#cadjdopngo .gt_spanner_row {
+#bbmvhnxaba .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#cadjdopngo .gt_group_heading {
+#bbmvhnxaba .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2241,7 +2235,7 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   text-align: left;
 }
 
-#cadjdopngo .gt_empty_group_heading {
+#bbmvhnxaba .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2256,15 +2250,15 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   vertical-align: middle;
 }
 
-#cadjdopngo .gt_from_md > :first-child {
+#bbmvhnxaba .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#cadjdopngo .gt_from_md > :last-child {
+#bbmvhnxaba .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#cadjdopngo .gt_row {
+#bbmvhnxaba .gt_row {
   padding-top: 7px;
   padding-bottom: 7px;
   padding-left: 5px;
@@ -2283,7 +2277,7 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   overflow-x: hidden;
 }
 
-#cadjdopngo .gt_stub {
+#bbmvhnxaba .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 80%;
@@ -2296,7 +2290,7 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   padding-right: 5px;
 }
 
-#cadjdopngo .gt_stub_row_group {
+#bbmvhnxaba .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2310,15 +2304,15 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   vertical-align: top;
 }
 
-#cadjdopngo .gt_row_group_first td {
+#bbmvhnxaba .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#cadjdopngo .gt_row_group_first th {
+#bbmvhnxaba .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#cadjdopngo .gt_summary_row {
+#bbmvhnxaba .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2328,16 +2322,16 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   padding-right: 5px;
 }
 
-#cadjdopngo .gt_first_summary_row {
+#bbmvhnxaba .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#cadjdopngo .gt_first_summary_row.thick {
+#bbmvhnxaba .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#cadjdopngo .gt_last_summary_row {
+#bbmvhnxaba .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2347,7 +2341,7 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   border-bottom-color: #D3D3D3;
 }
 
-#cadjdopngo .gt_grand_summary_row {
+#bbmvhnxaba .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2357,7 +2351,7 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   padding-right: 5px;
 }
 
-#cadjdopngo .gt_first_grand_summary_row {
+#bbmvhnxaba .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2367,7 +2361,7 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   border-top-color: #D3D3D3;
 }
 
-#cadjdopngo .gt_last_grand_summary_row_top {
+#bbmvhnxaba .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2377,11 +2371,11 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   border-bottom-color: #D3D3D3;
 }
 
-#cadjdopngo .gt_striped {
+#bbmvhnxaba .gt_striped {
   background-color: #FAFAFA;
 }
 
-#cadjdopngo .gt_table_body {
+#bbmvhnxaba .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2390,7 +2384,7 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   border-bottom-color: #D3D3D3;
 }
 
-#cadjdopngo .gt_footnotes {
+#bbmvhnxaba .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2404,7 +2398,7 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   border-right-color: #D3D3D3;
 }
 
-#cadjdopngo .gt_footnote {
+#bbmvhnxaba .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2413,7 +2407,7 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   padding-right: 5px;
 }
 
-#cadjdopngo .gt_sourcenotes {
+#bbmvhnxaba .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2427,7 +2421,7 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   border-right-color: #D3D3D3;
 }
 
-#cadjdopngo .gt_sourcenote {
+#bbmvhnxaba .gt_sourcenote {
   font-size: 12px;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2435,77 +2429,77 @@ Table&nbsp;4: List of packages used during this analysis and their versions
   padding-right: 5px;
 }
 
-#cadjdopngo .gt_left {
+#bbmvhnxaba .gt_left {
   text-align: left;
 }
 
-#cadjdopngo .gt_center {
+#bbmvhnxaba .gt_center {
   text-align: center;
 }
 
-#cadjdopngo .gt_right {
+#bbmvhnxaba .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#cadjdopngo .gt_font_normal {
+#bbmvhnxaba .gt_font_normal {
   font-weight: normal;
 }
 
-#cadjdopngo .gt_font_bold {
+#bbmvhnxaba .gt_font_bold {
   font-weight: bold;
 }
 
-#cadjdopngo .gt_font_italic {
+#bbmvhnxaba .gt_font_italic {
   font-style: italic;
 }
 
-#cadjdopngo .gt_super {
+#bbmvhnxaba .gt_super {
   font-size: 65%;
 }
 
-#cadjdopngo .gt_footnote_marks {
+#bbmvhnxaba .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#cadjdopngo .gt_asterisk {
+#bbmvhnxaba .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#cadjdopngo .gt_indent_1 {
+#bbmvhnxaba .gt_indent_1 {
   text-indent: 5px;
 }
 
-#cadjdopngo .gt_indent_2 {
+#bbmvhnxaba .gt_indent_2 {
   text-indent: 10px;
 }
 
-#cadjdopngo .gt_indent_3 {
+#bbmvhnxaba .gt_indent_3 {
   text-indent: 15px;
 }
 
-#cadjdopngo .gt_indent_4 {
+#bbmvhnxaba .gt_indent_4 {
   text-indent: 20px;
 }
 
-#cadjdopngo .gt_indent_5 {
+#bbmvhnxaba .gt_indent_5 {
   text-indent: 25px;
 }
 
-#cadjdopngo .katex-display {
+#bbmvhnxaba .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#cadjdopngo div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#bbmvhnxaba div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<div id="cadjdopngo" class="reactable html-widget" style="width:auto;height:auto;"></div>
-<script type="application/json" data-for="cadjdopngo">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"Package":["DBI","KernSmooth","Matrix","R6","Rcpp","V8","bit","bit64","cachem","class","classInt","cli","codetools","colorspace","countrycode","crayon","crul","curl","digest","dplyr","e1071","evaluate","fansi","fastmap","fontawesome","forcats","gdistance","generics","ggplot2","glue","gt","gtExtras","gtable","hms","htmltools","htmlwidgets","httpcode","igraph","janitor","jsonlite","knitr","lattice","lifecycle","lubridate","magrittr","memoise","munsell","paletteer","pillar","pkgconfig","proxy","purrr","raster","readr","rematch2","rgeoboundaries","rlang","rmapshaper","rmarkdown","rstudioapi","scales","sessioninfo","sf","showtext","showtextdb","snakecase","sp","stringi","stringr","sysfonts","terra","tibble","tidyr","tidyselect","tidyterra","tidyverse","timechange","tzdb","units","utf8","vctrs","vroom","withr","xfun","xml2","yaml"],"Version":["1.2.3","2.23-21","1.6-2","2.5.1","1.0.13","5.0.1","4.0.5","4.0.5","1.1.0","7.3-22","0.4-10","3.6.3","0.2-19","2.1-1","1.6.0","1.5.3","1.4.2","5.2.1","0.6.35","1.1.4","1.7-16","1.0.0","1.0.6","1.2.0","0.5.2","1.0.0","1.6.4","0.1.3","3.5.1","1.8.0","0.11.0","0.5.0","0.3.5","1.1.3","0.5.8.1","1.6.4","0.3.0","2.0.3","2.2.0","1.8.8","1.48","0.21-8","1.0.4","1.9.3","2.0.3","2.0.1","0.5.1","1.6.0","1.9.0","2.0.3","0.4-27","1.0.2","3.6-30","2.1.5","2.1.2","1.3","1.1.4","0.5.0","2.28","0.16.0","1.3.0","1.2.2","1.0-17","0.9-7","3.0","0.11.1","2.1-4","1.8.4","1.5.1","0.8.9","1.7-78","3.2.1","1.3.1","1.2.1","0.6.1","2.0.0","0.3.0","0.4.0","0.8-5","1.2.4","0.6.5","1.6.5","3.0.1","0.48","1.3.6","2.3.10"],"Date":["2024-06-02","2023-05-03","2023-11-08","2021-08-19","2024-07-17","2024-09-20","2022-11-15","2020-08-30","2024-05-16","2023-05-03","2023-09-05","2024-06-21","2023-02-01","2024-07-26","2024-03-22","2024-06-20","2024-04-09","2024-03-01","2024-03-11","2023-11-17","2024-09-16","2024-09-17","2023-12-08","2024-05-15","2023-08-19","2023-01-29","2023-06-19","2022-07-05","2024-04-23","2024-09-30","2024-07-09","2023-09-15","2024-04-22","2023-03-21","2024-04-04","2023-12-06","2020-04-10","2024-03-13","2023-02-02","2023-12-04","2024-07-07","2023-04-05","2023-11-07","2023-09-27","2022-03-30","2021-11-26","2024-04-01","2024-01-21","2023-03-22","2019-09-22","2022-06-09","2023-08-10","2024-10-02","2024-01-10","2020-05-01","2024-03-12","2024-06-04","2023-04-11","2024-08-17","2024-03-24","2023-11-28","2021-12-06","2024-09-06","2024-03-02","2020-06-04","2023-08-27","2024-04-30","2024-05-06","2023-11-14","2024-03-02","2024-05-22","2023-03-20","2024-01-24","2024-03-11","2024-06-08","2023-02-22","2024-01-18","2023-05-12","2023-11-28","2023-10-22","2023-12-01","2023-12-05","2024-07-31","2024-10-03","2023-12-04","2024-07-26"],"Source":["CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.2)","CRAN (R 4.3.1)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.1)","CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.1)","CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.1)","CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.2)","CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.2)","CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.1)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.1)","CRAN (R 4.3.1)","CRAN (R 4.3.1)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.2)","CRAN (R 4.3.1)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.1)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.2)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)"]},"columns":[{"id":"Package","name":"Package","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"Version","name":"Version","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right","headerStyle":{"font-weight":"normal"}},{"id":"Date","name":"Date","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right","headerStyle":{"font-weight":"normal"}},{"id":"Source","name":"Source","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}}],"searchable":true,"defaultPageSize":10,"showPageSizeOptions":false,"pageSizeOptions":[10,25,50,100],"paginationType":"numbers","showPagination":true,"showPageInfo":true,"minRows":1,"striped":true,"height":"auto","theme":{"color":"#333333","backgroundColor":"#FFFFFF","stripedColor":"#fafafa","style":{"fontFamily":"Lato, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"},"tableStyle":{"borderTopStyle":"solid","borderTopWidth":"2px","borderTopColor":"#D3D3D3"},"headerStyle":{"borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"#D3D3D3"}},"elementId":"cadjdopngo","dataKey":"ea818015fd8c7162a67df43dd8d1ad93"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.style","tag.attribs.columns.1.style","tag.attribs.columns.2.style","tag.attribs.columns.3.style"],"jsHooks":[]}</script>
+<div id="bbmvhnxaba" class="reactable html-widget" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="bbmvhnxaba">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"Package":["Matrix","dplyr","forcats","gdistance","geosphere","ggplot2","igraph","lubridate","purrr","raster","readr","rgeoboundaries","rmapshaper","sf","showtext","showtextdb","sp","stringr","sysfonts","terra","tibble","tidyr","tidyterra","tidyverse"],"Version":["1.6-2","1.1.4","1.0.0","1.6.4","1.5-18","3.5.1","2.0.3","1.9.3","1.0.2","3.6-30","2.1.5","1.3","0.5.0","1.0-17","0.9-7","3.0","2.1-4","1.5.1","0.8.9","1.7-78","3.2.1","1.3.1","0.6.1","2.0.0"],"Date":["2023-11-08","2023-11-17","2023-01-29","2023-06-19","2022-11-15","2024-04-23","2024-03-13","2023-09-27","2023-08-10","2024-10-02","2024-01-10","2024-03-12","2023-04-11","2024-09-06","2024-03-02","2020-06-04","2024-04-30","2023-11-14","2024-03-02","2024-05-22","2023-03-20","2024-01-24","2024-06-08","2023-02-22"],"Source":["CRAN (R 4.3.2)","CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.1)","CRAN (R 4.3.3)","CRAN (R 4.3.3)","CRAN (R 4.3.3)"]},"columns":[{"id":"Package","name":"Package","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"Version","name":"Version","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right","headerStyle":{"font-weight":"normal"}},{"id":"Date","name":"Date","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right","headerStyle":{"font-weight":"normal"}},{"id":"Source","name":"Source","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}}],"searchable":true,"defaultPageSize":10,"showPageSizeOptions":false,"pageSizeOptions":[10,25,50,100],"paginationType":"numbers","showPagination":true,"showPageInfo":true,"minRows":1,"striped":true,"height":"auto","theme":{"color":"#333333","backgroundColor":"#FFFFFF","stripedColor":"#fafafa","style":{"fontFamily":"Lato, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"},"tableStyle":{"borderTopStyle":"solid","borderTopWidth":"2px","borderTopColor":"#D3D3D3"},"headerStyle":{"borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"#D3D3D3"}},"elementId":"bbmvhnxaba","dataKey":"b38d40423bb8d371820ba30963fd902a"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.style","tag.attribs.columns.1.style","tag.attribs.columns.2.style","tag.attribs.columns.3.style"],"jsHooks":[]}</script>
 </div>
 </div>
 </div>
@@ -3803,7 +3797,7 @@ Figure&nbsp;8: The shortest paths computed using {gdistance} show us that many o
 }
 </style>
 
-<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <thead>
 <tr class="header gt_col_headings">
 <th id="id" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">id</th>
@@ -3960,8 +3954,6 @@ Figure&nbsp;9: The final map with routes shown that don’t intersect land. The 
 </div>
 </div>
 </div>
-<hr>
-<p>Another Method: geoc</p>
 
 
 </section>
@@ -4047,24 +4039,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
-    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-    var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp("https:\/\/aditya-dahiya\.github\.io\/visage\/index\.html");
-    var isInternal = (href) => {
-        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
-    }
-    // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
-    for (var i=0; i<links.length; i++) {
-      const link = links[i];
-      if (!isInternal(link.href)) {
-        // undo the damage that might have been done by quarto-nav.js in the case of
-        // links that we want to consider external
-        if (link.dataset.originalHref !== undefined) {
-          link.href = link.dataset.originalHref;
-        }
-      }
-    }
   function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
@@ -4099,11 +4073,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      if (note) {
-        return note.innerHTML;
-      } else {
-        return "";
-      }
+      return note.innerHTML;
     });
   }
   const xrefs = window.document.querySelectorAll('a.quarto-xref');

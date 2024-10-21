@@ -74,7 +74,7 @@ sessioninfo::session_info()$packages |>
   gtExtras::gt_theme_espn()
 ```
 
-### Step 2: Clean the data, make it in {sf} format
+### Step 2: Clean the data, make it in {`sf`} format
 
 ```{r}
 #| label: tbl-clean-data1
@@ -395,6 +395,7 @@ sessioninfo::session_info()$packages |>
   dplyr::select(package, 
          version = loadedversion, 
          date, source) |> 
+  filter(package %in% .packages()) |> 
   arrange(package) |> 
   janitor::clean_names(
     case = "title"
@@ -730,7 +731,3 @@ ggplot() +
     panel.background = element_rect(fill = sea, color = NA)
   )
 ```
-
-------------------------------------------------------------------------
-
-Another Method: geoc
