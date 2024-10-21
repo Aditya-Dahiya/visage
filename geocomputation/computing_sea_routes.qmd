@@ -35,9 +35,242 @@ Here's my #TidyTuesday Visualization for this project in @fig-tidytuesday, and t
 
 ------------------------------------------------------------------------
 
-**The following code for computing sea routes is inspired from [Code](https://raw.githubusercontent.com/BjnNowak/TidyTuesday/refs/heads/main/orcas.R) by [Benjamin Nowak](https://twitter.com/BjnNowak) hosted on [GitHub](https://github.com/BjnNowak) as a part of [*#TidyTuesday*](https://github.com/rfordatascience/tidytuesday/tree/master) visualizations.**
+# Method 1: Using {geosphere} and {sf}
+
+### Step 1: Loading libraries, getting the data and cleaning it
+
+```{r}
+#| label: tbl-env1
+#| tbl-cap: "List of packages used during this analysis and their versions"
+
+# Loading the Libraries
+library(tidyverse)       # Data wrangling
+library(sf)              # SF objects
+library(showtext)        # Using google fonts in R
+library(geosphere)       # Spherical trigonometry for geography
+
+# Set fonts for including in all graphics
+font_add_google("Saira Semi Condensed", "body_font")
+font_add_google("Saira Extra Condensed","caption_font")
+showtext_auto()
+
+# Load orcas data
+orcas <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-10-15/orcas.csv')
+
+sessioninfo::session_info()$packages |> 
+  as_tibble() |> 
+  dplyr::select(package, 
+         version = loadedversion, 
+         date, source) |>
+  filter(package %in% .packages()) |> 
+  arrange(package) |> 
+  janitor::clean_names(
+    case = "title"
+  ) |> 
+  gt::gt() |> 
+  gt::opt_interactive(
+    use_search = TRUE
+  ) |> 
+  gtExtras::gt_theme_espn()
+```
+
+Step 2: Clean the data, make it in {sf} format
+
+```{r}
+#| label: tbl-clean-data1
+#| tbl-cap: "A table of clean data that shows id, year, duration and starting and ending coordinates of each Killer Whale encounter as an {sf} class column"
+
+# A cleaner tibble to use for our visualization
+df_sf <- orcas |> 
+  as_tibble() |>
+  dplyr::select(year, duration, 
+         begin_latitude, begin_longitude,
+         end_latitude, end_longitude) |> 
+
+  # Convert the duration of encounter into seconds
+  mutate(
+    # remove parenthesis content from duration
+    duration = str_remove(duration, "\\s*\\(.*\\)"),
+    
+    # remove the "s" for seconds
+    duration = str_extract(duration, "-?\\d+"),
+    
+    # convert the duration into number
+    duration = as.numeric(duration)
+  ) |> 
+  
+  # Remove aberrant observation with durations less than zero
+  filter(duration >= 0) |> 
+  
+  # Remove observations with missingness
+  drop_na() |> 
+  
+  # Allot an ID number to each finally selected observation
+  mutate(id = row_number()) |> 
+  dplyr::relocate(id, .before = everything())
+
+########################################################
+# Get a bounding box on the coordinates of encounters
+bbox_orcas <- bind_rows(
+  
+  # Geometry column of starting coordiantes
+    sf::st_as_sf(
+      df1 |> select(begin_latitude, begin_longitude),
+      coords = c("begin_longitude","begin_latitude"),
+      crs = 'EPSG:4326'
+    ) |>
+    mutate(type = "start_coords"),
+    
+
+  # Geometry column of starting coordiantes
+    sf::st_as_sf(
+      df1 |> select(end_latitude, end_longitude),
+      coords = c("end_longitude","end_latitude"),
+      crs = 'EPSG:4326'
+    ) |>
+    mutate(type = "end_coords")
+) |> 
+  st_bbox()
+
+######################################################
+# Display cleaned data
+
+df_sf |> 
+  gt::gt() |> 
+  gt::opt_interactive() |> 
+  gtExtras::gt_theme_espn() |> 
+  gt::fmt_number(
+    columns = -c(year, id),
+    decimals = 2
+  ) |> 
+  gt::tab_header(
+    title = "Cleaned Data on starting and ending coordinates",
+    subtitle = "Recorded Encounters of Orcas (Southern Killer Whales) in the Salish Sea (2017-2024)"
+  )
+```
+
+### Step 3: Computing routes using `geosphere::gcIntermediate()`
+
+```{r}
+
+# Technique Credits: https://github.com/xmc811/flightplot/blob/master/R/main.R
+# Credits: Mingchu Xu
+# https://www.linkedin.com/in/mingchu-xu-467a0946/
+# On Twitter: @xmc811
+
+routes <- geosphere::gcIntermediate(
+  p1 = df_sf |> select(begin_longitude, begin_latitude),
+  p2 = df_sf |> select(end_longitude, end_latitude),
+  n = 100,
+  addStartEnd = TRUE,
+  sp = TRUE) |> 
+  sf::st_as_sf()
+
+# Check whether it works
+# ggplot() +
+#   geom_sf(data = routes)
+```
+
+### Step 4: Getting background maps for the Salish Sea area: USA and Canada
+
+For this, we first convert our `sf` object on Map of USA and Canada, shown in @fig-basemap1-1 into a **`SpatVector`**. In the **{terra}** package in R, a `SpatVector` is the main class used to represent and work with vector data in geographic information system (GIS) contexts. A `SpatVector` can store points, lines, polygons, or any combination of these geometries, along with associated attributes (data linked to these geometries). We can create a `SpatVector` from:
+
+-   Shapefiles (widely used for vector data in GIS)
+
+-   Other vector file formats like GeoJSON, KML, or GPKG.
+
+-   R objects such as data frames or matrices that contain coordinate information.
+
+The reason to create a `SpatVector` is for performing **spatial operations** like buffering, intersecting, or spatial joins.The `terra::vect()` is the method to create these objects from various file formats or other R objects.
+
+Then, we use the `terra::crop()` to **crop** USA and Canada map to a specified geographic extent @fig-basemap1-2 defined by bounding box of the `sf` objects of orcas created in previous step. When applied to a `SpatVector` object (vector data), `terra::crop()` trims the geometries (points, lines, or polygons) so that only the portions within a specified spatial extent remain. Lastly, we re-convert the cropped `SpatVector` back into an `sf` object, shown in @fig-basemap1-3
+
+```{r}
+#| label: fig-basemap1
+#| fig-cap: "Background Map of the Salish Sea Area in 2 steps: (4.1) Getting map of USA and Canada from {rgeoboundaries}, and (4.2) Cropping out the map of Salish Sea area"
+#| fig-subcap: 
+#|   - "Map of entire USA and Canada from {rgeoboundaries}"
+#|   - "Using the terra::crop() from {terra} to focus on Salish Sea area"
+#|   - "The same Salish Sea area plotted as an sf object"
+
+# Extract country borders data
+base_map <- rgeoboundaries::gb_adm0(country = c("USA", "Canada")) %>% 
+  rmapshaper::ms_simplify(0.5)
+
+# checking the size
+# object.size(base_map) |> print(units = "Mb")
+# 4.3 Mb
+
+ggplot(base_map) +
+  geom_sf() +
+  coord_sf(
+    crs = usmap::usmap_crs()
+  )
+
+sea <- terra::crop(terra::vect(base_map), bbox_orcas)
+
+ggplot(sea) +
+  geom_sf()
+
+# Finally, reconvert the Cropped area back into an sf object
+sea_sf <- sea |> 
+  st_as_sf()
+
+ggplot(sea_sf) +
+  geom_sf()
+```
+
+### Step 5: Computing and Removing routes intersecting with land (i.e., erroneous data)
+
+```{r}
+#| label: check-intersection
+
+# Test if path is only sea. Each logical test if for each ID in the 
+# df1 tibble
+test_intersect <- lengths(
+  st_intersects(
+    st_transform(routes, st_crs(base_map)), base_map
+  )
+) > 0
+
+# Compute distance for each 
+dist_encounter <- st_length(routes)
+
+# Create a second tibble of distance & paths for each encounter
+df_routes <- routes |> 
+  st_transform(st_crs(base_map)) |> 
+  bind_cols(id = df_sf$id) |> 
+  bind_cols(whether_intersect_land = test_intersect) |> 
+  bind_cols(dist_encounter = as.numeric(dist_encounter)) |> 
+  left_join(df1 |> dplyr::select(year, id, duration)) |> 
+  mutate(speed = dist_encounter / duration)
+  
+# A vector of IDs whose paths dont intersect land
+ids_to_plot <- df_routes |> 
+  filter(whether_intersect_land == FALSE) |> 
+  pull(id)
+
+df_routes |> 
+  dplyr::relocate(geometry, .after = everything()) |> 
+  gt::gt() |> 
+  # gt::cols_hide(geometry) |> 
+  gt::fmt_number(
+    columns = c(dist_encounter, speed),
+    decimals = 1
+  ) |> 
+  gt::fmt(
+    columns = geometry,
+    fns = function(x) {str_sub(x, 1, 20)}
+  ) |> 
+  gt::opt_interactive() |> 
+  gtExtras::gt_theme_espn()
+```
 
 ------------------------------------------------------------------------
+
+# Method 2: Using raster and `gdistance` package
+
+**The following code for computing sea routes is inspired from [Code](https://raw.githubusercontent.com/BjnNowak/TidyTuesday/refs/heads/main/orcas.R) by [Benjamin Nowak](https://twitter.com/BjnNowak) hosted on [GitHub](https://github.com/BjnNowak) as a part of [*#TidyTuesday*](https://github.com/rfordatascience/tidytuesday/tree/master) visualizations.**
 
 ### Step 1: Getting the data and cleaning it
 
@@ -162,17 +395,7 @@ orcas_sf |>
 
 ### Step 4: Getting background maps for the Salish Sea area: USA and Canada
 
-For this, we first convert our `sf` object on Map of USA and Canada, shown in @fig-basemap-1 into a **`SpatVector`**. In the **{terra}** package in R, a `SpatVector` is the main class used to represent and work with vector data in geographic information system (GIS) contexts. A `SpatVector` can store points, lines, polygons, or any combination of these geometries, along with associated attributes (data linked to these geometries). We can create a `SpatVector` from:
-
--   Shapefiles (widely used for vector data in GIS)
-
--   Other vector file formats like GeoJSON, KML, or GPKG.
-
--   R objects such as data frames or matrices that contain coordinate information.
-
-The reason to create a `SpatVector` is for performing **spatial operations** like buffering, intersecting, or spatial joins.The `terra::vect()` is the method to create these objects from various file formats or other R objects.
-
-Then, we use the `terra::crop()` to **crop** USA and Canada map to a specified geographic extent @fig-basemap-2 defined by bounding box of the `sf` objects of orcas created in previous step. When applied to a `SpatVector` object (vector data), `terra::crop()` trims the geometries (points, lines, or polygons) so that only the portions within a specified spatial extent remain. Lastly, we re-convert the cropped `SpatVector` back into an `sf` object, shown in @fig-basemap-3
+For description of the actions performed, please see Step 4 of the Method 1 above.
 
 ```{r}
 #| label: fig-basemap
