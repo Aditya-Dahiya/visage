@@ -74,7 +74,7 @@ sessioninfo::session_info()$packages |>
   gtExtras::gt_theme_espn()
 ```
 
-Step 2: Clean the data, make it in {sf} format
+### Step 2: Clean the data, make it in {sf} format
 
 ```{r}
 #| label: tbl-clean-data1
@@ -115,7 +115,7 @@ bbox_orcas <- bind_rows(
   
   # Geometry column of starting coordiantes
     sf::st_as_sf(
-      df1 |> select(begin_latitude, begin_longitude),
+      df_sf |> dplyr::select(begin_latitude, begin_longitude),
       coords = c("begin_longitude","begin_latitude"),
       crs = 'EPSG:4326'
     ) |>
@@ -124,7 +124,7 @@ bbox_orcas <- bind_rows(
 
   # Geometry column of starting coordiantes
     sf::st_as_sf(
-      df1 |> select(end_latitude, end_longitude),
+      df_sf |> dplyr::select(end_latitude, end_longitude),
       coords = c("end_longitude","end_latitude"),
       crs = 'EPSG:4326'
     ) |>
@@ -152,23 +152,24 @@ df_sf |>
 ### Step 3: Computing routes using `geosphere::gcIntermediate()`
 
 ```{r}
-
+#| label: fig-routes12
+#| fig-cap: "The routes computed by the {geosphere} package's gcIntermediate() function"
 # Technique Credits: https://github.com/xmc811/flightplot/blob/master/R/main.R
 # Credits: Mingchu Xu
 # https://www.linkedin.com/in/mingchu-xu-467a0946/
 # On Twitter: @xmc811
 
 routes <- geosphere::gcIntermediate(
-  p1 = df_sf |> select(begin_longitude, begin_latitude),
-  p2 = df_sf |> select(end_longitude, end_latitude),
+  p1 = df_sf |> dplyr::select(begin_longitude, begin_latitude),
+  p2 = df_sf |> dplyr::select(end_longitude, end_latitude),
   n = 100,
   addStartEnd = TRUE,
   sp = TRUE) |> 
   sf::st_as_sf()
 
 # Check whether it works
-# ggplot() +
-#   geom_sf(data = routes)
+ggplot() +
+  geom_sf(data = routes)
 ```
 
 ### Step 4: Getting background maps for the Salish Sea area: USA and Canada
@@ -190,8 +191,7 @@ Then, we use the `terra::crop()` to **crop** USA and Canada map to a specified g
 #| fig-cap: "Background Map of the Salish Sea Area in 2 steps: (4.1) Getting map of USA and Canada from {rgeoboundaries}, and (4.2) Cropping out the map of Salish Sea area"
 #| fig-subcap: 
 #|   - "Map of entire USA and Canada from {rgeoboundaries}"
-#|   - "Using the terra::crop() from {terra} to focus on Salish Sea area"
-#|   - "The same Salish Sea area plotted as an sf object"
+#|   - "Using the terra::crop() from {terra} to focus on Salish Sea area. The Salish Sea area plotted as an sf object"
 
 # Extract country borders data
 base_map <- rgeoboundaries::gb_adm0(country = c("USA", "Canada")) %>% 
@@ -209,9 +209,6 @@ ggplot(base_map) +
 
 sea <- terra::crop(terra::vect(base_map), bbox_orcas)
 
-ggplot(sea) +
-  geom_sf()
-
 # Finally, reconvert the Cropped area back into an sf object
 sea_sf <- sea |> 
   st_as_sf()
@@ -223,7 +220,8 @@ ggplot(sea_sf) +
 ### Step 5: Computing and Removing routes intersecting with land (i.e., erroneous data)
 
 ```{r}
-#| label: check-intersection
+#| label: tbl-check-intersection
+#| tbl-cap: "A table of intersecting and non-intersecting routes"
 
 # Test if path is only sea. Each logical test if for each ID in the 
 # df1 tibble
@@ -242,7 +240,7 @@ df_routes <- routes |>
   bind_cols(id = df_sf$id) |> 
   bind_cols(whether_intersect_land = test_intersect) |> 
   bind_cols(dist_encounter = as.numeric(dist_encounter)) |> 
-  left_join(df1 |> dplyr::select(year, id, duration)) |> 
+  left_join(df_sf |> dplyr::select(year, id, duration)) |> 
   mutate(speed = dist_encounter / duration)
   
 # A vector of IDs whose paths dont intersect land
@@ -265,6 +263,100 @@ df_routes |>
   gt::opt_interactive() |> 
   gtExtras::gt_theme_espn()
 ```
+
+Step 6: Plotting the non-intersecting routes in @fig-final2
+
+```{r}
+#| label: final-plot
+#| eval: false
+
+# ggmap::register_stadiamaps("YOUR-KEY-HERE")
+
+bbox_stadiamap <- c(left = bbox_orcas["xmin"],
+  right = bbox_orcas["xmax"],
+  top = bbox_orcas["ymax"],
+  bottom = bbox_orcas["ymin"])
+names(bbox_stadiamap) <- c("left", "right", "top", "bottom")
+
+# Getting the Stamen Maps for the background tiles as raster
+stamen_tiles_lowres <- ggmap::get_stadiamap(
+   bbox_stadiamap,
+   zoom = 8,
+   maptype = "stamen_terrain"
+)
+
+# Step: 1: 
+# Credits: https://stackoverflow.com/questions/47749078/how-to-put-a-geom-sf-produced-map-on-top-of-a-ggmap-produced-raster by andyteucher on StackOverFlow (https://stackoverflow.com/users/1736291/andyteucher)
+
+# Define a function to fix the bbox to be in CRS EPSG:3857
+ggmap_bbox <- function(map) {
+  # Extract the bounding box (in lat/lon) from the ggmap
+  # to a numeric vector, and set the names to what
+  # sf::st_bbox expects:
+  map_bbox <- setNames(
+    unlist(attr(map, "bb")),
+    c("ymin", "xmin", "ymax", "xmax")
+  )
+
+  # Coonvert the bbox to an sf polygon, transform it to 3857,
+  # and convert back to a bbox (convoluted, but it works)
+  bbox_3857 <- st_bbox(
+    st_transform(
+      st_as_sfc(
+        st_bbox(map_bbox, crs = 4326)
+        ), 
+      3857
+    )
+  )
+
+  # Overwrite the bbox of the ggmap object with the transformed coordinates
+  attr(map, "bb")$ll.lat <- bbox_3857["ymin"]
+  attr(map, "bb")$ll.lon <- bbox_3857["xmin"]
+  attr(map, "bb")$ur.lat <- bbox_3857["ymax"]
+  attr(map, "bb")$ur.lon <- bbox_3857["xmax"]
+  map
+}
+
+# Use the function to convert our downloaded Raster Files into 
+# the new CRS and new bounding box CRS
+stamen_tiles_lowres2 <- ggmap_bbox(stamen_tiles_lowres)
+
+g <- ggmap::ggmap(stamen_tiles_lowres2) +
+  geom_sf(
+    data = df_routes |> 
+            filter(!whether_intersect_land) |> 
+            st_transform(crs = 3857),
+    mapping = aes(
+      geometry = geometry
+    ),
+    color = "grey10",
+    alpha = 0.5,
+    inherit.aes = FALSE,
+    arrow = arrow(
+      angle = 20,
+      length = unit(0.5, "mm")
+    ),
+    linewidth = 0.2
+  ) +
+  coord_sf(
+    expand = F
+  ) +
+  labs(
+    x = "Longitude", y = "Latitude"
+  ) +
+  theme_minimal()
+
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images", "computing_sea_routes_1.png"),
+  width = 900,
+  height = 700,
+  units = "px",
+  bg = "white"
+)
+```
+
+![This map visualizes the movements of Southern Resident killer whales, with arrows marking the starting and ending points of each recorded encounter. The concentration of arrows within a small area highlights the key regions in the Salish Sea where these encounters occur most frequently. Background map images provided by StadiaMaps.](images/computing_sea_routes_1.png){#fig-final2}
 
 ------------------------------------------------------------------------
 
