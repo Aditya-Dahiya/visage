@@ -1,0 +1,165 @@
+---
+title: "3 types of Cartograms in R with {sf} and {cartogram}"
+subtitle: ""
+date: "2024-10-23"
+author: "Aditya Dahiya"
+bibliography: references.bib
+format:
+  html:
+    code-fold: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: false
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/geocomputation/cartogram_types.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+1.  Getting libraries and raw data
+
+```{r}
+#| label: setup
+
+library(tidyverse)         # Data Wrangling and ggplot2
+library(sf)                # Spatial Objects in R
+library(ggrepel)           # Repel Labels in plots
+library(cartogram)         # Drawing different Cartograms
+library(showtext)
+
+cia_data <- openintro::cia_factbook |> 
+  mutate(
+    iso_a3 = countrycode::countrycode(country, "country.name", "iso3c")
+  )
+
+world_map <- rnaturalearth::ne_countries(
+  scale = "small",
+  returnclass = "sf"
+  )
+
+font_add_google("Saira Extra Condensed", "caption_font")
+showtext_auto()
+
+object.size(world_map) |> print(units = "Kb")
+```
+
+2.  Converting the data into a usable form - a clean tibble
+
+```{r}
+#| label: tbl-data1
+#| tbl-cap: ""
+
+world_map <- world_map |> 
+  select(name, geometry, pop_est, iso_a3) |> 
+  group_by(name) |> 
+  slice_max(order_by = pop_est, n = 1) |> 
+  left_join(cia_data) |> 
+  filter(!is.na(population)) |> 
+  st_transform(crs = 3857)
+```
+
+3.  Converting `geometry` into Cartograms geometry using {cartogram} with Mercator projection (CRS 3857)
+
+```{r}
+#| label: cartograms-df
+#| code-fold: false
+
+# need first to "change" the projection to Mercator (AKA Google Maps): EPSG: 3857
+
+world_map_cont <- cartogram::cartogram_cont(world_map, "population")
+
+world_map_dorling <- cartogram::cartogram_dorling(world_map, "population")
+
+world_map_ncont <- cartogram::cartogram_ncont(world_map, "population")
+```
+
+4.  A Continuous Cartogram (with geom_text_repel and stat = "sf_coordinates")
+
+```{r}
+#| label: fig-cont
+#| fig-cap: ""
+
+
+
+```
+
+4.  A Non-continuous Cartogram
+
+```{r}
+
+```
+
+4.  A Cartogram with each country as non-overlapping circles
+
+```{r}
+#| label: fig-dorling
+#| fig-cap: "Cartogram of population - countries depicted as non-overlapping circles"
+#| fig-width: 10
+
+
+world_map_dorling |> 
+  ggplot(
+    mapping = aes(
+      fill = country,
+      colour = country
+    )
+  ) +
+  geom_sf(
+    colour = "transparent"
+  ) +
+  geom_text_repel(
+    mapping = aes(
+      label = country,
+      size = population,
+      geometry = geometry
+    ),
+    stat = "sf_coordinates",
+    force_pull = 100,
+    force = 1,
+    max.iter = 1000,
+    max.time = 0.5,
+    family = "caption_font",
+    fontface = "bold"
+  ) +
+  scale_size_continuous(
+    range = c(1, 10)
+  ) +
+  scale_fill_manual(
+    values = colorspace::lighten(
+      paletteer::paletteer_d("palettesForR::Caramel"),
+      0.3
+    )
+  ) +
+  scale_colour_manual(
+    values = colorspace::darken(
+      paletteer::paletteer_d("palettesForR::Caramel"),
+      0.3
+    )
+  ) +
+  labs(
+    x = NULL, y = NULL,
+    title = "Cartogram of population - countries depicted as non-overlapping circles"
+  ) +
+  theme_minimal(
+    base_family = "caption_font",
+    base_size = 16
+  ) +
+  theme(
+    legend.position = "none",
+    panel.grid = element_line(
+      colour = "grey70",
+      linetype = 3,
+      linewidth = 0.5
+    )
+  )
+```
