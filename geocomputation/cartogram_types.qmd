@@ -1,7 +1,7 @@
 ---
 title: "3 types of Cartograms in R with {sf} and {cartogram}"
-subtitle: ""
-date: "2024-10-23"
+subtitle: "Creating Cartograms -- contiguous, non-contiguous and packed-circles -- in R with {cartogram}, and making non-overlapping text annotations in maps, and custom callouts in Quarto."
+date: "2024-10-25"
 author: "Aditya Dahiya"
 bibliography: references.bib
 format:
@@ -13,7 +13,6 @@ execute:
   error: false
   message: false
   warning: false
-  eval: false
 filters:
   - social-share
   - custom-callout
@@ -27,97 +26,236 @@ share:
   facebook: true
 custom-callout:    
   keylearning:
-    icon: true
-    title: "Key Learning"
-    icon-symbol: "fa-web-awesome"
+    icon: false
+    title: "Key Learnings"
     color: "#baddff"
 ---
 
+# Introduction
+
+On this webpage, we’ll explore how to create cartograms in `R`, using population data from the [CIA World Factbook](https://www.cia.gov/the-world-factbook/). Cartograms are a unique type of thematic map that reshape geographic regions to represent data variables rather than their actual geographic area. By resizing areas to reflect variables like population, cartograms reveal spatial patterns and disparities in a more visually striking way, making them a powerful tool for storytelling with data.
+
+Unlike traditional maps, where region size is based solely on geographical area, cartograms alter these sizes to communicate insights about underlying data trends. This approach offers several advantages: it enhances visualization by making patterns more apparent, communicates complex data to a broad audience effectively, and highlights disparities between regions, drawing attention to areas of interest. Additionally, cartograms facilitate comparative analysis by allowing viewers to easily compare regions resized according to a single variable.
+
+To create cartograms in R, we’ll use a combination of packages, including [{`cartogram`}](https://cran.r-project.org/package=cartogram) [@cartogram]for cartogram-specific functions, [{`sf`}](https://cran.r-project.org/package=sf) [@sf] for handling spatial data, [{](https://cran.r-project.org/package=tmap)[`ggplot2`](https://cran.r-project.org/package=ggplot2)[}](https://cran.r-project.org/package=tmap) [@ggplot2] for flexible mapping and plotting, and {[`tidyverse`](https://www.tidyverse.org/)} [@tidyverse] for streamlined data manipulation. The `{cartogram}` package provides various cartogram types, including
+
+-   *Dorling cartograms* (@fig-cartodorling) that represent regions as resized circles,
+
+-   *Contiguous area cartograms* (@fig-cartocont) that maintain topological relationships between regions, and
+
+-   *Non-contiguous area cartograms* (@fig-cartoncont) that allow flexibility in resizing by ignoring boundaries.
+
+### About the Data
+
+The dataset used in this tutorial is sourced from the [CIA World Factbook](https://www.cia.gov/the-world-factbook/), specifically the [Country Comparisons from 2014](https://www.cia.gov/the-world-factbook/references/guide-to-country-comparisons). This resource provides essential statistics on population, area, and other key indicators for 265 global entities. Through the [{`openintro`}](https://openintrostat.github.io/openintro/) and [{`usdatasets`}](https://cran.r-project.org/package=usdatasets) R packages, we access population metrics that allow us to create cartograms—maps where countries’ sizes are distorted according to population values rather than geographic area. This dataset, which required no additional cleaning, enables the visualization of demographic distributions, highlighting countries' population density and size in an intuitive way for mapping exercises in `R`.
+
 ::: keylearning
-1.  Making cartgrams with {cartogram}
-2.  Getting custom callouts with [Custom Callout Extension](https://quarto.thecoatlessprofessor.com/custom-callout/) for Quarto
-3.  Getting `geom_sf_text()` with {ggrepel} effects
+1.  **Creating Cartograms with `{cartogram}`**, such as contiguous, non-contiguous, and Dorling cartograms to visually [communicate data](https://r-graph-gallery.com/cartogram.html) through shape transformations.
+
+2.  **Custom Callouts in Quarto** with the [Custom Callout Extension](https://quarto.thecoatlessprofessor.com/custom-callout/), which enhances document structure and readability, such as the present call-out.
+
+3.  **Repelling Overlapping Text Labels with `{ggrepel}`** with [`geom_sf()`](https://ggplot2.tidyverse.org/reference/ggsf.html) and [`geom_sf_text()`](https://yutani.rbind.io/post/geom-sf-text-and-geom-sf-label-are-coming/) for improved clarity on maps.
 :::
 
-1.  Getting libraries and raw data
+### Step 1: Getting libraries and raw data
+
+In this step, we are setting up our workspace to create a population-based cartogram using data from the [CIA World Factbook](https://www.cia.gov/the-world-factbook/). We begin by loading essential libraries, including `{tidyverse}` for data manipulation and visualization, `{sf}` for handling spatial data, and `{cartogram}` for creating cartograms. We load the `cia_factbook` dataset and use the `{countrycode}` package to add ISO3 country codes for mapping. The `world_map` object is created using the `{rnaturalearth}` package, which provides geographic data in `sf` format. Additionally, we set up custom fonts using `{showtext}` and define color palettes for filling and labeling countries, enhancing the map’s readability and aesthetic.
 
 ```{r}
 #| label: setup
 
-library(tidyverse)         # Data Wrangling and ggplot2
-library(sf)                # Spatial Objects in R
-library(ggrepel)           # Repel Labels in plots
-library(cartogram)         # Drawing different Cartograms
-library(showtext)
+# Load essential libraries
+library(tidyverse)         # For data wrangling and visualization
+library(sf)                # For handling spatial objects in R
+library(ggrepel)           # For repelling overlapping labels in plots
+library(cartogram)         # For creating different types of cartograms
+library(showtext)          # For using custom Google Fonts in plots
 
+# Load and prepare the CIA Factbook data
 cia_data <- openintro::cia_factbook |> 
   mutate(
-    iso_a3 = countrycode::countrycode(country, "country.name", "iso3c")
+    # Convert country names to ISO3 codes for easy matching with 
+    # Geographical Maps data
+    iso_a3 = countrycode::countrycode(country, "country.name", "iso3c") 
   )
 
+# Retrieve the world map data
 world_map <- rnaturalearth::ne_countries(
-  scale = "small",
-  returnclass = "sf"
+  scale = "small",      # Use small scale for manageable detail
+  returnclass = "sf"    # Return as an 'sf' object for spatial handling
   )
 
+# Add a custom Google font for captions
 font_add_google("Saira Extra Condensed", "caption_font")
-showtext_auto()
+showtext_auto()           # Automatically apply custom fonts
 
-object.size(world_map) |> print(units = "Kb")
+# Display the size of the world_map object in KB
+# object.size(world_map) |> print(units = "Kb")
+
+# Define colors for country fill and text
+# Fill color palette for countries
+fill_palette <- paletteer::paletteer_d("khroma::stratigraphy")
+
+# Define a darker color palette for text labels
+colour_palette <- fill_palette |> 
+  str_sub(start = 1, end = 7) |>  # Truncate hex codes to 6 characters
+  colorspace::darken(0.5)         # Darken colors by 50% for better contrast
+
 ```
 
-2.  Converting the data into a usable form - a clean tibble.
+### Step 2: Converting the data into a "tidy" tibble.
 
-Displaying the Mercator Projection world map which will be used for being converted into a cartogram.
+In this code snippet, we refine the `world_map` data and visualize it in the Mercator projection using the [ggplot2](https://ggplot2.tidyverse.org/) package. We start by selecting relevant columns, grouping by country name, and keeping the entry with the highest population estimate for countries with multiple entries. After joining this map data with the `cia_data` dataset, we filter out any countries without population data and apply the Pseudo-Mercator projection (CRS 3857) using `{sf}`'s `st_transform()` function. Finally, we use `ggplot2` to plot the world map with `geom_sf()` and set a minimal theme and informative title and caption.
 
 ```{r}
-#| label: tbl-data1
-#| tbl-cap: "A world map with CRS 3857, i.e. Mercator Projection before it is converted into a cartogram"
+#| label: tbl-worlddata
+#| tbl-cap: "The sf object morld map to be used in the susequent analysis"
+
+# Filter, join, and transform world map data for plotting
 
 world_map <- world_map |> 
-  select(name, geometry, pop_est, iso_a3) |> 
-  group_by(name) |> 
-  slice_max(order_by = pop_est, n = 1) |> 
-  left_join(cia_data) |> 
-  filter(!is.na(population)) |> 
-  st_transform(crs = 3857)
+  select(name, geometry, pop_est, iso_a3) |>      # Select relevant columns
+  group_by(name) |>                               # Group by country name
+  slice_max(order_by = pop_est, n = 1) |>         # Retain country entry with max population estimate
+  left_join(cia_data) |>                          # Join with CIA Factbook data
+  filter(!is.na(population)) |>                   # Filter out entries without population data
+  st_transform(crs = 3857)                        # Transform to Psuedo-Mercator projection (CRS = 3857)
 
-ggplot(world_map) +
-  geom_sf() +
-  theme_minimal()
+# Print world_map object to the console
+world_map |> 
+  print()
+
 ```
 
-3.  Converting `geometry` into Cartograms geometry using {cartogram} with Mercator projection (CRS 3857)
+### Key Learning: Using `geom_text_repel()` in place of `geom_text_sf()` with `stat = "sf_coordinates"`
+
+In this code, we generate two versions of a world map using the Mercator projection (CRS = 3857). The first plot demonstrates how using `geom_sf_text()` without any adjustment can lead to overlapping labels, particularly in densely populated areas. The second plot corrects this with `geom_text_repel()` from the `{ggrepel}` package [@ggrepel], which dynamically adjusts label positions to prevent overlap and improve readability. Each map includes labels based on country name, and the label sizes vary by population, offering a clear contrast between the two approaches for displaying map text labels.
+
+```{r}
+#| label: fig-worldmap
+#| fig-cap: "A world map drawn in Mercator Projection (CRS 3857) to be used as a base map for creating cartograms in the next step"
+#| fig-subcap: 
+#|   - "Basic World Map: With no effort to prevent overlapping of labels"
+#|   - "Labels Repelled from each other to prevent overlapping, using geom_text_repel() from package {ggrepel}"
+
+# Plot the transformed world map data with overlapping labels
+ggplot(world_map) +
+  
+  # Draws the base map with country shapes
+  geom_sf() +    
+  
+  # Adds country names as labels, without overlap prevention
+  geom_sf_text(
+    mapping = aes(
+      label = country
+    )
+  ) +
+  
+  # Applies a minimal theme for a clean visual layout
+  theme_minimal() +           
+  
+  # Sets title, subtitle, and caption for the plot
+  labs(
+    title = "World Map: Labels Overlapping when using geom_sf_text()",
+    subtitle = "Map in the Mercator Projection (CRS = 3857)",
+    caption = "Source: {rnaturalearth} package data retrieved with ne_countries() function"
+  )
+
+
+# Plot the transformed world map data with repelled labels
+ggplot(world_map) +
+  
+  # Draws the base map with country shapes
+  geom_sf() +    
+  
+  # Adds country names as labels with repel effect to prevent overlap
+  geom_text_repel(
+    mapping = aes(
+      label = country,
+      geometry = geometry,
+      size = population
+    ),
+    stat = "sf_coordinates",   # Sets the stat for spatial coordinates
+    family = "caption_font",   # Sets the font family for labels
+    linewidth = 0.01           # Sets line width for label positioning
+  ) +
+  
+  # Scales the size of labels based on population
+  scale_size_continuous(
+    range = c(3, 7)
+  ) +
+  
+  # Applies a minimal theme for a clean visual layout
+  theme_minimal() +    
+    
+  # Sets title, subtitle, and caption for the plot
+  labs(
+    title = "World Map: Labels with geom_text_repel() with stat = \"sf_coordinates\"",
+    subtitle = "Map in the Mercator Projection (CRS = 3857)",
+    caption = "Source: {rnaturalearth} package data retrieved with ne_countries() function"
+  ) +
+  
+  # Removes the legend for size
+  theme(
+    legend.position = "none"
+  )
+
+```
+
+### Step 3: Converting `geometry` into Cartograms geometry using {`cartogram`}
+
+In this step, we generate three types of cartograms based on population data, each offering a unique way to represent global population distribution using the `{cartogram}` package. First, we transform the world map data to the Mercator projection (EPSG 3857), which is the standard projection for web maps. We then create three cartograms:
+
+-   a *contiguous cartogram* that distorts countries proportionally to population while maintaining geographic adjacency,
+
+-   a *Dorling cartogram* that represents each country as a circle sized by population, and
+
+-   a *non-contiguous cartogram* that allows countries to resize independently, resulting in more accurate shapes but less geographic continuity.
 
 ```{r}
 #| label: cartograms-df
 #| code-fold: false
+#| eval: false
 
-# need first to "change" the projection to Mercator (AKA Google Maps): EPSG: 3857
+# Transforming the data to different cartogram types based on population
 
+# Create a contiguous cartogram where countries maintain adjacency
 world_map_cont <- cartogram::cartogram_cont(world_map, "population")
 
+# Create a Dorling cartogram where each country is represented by a circle
 world_map_dorling <- cartogram::cartogram_dorling(world_map, "population")
 
+# Create a non-contiguous cartogram where countries resize independently
 world_map_ncont <- cartogram::cartogram_ncont(world_map, "population")
 ```
 
-4.  A Continuous Cartogram
+# Results
+
+### Type 1: A Continuous Cartogram
+
+In this code, we generate a contiguous cartogram plot, shown in @fig-cartocont, using `{ggplot2}` and `{sf}` libraries, with countries sized according to population. The code begins by arranging `world_map_cont` in descending order of population (so that the countries with larger population are displayed first, while we use the argument `check_overlap = TRUE` with `geom_sf_text()`. The cartogram plot is created using `geom_sf()` for shapes and `geom_sf_text()` for country labels, with label sizes reflecting population. Manual scales are applied to align fill and text colors with predefined palettes. The plot includes a centered title and minimal theme.
 
 ```{r}
 #| label: fig-cont
-#| fig-cap: ""
+#| eval: false
+# Arrange the cartogram data by population in descending order
+g <- world_map_cont |> 
+  arrange(desc(population)) |> 
 
-world_map_cont |> 
+# Initialize ggplot, mapping fill and color aesthetics to country
   ggplot(
     mapping = aes(
       fill = country,
       colour = country
     )
   ) +
+
+# Add the country shapes without borders
   geom_sf(
     colour = "transparent"
   ) +
+
+# Add text labels for each country with size proportional to population
   geom_sf_text(
     mapping = aes(
       label = country,
@@ -128,58 +266,98 @@ world_map_cont |>
     fontface = "bold",
     check_overlap = TRUE
   ) +
+
+# Set continuous scale for text size within a specified range
   scale_size_continuous(
     range = c(1, 10)
   ) +
+
+# Apply manual color scale for fill and outline of countries
   scale_fill_manual(
-    values = colorspace::lighten(
-      paletteer::paletteer_d("palettesForR::Caramel"),
-      0.3
-    )
+    values = fill_palette
   ) +
   scale_colour_manual(
-    values = colorspace::darken(
-      paletteer::paletteer_d("palettesForR::Caramel"),
-      0.3
-    )
+    values = colour_palette
   ) +
+
+# Add plot title and remove x and y axis labels
   labs(
     x = NULL, y = NULL,
-    title = "Cartogram of population - countries depicted as non-overlapping circles"
+    title = "A contiguous Cartogram of countries' population"
   ) +
+
+# Apply a minimal theme with custom font and size
   theme_minimal(
     base_family = "caption_font",
     base_size = 16
   ) +
+
+# Customize plot appearance with centered title and invisible legend
   theme(
     legend.position = "none",
     panel.grid = element_line(
       colour = "grey90",
       linetype = 3,
-      linewidth = 0.5
-    )
+      linewidth = 0.1
+    ),
+    plot.title = element_text(
+      hjust = 0.5,
+      margin = margin(0,0,0,0, "mm"),
+      size = 32
+    ),
+    plot.margin = margin(0,0,0,0, "mm")
   )
+
+# Save the plot as a PNG with defined size and white background
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "cartogram_types_1.png"),
+  height = 900,
+  width = 1200,
+  units = "px",
+  bg = "white"
+)
+
 ```
 
-4.  A Non-continuous Cartogram
+![A World Map Cartogram, with countries sized by population, using data from CIA World Factbook. The contiguous cartogram ensures that neighbousing countries keep touching each other, although shapes are distorted.](images/cartogram_types_1.png){#fig-cartocont width="1200"}
+
+### Type 2: A Non-continuous Cartogram
+
+The next code chunk generates a non-contiguous cartogram, shown in @fig-cartoncont, where countries are resized according to population but maintain their original shapes, making it easier to recognize familiar geographic forms.. It uses two layers of `geom_sf()` to add the original world map with a grey outline for context and the resized cartogram countries with a semi-transparent overlay. Text labels are added for each country, sized by population, without overlapping.
 
 ```{r}
+#| label: ncont-cart
+#| eval: false
 
-world_map_ncont |> 
+# Arrange the non-contiguous cartogram data by population in descending order
+g <- world_map_ncont |> 
+  arrange(desc(population)) |> 
+
+# Initialize ggplot, mapping fill and color aesthetics to country
   ggplot(
     mapping = aes(
       fill = country,
       colour = country
     )
   ) +
+
+# Add the original world map with grey borders and white fill
   geom_sf(
     data = world_map,
-    fill = "transparent",
-    colour = alpha("grey50", 0.5)
+    fill = "white",
+    colour = "grey60",
+    linewidth = 0.1
   ) +
+
+# Add the non-contiguous cartogram countries with transparency
   geom_sf(
-    colour = "transparent"
+    colour = "transparent",
+    alpha = 0.75
   ) +
+
+# Add text labels for each country with size proportional to population
   geom_sf_text(
     mapping = aes(
       label = country,
@@ -188,104 +366,146 @@ world_map_ncont |>
     ),
     family = "caption_font",
     fontface = "bold",
-    check_overlap = TRUE
+    check_overlap = FALSE
   ) +
+
+# Set continuous scale for text size within a specified range
   scale_size_continuous(
     range = c(1, 10)
   ) +
+
+# Apply manual color scale for fill and outline of countries
   scale_fill_manual(
-    values = colorspace::lighten(
-      paletteer::paletteer_d("palettesForR::Caramel"),
-      0.3
-    )
+    values = fill_palette
   ) +
   scale_colour_manual(
-    values = colorspace::darken(
-      paletteer::paletteer_d("palettesForR::Caramel"),
-      0.3
-    )
+    values = colour_palette
   ) +
+
+# Add plot title and remove x and y axis labels
   labs(
     x = NULL, y = NULL,
-    title = "Cartogram of population - countries depicted as non-overlapping circles"
+    title = "A non-contiguous Cartogram of countries' population - preserves the country shapes"
   ) +
+
+# Apply a minimal theme with custom font and size
   theme_minimal(
     base_family = "caption_font",
     base_size = 16
   ) +
+
+# Customize plot appearance with centered title and invisible legend
   theme(
     legend.position = "none",
     panel.grid = element_line(
       colour = "grey90",
       linetype = 3,
-      linewidth = 0.5
-    )
+      linewidth = 0.1
+    ),
+    plot.title = element_text(
+      hjust = 0.5,
+      margin = margin(0,0,0,0, "mm"),
+      size = 28
+    ),
+    plot.margin = margin(0,0,0,0, "mm")
   )
+
+# Save the plot as a PNG with defined size and white background
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "cartogram_types_2.png"),
+  height = 900,
+  width = 1200,
+  units = "px",
+  bg = "white"
+)
 ```
 
-4.  A Cartogram with each country as non-overlapping circles
+![A non-contiguous cartogram of countries population, using data from CIA Factbook, shows that while shapes of countries are preserved, their neighbouring countries don't touch each others' borders anymore.](images/cartogram_types_2.png){#fig-cartoncont}
 
-(with geom_text_repel and stat = "sf_coordinates")
+### Type 3: A non-overlapping circles Cartogram
+
+This code snippet creates a Dorling cartogram, shown in @fig-cartodorling, where countries are represented as non-overlapping circles sized according to their populations. The `ggplot` function is used to set up the aesthetic mappings for fill and color based on the country. The `geom_sf()` function is employed to add the circular representations of countries without outlines, while `geom_sf_text()` adds text labels for each country, sized according to their populations.
 
 ```{r}
 #| label: fig-dorling
-#| fig-cap: "Cartogram of population - countries depicted as non-overlapping circles"
-#| fig-width: 10
+#| eval: false
+# Arrange the Dorling cartogram data by population in descending order
+g <- world_map_dorling |> 
+  arrange(desc(population)) |> 
 
-
-world_map_dorling |> 
+# Initialize ggplot, mapping fill and color aesthetics to country
   ggplot(
     mapping = aes(
       fill = country,
       colour = country
     )
   ) +
+
+# Add the non-overlapping circles representing countries
   geom_sf(
     colour = "transparent"
   ) +
-  geom_text_repel(
+
+# Add text labels for each country, sized by population
+  geom_sf_text(
     mapping = aes(
       label = country,
       size = population,
       geometry = geometry
     ),
-    stat = "sf_coordinates",
-    force_pull = 100,
-    force = 1,
-    max.iter = 1000,
-    max.time = 0.5,
     family = "caption_font",
     fontface = "bold"
   ) +
+
+# Set continuous scale for text size within a specified range
   scale_size_continuous(
     range = c(1, 10)
   ) +
+
+# Apply manual color scale for fill and Text of countries
   scale_fill_manual(
-    values = colorspace::lighten(
-      paletteer::paletteer_d("palettesForR::Caramel"),
-      0.3
-    )
+    values = fill_palette
   ) +
   scale_colour_manual(
-    values = colorspace::darken(
-      paletteer::paletteer_d("palettesForR::Caramel"),
-      0.3
-    )
+    values = colour_palette
   ) +
+
+# Add plot title and remove x and y axis labels
   labs(
     x = NULL, y = NULL,
-    title = "Cartogram of population - countries depicted as non-overlapping circles"
+    title = "A non-overlapping circles Cartogram of countries' population."
   ) +
-  theme_minimal(
+
+# Apply a map theme with custom font and size
+  ggthemes::theme_map(
     base_family = "caption_font",
     base_size = 16
   ) +
+
+# Customize plot appearance with centered title and invisible legend
   theme(
     legend.position = "none",
-    panel.grid = element_line(
-      colour = "grey70",
-      linetype = 3,
-      linewidth = 0.5
-    )
+    plot.title = element_text(
+      hjust = 0.5,
+      margin = margin(0,0,0,0, "mm"),
+      size = 28
+    ),
+    plot.margin = margin(0,0,0,0, "mm")
   )
+
+# Save the plot as a PNG with defined size and white background
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "cartogram_types_3.png"),
+  height = 900,
+  width = 1200,
+  units = "px",
+  bg = "white"
+)
+
 ```
+
+![](images/cartogram_types_3.png){#fig-cartodorling}
