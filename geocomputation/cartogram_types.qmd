@@ -16,6 +16,7 @@ execute:
   eval: false
 filters:
   - social-share
+  - custom-callout
 share:
   permalink: "https://aditya-dahiya.github.io/visage/geocomputation/cartogram_types.html"
   description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
@@ -24,7 +25,19 @@ share:
   email: true
   mastodon: true
   facebook: true
+custom-callout:    
+  keylearning:
+    icon: true
+    title: "Key Learning"
+    icon-symbol: "fa-web-awesome"
+    color: "#baddff"
 ---
+
+::: keylearning
+1.  Making cartgrams with {cartogram}
+2.  Getting custom callouts with [Custom Callout Extension](https://quarto.thecoatlessprofessor.com/custom-callout/) for Quarto
+3.  Getting `geom_sf_text()` with {ggrepel} effects
+:::
 
 1.  Getting libraries and raw data
 
@@ -53,11 +66,13 @@ showtext_auto()
 object.size(world_map) |> print(units = "Kb")
 ```
 
-2.  Converting the data into a usable form - a clean tibble
+2.  Converting the data into a usable form - a clean tibble.
+
+Displaying the Mercator Projection world map which will be used for being converted into a cartogram.
 
 ```{r}
 #| label: tbl-data1
-#| tbl-cap: ""
+#| tbl-cap: "A world map with CRS 3857, i.e. Mercator Projection before it is converted into a cartogram"
 
 world_map <- world_map |> 
   select(name, geometry, pop_est, iso_a3) |> 
@@ -66,6 +81,10 @@ world_map <- world_map |>
   left_join(cia_data) |> 
   filter(!is.na(population)) |> 
   st_transform(crs = 3857)
+
+ggplot(world_map) +
+  geom_sf() +
+  theme_minimal()
 ```
 
 3.  Converting `geometry` into Cartograms geometry using {cartogram} with Mercator projection (CRS 3857)
@@ -83,23 +102,130 @@ world_map_dorling <- cartogram::cartogram_dorling(world_map, "population")
 world_map_ncont <- cartogram::cartogram_ncont(world_map, "population")
 ```
 
-4.  A Continuous Cartogram (with geom_text_repel and stat = "sf_coordinates")
+4.  A Continuous Cartogram
 
 ```{r}
 #| label: fig-cont
 #| fig-cap: ""
 
-
-
+world_map_cont |> 
+  ggplot(
+    mapping = aes(
+      fill = country,
+      colour = country
+    )
+  ) +
+  geom_sf(
+    colour = "transparent"
+  ) +
+  geom_sf_text(
+    mapping = aes(
+      label = country,
+      size = population,
+      geometry = geometry
+    ),
+    family = "caption_font",
+    fontface = "bold",
+    check_overlap = TRUE
+  ) +
+  scale_size_continuous(
+    range = c(1, 10)
+  ) +
+  scale_fill_manual(
+    values = colorspace::lighten(
+      paletteer::paletteer_d("palettesForR::Caramel"),
+      0.3
+    )
+  ) +
+  scale_colour_manual(
+    values = colorspace::darken(
+      paletteer::paletteer_d("palettesForR::Caramel"),
+      0.3
+    )
+  ) +
+  labs(
+    x = NULL, y = NULL,
+    title = "Cartogram of population - countries depicted as non-overlapping circles"
+  ) +
+  theme_minimal(
+    base_family = "caption_font",
+    base_size = 16
+  ) +
+  theme(
+    legend.position = "none",
+    panel.grid = element_line(
+      colour = "grey90",
+      linetype = 3,
+      linewidth = 0.5
+    )
+  )
 ```
 
 4.  A Non-continuous Cartogram
 
 ```{r}
 
+world_map_ncont |> 
+  ggplot(
+    mapping = aes(
+      fill = country,
+      colour = country
+    )
+  ) +
+  geom_sf(
+    data = world_map,
+    fill = "transparent",
+    colour = alpha("grey50", 0.5)
+  ) +
+  geom_sf(
+    colour = "transparent"
+  ) +
+  geom_sf_text(
+    mapping = aes(
+      label = country,
+      size = population,
+      geometry = geometry
+    ),
+    family = "caption_font",
+    fontface = "bold",
+    check_overlap = TRUE
+  ) +
+  scale_size_continuous(
+    range = c(1, 10)
+  ) +
+  scale_fill_manual(
+    values = colorspace::lighten(
+      paletteer::paletteer_d("palettesForR::Caramel"),
+      0.3
+    )
+  ) +
+  scale_colour_manual(
+    values = colorspace::darken(
+      paletteer::paletteer_d("palettesForR::Caramel"),
+      0.3
+    )
+  ) +
+  labs(
+    x = NULL, y = NULL,
+    title = "Cartogram of population - countries depicted as non-overlapping circles"
+  ) +
+  theme_minimal(
+    base_family = "caption_font",
+    base_size = 16
+  ) +
+  theme(
+    legend.position = "none",
+    panel.grid = element_line(
+      colour = "grey90",
+      linetype = 3,
+      linewidth = 0.5
+    )
+  )
 ```
 
 4.  A Cartogram with each country as non-overlapping circles
+
+(with geom_text_repel and stat = "sf_coordinates")
 
 ```{r}
 #| label: fig-dorling
