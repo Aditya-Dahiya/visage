@@ -1636,6 +1636,3368 @@ Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy D’Agostino 
   <pubDate>Thu, 24 Oct 2024 18:30:00 GMT</pubDate>
 </item>
 <item>
+  <title>Driving Directions using Open Street Maps Routing Service</title>
+  <dc:creator>Aditya Dahiya</dc:creator>
+  <link>https://aditya-dahiya.github.io/visage/index.html/geocomputation/osm_driving_directions.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>This code provides a detailed methodology for creating a visually informative route map for a driving trip along the northern Mediterranean, integrating data visualization, spatial data handling, and Open Street Maps (OSM) routing services in R. Utilizing several packages, including <code>{sf}</code> for spatial data and <code>{tidygeocoder}</code> for geocoding, the code transforms a dataset of locations into spatial coordinates. By accessing OSRM (Open Source Routing Machine) through the <code>{osrm}</code> package, the code calculates and visualizes optimized driving routes between selected cities. Distances and travel durations are formatted using custom functions, enhancing the map’s usability and clarity.</p>
+<p>The geospatial data is presented using <code>{ggplot2}</code>, with additional styling from <code>{ggrepel}</code> for labels and <code>{patchwork}</code> to arrange plots. Base map layers are sourced from <code>{rnaturalearth}</code>, and a refined background layer is added using <code>{ggmap}</code> with Stadia map tiles, adjusted to EPSG:3857 using custom bounding box functions. This layering enables effective visualization of routes on custom raster maps. The code’s structure allows for modifications, such as changing cities or map styling, demonstrating the adaptability of R’s spatial data packages in route mapping and driving directions creation.</p>
+<p><strong>Inspired from the <a href="https://www.andrewheiss.com/blog/2023/06/01/geocoding-routing-openstreetmap-r/">tutorial</a><span class="citation" data-cites="heiss2023">(Heiss 2023)</span> titled “<em>How to make fancy road trip maps with R and OpenStreetMap</em>”.</strong></p>
+<section id="step-1-setting-up-basics" class="level2">
+<h2 class="anchored" data-anchor-id="step-1-setting-up-basics">Step 1: Setting up basics</h2>
+<p>This code initializes an R project for geospatial data analysis and visualization, utilizing multiple packages for enhanced map presentation, styling, and data wrangling:</p>
+<ul>
+<li><strong>Data Handling &amp; Visualization</strong>: Packages like <a href="https://www.tidyverse.org/"><strong>tidyverse</strong></a> provide core data manipulation tools and <strong>ggplot2</strong> for visualizations.</li>
+<li><strong>Spatial Data Management</strong>: <a href="https://r-spatial.github.io/sf/"><strong>sf</strong></a> simplifies handling spatial objects in a tidy framework, and <a href="https://cran.r-project.org/web/packages/osrm/index.html"><strong>osrm</strong></a> connects R to the Open Source Routing Machine for geospatial route calculations.</li>
+<li><strong>Geocoding</strong>: <a href="https://jessecambon.github.io/tidygeocoder/"><strong>tidygeocoder</strong></a> automates address-based geocoding.</li>
+<li><strong>Map Enhancements</strong>: <a href="https://cran.r-project.org/web/packages/ggspatial/index.html"><strong>ggspatial</strong></a> adds visual elements like scale bars; <strong>ggrepel</strong> prevents overlapping labels for clear visuals.</li>
+<li><strong>Custom Fonts</strong>: <a href="https://cran.r-project.org/web/packages/sysfonts/index.html"><strong>sysfonts</strong></a> and <a href="https://cran.r-project.org/web/packages/showtext/index.html"><strong>showtext</strong></a> allow use of Google Fonts, applied through a custom theme.</li>
+<li><strong>Plot Layouts &amp; Tables</strong>: <a href="https://patchwork.data-imaginist.com/"><strong>patchwork</strong></a> enables combining ggplot plots, and <a href="https://gt.rstudio.com/"><strong>gt</strong></a> produces elegant HTML tables.</li>
+</ul>
+<p>The code defines custom fonts for plot titles and body text using Google Fonts (e.g., “Barlow”) and sets up a theme function, <code>theme_drive</code>, for applying a modern, minimal aesthetic in ggplot2. It also specifies text color and font-family defaults for labels in plots.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Data Wrangling and ggplot2</span></span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(sf)            <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Handle spatial data in R in a tidy way</span></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidygeocoder)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Automated geocoding of addresses</span></span>
+<span id="cb1-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(osrm)          <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Access OSRM through R</span></span>
+<span id="cb1-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggrepel)       <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Nicer non-overlapping labels</span></span>
+<span id="cb1-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(glue)          <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Easier string interpolation</span></span>
+<span id="cb1-7"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(scales)        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Nicer labeling functions</span></span>
+<span id="cb1-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(patchwork)     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Combine plots made in ggplot2</span></span>
+<span id="cb1-9"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggspatial)     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Nicer map features like scale bars</span></span>
+<span id="cb1-10"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(showtext)      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Displaying google fonts</span></span>
+<span id="cb1-11"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(sysfonts)      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Getting google fonts into R</span></span>
+<span id="cb1-12"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(gt)            <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Displaying beautiful HTML tables </span></span>
+<span id="cb1-13"></span>
+<span id="cb1-14"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># A font for the titles and major points</span></span>
+<span id="cb1-15">sysfonts<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">font_add_google</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Barlow"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"title_font"</span>)</span>
+<span id="cb1-16"></span>
+<span id="cb1-17"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># A font for the body and text</span></span>
+<span id="cb1-18">sysfonts<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">font_add_google</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Barlow Condensed"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>)</span>
+<span id="cb1-19"></span>
+<span id="cb1-20"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Allow R graphics devices to display these fonts</span></span>
+<span id="cb1-21">showtext<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">showtext_auto</span>()</span>
+<span id="cb1-22"></span>
+<span id="cb1-23"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Text colour</span></span>
+<span id="cb1-24">text_col <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"grey20"</span></span>
+<span id="cb1-25"></span>
+<span id="cb1-26"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Custom ggplot theme to make pretty plots</span></span>
+<span id="cb1-27"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Get the font at https://fonts.google.com/specimen/Overpass</span></span>
+<span id="cb1-28"></span>
+<span id="cb1-29">theme_drive <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(...) {</span>
+<span id="cb1-30">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_void</span>(</span>
+<span id="cb1-31">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>,</span>
+<span id="cb1-32">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">14</span></span>
+<span id="cb1-33">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb1-34">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb1-35">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb1-36">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> text_col,</span>
+<span id="cb1-37">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>,</span>
+<span id="cb1-38">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">hjust =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span></span>
+<span id="cb1-39">    ),</span>
+<span id="cb1-40">    ...</span>
+<span id="cb1-41">  )</span>
+<span id="cb1-42">}</span>
+<span id="cb1-43"></span>
+<span id="cb1-44"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Make labels use the fonts specified by default</span></span>
+<span id="cb1-45"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">update_geom_defaults</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"label_repel"</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>,</span>
+<span id="cb1-46">                                         <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> text_col))</span>
+<span id="cb1-47"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">update_geom_defaults</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"label"</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>,</span>
+<span id="cb1-48">                                         <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> text_col))</span>
+<span id="cb1-49"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">update_geom_defaults</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"text_repel"</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>,</span>
+<span id="cb1-50">                                         <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> text_col))</span>
+<span id="cb1-51"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">update_geom_defaults</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"text"</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>,</span>
+<span id="cb1-52">                                         <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> text_col))</span></code></pre></div>
+</details>
+</div>
+</section>
+<section id="step-2-a-road-trip-plan" class="level2">
+<h2 class="anchored" data-anchor-id="step-2-a-road-trip-plan">Step 2: A Road Trip Plan</h2>
+<p>Let us plan a road trip along the northern shores of the Mediterranean Sea, hopping along the famous sites in the capitals and important cities of some countries. This code snippet uses R to create a table of famous attractions across several European countries, geocodes each location to obtain its latitude and longitude, and displays the data in a formatted table with map coordinates:</p>
+<ul>
+<li><strong>Data Setup</strong>: A sample dataset is created with columns for country, capital, attraction, and address using <a href="https://dplyr.tidyverse.org/"><strong>dplyr</strong></a>.</li>
+<li><strong>Geocoding</strong>: The <a href="https://jessecambon.github.io/tidygeocoder/"><strong>tidygeocoder</strong></a> package is used to automatically retrieve latitude and longitude coordinates based on the address, using OpenStreetMap’s geocoding service.</li>
+<li><strong>Spatial Transformation</strong>: Once coordinates are obtained, <a href="https://r-spatial.github.io/sf/"><strong>sf</strong></a> converts them into a simple feature (SF) object, setting the coordinate system to EPSG:4326 for geographic data.</li>
+<li><strong>Tabular Display</strong>: The data is formatted as a stylish HTML table using <a href="https://gt.rstudio.com/"><strong>gt</strong></a> and <strong>gtExtras</strong> for theme styling.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb2-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(sf)</span>
+<span id="cb2-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(gt)</span>
+<span id="cb2-4"></span>
+<span id="cb2-5">rawdata <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> dplyr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tribble</span>(</span>
+<span id="cb2-6">  <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span>id, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span>country,               <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span>capital,    <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span>attraction,                   <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span>address,</span>
+<span id="cb2-7">  <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,   <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Greece"</span>,               <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Athens"</span>,    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Acropolis Museum"</span>,            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"15 Dionysiou Areopagitou St, Athens 11742"</span>,</span>
+<span id="cb2-8">  <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,   <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Albania"</span>,              <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Tirana"</span>,    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Skanderbeg Square"</span>,           <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Sheshi Skënderbej, Tirana 1001"</span>,</span>
+<span id="cb2-9">  <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>,   <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Montenegro"</span>,           <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Podgorica"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Millennium Bridge"</span>,           <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Cetinjski Put, Podgorica 81000"</span>,</span>
+<span id="cb2-10">  <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>,   <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Bosnia and Herzegovina"</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Sarajevo"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Baščaršija (Old Bazaar)"</span>,     <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Baščaršija, Sarajevo 71000"</span>,</span>
+<span id="cb2-11">  <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,   <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Croatia"</span>,              <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Zagreb"</span>,    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Ban Jelačić Square"</span>,          <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Trg bana Josipa Jelačića, Zagreb 10000"</span>,</span>
+<span id="cb2-12">  <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>,   <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Slovenia"</span>,             <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Ljubljana"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Ljubljana Castle"</span>,            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Grajska planota 1, Ljubljana 1000"</span>,</span>
+<span id="cb2-13">  <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>,   <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Italy"</span>,                <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Venice"</span>,    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"St. Mark's Basilica"</span>,         <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Piazza San Marco, Venice 30124"</span>,</span>
+<span id="cb2-14">  <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>,   <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Italy"</span>,                <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Florence"</span>,  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Piazza del Duomo"</span>,            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Piazza del Duomo, Florence 50122"</span>,</span>
+<span id="cb2-15">  <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9</span>,   <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Italy"</span>,                <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Rome"</span>,      <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Trevi Fountain"</span>,              <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Piazza di Trevi, Rome 00187"</span></span>
+<span id="cb2-16">)</span>
+<span id="cb2-17"></span>
+<span id="cb2-18"></span>
+<span id="cb2-19"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Convert latitude and longitudes into SF Coordinates</span></span>
+<span id="cb2-20"></span>
+<span id="cb2-21"></span>
+<span id="cb2-22">df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> rawdata <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-23">  </span>
+<span id="cb2-24">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Compile a full address to be used for finding the coordinates</span></span>
+<span id="cb2-25">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># mutate(</span></span>
+<span id="cb2-26">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#   address = paste(</span></span>
+<span id="cb2-27">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#     destination,</span></span>
+<span id="cb2-28">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#     capital, </span></span>
+<span id="cb2-29">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#     country,</span></span>
+<span id="cb2-30">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#     sep = ", "</span></span>
+<span id="cb2-31">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#   )</span></span>
+<span id="cb2-32">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># ) |&gt; </span></span>
+<span id="cb2-33">  tidygeocoder<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geocode</span>(</span>
+<span id="cb2-34">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">address =</span> address,</span>
+<span id="cb2-35">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># country = country,</span></span>
+<span id="cb2-36">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># city = capital,</span></span>
+<span id="cb2-37">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">method =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"osm"</span></span>
+<span id="cb2-38">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-39">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_as_sf</span>(</span>
+<span id="cb2-40">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">coords =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"long"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lat"</span>),</span>
+<span id="cb2-41">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:4326"</span>)</span>
+<span id="cb2-42">  )</span>
+<span id="cb2-43"></span>
+<span id="cb2-44"></span>
+<span id="cb2-45">df <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-46">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">gt</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-47">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tab_header</span>(</span>
+<span id="cb2-48">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"The locations (Geometry) of the planned destinations"</span>,</span>
+<span id="cb2-49">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Getting Geometry locations using geocode() from {tidygeocoder}"</span></span>
+<span id="cb2-50">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-51">  gtExtras<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">gt_theme_538</span>()</span></code></pre></div>
+</details>
+<div id="tbl-data" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: The data to be used for further analysis
+</figcaption>
+<div aria-describedby="tbl-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="zlughvsteo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cairo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+#zlughvsteo table {
+  font-family: Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#zlughvsteo thead, #zlughvsteo tbody, #zlughvsteo tfoot, #zlughvsteo tr, #zlughvsteo td, #zlughvsteo th {
+  border-style: none;
+}
+
+#zlughvsteo p {
+  margin: 0;
+  padding: 0;
+}
+
+#zlughvsteo .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: 400;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: none;
+  border-top-width: 3px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#zlughvsteo .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#zlughvsteo .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#zlughvsteo .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#zlughvsteo .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#zlughvsteo .gt_bottom_border {
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zlughvsteo .gt_col_headings {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #000000;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#zlughvsteo .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#zlughvsteo .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#zlughvsteo .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#zlughvsteo .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#zlughvsteo .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #000000;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#zlughvsteo .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#zlughvsteo .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #000000;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#zlughvsteo .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #000000;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #FFFFFF;
+  vertical-align: middle;
+}
+
+#zlughvsteo .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#zlughvsteo .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#zlughvsteo .gt_row {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#zlughvsteo .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 0px;
+  border-right-color: #FFFFFF;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zlughvsteo .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#zlughvsteo .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#zlughvsteo .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#zlughvsteo .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zlughvsteo .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#zlughvsteo .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#zlughvsteo .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zlughvsteo .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zlughvsteo .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#zlughvsteo .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zlughvsteo .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#zlughvsteo .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zlughvsteo .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#zlughvsteo .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zlughvsteo .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#zlughvsteo .gt_sourcenote {
+  font-size: 12px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zlughvsteo .gt_left {
+  text-align: left;
+}
+
+#zlughvsteo .gt_center {
+  text-align: center;
+}
+
+#zlughvsteo .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#zlughvsteo .gt_font_normal {
+  font-weight: normal;
+}
+
+#zlughvsteo .gt_font_bold {
+  font-weight: bold;
+}
+
+#zlughvsteo .gt_font_italic {
+  font-style: italic;
+}
+
+#zlughvsteo .gt_super {
+  font-size: 65%;
+}
+
+#zlughvsteo .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#zlughvsteo .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#zlughvsteo .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#zlughvsteo .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#zlughvsteo .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#zlughvsteo .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#zlughvsteo .gt_indent_5 {
+  text-indent: 25px;
+}
+
+tbody tr:last-child {
+  border-bottom: 2px solid #ffffff00;
+}
+</style>
+
+<table class="gt_table do-not-create-environment cell caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="header gt_heading">
+<th colspan="6" class="gt_heading gt_title gt_font_normal" style="font-family: Chivo; font-weight: 700">The locations (Geometry) of the planned destinations</th>
+</tr>
+<tr class="odd gt_heading">
+<th colspan="6" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="font-family: Chivo; font-weight: 300">Getting Geometry locations using geocode() from {tidygeocoder}</th>
+</tr>
+<tr class="header gt_col_headings">
+<th id="id" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase" scope="col">id</th>
+<th id="country" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase" scope="col">country</th>
+<th id="capital" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase" scope="col">capital</th>
+<th id="attraction" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase" scope="col">attraction</th>
+<th id="address" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase" scope="col">address</th>
+<th id="geometry" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase" scope="col">geometry</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_right" headers="id">1</td>
+<td class="gt_row gt_left" headers="country">Greece</td>
+<td class="gt_row gt_left" headers="capital">Athens</td>
+<td class="gt_row gt_left" headers="attraction">Acropolis Museum</td>
+<td class="gt_row gt_left" headers="address">15 Dionysiou Areopagitou St, Athens 11742</td>
+<td class="gt_row gt_center" headers="geometry">c(23.7302954, 37.9303789)</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="id">2</td>
+<td class="gt_row gt_left" headers="country">Albania</td>
+<td class="gt_row gt_left" headers="capital">Tirana</td>
+<td class="gt_row gt_left" headers="attraction">Skanderbeg Square</td>
+<td class="gt_row gt_left" headers="address">Sheshi Skënderbej, Tirana 1001</td>
+<td class="gt_row gt_center" headers="geometry">c(19.8182412, 41.3271148)</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="id">3</td>
+<td class="gt_row gt_left" headers="country">Montenegro</td>
+<td class="gt_row gt_left" headers="capital">Podgorica</td>
+<td class="gt_row gt_left" headers="attraction">Millennium Bridge</td>
+<td class="gt_row gt_left" headers="address">Cetinjski Put, Podgorica 81000</td>
+<td class="gt_row gt_center" headers="geometry">c(19.2436765, 42.4413965)</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="id">4</td>
+<td class="gt_row gt_left" headers="country">Bosnia and Herzegovina</td>
+<td class="gt_row gt_left" headers="capital">Sarajevo</td>
+<td class="gt_row gt_left" headers="attraction">Baščaršija (Old Bazaar)</td>
+<td class="gt_row gt_left" headers="address">Baščaršija, Sarajevo 71000</td>
+<td class="gt_row gt_center" headers="geometry">c(18.430885, 43.8590435)</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="id">5</td>
+<td class="gt_row gt_left" headers="country">Croatia</td>
+<td class="gt_row gt_left" headers="capital">Zagreb</td>
+<td class="gt_row gt_left" headers="attraction">Ban Jelačić Square</td>
+<td class="gt_row gt_left" headers="address">Trg bana Josipa Jelačića, Zagreb 10000</td>
+<td class="gt_row gt_center" headers="geometry">c(15.9765701, 45.8130054)</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="id">6</td>
+<td class="gt_row gt_left" headers="country">Slovenia</td>
+<td class="gt_row gt_left" headers="capital">Ljubljana</td>
+<td class="gt_row gt_left" headers="attraction">Ljubljana Castle</td>
+<td class="gt_row gt_left" headers="address">Grajska planota 1, Ljubljana 1000</td>
+<td class="gt_row gt_center" headers="geometry">c(14.5085094926128, 46.0488354)</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="id">7</td>
+<td class="gt_row gt_left" headers="country">Italy</td>
+<td class="gt_row gt_left" headers="capital">Venice</td>
+<td class="gt_row gt_left" headers="attraction">St. Mark's Basilica</td>
+<td class="gt_row gt_left" headers="address">Piazza San Marco, Venice 30124</td>
+<td class="gt_row gt_center" headers="geometry">c(12.3385088944988, 45.4342591)</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="id">8</td>
+<td class="gt_row gt_left" headers="country">Italy</td>
+<td class="gt_row gt_left" headers="capital">Florence</td>
+<td class="gt_row gt_left" headers="attraction">Piazza del Duomo</td>
+<td class="gt_row gt_left" headers="address">Piazza del Duomo, Florence 50122</td>
+<td class="gt_row gt_center" headers="geometry">c(11.2554773666595, 43.7731014)</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="id">9</td>
+<td class="gt_row gt_left" headers="country">Italy</td>
+<td class="gt_row gt_left" headers="capital">Rome</td>
+<td class="gt_row gt_left" headers="attraction">Trevi Fountain</td>
+<td class="gt_row gt_left" headers="address">Piazza di Trevi, Rome 00187</td>
+<td class="gt_row gt_center" headers="geometry">c(12.4836123990993, 41.90089955)</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="step-3-some-custom-functions" class="level2">
+<h2 class="anchored" data-anchor-id="step-3-some-custom-functions">Step 3: Some Custom Functions</h2>
+<p>This code defines a set of custom functions in R to format durations, distances, and handle conversions between different units, useful for working with geographic and travel data:</p>
+<ol type="1">
+<li><p><strong>Formatting Durations</strong>: <code>fmt_duration()</code> takes an input in minutes and converts it into a readable string format. Durations are rounded to the nearest 15 minutes and formatted to display in hours and minutes. When durations exceed 24 hours, days are factored into the calculation by converting them to hours for accurate display.</p></li>
+<li><p><strong>Distance Formatting</strong>:</p>
+<ul>
+<li><code>fmt_miles</code> and <code>fmt_km</code> utilize <code>scales::label_number()</code> to format distances in miles and kilometers, respectively, with suffixes and thousand separators for clarity.</li>
+</ul></li>
+<li><p><strong>Distance Conversions</strong>: Functions for converting between miles, meters, and kilometers:</p>
+<ul>
+<li><code>miles_to_meters()</code> converts miles to meters.</li>
+<li><code>meters_to_miles()</code> and <code>km_to_miles()</code> handle conversions from meters and kilometers to miles.</li>
+</ul></li>
+</ol>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Credits: Andrew Weiss</span></span>
+<span id="cb3-2"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># URL: https://www.andrewheiss.com/blog/2023/06/01/</span></span>
+<span id="cb3-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#      geocoding-routing-openstreetmap-r/#packages-and-functions</span></span>
+<span id="cb3-4"></span>
+<span id="cb3-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Format duration in minutes and hours</span></span>
+<span id="cb3-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># This function takes a numeric input of a duration in minutes,</span></span>
+<span id="cb3-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># rounds it to the nearest 15 minutes, and formats the result as a string</span></span>
+<span id="cb3-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># indicating the number of hours and minutes in the duration.</span></span>
+<span id="cb3-9"></span>
+<span id="cb3-10">fmt_duration <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(x) {</span>
+<span id="cb3-11">  </span>
+<span id="cb3-12">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Round to the nearest 15 minutes</span></span>
+<span id="cb3-13">  n_seconds <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seconds</span>(x <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">60</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">60</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">60</span>)</span>
+<span id="cb3-14">  n_seconds <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seconds_to_period</span>(n_seconds)</span>
+<span id="cb3-15">  </span>
+<span id="cb3-16">  out <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map_chr</span>(n_seconds, \(n) {</span>
+<span id="cb3-17">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> (<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seconds</span>(n) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">59</span>) {</span>
+<span id="cb3-18">      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># If this is less than an hour, don't format anything with hours</span></span>
+<span id="cb3-19">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">glue</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"{MM} minutes"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">MM =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">minute</span>(n))</span>
+<span id="cb3-20">    } <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> {</span>
+<span id="cb3-21">      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The formatting is required in terms of hours only. When the </span></span>
+<span id="cb3-22">      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># duration exceeds 24 hours, `seconds_to_period()` converts the </span></span>
+<span id="cb3-23">      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># duration into days (e.g., `seconds_to_period(60 * 60 * 24)` returns </span></span>
+<span id="cb3-24">      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># "1d 0H 0M 0S") and displays zero hours. Therefore, the day portion </span></span>
+<span id="cb3-25">      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># of the period is extracted, multiplied by 24, and added to the </span></span>
+<span id="cb3-26">      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># hour component intended for display. </span></span>
+<span id="cb3-27">      extra_day_hours <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">day</span>(n) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">24</span></span>
+<span id="cb3-28">  </span>
+<span id="cb3-29">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">glue</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"{HH} hour{s} {MM} minutes"</span>,</span>
+<span id="cb3-30">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">HH =</span> scales<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">label_comma</span>()(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">hour</span>(n) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> extra_day_hours),</span>
+<span id="cb3-31">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">MM =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">minute</span>(n),</span>
+<span id="cb3-32">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">s =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ifelse</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">hour</span>(n) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"s"</span>)</span>
+<span id="cb3-33">      )</span>
+<span id="cb3-34">    }</span>
+<span id="cb3-35">  })</span>
+<span id="cb3-36">  </span>
+<span id="cb3-37">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">return</span>(out)</span>
+<span id="cb3-38">}</span>
+<span id="cb3-39"></span>
+<span id="cb3-40">fmt_miles <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> scales<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">label_number</span>(</span>
+<span id="cb3-41">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">accuracy =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, </span>
+<span id="cb3-42">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">suffix =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">" miles"</span>, </span>
+<span id="cb3-43">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">big.mark =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">","</span></span>
+<span id="cb3-44">  )</span>
+<span id="cb3-45"></span>
+<span id="cb3-46">fmt_km <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> scales<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">label_number</span>(</span>
+<span id="cb3-47">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">accuracy =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, </span>
+<span id="cb3-48">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">suffix =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">" km"</span>, </span>
+<span id="cb3-49">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">big.mark =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">","</span></span>
+<span id="cb3-50">  )</span>
+<span id="cb3-51"></span>
+<span id="cb3-52"></span>
+<span id="cb3-53">miles_to_meters <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(x) {</span>
+<span id="cb3-54">  x <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1609.344</span></span>
+<span id="cb3-55">}</span>
+<span id="cb3-56"></span>
+<span id="cb3-57">meters_to_miles <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(x) {</span>
+<span id="cb3-58">  x <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1609.344</span></span>
+<span id="cb3-59">}</span>
+<span id="cb3-60"></span>
+<span id="cb3-61">km_to_miles <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(x) {</span>
+<span id="cb3-62">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">meters_to_miles</span>(x <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span>)</span>
+<span id="cb3-63">}</span></code></pre></div>
+</details>
+</div>
+</section>
+<section id="step-4-the-base-map-and-the-driving-locations" class="level2">
+<h2 class="anchored" data-anchor-id="step-4-the-base-map-and-the-driving-locations">Step 4: The base map and the driving locations</h2>
+<p>This code creates a custom map showing key tourist attractions within the calculated bounding box of selected European countries:</p>
+<ol type="1">
+<li><strong>Bounding Box Calculation</strong>:
+<ul>
+<li>The bounding box for mapped points is set with an additional degree of expansion (<code>edi</code>), extending the box slightly around all locations. This is calculated with <code>st_bbox()</code> using geometries in <code>df</code>.</li>
+</ul></li>
+<li><strong>Basemap Creation</strong>:
+<ul>
+<li>A basemap of European countries is created using <a href="https://cran.r-project.org/web/packages/rnaturalearth/index.html"><strong>rnaturalearth</strong></a> data, filtering out small states like Vatican City and San Marino. The map’s area data is computed for further customization if needed.</li>
+</ul></li>
+<li><strong>Map Plotting</strong>:
+<ul>
+<li><code>ggplot2</code> and <strong>sf</strong> add visual layers:
+<ul>
+<li>Country boundaries as background with <code>geom_sf()</code>.</li>
+<li>Country names with partially transparent, bold labels via <code>geom_sf_text()</code>.</li>
+<li>Tourist attraction points and city names using red markers and labels.</li>
+</ul></li>
+</ul></li>
+</ol>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Compute the bounding box for the maps</span></span>
+<span id="cb4-2"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Expansion outside bounding box in degrees = edi</span></span>
+<span id="cb4-3">edi <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span></span>
+<span id="cb4-4">drive_bbox <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_bbox</span>(df<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>geometry) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> edi, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2.5</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> edi, edi, edi)</span>
+<span id="cb4-5"></span>
+<span id="cb4-6"></span>
+<span id="cb4-7">basemap <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> rnaturalearth<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ne_countries</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">scale =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">50</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb4-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(name, iso_a3, geometry) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb4-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span>(name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%in%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Vatican"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"San Marino"</span>))) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb4-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crop</span>(drive_bbox) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb4-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">area =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.numeric</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_area</span>(geometry)))</span>
+<span id="cb4-12"></span>
+<span id="cb4-13">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(basemap) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-15">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf_text</span>(</span>
+<span id="cb4-16">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb4-17">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> name</span>
+<span id="cb4-18">    ),</span>
+<span id="cb4-19">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>,</span>
+<span id="cb4-20">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fontface =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span>,</span>
+<span id="cb4-21">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nudge_y =</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span></span>
+<span id="cb4-22">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-23">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb4-24">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> df,</span>
+<span id="cb4-25">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"darkred"</span>,</span>
+<span id="cb4-26">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,</span>
+<span id="cb4-27">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span></span>
+<span id="cb4-28">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-29">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf_text</span>(</span>
+<span id="cb4-30">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> df,</span>
+<span id="cb4-31">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> capital),</span>
+<span id="cb4-32">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"darkred"</span>,</span>
+<span id="cb4-33">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nudge_y =</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span></span>
+<span id="cb4-34">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-35">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>)</span>
+<span id="cb4-36"></span>
+<span id="cb4-37"></span>
+<span id="cb4-38"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb4-39">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb4-40">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"osm_driving_directions_4.png"</span>),</span>
+<span id="cb4-41">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb4-42">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">900</span>,</span>
+<span id="cb4-43">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">900</span>,</span>
+<span id="cb4-44">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span>,</span>
+<span id="cb4-45">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bg =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span></span>
+<span id="cb4-46">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-base-cities" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-base-cities-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/osm_driving_directions_4.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-base-cities-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: A basic map showing the selected cities and the map of selected countries using data available in {rnaturalearth} and ne_countries()
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="step-5-getting-the-routes-and-a-raw-map-of-the-routes" class="level2">
+<h2 class="anchored" data-anchor-id="step-5-getting-the-routes-and-a-raw-map-of-the-routes">Step 5: Getting the Routes and a raw map of the routes</h2>
+<p>This code generates a visual map illustrating the shortest driving routes between selected European cities, based on OpenStreetMap data:</p>
+<ol type="1">
+<li><strong>Route Data Preparation</strong>:
+<ul>
+<li>Starting with <code>df</code> (containing cities and their coordinates), cities are paired sequentially as origins and destinations using <code>lead()</code>. The data is trimmed to exclude the final unpaired row.</li>
+<li><a href="https://cran.r-project.org/web/packages/osrm/index.html"><strong>osrmRoute()</strong></a> retrieves the shortest driving route between each origin and destination pair, with the computed route details stored in a nested column named <code>route</code>.</li>
+</ul></li>
+<li><strong>Unnesting and Formatting</strong>:
+<ul>
+<li>The <code>route</code> column is expanded to reveal route-specific data (geometry, distance, duration). Route geometry is then set as the primary spatial feature.</li>
+<li>Custom functions <code>fmt_km()</code> and <code>fmt_duration()</code> format the route’s distance and duration for clear labeling.</li>
+</ul></li>
+<li><strong>Map Plotting</strong>:
+<ul>
+<li><strong>ggplot2</strong> visualizes the data in layers:
+<ul>
+<li>A basemap of European countries, created earlier, serves as the background.</li>
+<li>Cities are marked in red, with labels for capital cities slightly adjusted for readability.</li>
+<li>Driving routes between cities are drawn as connecting lines using the computed <code>route_geometry</code>.</li>
+</ul></li>
+</ul></li>
+</ol>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">dfroutes <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> df<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb5-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rename</span>(</span>
+<span id="cb5-3">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">origin_geometry =</span> geometry,</span>
+<span id="cb5-4">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">origin_city =</span> capital</span>
+<span id="cb5-5">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span>  </span>
+<span id="cb5-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb5-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">destination_geometry =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lead</span>(origin_geometry),</span>
+<span id="cb5-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">destination_city =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lead</span>(origin_city)</span>
+<span id="cb5-9">  )  <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb5-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">slice_head</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> (<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nrow</span>(df) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb5-11">  </span>
+<span id="cb5-12">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Let functions compute on our data frame a row-at-a-time</span></span>
+<span id="cb5-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rowwise</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb5-14">  </span>
+<span id="cb5-15">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Getting the shortest route between the two cities</span></span>
+<span id="cb5-16">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">route =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">osrmRoute</span>(</span>
+<span id="cb5-17">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">src =</span> origin_geometry, </span>
+<span id="cb5-18">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dst =</span> destination_geometry)</span>
+<span id="cb5-19">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb5-20"></span>
+<span id="cb5-21"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The route details are stored in a nested list column called `route`, # which we’ll unnest. This produces a data frame with three geometry </span></span>
+<span id="cb5-22"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># columns—for origin, destination, and route—so we’ll set the route </span></span>
+<span id="cb5-23"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># column as the primary geometry (allowing us to use `geom_sf(data = routes_geocoded)` directly).</span></span>
+<span id="cb5-24">  </span>
+<span id="cb5-25">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unnest</span>(route, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">names_sep =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"_"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb5-26">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_set_geometry</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"route_geometry"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb5-27">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb5-28">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">distance_text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fmt_km</span>(route_distance),</span>
+<span id="cb5-29">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">duration_text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fmt_duration</span>(route_duration)</span>
+<span id="cb5-30">  )</span></code></pre></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb6-3">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> basemap</span>
+<span id="cb6-4">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb6-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> df,</span>
+<span id="cb6-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>,</span>
+<span id="cb6-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span></span>
+<span id="cb6-9">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf_text</span>(</span>
+<span id="cb6-11">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> df,</span>
+<span id="cb6-12">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> capital),</span>
+<span id="cb6-13">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nudge_y =</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>,</span>
+<span id="cb6-14">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span></span>
+<span id="cb6-15">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-16">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb6-17">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> dfroutes,</span>
+<span id="cb6-18">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb6-19">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">geometry =</span> route_geometry</span>
+<span id="cb6-20">    )</span>
+<span id="cb6-21">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-22">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb6-23">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span></span>
+<span id="cb6-24">  )</span>
+<span id="cb6-25"></span>
+<span id="cb6-26"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb6-27">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb6-28">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"osm_driving_directions_2.png"</span>),</span>
+<span id="cb6-29">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb6-30">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">900</span>,</span>
+<span id="cb6-31">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">900</span>,</span>
+<span id="cb6-32">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span>,</span>
+<span id="cb6-33">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bg =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span></span>
+<span id="cb6-34">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-basedrive" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-basedrive-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/osm_driving_directions_2.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-basedrive-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: A simple map of the country boundaries [from {rnaturalearth} and function ne_countries()] with the route computed by osrmRoute() from {osrm} and selected destination cities as red dots.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="step-6-a-nice-stadia-map-background-map" class="level2">
+<h2 class="anchored" data-anchor-id="step-6-a-nice-stadia-map-background-map">Step 6: A nice Stadia Map background map</h2>
+<p>This code retrieves and customizes a basemap using <a href="https://stadiamaps.com/"><strong>Stadia Maps</strong></a>, overlaying it with geospatial data in EPSG:3857, a coordinate reference system commonly used for web mapping.</p>
+<ol type="1">
+<li><strong>API Setup</strong>:
+<ul>
+<li>The Stadia Maps API is registered with the <strong><code>register_stadiamap()</code></strong> function, allowing access to map tiles.</li>
+</ul></li>
+<li><strong>Bounding Box Definition</strong>:
+<ul>
+<li>A bounding box (<code>dv_bbox</code>) is defined using the limits of the area of interest. The bounding box is adjusted to Stadia Maps’ format, setting boundaries based on longitude and latitude.</li>
+</ul></li>
+<li><strong>Fetching Map Tiles</strong>:
+<ul>
+<li><strong><code>get_stadiamap()</code></strong> retrieves map tiles with terrain background style (<code>maptype = "stamen_terrain_background"</code>), appropriate for visualizing geographic contexts.</li>
+</ul></li>
+<li><strong>Coordinate System Transformation</strong>:
+<ul>
+<li>A custom function, <strong><code>ggmap_bbox()</code></strong>, redefines the map’s bounding box to EPSG:3857, necessary for layering <a href="https://r-spatial.github.io/sf/"><strong>sf</strong></a> objects over the raster map. This transformation is critical for accurate overlay alignment.</li>
+</ul></li>
+<li><strong>Map Overlay and Export</strong>:
+<ul>
+<li>Using <strong><code>ggmap()</code></strong>, the transformed Stadia basemap is displayed. The map, including overlaid geospatial features, is saved as a high-resolution image (<code>osm_driving_directions_3.png</code>) with <a href="https://ggplot2.tidyverse.org/reference/ggsave.html"><strong>ggsave()</strong></a>.</li>
+</ul></li>
+</ol>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># ggmap::register_stadiamap("YOUR API KEY HERE")</span></span>
+<span id="cb7-2"></span>
+<span id="cb7-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># A bounding box in the format c(lowerleftlon, lowerleftlat, upperrightlon, upperrightlat)</span></span>
+<span id="cb7-4">dv_bbox <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> drive_bbox</span>
+<span id="cb7-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">names</span>(dv_bbox) <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"left"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bottom"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"right"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"top"</span>)</span>
+<span id="cb7-6"></span>
+<span id="cb7-7"></span>
+<span id="cb7-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Getting the map tiles</span></span>
+<span id="cb7-9">basemap2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> ggmap<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">get_stadiamap</span>(</span>
+<span id="cb7-10">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bbox =</span> dv_bbox,</span>
+<span id="cb7-11">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">zoom =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>,</span>
+<span id="cb7-12">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">maptype =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"stamen_terrain_background"</span></span>
+<span id="cb7-13">)</span>
+<span id="cb7-14"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">object.size</span>(basemap2) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Mb"</span>)</span>
+<span id="cb7-15"></span>
+<span id="cb7-16">ggmap<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggmap</span>(basemap2)</span>
+<span id="cb7-17"></span>
+<span id="cb7-18"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Starting the process of Overlaying the geom_sf() data on this</span></span>
+<span id="cb7-19"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Most important is to add the inherit.aes = FALSE argument.</span></span>
+<span id="cb7-20"></span>
+<span id="cb7-21"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Step: 1: </span></span>
+<span id="cb7-22"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Credits: https://stackoverflow.com/questions/47749078/how-to-put-a-geom-sf-produced-map-on-top-of-a-ggmap-produced-raster by andyteucher on StackOverFlow (https://stackoverflow.com/users/1736291/andyteucher)</span></span>
+<span id="cb7-23"></span>
+<span id="cb7-24"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define a function to fix the bbox to be in CRS EPSG:3857</span></span>
+<span id="cb7-25">ggmap_bbox <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(map) {</span>
+<span id="cb7-26">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Extract the bounding box (in lat/lon) from the ggmap</span></span>
+<span id="cb7-27">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># to a numeric vector, and set the names to what</span></span>
+<span id="cb7-28">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># sf::st_bbox expects:</span></span>
+<span id="cb7-29">  map_bbox <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">setNames</span>(</span>
+<span id="cb7-30">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unlist</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">attr</span>(map, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bb"</span>)),</span>
+<span id="cb7-31">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ymin"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xmin"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ymax"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xmax"</span>)</span>
+<span id="cb7-32">  )</span>
+<span id="cb7-33"></span>
+<span id="cb7-34">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Coonvert the bbox to an sf polygon, transform it to 3857,</span></span>
+<span id="cb7-35">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># and convert back to a bbox (convoluted, but it works)</span></span>
+<span id="cb7-36">  bbox_3857 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_bbox</span>(</span>
+<span id="cb7-37">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_transform</span>(</span>
+<span id="cb7-38">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_as_sfc</span>(</span>
+<span id="cb7-39">        <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_bbox</span>(map_bbox, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span>)</span>
+<span id="cb7-40">        ), </span>
+<span id="cb7-41">      <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3857</span></span>
+<span id="cb7-42">    )</span>
+<span id="cb7-43">  )</span>
+<span id="cb7-44"></span>
+<span id="cb7-45">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Overwrite the bbox of the ggmap object with the transformed coordinates</span></span>
+<span id="cb7-46">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">attr</span>(map, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bb"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>ll.lat <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> bbox_3857[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ymin"</span>]</span>
+<span id="cb7-47">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">attr</span>(map, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bb"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>ll.lon <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> bbox_3857[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xmin"</span>]</span>
+<span id="cb7-48">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">attr</span>(map, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bb"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>ur.lat <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> bbox_3857[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ymax"</span>]</span>
+<span id="cb7-49">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">attr</span>(map, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bb"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>ur.lon <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> bbox_3857[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xmax"</span>]</span>
+<span id="cb7-50">  map</span>
+<span id="cb7-51">}</span>
+<span id="cb7-52"></span>
+<span id="cb7-53"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use the function to convert our downloaded Raster Files into </span></span>
+<span id="cb7-54"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># the new CRS and new bounding box CRS</span></span>
+<span id="cb7-55">basemap_sf <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggmap_bbox</span>(basemap2)</span>
+<span id="cb7-56"></span>
+<span id="cb7-57">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> ggmap<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggmap</span>(basemap2) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-58">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>)</span>
+<span id="cb7-59"></span>
+<span id="cb7-60"></span>
+<span id="cb7-61"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb7-62">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb7-63">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"osm_driving_directions_3.png"</span>),</span>
+<span id="cb7-64">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb7-65">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">900</span>,</span>
+<span id="cb7-66">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">900</span>,</span>
+<span id="cb7-67">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span>,</span>
+<span id="cb7-68">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bg =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span></span>
+<span id="cb7-69">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-raster-base" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-raster-base-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/osm_driving_directions_3.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-raster-base-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: The base map retrieved in the form of raster tiles, from {ggmap} using get_stadia_maps() with the map style “Stamen Terrain Background”
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="step-7-the-overall-visualization" class="level2">
+<h2 class="anchored" data-anchor-id="step-7-the-overall-visualization">Step 7: The overall visualization</h2>
+<p>This code snippet enhances the base map by overlaying spatial data, labels, and route details, creating a rich, layered map visualization with <strong>ggplot2</strong> and <strong>ggmap</strong>. Here’s a breakdown of each step:</p>
+<ol type="1">
+<li><strong>Basemap Layer</strong>:
+<ul>
+<li>Uses <strong><code>ggmap::ggmap(basemap_sf)</code></strong> to display the raster map tiles retrieved and adjusted to EPSG:3857, enabling overlays of geospatial objects.</li>
+</ul></li>
+<li><strong>Country Boundaries and Names</strong>:
+<ul>
+<li><strong><code>geom_sf()</code></strong> with transparency and thin lines adds country outlines, while <strong><code>geom_sf_text()</code></strong> displays country names proportionally sized by area.</li>
+</ul></li>
+<li><strong>Driving Route</strong>:
+<ul>
+<li>The <strong><code>dfroutes</code></strong> dataset, containing route geometries between destinations, is layered with <strong><code>geom_sf()</code></strong>, color-coded for visibility.</li>
+</ul></li>
+<li><strong>City Locations and Labels</strong>:
+<ul>
+<li><strong><code>geom_sf()</code></strong> highlights cities in red, while <strong><code>geom_text_repel()</code></strong> labels each city’s name, ensuring labels do not overlap with other map features.</li>
+</ul></li>
+<li><strong>Route Details</strong>:
+<ul>
+<li><strong><code>geom_sf_label()</code></strong> displays distance labels along the route with partially transparent backgrounds, enhancing readability without cluttering.</li>
+</ul></li>
+<li><strong>Coordinate System and Styling</strong>:
+<ul>
+<li><strong><code>coord_sf()</code></strong> is set to EPSG:3857, matching the basemap. The <strong><code>theme_void()</code></strong> removes unnecessary plot elements for a clean map-focused look, with additional styling adjustments.</li>
+</ul></li>
+</ol>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The base map raster tiles</span></span>
+<span id="cb8-2">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> ggmap<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggmap</span>(basemap_sf) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-3">  </span>
+<span id="cb8-4">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Country boundaries</span></span>
+<span id="cb8-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb8-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> basemap,</span>
+<span id="cb8-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span>,</span>
+<span id="cb8-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">alpha</span>(text_col, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>),</span>
+<span id="cb8-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">inherit.aes =</span> F,</span>
+<span id="cb8-10">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span></span>
+<span id="cb8-11">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-12">  </span>
+<span id="cb8-13">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Country names</span></span>
+<span id="cb8-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf_text</span>(</span>
+<span id="cb8-15">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> basemap,</span>
+<span id="cb8-16">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> name, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> area),</span>
+<span id="cb8-17">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>,</span>
+<span id="cb8-18">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fontface =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span>,</span>
+<span id="cb8-19">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">inherit.aes =</span> F</span>
+<span id="cb8-20">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-21">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_size_continuous</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">range =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-22">  </span>
+<span id="cb8-23">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The driving route</span></span>
+<span id="cb8-24">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb8-25">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> dfroutes,</span>
+<span id="cb8-26">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb8-27">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">geometry =</span> route_geometry</span>
+<span id="cb8-28">    ),</span>
+<span id="cb8-29">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">inherit.aes =</span> F,</span>
+<span id="cb8-30">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">alpha</span>(text_col, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8</span>),</span>
+<span id="cb8-31">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span></span>
+<span id="cb8-32">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-33">  </span>
+<span id="cb8-34">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The cities to be visited</span></span>
+<span id="cb8-35">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb8-36">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> df,</span>
+<span id="cb8-37">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>,</span>
+<span id="cb8-38">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, </span>
+<span id="cb8-39">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">inherit.aes =</span> F,</span>
+<span id="cb8-40">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span></span>
+<span id="cb8-41">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-42">  </span>
+<span id="cb8-43">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Names of cities</span></span>
+<span id="cb8-44">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_text_repel</span>(</span>
+<span id="cb8-45">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> df,</span>
+<span id="cb8-46">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb8-47">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> capital,</span>
+<span id="cb8-48">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">geometry =</span> geometry</span>
+<span id="cb8-49">    ),</span>
+<span id="cb8-50">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">inherit.aes =</span> F,</span>
+<span id="cb8-51">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">stat =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sf_coordinates"</span>,</span>
+<span id="cb8-52">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fontface =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span>,</span>
+<span id="cb8-53">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span></span>
+<span id="cb8-54">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-55">  </span>
+<span id="cb8-56">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Route times and distances</span></span>
+<span id="cb8-57">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf_label</span>(</span>
+<span id="cb8-58">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> dfroutes,</span>
+<span id="cb8-59">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb8-60">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(distance_text)</span>
+<span id="cb8-61">    ),</span>
+<span id="cb8-62">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">alpha</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>),</span>
+<span id="cb8-63">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lineheight =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>,</span>
+<span id="cb8-64">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">inherit.aes =</span> F,</span>
+<span id="cb8-65">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label.size =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)</span>
+<span id="cb8-66">    </span>
+<span id="cb8-67">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-68">  </span>
+<span id="cb8-69">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Coordinates and Scales</span></span>
+<span id="cb8-70">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb8-71">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3857</span></span>
+<span id="cb8-72">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-73">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_void</span>(</span>
+<span id="cb8-74">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>,</span>
+<span id="cb8-75">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span></span>
+<span id="cb8-76">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-77">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb8-78">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"none"</span>,</span>
+<span id="cb8-79">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)</span>
+<span id="cb8-80">  )</span>
+<span id="cb8-81"></span>
+<span id="cb8-82"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb8-83">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb8-84">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"osm_driving_directions_1.png"</span>),</span>
+<span id="cb8-85">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb8-86">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9.25</span>,</span>
+<span id="cb8-87">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>,</span>
+<span id="cb8-88">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">unit =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"cm"</span>,</span>
+<span id="cb8-89">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bg =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span></span>
+<span id="cb8-90">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-completeviz" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-completeviz-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/osm_driving_directions_1.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-completeviz-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: The completed overall visualization - with a base map of raster tiles from {ggmap} get_stadia_map(), overlaid country names and boundaries from {rnaturalearth} ne_countries(), and routes from {osrm} package.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="step-8-each-leg-of-the-trip-visualized-separately" class="level2">
+<h2 class="anchored" data-anchor-id="step-8-each-leg-of-the-trip-visualized-separately">Step 8: Each leg of the trip visualized separately</h2>
+<p>This code snippet generates individual map visualizations for each driving route using <strong>ggmap</strong> and <strong>ggplot2</strong>. Here’s an explanation of the process, which effectively creates a series of images showcasing routes between pairs of cities:</p>
+<ol type="1">
+<li><strong>Loop through Routes</strong>:
+<ul>
+<li>The <code>for</code> loop iterates over each row of the <code>dfroutes</code> dataframe, which contains driving route data between origin and destination cities.</li>
+</ul></li>
+<li><strong>Define Temporary Bounding Box</strong>:
+<ul>
+<li>For each route, a temporary bounding box is created using the <strong><code>st_bbox()</code></strong> function and expanded slightly to ensure that the route is well-framed in the map view.</li>
+</ul></li>
+<li><strong>Retrieve Map Tiles</strong>:
+<ul>
+<li>The <strong><code>get_stadiamap()</code></strong> function fetches map tiles based on the temporary bounding box, specifying a zoom level and map type (e.g., “outdoors”).</li>
+</ul></li>
+<li><strong>Crop Basemap</strong>:
+<ul>
+<li>A cropped version of the original country basemap is created to match the bounding box of the current route, ensuring the country boundaries align with the area of interest.</li>
+</ul></li>
+<li><strong>Create Map Visualization</strong>:
+<ul>
+<li><strong><code>ggmap::ggmap(temp_basemap)</code></strong> initializes the base map, onto which various layers are added:
+<ul>
+<li><strong>Country Names</strong>: Displayed using <strong><code>geom_sf_text()</code></strong>, showing the names of countries within the bounding box.</li>
+<li><strong>Driving Route</strong>: The specific route for the current iteration is drawn using <strong><code>geom_sf()</code></strong>.</li>
+<li><strong>Cities</strong>: Both the origin and destination cities are represented with red points using <strong><code>geom_sf()</code></strong>.</li>
+<li><strong>City Labels</strong>: City names are added with <strong><code>geom_text_repel()</code></strong>, ensuring that they do not overlap with each other or other elements.</li>
+<li><strong>Route Details</strong>: Distance and duration information are displayed using <strong><code>geom_sf_label()</code></strong>, formatted neatly for clarity.</li>
+</ul></li>
+</ul></li>
+<li><strong>Finalizing the Map</strong>:
+<ul>
+<li><strong>Coordinate System</strong>: Set to EPSG:3857 for compatibility with the base map.</li>
+<li><strong>Theme Adjustments</strong>: <strong><code>theme_void()</code></strong> is used to create a clean look, removing axes and grid lines.</li>
+</ul></li>
+</ol>
+<p>This approach results in a series of visually consistent maps, each illustrating a distinct driving route between two cities, complete with detailed annotations and clear geographic context. The display is done using the <a href="https://quarto.org/docs/interactive/layout.html#tabset-panel">Tabset Panels</a> layout available in <a href="https://quarto.org/">Quarto</a>.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nrow</span>(dfroutes)) {</span>
+<span id="cb9-2"> </span>
+<span id="cb9-3">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># A bounding box in the format (left, right, top, bottom) for {ggmap}</span></span>
+<span id="cb9-4">  temp_bbox <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_bbox</span>(</span>
+<span id="cb9-5">    dfroutes <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-6">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">slice</span>(i)</span>
+<span id="cb9-7">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb9-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">names</span>(temp_bbox) <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"left"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bottom"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"right"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"top"</span>)</span>
+<span id="cb9-9">  </span>
+<span id="cb9-10">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Getting the map tiles</span></span>
+<span id="cb9-11">  temp_basemap <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> ggmap<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">get_stadiamap</span>(</span>
+<span id="cb9-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bbox =</span> temp_bbox,</span>
+<span id="cb9-13">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">zoom =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>,</span>
+<span id="cb9-14">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">maptype =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"outdoors"</span></span>
+<span id="cb9-15">  )  </span>
+<span id="cb9-16">  </span>
+<span id="cb9-17">  temp_basemap <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggmap_bbox</span>(temp_basemap)</span>
+<span id="cb9-18">  </span>
+<span id="cb9-19">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">object.size</span>(temp_basemap) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Mb"</span>)</span>
+<span id="cb9-20">  </span>
+<span id="cb9-21">  temp_baselinemap <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crop</span>(basemap, temp_bbox)</span>
+<span id="cb9-22">  </span>
+<span id="cb9-23">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The base map raster tiles</span></span>
+<span id="cb9-24">  g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> ggmap<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggmap</span>(temp_basemap) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-25">    </span>
+<span id="cb9-26">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Country boundaries</span></span>
+<span id="cb9-27">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># geom_sf(</span></span>
+<span id="cb9-28">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#   data = temp_baselinemap,</span></span>
+<span id="cb9-29">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#   fill = "transparent",</span></span>
+<span id="cb9-30">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#   colour = alpha(text_col, 0.3),</span></span>
+<span id="cb9-31">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#   inherit.aes = F,</span></span>
+<span id="cb9-32">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#   linewidth = 0.3</span></span>
+<span id="cb9-33">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># ) +</span></span>
+<span id="cb9-34">    </span>
+<span id="cb9-35">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Country names</span></span>
+<span id="cb9-36">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf_text</span>(</span>
+<span id="cb9-37">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> temp_baselinemap,</span>
+<span id="cb9-38">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> name, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> area),</span>
+<span id="cb9-39">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>,</span>
+<span id="cb9-40">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fontface =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span>,</span>
+<span id="cb9-41">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">inherit.aes =</span> F</span>
+<span id="cb9-42">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-43">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_size_continuous</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">range =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-44">    </span>
+<span id="cb9-45">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The driving route</span></span>
+<span id="cb9-46">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb9-47">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">slice</span>(dfroutes, i),</span>
+<span id="cb9-48">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb9-49">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">geometry =</span> route_geometry</span>
+<span id="cb9-50">      ),</span>
+<span id="cb9-51">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">inherit.aes =</span> F,</span>
+<span id="cb9-52">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">alpha</span>(text_col, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8</span>),</span>
+<span id="cb9-53">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span></span>
+<span id="cb9-54">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-55">    </span>
+<span id="cb9-56">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The cities to be visited: origin</span></span>
+<span id="cb9-57">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb9-58">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">slice</span>(dfroutes, i),</span>
+<span id="cb9-59">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">geometry =</span> origin_geometry),</span>
+<span id="cb9-60">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>,</span>
+<span id="cb9-61">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, </span>
+<span id="cb9-62">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">inherit.aes =</span> F,</span>
+<span id="cb9-63">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.4</span></span>
+<span id="cb9-64">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-65">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The cities to be visited: destination</span></span>
+<span id="cb9-66">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb9-67">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">slice</span>(dfroutes, i),</span>
+<span id="cb9-68">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">geometry =</span> destination_geometry),</span>
+<span id="cb9-69">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>,</span>
+<span id="cb9-70">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, </span>
+<span id="cb9-71">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">inherit.aes =</span> F,</span>
+<span id="cb9-72">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.4</span></span>
+<span id="cb9-73">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-74">    </span>
+<span id="cb9-75">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Names of cities: Origin</span></span>
+<span id="cb9-76">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_text_repel</span>(</span>
+<span id="cb9-77">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">slice</span>(dfroutes, i),</span>
+<span id="cb9-78">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb9-79">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> origin_city,</span>
+<span id="cb9-80">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">geometry =</span> origin_geometry</span>
+<span id="cb9-81">      ),</span>
+<span id="cb9-82">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">inherit.aes =</span> F,</span>
+<span id="cb9-83">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">stat =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sf_coordinates"</span>,</span>
+<span id="cb9-84">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fontface =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span>,</span>
+<span id="cb9-85">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span></span>
+<span id="cb9-86">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-87">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Names of cities: Destination</span></span>
+<span id="cb9-88">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_text_repel</span>(</span>
+<span id="cb9-89">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">slice</span>(dfroutes, i),</span>
+<span id="cb9-90">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb9-91">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> destination_city,</span>
+<span id="cb9-92">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">geometry =</span> destination_geometry</span>
+<span id="cb9-93">      ),</span>
+<span id="cb9-94">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">inherit.aes =</span> F,</span>
+<span id="cb9-95">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">stat =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sf_coordinates"</span>,</span>
+<span id="cb9-96">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fontface =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span>,</span>
+<span id="cb9-97">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span></span>
+<span id="cb9-98">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-99">    </span>
+<span id="cb9-100">    </span>
+<span id="cb9-101">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Route times and distances</span></span>
+<span id="cb9-102">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf_label</span>(</span>
+<span id="cb9-103">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">slice</span>(dfroutes, i),</span>
+<span id="cb9-104">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb9-105">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(</span>
+<span id="cb9-106">          distance_text,</span>
+<span id="cb9-107">          <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb9-108">          <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"("</span>,</span>
+<span id="cb9-109">          duration_text,</span>
+<span id="cb9-110">          <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">")"</span></span>
+<span id="cb9-111">        )</span>
+<span id="cb9-112">      ),</span>
+<span id="cb9-113">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">alpha</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>),</span>
+<span id="cb9-114">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lineheight =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>,</span>
+<span id="cb9-115">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">inherit.aes =</span> F,</span>
+<span id="cb9-116">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label.size =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb9-117">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,</span>
+<span id="cb9-118">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fontface =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span></span>
+<span id="cb9-119">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-120">    </span>
+<span id="cb9-121">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Coordinates and Scales</span></span>
+<span id="cb9-122">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb9-123">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3857</span></span>
+<span id="cb9-124">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-125">    </span>
+<span id="cb9-126">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_void</span>(</span>
+<span id="cb9-127">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>,</span>
+<span id="cb9-128">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span></span>
+<span id="cb9-129">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-130">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb9-131">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"none"</span>,</span>
+<span id="cb9-132">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)</span>
+<span id="cb9-133">    )</span>
+<span id="cb9-134">  </span>
+<span id="cb9-135">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb9-136">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb9-137">                          <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"osm_driving_directions_leg"</span>, i, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".png"</span>)),</span>
+<span id="cb9-138">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb9-139">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>,</span>
+<span id="cb9-140">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>,</span>
+<span id="cb9-141">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">unit =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"cm"</span>,</span>
+<span id="cb9-142">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bg =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span></span>
+<span id="cb9-143">  )</span>
+<span id="cb9-144">   </span>
+<span id="cb9-145">}</span></code></pre></div>
+</details>
+</div>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs"><li class="nav-item"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" aria-controls="tabset-1-1" aria-selected="true">Leg 1</a></li><li class="nav-item"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" aria-controls="tabset-1-2" aria-selected="false">Leg 2</a></li><li class="nav-item"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" aria-controls="tabset-1-3" aria-selected="false">Leg 3</a></li><li class="nav-item"><a class="nav-link" id="tabset-1-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-4" aria-controls="tabset-1-4" aria-selected="false">Leg 4</a></li><li class="nav-item"><a class="nav-link" id="tabset-1-5-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-5" aria-controls="tabset-1-5" aria-selected="false">Leg 5</a></li><li class="nav-item"><a class="nav-link" id="tabset-1-6-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-6" aria-controls="tabset-1-6" aria-selected="false">Leg 6</a></li><li class="nav-item"><a class="nav-link" id="tabset-1-7-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-7" aria-controls="tabset-1-7" aria-selected="false">Leg 7</a></li><li class="nav-item"><a class="nav-link" id="tabset-1-8-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-8" aria-controls="tabset-1-8" aria-selected="false">Leg 8</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" aria-labelledby="tabset-1-1-tab">
+<div id="fig-day1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-day1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/osm_driving_directions_leg1.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-day1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Day 1: Drive from Athens to Tirana.
+</figcaption>
+</figure>
+</div>
+</div>
+<div id="tabset-1-2" class="tab-pane" aria-labelledby="tabset-1-2-tab">
+<div id="fig-day2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-day2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/osm_driving_directions_leg2.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-day2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Day 2: Drive from Tirana to Padogorica.
+</figcaption>
+</figure>
+</div>
+</div>
+<div id="tabset-1-3" class="tab-pane" aria-labelledby="tabset-1-3-tab">
+<div id="fig-day3" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-day3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/osm_driving_directions_leg3.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-day3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Day 3: Drive from Padogorica to Sarajevo.
+</figcaption>
+</figure>
+</div>
+</div>
+<div id="tabset-1-4" class="tab-pane" aria-labelledby="tabset-1-4-tab">
+<div id="fig-day4" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-day4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/osm_driving_directions_leg4.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-day4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8: Day 4: Drive from Sarajevo to Zagreb.
+</figcaption>
+</figure>
+</div>
+</div>
+<div id="tabset-1-5" class="tab-pane" aria-labelledby="tabset-1-5-tab">
+<div id="fig-day5" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-day5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/osm_driving_directions_leg5.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-day5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9: Day 5: Drive from Zagreb to Ljubljana.
+</figcaption>
+</figure>
+</div>
+</div>
+<div id="tabset-1-6" class="tab-pane" aria-labelledby="tabset-1-6-tab">
+<div id="fig-day6" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-day6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/osm_driving_directions_leg6.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-day6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10: Day 6: Drive from Ljubljana to Venice.
+</figcaption>
+</figure>
+</div>
+</div>
+<div id="tabset-1-7" class="tab-pane" aria-labelledby="tabset-1-7-tab">
+<div id="fig-day7" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-day7-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/osm_driving_directions_leg7.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-day7-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11: Day 7: Drive from Venice to Florence.
+</figcaption>
+</figure>
+</div>
+</div>
+<div id="tabset-1-8" class="tab-pane" aria-labelledby="tabset-1-8-tab">
+<div id="fig-day8" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-day8-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/osm_driving_directions_leg8.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-day8-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12: Day 8: Drive from Florence to Rome.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0">
+<div id="ref-heiss2023" class="csl-entry">
+Heiss, Andrew. 2023. <span>“How to Make Fancy Road Trip Maps with r and OpenStreetMap.”</span> <a href="http://dx.doi.org/10.59350/rgwda-0tv16">http://dx.doi.org/10.59350/rgwda-0tv16</a>.
+</div>
+</div></section></div> ]]></description>
+  <guid>https://aditya-dahiya.github.io/visage/index.html/geocomputation/osm_driving_directions.html</guid>
+  <pubDate>Thu, 24 Oct 2024 18:30:00 GMT</pubDate>
+</item>
+<item>
   <title>Computing shortest routes in the sea that avoid land</title>
   <dc:creator>Aditya Dahiya</dc:creator>
   <link>https://aditya-dahiya.github.io/visage/index.html/geocomputation/computing_sea_routes.html</link>
@@ -1646,7 +5008,7 @@ Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy D’Agostino 
 
 <p><strong>Dataset used:</strong> This <em>#TidyTuesday</em> dataset comes from the Center for Whale Research (CWR), which monitors Southern Resident killer whales in the Salish Sea, part of the Pacific Northwest. The dataset, scraped by <a href="https://github.com/jadeynryan">Jadey Ryan</a> and documented <a href="https://jadeynryan.github.io/orcas/">here</a>, contains information on encounters from 2017 to 2024. Each encounter involves photographing and identifying individual whales. The data can be accessed via the {<code>orcas</code>} R package and includes variables like encounter duration, location, and pod. While the dataset is mostly tidy, some inconsistencies such as missing values and negative durations remain. <strong>|</strong> <a href="https://github.com/jadeynryan/orcas">Source</a> <strong>|</strong> <a href="https://github.com/rfordatascience/tidytuesday/blob/master/data/2024/2024-10-15/readme.md">Data</a>.</p>
 <p>Here’s my #TidyTuesday Visualization for this project in Figure&nbsp;1, and the <a href="https://raw.githubusercontent.com/Aditya-Dahiya/projects_presentations/refs/heads/main/data_vizs/tidy_orcas_encounters.qmd">code</a> used and the visualization <a href="https://aditya-dahiya.github.io/projects_presentations/data_vizs/tidy_orcas_encounters.html">webpage</a>.</p>
-<div id="fig-tidytuesday" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-tidytuesday" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-tidytuesday-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/tidy_orcas_encounters.png" class="img-fluid figure-img">
@@ -1800,7 +5162,7 @@ font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">gt_theme_espn</span>()</span></code></pre></div>
 </details>
-<div id="tbl-env1" class="cell quarto-float anchored">
+<div id="tbl-env1" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-env1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;1: List of packages used during this analysis and their versions
@@ -2552,7 +5914,7 @@ background-color: null;
 font-style: inherit;">"Recorded Encounters of Orcas (Southern Killer Whales) in the Salish Sea (2017-2024)"</span></span>
 <span id="cb2-67">  )</span></code></pre></div>
 </details>
-<div id="tbl-clean-data1" class="cell quarto-float anchored">
+<div id="tbl-clean-data1" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-clean-data1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;2: A table of clean data that shows id, year, duration and starting and ending coordinates of each Killer Whale encounter as an {sf} class column
@@ -3094,7 +6456,7 @@ background-color: null;
 font-style: inherit;">data =</span> routes)</span></code></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-routes12" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-routes12" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-routes12-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/computing_sea_routes_files/figure-html/fig-routes12-1.png" class="img-fluid figure-img" width="672">
@@ -3213,11 +6575,11 @@ font-style: inherit;">+</span></span>
 background-color: null;
 font-style: inherit;">geom_sf</span>()</span></code></pre></div>
 </details>
-<div id="fig-basemap1" class="cell quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-basemap1" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-basemap1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="fig-basemap1-1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-basemap1-1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-basemap1-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/computing_sea_routes_files/figure-html/fig-basemap1-1.png" class="img-fluid figure-img" data-ref-parent="fig-basemap1" width="672">
@@ -3229,7 +6591,7 @@ font-style: inherit;">geom_sf</span>()</span></code></pre></div>
 </div>
 </div>
 <div class="cell-output-display">
-<div id="fig-basemap1-2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-basemap1-2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-basemap1-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/computing_sea_routes_files/figure-html/fig-basemap1-2.png" class="img-fluid figure-img" data-ref-parent="fig-basemap1" width="672">
@@ -3446,7 +6808,7 @@ font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">gt_theme_espn</span>()</span></code></pre></div>
 </details>
-<div id="tbl-check-intersection" class="cell quarto-float anchored">
+<div id="tbl-check-intersection" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-check-intersection-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;3: A table of intersecting and non-intersecting routes
@@ -4269,7 +7631,7 @@ font-style: inherit;">"white"</span></span>
 <span id="cb6-84">)</span></code></pre></div>
 </details>
 </div>
-<div id="fig-final2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-final2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-final2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/computing_sea_routes_1.png" class="img-fluid figure-img">
@@ -4447,7 +7809,7 @@ font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">gt_theme_espn</span>()</span></code></pre></div>
 </details>
-<div id="tbl-env" class="cell quarto-float anchored">
+<div id="tbl-env" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-env-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;4: List of packages used during this analysis and their versions
@@ -5084,7 +8446,7 @@ background-color: null;
 font-style: inherit;">2</span></span>
 <span id="cb8-37">  )</span></code></pre></div>
 </details>
-<div id="tbl-clean-data" class="cell quarto-float anchored">
+<div id="tbl-clean-data" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-clean-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;5: A table of clean data that shows id, year, duration and starting and ending coordinates of each Killer Whale encounter
@@ -5808,11 +9170,11 @@ font-style: inherit;">+</span></span>
 background-color: null;
 font-style: inherit;">geom_sf</span>()</span></code></pre></div>
 </details>
-<div id="fig-basemap" class="cell quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-basemap" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-basemap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="fig-basemap-1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-basemap-1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-basemap-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/computing_sea_routes_files/figure-html/fig-basemap-1.png" class="img-fluid figure-img" data-ref-parent="fig-basemap" width="672">
@@ -5824,7 +9186,7 @@ font-style: inherit;">geom_sf</span>()</span></code></pre></div>
 </div>
 </div>
 <div class="cell-output-display">
-<div id="fig-basemap-2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-basemap-2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-basemap-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/computing_sea_routes_files/figure-html/fig-basemap-2.png" class="img-fluid figure-img" data-ref-parent="fig-basemap" width="672">
@@ -5836,7 +9198,7 @@ font-style: inherit;">geom_sf</span>()</span></code></pre></div>
 </div>
 </div>
 <div class="cell-output-display">
-<div id="fig-basemap-3" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-basemap-3" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-basemap-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/computing_sea_routes_files/figure-html/fig-basemap-3.png" class="img-fluid figure-img" data-ref-parent="fig-basemap" width="672">
@@ -5955,7 +9317,7 @@ background-color: null;
 font-style: inherit;">data =</span> rr)</span></code></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-rast1-1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-rast1-1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-rast1-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/computing_sea_routes_files/figure-html/fig-rast1-1.png" class="img-fluid figure-img" width="672">
@@ -5967,7 +9329,7 @@ Figure&nbsp;6: The empty raster of 500 X 500 created using terra::rast()
 </div>
 </div>
 <div class="cell-output-display">
-<div id="fig-rast1-2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-rast1-2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-rast1-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/computing_sea_routes_files/figure-html/fig-rast1-2.png" class="img-fluid figure-img" width="672">
@@ -6331,7 +9693,7 @@ font-style: inherit;">"#b6e3db"</span>)</span>
 <span id="cb14-18">  )</span></code></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-shortpaths" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-shortpaths" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-shortpaths-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/computing_sea_routes_files/figure-html/fig-shortpaths-1.png" class="img-fluid figure-img" width="672">
@@ -6984,7 +10346,7 @@ font-style: inherit;">50</span>)}</span>
 }
 </style>
 
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <thead>
 <tr class="header gt_col_headings">
 <th id="id" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">id</th>
@@ -7229,7 +10591,7 @@ font-style: inherit;">NA</span>)</span>
 <span id="cb16-28">  )</span></code></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-final1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-final1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-final1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/computing_sea_routes_files/figure-html/fig-final1-1.png" class="img-fluid figure-img" width="672">
@@ -7249,23 +10611,6 @@ Figure&nbsp;9: The final map with routes shown that don’t intersect land. The 
  ]]></description>
   <guid>https://aditya-dahiya.github.io/visage/index.html/geocomputation/computing_sea_routes.html</guid>
   <pubDate>Sat, 19 Oct 2024 18:30:00 GMT</pubDate>
-</item>
-<item>
-  <title>Driving Directions using Open Street Maps Routing Service</title>
-  <dc:creator>Aditya Dahiya</dc:creator>
-  <link>https://aditya-dahiya.github.io/visage/index.html/geocomputation/osm_driving_directions.html</link>
-  <description><![CDATA[ 
-
-
-
-
-<p>Inspired from the <a href="https://www.andrewheiss.com/blog/2023/06/01/geocoding-routing-openstreetmap-r/">tutorial</a> from <a href="https://www.andrewheiss.com/">Andrew Heiss</a>, titled “<strong><em>How to make fancy road trip maps with R and OpenStreetMap</em></strong>”.</p>
-
-
-
- ]]></description>
-  <guid>https://aditya-dahiya.github.io/visage/index.html/geocomputation/osm_driving_directions.html</guid>
-  <pubDate>Wed, 16 Oct 2024 18:30:00 GMT</pubDate>
 </item>
 <item>
   <title>Creating Maps in R with ggplot2 having background Raster Images using ggmap</title>

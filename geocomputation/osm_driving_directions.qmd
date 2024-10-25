@@ -1,7 +1,7 @@
 ---
 title: "Driving Directions using Open Street Maps Routing Service"
-subtitle: ""
-date: "2024-10-17"
+subtitle: "Using {tidygeocoder}, {osrm}, {sf}, {tidyverse} and {ggmap} along with Open Source Techniques to plot driving directions along various cities in Europe in the norther-Mediterranean region"
+date: "2024-10-25"
 author: "Aditya Dahiya"
 bibliography: references.bib
 format:
@@ -26,4 +26,806 @@ share:
   facebook: true
 ---
 
-Inspired from the [tutorial](https://www.andrewheiss.com/blog/2023/06/01/geocoding-routing-openstreetmap-r/) from [Andrew Heiss](https://www.andrewheiss.com/), titled "***How to make fancy road trip maps with R and OpenStreetMap***".
+This code provides a detailed methodology for creating a visually informative route map for a driving trip along the northern Mediterranean, integrating data visualization, spatial data handling, and Open Street Maps (OSM) routing services in R. Utilizing several packages, including `{sf}` for spatial data and `{tidygeocoder}` for geocoding, the code transforms a dataset of locations into spatial coordinates. By accessing OSRM (Open Source Routing Machine) through the `{osrm}` package, the code calculates and visualizes optimized driving routes between selected cities. Distances and travel durations are formatted using custom functions, enhancing the map's usability and clarity.
+
+The geospatial data is presented using `{ggplot2}`, with additional styling from `{ggrepel}` for labels and `{patchwork}` to arrange plots. Base map layers are sourced from `{rnaturalearth}`, and a refined background layer is added using `{ggmap}` with Stadia map tiles, adjusted to EPSG:3857 using custom bounding box functions. This layering enables effective visualization of routes on custom raster maps. The code's structure allows for modifications, such as changing cities or map styling, demonstrating the adaptability of R's spatial data packages in route mapping and driving directions creation.
+
+**Inspired from the [tutorial](https://www.andrewheiss.com/blog/2023/06/01/geocoding-routing-openstreetmap-r/)[@heiss2023] titled "*How to make fancy road trip maps with R and OpenStreetMap*".**
+
+## Step 1: Setting up basics
+
+This code initializes an R project for geospatial data analysis and visualization, utilizing multiple packages for enhanced map presentation, styling, and data wrangling:
+
+-   **Data Handling & Visualization**: Packages like [**tidyverse**](https://www.tidyverse.org/) provide core data manipulation tools and **ggplot2** for visualizations.
+-   **Spatial Data Management**: [**sf**](https://r-spatial.github.io/sf/) simplifies handling spatial objects in a tidy framework, and [**osrm**](https://cran.r-project.org/web/packages/osrm/index.html) connects R to the Open Source Routing Machine for geospatial route calculations.
+-   **Geocoding**: [**tidygeocoder**](https://jessecambon.github.io/tidygeocoder/) automates address-based geocoding.
+-   **Map Enhancements**: [**ggspatial**](https://cran.r-project.org/web/packages/ggspatial/index.html) adds visual elements like scale bars; **ggrepel** prevents overlapping labels for clear visuals.
+-   **Custom Fonts**: [**sysfonts**](https://cran.r-project.org/web/packages/sysfonts/index.html) and [**showtext**](https://cran.r-project.org/web/packages/showtext/index.html) allow use of Google Fonts, applied through a custom theme.
+-   **Plot Layouts & Tables**: [**patchwork**](https://patchwork.data-imaginist.com/) enables combining ggplot plots, and [**gt**](https://gt.rstudio.com/) produces elegant HTML tables.
+
+The code defines custom fonts for plot titles and body text using Google Fonts (e.g., "Barlow") and sets up a theme function, `theme_drive`, for applying a modern, minimal aesthetic in ggplot2. It also specifies text color and font-family defaults for labels in plots.
+
+```{r}
+#| label: setup
+
+library(tidyverse)     # Data Wrangling and ggplot2
+library(sf)            # Handle spatial data in R in a tidy way
+library(tidygeocoder)  # Automated geocoding of addresses
+library(osrm)          # Access OSRM through R
+library(ggrepel)       # Nicer non-overlapping labels
+library(glue)          # Easier string interpolation
+library(scales)        # Nicer labeling functions
+library(patchwork)     # Combine plots made in ggplot2
+library(ggspatial)     # Nicer map features like scale bars
+library(showtext)      # Displaying google fonts
+library(sysfonts)      # Getting google fonts into R
+library(gt)            # Displaying beautiful HTML tables 
+
+# A font for the titles and major points
+sysfonts::font_add_google("Barlow", "title_font")
+
+# A font for the body and text
+sysfonts::font_add_google("Barlow Condensed", "body_font")
+
+# Allow R graphics devices to display these fonts
+showtext::showtext_auto()
+
+# Text colour
+text_col <- "grey20"
+
+# Custom ggplot theme to make pretty plots
+# Get the font at https://fonts.google.com/specimen/Overpass
+
+theme_drive <- function(...) {
+  theme_void(
+    base_family = "body_font",
+    base_size = 14
+  ) +
+  theme(
+    text = element_text(
+      colour = text_col,
+      family = "body_font",
+      hjust = 0.5
+    ),
+    ...
+  )
+}
+
+# Make labels use the fonts specified by default
+update_geom_defaults("label_repel", list(family = "body_font",
+                                         colour = text_col))
+update_geom_defaults("label", list(family = "body_font",
+                                         colour = text_col))
+update_geom_defaults("text_repel", list(family = "body_font",
+                                         colour = text_col))
+update_geom_defaults("text", list(family = "body_font",
+                                         colour = text_col))
+
+```
+
+## Step 2: A Road Trip Plan
+
+Let us plan a road trip along the northern shores of the Mediterranean Sea, hopping along the famous sites in the capitals and important cities of some countries. This code snippet uses R to create a table of famous attractions across several European countries, geocodes each location to obtain its latitude and longitude, and displays the data in a formatted table with map coordinates:
+
+-   **Data Setup**: A sample dataset is created with columns for country, capital, attraction, and address using [**dplyr**](https://dplyr.tidyverse.org/).
+-   **Geocoding**: The [**tidygeocoder**](https://jessecambon.github.io/tidygeocoder/) package is used to automatically retrieve latitude and longitude coordinates based on the address, using OpenStreetMap’s geocoding service.
+-   **Spatial Transformation**: Once coordinates are obtained, [**sf**](https://r-spatial.github.io/sf/) converts them into a simple feature (SF) object, setting the coordinate system to EPSG:4326 for geographic data.
+-   **Tabular Display**: The data is formatted as a stylish HTML table using [**gt**](https://gt.rstudio.com/) and **gtExtras** for theme styling.
+
+```{r}
+#| label: tbl-data
+#| tbl-cap: "The data to be used for further analysis"
+#| eval: true
+
+library(tidyverse)
+library(sf)
+library(gt)
+
+rawdata <- dplyr::tribble(
+  ~id, ~country,               ~capital,    ~attraction,                   ~address,
+  1,   "Greece",               "Athens",    "Acropolis Museum",            "15 Dionysiou Areopagitou St, Athens 11742",
+  2,   "Albania",              "Tirana",    "Skanderbeg Square",           "Sheshi Skënderbej, Tirana 1001",
+  3,   "Montenegro",           "Podgorica", "Millennium Bridge",           "Cetinjski Put, Podgorica 81000",
+  4,   "Bosnia and Herzegovina","Sarajevo", "Baščaršija (Old Bazaar)",     "Baščaršija, Sarajevo 71000",
+  5,   "Croatia",              "Zagreb",    "Ban Jelačić Square",          "Trg bana Josipa Jelačića, Zagreb 10000",
+  6,   "Slovenia",             "Ljubljana", "Ljubljana Castle",            "Grajska planota 1, Ljubljana 1000",
+  7,   "Italy",                "Venice",    "St. Mark's Basilica",         "Piazza San Marco, Venice 30124",
+  8,   "Italy",                "Florence",  "Piazza del Duomo",            "Piazza del Duomo, Florence 50122",
+  9,   "Italy",                "Rome",      "Trevi Fountain",              "Piazza di Trevi, Rome 00187"
+)
+
+
+# Convert latitude and longitudes into SF Coordinates
+
+
+df <- rawdata |> 
+  
+  # Compile a full address to be used for finding the coordinates
+  # mutate(
+  #   address = paste(
+  #     destination,
+  #     capital, 
+  #     country,
+  #     sep = ", "
+  #   )
+  # ) |> 
+  tidygeocoder::geocode(
+    address = address,
+    # country = country,
+    # city = capital,
+    method = "osm"
+  ) |> 
+  st_as_sf(
+    coords = c("long", "lat"),
+    crs = st_crs("EPSG:4326")
+  )
+
+
+df |> 
+  gt() |> 
+  tab_header(
+    title = "The locations (Geometry) of the planned destinations",
+    subtitle = "Getting Geometry locations using geocode() from {tidygeocoder}"
+  ) |> 
+  gtExtras::gt_theme_538()
+```
+
+## Step 3: Some Custom Functions
+
+This code defines a set of custom functions in R to format durations, distances, and handle conversions between different units, useful for working with geographic and travel data:
+
+1.  **Formatting Durations**: `fmt_duration()` takes an input in minutes and converts it into a readable string format. Durations are rounded to the nearest 15 minutes and formatted to display in hours and minutes. When durations exceed 24 hours, days are factored into the calculation by converting them to hours for accurate display.
+
+2.  **Distance Formatting**:
+
+    -   `fmt_miles` and `fmt_km` utilize `scales::label_number()` to format distances in miles and kilometers, respectively, with suffixes and thousand separators for clarity.
+
+3.  **Distance Conversions**: Functions for converting between miles, meters, and kilometers:
+
+    -   `miles_to_meters()` converts miles to meters.
+    -   `meters_to_miles()` and `km_to_miles()` handle conversions from meters and kilometers to miles.
+
+```{r}
+#| label: custom-funs
+
+# Credits: Andrew Weiss
+# URL: https://www.andrewheiss.com/blog/2023/06/01/
+#      geocoding-routing-openstreetmap-r/#packages-and-functions
+
+# Format duration in minutes and hours
+# This function takes a numeric input of a duration in minutes,
+# rounds it to the nearest 15 minutes, and formats the result as a string
+# indicating the number of hours and minutes in the duration.
+
+fmt_duration <- function(x) {
+  
+  # Round to the nearest 15 minutes
+  n_seconds <- round(seconds(x * 60) / (15 * 60)) * (15 * 60)
+  n_seconds <- seconds_to_period(n_seconds)
+  
+  out <- map_chr(n_seconds, \(n) {
+    if (seconds(n) <= 59) {
+      # If this is less than an hour, don't format anything with hours
+      glue("{MM} minutes", MM = minute(n))
+    } else {
+      # The formatting is required in terms of hours only. When the 
+      # duration exceeds 24 hours, `seconds_to_period()` converts the 
+      # duration into days (e.g., `seconds_to_period(60 * 60 * 24)` returns 
+      # "1d 0H 0M 0S") and displays zero hours. Therefore, the day portion 
+      # of the period is extracted, multiplied by 24, and added to the 
+      # hour component intended for display. 
+      extra_day_hours <- day(n) * 24
+  
+      glue("{HH} hour{s} {MM} minutes",
+        HH = scales::label_comma()(hour(n) + extra_day_hours),
+        MM = minute(n),
+        s = ifelse(hour(n) == 1, "", "s")
+      )
+    }
+  })
+  
+  return(out)
+}
+
+fmt_miles <- scales::label_number(
+  accuracy = 10, 
+  suffix = " miles", 
+  big.mark = ","
+  )
+
+fmt_km <- scales::label_number(
+  accuracy = 10, 
+  suffix = " km", 
+  big.mark = ","
+  )
+
+
+miles_to_meters <- function(x) {
+  x * 1609.344
+}
+
+meters_to_miles <- function(x) {
+  x / 1609.344
+}
+
+km_to_miles <- function(x) {
+  meters_to_miles(x * 1000)
+}
+
+```
+
+## Step 4: The base map and the driving locations
+
+This code creates a custom map showing key tourist attractions within the calculated bounding box of selected European countries:
+
+1.  **Bounding Box Calculation**:
+    -   The bounding box for mapped points is set with an additional degree of expansion (`edi`), extending the box slightly around all locations. This is calculated with `st_bbox()` using geometries in `df`.
+2.  **Basemap Creation**:
+    -   A basemap of European countries is created using [**rnaturalearth**](https://cran.r-project.org/web/packages/rnaturalearth/index.html) data, filtering out small states like Vatican City and San Marino. The map’s area data is computed for further customization if needed.
+3.  **Map Plotting**:
+    -   `ggplot2` and **sf** add visual layers:
+        -   Country boundaries as background with `geom_sf()`.
+        -   Country names with partially transparent, bold labels via `geom_sf_text()`.
+        -   Tourist attraction points and city names using red markers and labels.
+
+```{r}
+
+# Compute the bounding box for the maps
+# Expansion outside bounding box in degrees = edi
+edi = 0.5
+drive_bbox <- st_bbox(df$geometry) + c(-2 * edi, -2.5 * edi, edi, edi)
+
+
+basemap <- rnaturalearth::ne_countries(scale = 50) |>
+  select(name, iso_a3, geometry) |> 
+  filter(!(name %in% c("Vatican", "San Marino"))) |> 
+  st_crop(drive_bbox) |> 
+  mutate(area = as.numeric(st_area(geometry)))
+
+g <- ggplot(basemap) +
+  geom_sf() +
+  geom_sf_text(
+    mapping = aes(
+      label = name
+    ),
+    alpha = 0.5,
+    fontface = "bold",
+    nudge_y = +0.3
+  ) +
+  geom_sf(
+    data = df,
+    colour = "darkred",
+    size = 2,
+    alpha = 0.5
+  ) +
+  geom_sf_text(
+    data = df,
+    mapping = aes(label = capital),
+    colour = "darkred",
+    nudge_y = -0.2
+  ) +
+  labs(x = NULL, y = NULL)
+
+
+ggsave(
+  filename = here::here("geocomputation", "images",
+                        "osm_driving_directions_4.png"),
+  plot = g,
+  height = 900,
+  width = 900,
+  units = "px",
+  bg = "white"
+)
+```
+
+![A basic map showing the selected cities and the map of selected countries using data available in {rnaturalearth} and ne_countries()](images/osm_driving_directions_4.png){#fig-base-cities}
+
+## Step 5: Getting the Routes and a raw map of the routes
+
+This code generates a visual map illustrating the shortest driving routes between selected European cities, based on OpenStreetMap data:
+
+1.  **Route Data Preparation**:
+    -   Starting with `df` (containing cities and their coordinates), cities are paired sequentially as origins and destinations using `lead()`. The data is trimmed to exclude the final unpaired row.
+    -   [**osrmRoute()**](https://cran.r-project.org/web/packages/osrm/index.html) retrieves the shortest driving route between each origin and destination pair, with the computed route details stored in a nested column named `route`.
+2.  **Unnesting and Formatting**:
+    -   The `route` column is expanded to reveal route-specific data (geometry, distance, duration). Route geometry is then set as the primary spatial feature.
+    -   Custom functions `fmt_km()` and `fmt_duration()` format the route's distance and duration for clear labeling.
+3.  **Map Plotting**:
+    -   **ggplot2** visualizes the data in layers:
+        -   A basemap of European countries, created earlier, serves as the background.
+        -   Cities are marked in red, with labels for capital cities slightly adjusted for readability.
+        -   Driving routes between cities are drawn as connecting lines using the computed `route_geometry`.
+
+```{r}
+
+dfroutes <- df|> 
+  rename(
+    origin_geometry = geometry,
+    origin_city = capital
+  ) |>  
+  mutate(
+    destination_geometry = lead(origin_geometry),
+    destination_city = lead(origin_city)
+  )  |> 
+  slice_head(n = (nrow(df) - 1)) |> 
+  
+  # Let functions compute on our data frame a row-at-a-time
+  rowwise() |> 
+  
+  # Getting the shortest route between the two cities
+  mutate(route = osrmRoute(
+    src = origin_geometry, 
+    dst = destination_geometry)
+  ) |> 
+
+# The route details are stored in a nested list column called `route`, # which we’ll unnest. This produces a data frame with three geometry 
+# columns—for origin, destination, and route—so we’ll set the route 
+# column as the primary geometry (allowing us to use `geom_sf(data = routes_geocoded)` directly).
+  
+  unnest(route, names_sep = "_") |> 
+  st_set_geometry("route_geometry") |> 
+  mutate(
+    distance_text = fmt_km(route_distance),
+    duration_text = fmt_duration(route_duration)
+  )
+
+```
+
+```{r}
+#| label: fig-linebasemap
+#| eval: false
+
+g <- ggplot() +
+  geom_sf(
+    data = basemap
+  ) +
+  geom_sf(
+    data = df,
+    colour = "red",
+    size = 3
+  ) +
+  geom_sf_text(
+    data = df,
+    aes(label = capital),
+    nudge_y = -0.3,
+    size = 5
+  ) +
+  geom_sf(
+    data = dfroutes,
+    mapping = aes(
+      geometry = route_geometry
+    )
+  ) +
+  labs(
+    x = NULL, y = NULL
+  )
+
+ggsave(
+  filename = here::here("geocomputation", "images",
+                        "osm_driving_directions_2.png"),
+  plot = g,
+  height = 900,
+  width = 900,
+  units = "px",
+  bg = "white"
+)
+```
+
+![A simple map of the country boundaries \[from {rnaturalearth} and function ne_countries()\] with the route computed by osrmRoute() from {osrm} and selected destination cities as red dots.](images/osm_driving_directions_2.png){#fig-basedrive}
+
+## Step 6: A nice Stadia Map background map
+
+This code retrieves and customizes a basemap using [**Stadia Maps**](https://stadiamaps.com/), overlaying it with geospatial data in EPSG:3857, a coordinate reference system commonly used for web mapping.
+
+1.  **API Setup**:
+    -   The Stadia Maps API is registered with the **`register_stadiamap()`** function, allowing access to map tiles.
+2.  **Bounding Box Definition**:
+    -   A bounding box (`dv_bbox`) is defined using the limits of the area of interest. The bounding box is adjusted to Stadia Maps' format, setting boundaries based on longitude and latitude.
+3.  **Fetching Map Tiles**:
+    -   **`get_stadiamap()`** retrieves map tiles with terrain background style (`maptype = "stamen_terrain_background"`), appropriate for visualizing geographic contexts.
+4.  **Coordinate System Transformation**:
+    -   A custom function, **`ggmap_bbox()`**, redefines the map’s bounding box to EPSG:3857, necessary for layering [**sf**](https://r-spatial.github.io/sf/) objects over the raster map. This transformation is critical for accurate overlay alignment.
+5.  **Map Overlay and Export**:
+    -   Using **`ggmap()`**, the transformed Stadia basemap is displayed. The map, including overlaid geospatial features, is saved as a high-resolution image (`osm_driving_directions_3.png`) with [**ggsave()**](https://ggplot2.tidyverse.org/reference/ggsave.html).
+
+```{r}
+#| label: get-stadia-map
+#| eval: false
+
+# ggmap::register_stadiamap("YOUR API KEY HERE")
+
+# A bounding box in the format c(lowerleftlon, lowerleftlat, upperrightlon, upperrightlat)
+dv_bbox <- drive_bbox
+names(dv_bbox) <- c("left", "bottom", "right", "top")
+
+
+# Getting the map tiles
+basemap2 <- ggmap::get_stadiamap(
+  bbox = dv_bbox,
+  zoom = 7,
+  maptype = "stamen_terrain_background"
+)
+object.size(basemap2) |> print(units = "Mb")
+
+ggmap::ggmap(basemap2)
+
+# Starting the process of Overlaying the geom_sf() data on this
+# Most important is to add the inherit.aes = FALSE argument.
+
+# Step: 1: 
+# Credits: https://stackoverflow.com/questions/47749078/how-to-put-a-geom-sf-produced-map-on-top-of-a-ggmap-produced-raster by andyteucher on StackOverFlow (https://stackoverflow.com/users/1736291/andyteucher)
+
+# Define a function to fix the bbox to be in CRS EPSG:3857
+ggmap_bbox <- function(map) {
+  # Extract the bounding box (in lat/lon) from the ggmap
+  # to a numeric vector, and set the names to what
+  # sf::st_bbox expects:
+  map_bbox <- setNames(
+    unlist(attr(map, "bb")),
+    c("ymin", "xmin", "ymax", "xmax")
+  )
+
+  # Coonvert the bbox to an sf polygon, transform it to 3857,
+  # and convert back to a bbox (convoluted, but it works)
+  bbox_3857 <- st_bbox(
+    st_transform(
+      st_as_sfc(
+        st_bbox(map_bbox, crs = 4326)
+        ), 
+      3857
+    )
+  )
+
+  # Overwrite the bbox of the ggmap object with the transformed coordinates
+  attr(map, "bb")$ll.lat <- bbox_3857["ymin"]
+  attr(map, "bb")$ll.lon <- bbox_3857["xmin"]
+  attr(map, "bb")$ur.lat <- bbox_3857["ymax"]
+  attr(map, "bb")$ur.lon <- bbox_3857["xmax"]
+  map
+}
+
+# Use the function to convert our downloaded Raster Files into 
+# the new CRS and new bounding box CRS
+basemap_sf <- ggmap_bbox(basemap2)
+
+g <- ggmap::ggmap(basemap2) +
+  labs(x = NULL, y = NULL)
+
+
+ggsave(
+  filename = here::here("geocomputation", "images",
+                        "osm_driving_directions_3.png"),
+  plot = g,
+  height = 900,
+  width = 900,
+  units = "px",
+  bg = "white"
+)
+```
+
+![The base map retrieved in the form of raster tiles, from {ggmap} using get_stadia_maps() with the map style "Stamen Terrain Background"](images/osm_driving_directions_3.png){#fig-raster-base}
+
+## Step 7: The overall visualization
+
+This code snippet enhances the base map by overlaying spatial data, labels, and route details, creating a rich, layered map visualization with **ggplot2** and **ggmap**. Here’s a breakdown of each step:
+
+1.  **Basemap Layer**:
+    -   Uses **`ggmap::ggmap(basemap_sf)`** to display the raster map tiles retrieved and adjusted to EPSG:3857, enabling overlays of geospatial objects.
+2.  **Country Boundaries and Names**:
+    -   **`geom_sf()`** with transparency and thin lines adds country outlines, while **`geom_sf_text()`** displays country names proportionally sized by area.
+3.  **Driving Route**:
+    -   The **`dfroutes`** dataset, containing route geometries between destinations, is layered with **`geom_sf()`**, color-coded for visibility.
+4.  **City Locations and Labels**:
+    -   **`geom_sf()`** highlights cities in red, while **`geom_text_repel()`** labels each city’s name, ensuring labels do not overlap with other map features.
+5.  **Route Details**:
+    -   **`geom_sf_label()`** displays distance labels along the route with partially transparent backgrounds, enhancing readability without cluttering.
+6.  **Coordinate System and Styling**:
+    -   **`coord_sf()`** is set to EPSG:3857, matching the basemap. The **`theme_void()`** removes unnecessary plot elements for a clean map-focused look, with additional styling adjustments.
+
+```{r}
+#| label: overall-viz
+#| eval: false
+
+# The base map raster tiles
+g <- ggmap::ggmap(basemap_sf) +
+  
+  # Country boundaries
+  geom_sf(
+    data = basemap,
+    fill = "transparent",
+    colour = alpha(text_col, 0.3),
+    inherit.aes = F,
+    linewidth = 0.3
+  ) +
+  
+  # Country names
+  geom_sf_text(
+    data = basemap,
+    mapping = aes(label = name, size = area),
+    alpha = 0.5,
+    fontface = "bold",
+    inherit.aes = F
+  ) +
+  scale_size_continuous(range = c(5, 12)) +
+  
+  # The driving route
+  geom_sf(
+    data = dfroutes,
+    mapping = aes(
+      geometry = route_geometry
+    ),
+    inherit.aes = F,
+    colour = alpha(text_col, 0.8),
+    linewidth = 0.5
+  ) +
+  
+  # The cities to be visited
+  geom_sf(
+    data = df,
+    colour = "red",
+    size = 3, 
+    inherit.aes = F,
+    alpha = 0.5
+  ) +
+  
+  # Names of cities
+  geom_text_repel(
+    data = df,
+    aes(
+      label = capital,
+      geometry = geometry
+    ),
+    inherit.aes = F,
+    stat = "sf_coordinates",
+    fontface = "bold",
+    size = 8
+  ) +
+  
+  # Route times and distances
+  geom_sf_label(
+    data = dfroutes,
+    mapping = aes(
+      label = paste0(distance_text)
+    ),
+    fill = alpha("white", 0.5),
+    lineheight = 0.3,
+    inherit.aes = F,
+    label.size = unit(0, "mm")
+    
+  ) +
+  
+  # Coordinates and Scales
+  coord_sf(
+    crs = 3857
+  ) +
+  theme_void(
+    base_size = 40,
+    base_family = "body_font"
+  ) +
+  theme(
+    legend.position = "none",
+    plot.margin = margin(0,0,0,0, "mm")
+  )
+
+ggsave(
+  filename = here::here("geocomputation", "images",
+                        "osm_driving_directions_1.png"),
+  plot = g,
+  height = 9.25,
+  width = 10,
+  unit = "cm",
+  bg = "white"
+)
+```
+
+![The completed overall visualization - with a base map of raster tiles from {ggmap} get_stadia_map(), overlaid country names and boundaries from {rnaturalearth} ne_countries(), and routes from {osrm} package.](images/osm_driving_directions_1.png){#fig-completeviz}
+
+## Step 8: Each leg of the trip visualized separately
+
+This code snippet generates individual map visualizations for each driving route using **ggmap** and **ggplot2**. Here's an explanation of the process, which effectively creates a series of images showcasing routes between pairs of cities:
+
+1.  **Loop through Routes**:
+    -   The `for` loop iterates over each row of the `dfroutes` dataframe, which contains driving route data between origin and destination cities.
+2.  **Define Temporary Bounding Box**:
+    -   For each route, a temporary bounding box is created using the **`st_bbox()`** function and expanded slightly to ensure that the route is well-framed in the map view.
+3.  **Retrieve Map Tiles**:
+    -   The **`get_stadiamap()`** function fetches map tiles based on the temporary bounding box, specifying a zoom level and map type (e.g., "outdoors").
+4.  **Crop Basemap**:
+    -   A cropped version of the original country basemap is created to match the bounding box of the current route, ensuring the country boundaries align with the area of interest.
+5.  **Create Map Visualization**:
+    -   **`ggmap::ggmap(temp_basemap)`** initializes the base map, onto which various layers are added:
+        -   **Country Names**: Displayed using **`geom_sf_text()`**, showing the names of countries within the bounding box.
+        -   **Driving Route**: The specific route for the current iteration is drawn using **`geom_sf()`**.
+        -   **Cities**: Both the origin and destination cities are represented with red points using **`geom_sf()`**.
+        -   **City Labels**: City names are added with **`geom_text_repel()`**, ensuring that they do not overlap with each other or other elements.
+        -   **Route Details**: Distance and duration information are displayed using **`geom_sf_label()`**, formatted neatly for clarity.
+6.  **Finalizing the Map**:
+    -   **Coordinate System**: Set to EPSG:3857 for compatibility with the base map.
+    -   **Theme Adjustments**: **`theme_void()`** is used to create a clean look, removing axes and grid lines.
+
+This approach results in a series of visually consistent maps, each illustrating a distinct driving route between two cities, complete with detailed annotations and clear geographic context. The display is done using the [Tabset Panels](https://quarto.org/docs/interactive/layout.html#tabset-panel) layout available in [Quarto](https://quarto.org/).
+
+```{r}
+#| label: for-loop-each-leg-of-trip
+#| eval: false
+
+for (i in 1: nrow(dfroutes)) {
+ 
+  # A bounding box in the format (left, right, top, bottom) for {ggmap}
+  temp_bbox <- st_bbox(
+    dfroutes |> 
+    slice(i)
+    ) + c(-1, -1, 1, 1)
+  names(temp_bbox) <- c("left", "bottom", "right", "top")
+  
+  # Getting the map tiles
+  temp_basemap <- ggmap::get_stadiamap(
+    bbox = temp_bbox,
+    zoom = 8,
+    maptype = "outdoors"
+  )  
+  
+  temp_basemap <- ggmap_bbox(temp_basemap)
+  
+  object.size(temp_basemap) |> print(units = "Mb")
+  
+  temp_baselinemap <- st_crop(basemap, temp_bbox)
+  
+  # The base map raster tiles
+  g <- ggmap::ggmap(temp_basemap) +
+    
+    # Country boundaries
+    # geom_sf(
+    #   data = temp_baselinemap,
+    #   fill = "transparent",
+    #   colour = alpha(text_col, 0.3),
+    #   inherit.aes = F,
+    #   linewidth = 0.3
+    # ) +
+    
+    # Country names
+    geom_sf_text(
+      data = temp_baselinemap,
+      mapping = aes(label = name, size = area),
+      alpha = 0.5,
+      fontface = "bold",
+      inherit.aes = F
+    ) +
+    scale_size_continuous(range = c(5, 12)) +
+    
+    # The driving route
+    geom_sf(
+      data = slice(dfroutes, i),
+      mapping = aes(
+        geometry = route_geometry
+      ),
+      inherit.aes = F,
+      colour = alpha(text_col, 0.8),
+      linewidth = 0.5
+    ) +
+    
+    # The cities to be visited: origin
+    geom_sf(
+      data = slice(dfroutes, i),
+      mapping = aes(geometry = origin_geometry),
+      colour = "red",
+      size = 3, 
+      inherit.aes = F,
+      alpha = 0.4
+    ) +
+    # The cities to be visited: destination
+    geom_sf(
+      data = slice(dfroutes, i),
+      mapping = aes(geometry = destination_geometry),
+      colour = "red",
+      size = 3, 
+      inherit.aes = F,
+      alpha = 0.4
+    ) +
+    
+    # Names of cities: Origin
+    geom_text_repel(
+      data = slice(dfroutes, i),
+      aes(
+        label = origin_city,
+        geometry = origin_geometry
+      ),
+      inherit.aes = F,
+      stat = "sf_coordinates",
+      fontface = "bold",
+      size = 8
+    ) +
+    # Names of cities: Destination
+    geom_text_repel(
+      data = slice(dfroutes, i),
+      aes(
+        label = destination_city,
+        geometry = destination_geometry
+      ),
+      inherit.aes = F,
+      stat = "sf_coordinates",
+      fontface = "bold",
+      size = 8
+    ) +
+    
+    
+    # Route times and distances
+    geom_sf_label(
+      data = slice(dfroutes, i),
+      mapping = aes(
+        label = paste0(
+          distance_text,
+          "\n",
+          "(",
+          duration_text,
+          ")"
+        )
+      ),
+      fill = alpha("white", 0.5),
+      lineheight = 0.3,
+      inherit.aes = F,
+      label.size = unit(0, "mm"),
+      size = 5,
+      fontface = "bold"
+    ) +
+    
+    # Coordinates and Scales
+    coord_sf(
+      crs = 3857
+    ) +
+    
+    theme_void(
+      base_size = 40,
+      base_family = "body_font"
+    ) +
+    theme(
+      legend.position = "none",
+      plot.margin = margin(0,0,0,0, "mm")
+    )
+  
+  ggsave(
+    filename = here::here("geocomputation", "images",
+                          paste0("osm_driving_directions_leg", i, ".png")),
+    plot = g,
+    height = 6,
+    width = 6,
+    unit = "cm",
+    bg = "white"
+  )
+   
+}
+```
+
+::: panel-tabset
+## Leg 1
+
+![Day 1: Drive from Athens to Tirana.](images/osm_driving_directions_leg1.png){#fig-day1}
+
+## Leg 2
+
+![Day 2: Drive from Tirana to Padogorica.](images/osm_driving_directions_leg2.png){#fig-day2}
+
+## Leg 3
+
+![Day 3: Drive from Padogorica to Sarajevo.](images/osm_driving_directions_leg3.png){#fig-day3}
+
+## Leg 4
+
+![Day 4: Drive from Sarajevo to Zagreb.](images/osm_driving_directions_leg4.png){#fig-day4}
+
+## Leg 5
+
+![Day 5: Drive from Zagreb to Ljubljana.](images/osm_driving_directions_leg5.png){#fig-day5}
+
+## Leg 6
+
+![Day 6: Drive from Ljubljana to Venice.](images/osm_driving_directions_leg6.png){#fig-day6}
+
+## Leg 7
+
+![Day 7: Drive from Venice to Florence.](images/osm_driving_directions_leg7.png){#fig-day7}
+
+## Leg 8
+
+![Day 8: Drive from Florence to Rome.](images/osm_driving_directions_leg8.png){#fig-day8}
+:::

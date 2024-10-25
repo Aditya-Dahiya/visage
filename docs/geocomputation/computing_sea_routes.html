@@ -2,14 +2,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.549">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Dahiya">
 <meta name="dcterms.date" content="2024-10-20">
 
-<title>visage - Computing shortest routes in the sea that avoid land</title>
+<title>Computing shortest routes in the sea that avoid land – visage</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -35,7 +35,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -105,12 +105,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <script src="../site_libs/core-js-2.5.3/shim.min.js"></script>
+
 <script src="../site_libs/react-18.2.0/react.min.js"></script>
+
 <script src="../site_libs/react-18.2.0/react-dom.min.js"></script>
+
 <script src="../site_libs/reactwidget-2.0.0/react-tools.umd.cjs"></script>
+
 <script src="../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+
 <link href="../site_libs/reactable-0.4.4/reactable.css" rel="stylesheet">
+
 <script src="../site_libs/reactable-binding-0.4.4/reactable.js"></script>
+
 
 
 <link rel="stylesheet" href="../styles.css">
@@ -131,7 +138,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -154,11 +161,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
-          <div class="quarto-navbar-tools tools-wide">
+            <div class="quarto-navbar-tools tools-wide">
     <a href="../index.xml" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-rss"></i></a>
     <div class="dropdown">
-      <a href="" title="" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" aria-label=""><i class="bi bi-github"></i></a>
-      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="quarto-navigation-tool-dropdown-0">
+      <a href="" title="" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label=""><i class="bi bi-github"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
           <li>
             <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/Aditya-Dahiya/visage">
             Source Code
@@ -248,7 +255,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <p><strong>Dataset used:</strong> This <em>#TidyTuesday</em> dataset comes from the Center for Whale Research (CWR), which monitors Southern Resident killer whales in the Salish Sea, part of the Pacific Northwest. The dataset, scraped by <a href="https://github.com/jadeynryan">Jadey Ryan</a> and documented <a href="https://jadeynryan.github.io/orcas/">here</a>, contains information on encounters from 2017 to 2024. Each encounter involves photographing and identifying individual whales. The data can be accessed via the {<code>orcas</code>} R package and includes variables like encounter duration, location, and pod. While the dataset is mostly tidy, some inconsistencies such as missing values and negative durations remain. <strong>|</strong> <a href="https://github.com/jadeynryan/orcas">Source</a> <strong>|</strong> <a href="https://github.com/rfordatascience/tidytuesday/blob/master/data/2024/2024-10-15/readme.md">Data</a>.</p>
 <p>Here’s my #TidyTuesday Visualization for this project in <a href="#fig-tidytuesday" class="quarto-xref">Figure&nbsp;1</a>, and the <a href="https://raw.githubusercontent.com/Aditya-Dahiya/projects_presentations/refs/heads/main/data_vizs/tidy_orcas_encounters.qmd">code</a> used and the visualization <a href="https://aditya-dahiya.github.io/projects_presentations/data_vizs/tidy_orcas_encounters.html">webpage</a>.</p>
-<div id="fig-tidytuesday" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-tidytuesday" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-tidytuesday-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/tidy_orcas_encounters.png" class="img-fluid figure-img">
@@ -296,7 +303,7 @@ Figure&nbsp;1: This map visualizes the movements of <a href="https://en.wikipedi
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
 <span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  gtExtras<span class="sc">::</span><span class="fu">gt_theme_espn</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div id="tbl-env1" class="cell quarto-float anchored">
+<div id="tbl-env1" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-env1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;1: List of packages used during this analysis and their versions
@@ -826,7 +833,7 @@ Table&nbsp;1: List of packages used during this analysis and their versions
 <span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Recorded Encounters of Orcas (Southern Killer Whales) in the Salish Sea (2017-2024)"</span></span>
 <span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div id="tbl-clean-data1" class="cell quarto-float anchored">
+<div id="tbl-clean-data1" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-clean-data1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;2: A table of clean data that shows id, year, duration and starting and ending coordinates of each Killer Whale encounter as an {sf} class column
@@ -1310,7 +1317,7 @@ Table&nbsp;2: A table of clean data that shows id, year, duration and starting a
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> routes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-routes12" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-routes12" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-routes12-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="computing_sea_routes_files/figure-html/fig-routes12-1.png" class="img-fluid figure-img" width="672">
@@ -1359,11 +1366,11 @@ Figure&nbsp;2: The routes computed by the {geosphere} package’s gcIntermediate
 <span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sea_sf) <span class="sc">+</span></span>
 <span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div id="fig-basemap1" class="cell quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-basemap1" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-basemap1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="fig-basemap1-1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-basemap1-1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-basemap1-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="computing_sea_routes_files/figure-html/fig-basemap1-1.png" class="img-fluid figure-img" data-ref-parent="fig-basemap1" width="672">
@@ -1375,7 +1382,7 @@ Figure&nbsp;2: The routes computed by the {geosphere} package’s gcIntermediate
 </div>
 </div>
 <div class="cell-output-display">
-<div id="fig-basemap1-2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-basemap1-2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-basemap1-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="computing_sea_routes_files/figure-html/fig-basemap1-2.png" class="img-fluid figure-img" data-ref-parent="fig-basemap1" width="672">
@@ -1439,7 +1446,7 @@ Figure&nbsp;3: Background Map of the Salish Sea Area in 2 steps: (4.1) Getting m
 <span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">opt_interactive</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>  gtExtras<span class="sc">::</span><span class="fu">gt_theme_espn</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div id="tbl-check-intersection" class="cell quarto-float anchored">
+<div id="tbl-check-intersection" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-check-intersection-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;3: A table of intersecting and non-intersecting routes
@@ -1985,7 +1992,7 @@ Table&nbsp;3: A table of intersecting and non-intersecting routes
 <span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="fig-final2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-final2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-final2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/computing_sea_routes_1.png" class="img-fluid figure-img">
@@ -2041,7 +2048,7 @@ Figure&nbsp;4: This map visualizes the movements of Southern Resident killer wha
 <span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
 <span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>  gtExtras<span class="sc">::</span><span class="fu">gt_theme_espn</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div id="tbl-env" class="cell quarto-float anchored">
+<div id="tbl-env" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-env-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;4: List of packages used during this analysis and their versions
@@ -2550,7 +2557,7 @@ Table&nbsp;4: List of packages used during this analysis and their versions
 <span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">decimals =</span> <span class="dv">2</span></span>
 <span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div id="tbl-clean-data" class="cell quarto-float anchored">
+<div id="tbl-clean-data" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-clean-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;5: A table of clean data that shows id, year, duration and starting and ending coordinates of each Killer Whale encounter
@@ -3104,11 +3111,11 @@ Geodetic CRS:  WGS 84
 <span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sea_sf) <span class="sc">+</span></span>
 <span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div id="fig-basemap" class="cell quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-basemap" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-basemap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="fig-basemap-1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-basemap-1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-basemap-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="computing_sea_routes_files/figure-html/fig-basemap-1.png" class="img-fluid figure-img" data-ref-parent="fig-basemap" width="672">
@@ -3120,7 +3127,7 @@ Geodetic CRS:  WGS 84
 </div>
 </div>
 <div class="cell-output-display">
-<div id="fig-basemap-2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-basemap-2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-basemap-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="computing_sea_routes_files/figure-html/fig-basemap-2.png" class="img-fluid figure-img" data-ref-parent="fig-basemap" width="672">
@@ -3132,7 +3139,7 @@ Geodetic CRS:  WGS 84
 </div>
 </div>
 <div class="cell-output-display">
-<div id="fig-basemap-3" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-basemap-3" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-basemap-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="computing_sea_routes_files/figure-html/fig-basemap-3.png" class="img-fluid figure-img" data-ref-parent="fig-basemap" width="672">
@@ -3177,7 +3184,7 @@ Figure&nbsp;5: Background Map of the Salish Sea Area in 2 steps: (4.1) Getting m
 <span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_spatraster</span>(<span class="at">data =</span> rr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-rast1-1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-rast1-1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-rast1-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="computing_sea_routes_files/figure-html/fig-rast1-1.png" class="img-fluid figure-img" width="672">
@@ -3189,7 +3196,7 @@ Figure&nbsp;6: The empty raster of 500 X 500 created using terra::rast()
 </div>
 </div>
 <div class="cell-output-display">
-<div id="fig-rast1-2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-rast1-2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-rast1-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="computing_sea_routes_files/figure-html/fig-rast1-2.png" class="img-fluid figure-img" width="672">
@@ -3291,7 +3298,7 @@ Figure&nbsp;7: The raster is enhanced by adding the polygons data from the salis
 <span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-shortpaths" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-shortpaths" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-shortpaths-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="computing_sea_routes_files/figure-html/fig-shortpaths-1.png" class="img-fluid figure-img" width="672">
@@ -3797,7 +3804,7 @@ Figure&nbsp;8: The shortest paths computed using {gdistance} show us that many o
 }
 </style>
 
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <thead>
 <tr class="header gt_col_headings">
 <th id="id" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">id</th>
@@ -3942,7 +3949,7 @@ Figure&nbsp;8: The shortest paths computed using {gdistance} show us that many o
 <span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-final1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-final1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-final1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="computing_sea_routes_files/figure-html/fig-final1-1.png" class="img-fluid figure-img" width="672">
@@ -3995,18 +4002,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -4038,7 +4034,47 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/aditya-dahiya\.github\.io\/visage\/index\.html");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
   function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
@@ -4073,7 +4109,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
     });
   }
   const xrefs = window.document.querySelectorAll('a.quarto-xref');
