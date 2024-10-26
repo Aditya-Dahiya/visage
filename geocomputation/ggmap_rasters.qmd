@@ -24,6 +24,9 @@ share:
   email: true
   mastodon: true
   facebook: true
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
 ---
 
 On this page, we’ll explore how to create visually appealing maps in R using the `ggmap` package [@ggmap], a popular extension of `ggplot2` designed for easy integration of raster map tiles from online mapping services. Let us see how to set up the required tools and generate maps with custom base layers, using both `ggmap` and functions like `get_stadiamap()`.
@@ -32,7 +35,7 @@ On this page, we’ll explore how to create visually appealing maps in R using t
 
 ```{r}
 #| label: setup
-#| eval: true
+#| eval: false
 
 library(tidyverse)
 library(ggmap)
@@ -46,12 +49,11 @@ showtext::showtext_auto()
 **About the Sample Dataset:** The `lnd` dataset, part of the `spData` package [@spData] in R, contains polygons representing the large administrative boroughs of London. This dataset includes attributes such as the borough name (`NAME`), official code (`GSS_CODE`), land area in hectares (`HECTARES`), and geometry data in the `sfc_MULTIPOLYGON` format. You can explore the dataset's source [here](https://github.com/Robinlovelace/Creating-maps-in-R).
 
 ```{r}
-#| label: fig-1
-#| eval: true
-#| fig-cap: "A basic map of the boroughs of London drawn with geom_sf() and data from {spData} plotted using {ggplot2} and geom_sf()"
+#| label: code-1
+#| eval: false
 
 # Data on The boroughs of London
-spData::lnd |> 
+g <- spData::lnd |> 
   ggplot(
     aes(
       fill = NAME,
@@ -66,12 +68,28 @@ spData::lnd |>
     check_overlap = TRUE,
     family = "caption_font"
   ) +
+  scale_size_continuous(
+    range = c(8, 15)
+  ) +
   coord_sf() +
-  theme_grey() +
+  labs(x = NULL, y = NULL) +
+  theme_grey(
+    base_size = 20
+  ) +
   theme(
-    legend.position = "none"
+    legend.position = "none",
+    axis.ticks.length = unit(0, "mm")
   )
+
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation",
+                        "images",
+                        "ggmap_rasters_1.png")
+)
 ```
+
+![A basic map of the boroughs of London drawn with geom_sf() and data from {spData} plotted using {ggplot2} and geom_sf()](images/ggmap_rasters_1.png){#fig-1}
 
 ## Getting Started with `ggmap`
 
@@ -105,7 +123,7 @@ Once your API key is set, you can start generating maps using functions such as 
 Fetches map tiles from Stadia Maps and [Stamen Design](https://stadiamaps.com/stamen), after choosing the design from [**Map Style Library**](https://docs.stadiamaps.com/themes/), for a specified bounding box or region and zoom level, and displays them using `ggmap()`. The various map styles available under the `get_stadiamap(maptype = "your-map-type-here")` argument are: —
 
 | **Map Type**                | **Description**                                                                                          |
-|-----------------------------|----------------------------------------------------------------------------------------------------------|
+|-------------------|-----------------------------------------------------|
 | `stamen_terrain`            | A detailed terrain map highlighting elevation and natural features like hills and rivers.                |
 | `stamen_toner`              | A bold, high-contrast map design with stark black-and-white features, ideal for print or urban areas.    |
 | `stamen_toner_lite`         | A lighter version of the toner map, providing clearer backgrounds with less emphasis on contrast.        |
@@ -238,7 +256,7 @@ ggsave(
 
 ```
 
-!["Overlapping a geom_sf() object over and above ggmap raster tiles obtained from Stadia Maps"](ggmap_rasters/fig_2.png){#fig-2}
+![Overlapping a geom_sf() object over and above ggmap raster tiles obtained from Stadia Maps](ggmap_rasters/fig_2.png){#fig-2}
 
 ### 
 

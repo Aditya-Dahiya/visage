@@ -272,9 +272,9 @@ div.callout-keylearning.callout-style-default .callout-icon::before, div.callout
 <p>Unlike traditional maps, where region size is based solely on geographical area, cartograms alter these sizes to communicate insights about underlying data trends. This approach offers several advantages: it enhances visualization by making patterns more apparent, communicates complex data to a broad audience effectively, and highlights disparities between regions, drawing attention to areas of interest. Additionally, cartograms facilitate comparative analysis by allowing viewers to easily compare regions resized according to a single variable.</p>
 <p>To create cartograms in R, we’ll use a combination of packages, including <a href="https://cran.r-project.org/package=cartogram">{<code>cartogram</code>}</a> <span class="citation" data-cites="cartogram">(<a href="#ref-cartogram" role="doc-biblioref">Jeworutzki 2023</a>)</span>for cartogram-specific functions, <a href="https://cran.r-project.org/package=sf">{<code>sf</code>}</a> <span class="citation" data-cites="sf">(<a href="#ref-sf" role="doc-biblioref">Pebesma and Bivand 2023</a>)</span> for handling spatial data, <a href="https://cran.r-project.org/package=tmap">{</a><a href="https://cran.r-project.org/package=ggplot2"><code>ggplot2</code></a><a href="https://cran.r-project.org/package=tmap">}</a> <span class="citation" data-cites="ggplot2">(<a href="#ref-ggplot2" role="doc-biblioref">Wickham 2016</a>)</span> for flexible mapping and plotting, and {<a href="https://www.tidyverse.org/"><code>tidyverse</code></a>} <span class="citation" data-cites="tidyverse">(<a href="#ref-tidyverse" role="doc-biblioref">Wickham et al. 2019</a>)</span> for streamlined data manipulation. The <code>{cartogram}</code> package provides various cartogram types, including</p>
 <ul>
-<li><p><em>Dorling cartograms</em> (<a href="#fig-cartodorling" class="quarto-xref">Figure&nbsp;4</a>) that represent regions as resized circles,</p></li>
-<li><p><em>Contiguous area cartograms</em> (<a href="#fig-cartocont" class="quarto-xref">Figure&nbsp;2</a>) that maintain topological relationships between regions, and</p></li>
-<li><p><em>Non-contiguous area cartograms</em> (<a href="#fig-cartoncont" class="quarto-xref">Figure&nbsp;3</a>) that allow flexibility in resizing by ignoring boundaries.</p></li>
+<li><p><em>Dorling cartograms</em> (<a href="#fig-cartodorling" class="quarto-xref">Figure&nbsp;5</a>) that represent regions as resized circles,</p></li>
+<li><p><em>Contiguous area cartograms</em> (<a href="#fig-cartocont" class="quarto-xref">Figure&nbsp;3</a>) that maintain topological relationships between regions, and</p></li>
+<li><p><em>Non-contiguous area cartograms</em> (<a href="#fig-cartoncont" class="quarto-xref">Figure&nbsp;4</a>) that allow flexibility in resizing by ignoring boundaries.</p></li>
 </ul>
 <section id="about-the-data" class="level3">
 <h3 class="anchored" data-anchor-id="about-the-data">About the Data</h3>
@@ -345,6 +345,12 @@ Key Learnings
 <section id="step-2-converting-the-data-into-a-tidy-tibble." class="level3">
 <h3 class="anchored" data-anchor-id="step-2-converting-the-data-into-a-tidy-tibble.">Step 2: Converting the data into a “tidy” tibble.</h3>
 <p>In this code snippet, we refine the <code>world_map</code> data and visualize it in the Mercator projection using the <a href="https://ggplot2.tidyverse.org/">ggplot2</a> package. We start by selecting relevant columns, grouping by country name, and keeping the entry with the highest population estimate for countries with multiple entries. After joining this map data with the <code>cia_data</code> dataset, we filter out any countries without population data and apply the Pseudo-Mercator projection (CRS 3857) using <code>{sf}</code>’s <code>st_transform()</code> function. Finally, we use <code>ggplot2</code> to plot the world map with <code>geom_sf()</code> and set a minimal theme and informative title and caption.</p>
+<div id="tbl-worlddata1" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-worlddata1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1
+</figcaption>
+<div aria-describedby="tbl-worlddata1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter, join, and transform world map data for plotting</span></span>
@@ -355,46 +361,821 @@ Key Learnings
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> pop_est, <span class="at">n =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span>         <span class="co"># Retain country entry with max population estimate</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(cia_data) <span class="sc">|&gt;</span>                          <span class="co"># Join with CIA Factbook data</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(population)) <span class="sc">|&gt;</span>                   <span class="co"># Filter out entries without population data</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3857</span>)                        <span class="co"># Transform to Psuedo-Mercator projection (CRS = 3857)</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Print world_map object to the console</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>world_map <span class="sc">|&gt;</span> </span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3857</span>) <span class="sc">|&gt;</span>                     <span class="co"># Transform to Psuedo-Mercator projection (CRS = 3857)</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+</div>
+</figure>
+</div>
+<div class="cell">
 <div id="tbl-worlddata" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-worlddata-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;1: The sf object morld map to be used in the susequent analysis
+Table&nbsp;2: The sf object morld map to be used in the susequent analysis
 </figcaption>
 <div aria-describedby="tbl-worlddata-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output cell-output-stdout">
-<pre><code>Simple feature collection with 171 features and 14 fields
-Geometry type: MULTIPOLYGON
-Dimension:     XY
-Bounding box:  xmin: -20037510 ymin: -7481527 xmax: 20037510 ymax: 18440000
-Projected CRS: WGS 84 / Pseudo-Mercator
-# A tibble: 171 × 15
-# Groups:   name [170]
-   name       pop_est iso_a3                  geometry country   area birth_rate
- * &lt;chr&gt;        &lt;dbl&gt; &lt;chr&gt;         &lt;MULTIPOLYGON [m]&gt; &lt;fct&gt;    &lt;dbl&gt;      &lt;dbl&gt;
- 1 Afghanist…  3.80e7 AFG    (((7404817 4489796, 7466… Afghan… 6.52e5      38.8 
- 2 Albania     2.85e6 ALB    (((2339940 4989172, 2337… Albania 2.87e4      12.7 
- 3 Algeria     4.31e7 DZA    (((-966743 3173002, -964… Algeria 2.38e6      24.0 
- 4 Angola      3.18e7 AGO    (((1446654 -532848.7, 14… Angola  1.25e6      39.0 
- 5 Argentina   4.49e7 ARG    (((-7640303 -6916018, -7… Argent… 2.78e6      16.9 
- 6 Armenia     2.96e6 ARM    (((5176993 4688866, 5136… Armenia 2.97e4      13.9 
- 7 Australia   2.54e7 AUS    (((16440693 -4984101, 16… Austra… 7.74e6      12.2 
- 8 Austria     8.88e6 AUT    (((1890168 6127425, 1881… Austria 8.39e4       8.76
- 9 Azerbaijan  1.00e7 AZE    (((5165775 5140132, 5197… Azerba… 8.66e4      17.0 
-10 Bahamas     3.89e5 BHS    (((-8792013 3097259, -87… Bahama… 1.39e4      15.6 
-# ℹ 161 more rows
-# ℹ 8 more variables: death_rate &lt;dbl&gt;, infant_mortality_rate &lt;dbl&gt;,
-#   internet_users &lt;dbl&gt;, life_exp_at_birth &lt;dbl&gt;,
-#   maternal_mortality_rate &lt;int&gt;, net_migration_rate &lt;dbl&gt;, population &lt;int&gt;,
-#   population_growth_rate &lt;dbl&gt;</code></pre>
+<div class="cell-output-display">
+<div id="sepsrlgxfy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+#sepsrlgxfy table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#sepsrlgxfy thead, #sepsrlgxfy tbody, #sepsrlgxfy tfoot, #sepsrlgxfy tr, #sepsrlgxfy td, #sepsrlgxfy th {
+  border-style: none;
+}
+
+#sepsrlgxfy p {
+  margin: 0;
+  padding: 0;
+}
+
+#sepsrlgxfy .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#sepsrlgxfy .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#sepsrlgxfy .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#sepsrlgxfy .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#sepsrlgxfy .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#sepsrlgxfy .gt_bottom_border {
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#sepsrlgxfy .gt_col_headings {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 1px;
+  border-bottom-color: #334422;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#sepsrlgxfy .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 12px;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#sepsrlgxfy .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 12px;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#sepsrlgxfy .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#sepsrlgxfy .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#sepsrlgxfy .gt_column_spanner {
+  border-bottom-style: none;
+  border-bottom-width: 1px;
+  border-bottom-color: #334422;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#sepsrlgxfy .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#sepsrlgxfy .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#sepsrlgxfy .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#sepsrlgxfy .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#sepsrlgxfy .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#sepsrlgxfy .gt_row {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#sepsrlgxfy .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sepsrlgxfy .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#sepsrlgxfy .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#sepsrlgxfy .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#sepsrlgxfy .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sepsrlgxfy .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#sepsrlgxfy .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#sepsrlgxfy .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#sepsrlgxfy .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sepsrlgxfy .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#sepsrlgxfy .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#sepsrlgxfy .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#sepsrlgxfy .gt_table_body {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #FFFFFF;
+}
+
+#sepsrlgxfy .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#sepsrlgxfy .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sepsrlgxfy .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#sepsrlgxfy .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sepsrlgxfy .gt_left {
+  text-align: left;
+}
+
+#sepsrlgxfy .gt_center {
+  text-align: center;
+}
+
+#sepsrlgxfy .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#sepsrlgxfy .gt_font_normal {
+  font-weight: normal;
+}
+
+#sepsrlgxfy .gt_font_bold {
+  font-weight: bold;
+}
+
+#sepsrlgxfy .gt_font_italic {
+  font-style: italic;
+}
+
+#sepsrlgxfy .gt_super {
+  font-size: 65%;
+}
+
+#sepsrlgxfy .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#sepsrlgxfy .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#sepsrlgxfy .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#sepsrlgxfy .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#sepsrlgxfy .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#sepsrlgxfy .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#sepsrlgxfy .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#sepsrlgxfy .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#sepsrlgxfy div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table do-not-create-environment cell caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="header gt_col_headings">
+<th id="Name" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase" scope="col">Name</th>
+<th id="Pop Est" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase" scope="col">Pop Est</th>
+<th id="Iso a 3" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase" scope="col">Iso a 3</th>
+<th id="Country" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase" scope="col">Country</th>
+<th id="Area" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase" scope="col">Area</th>
+<th id="Birth Rate" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase" scope="col">Birth Rate</th>
+<th id="Death Rate" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase" scope="col">Death Rate</th>
+<th id="Infant Mortality Rate" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase" scope="col">Infant Mortality Rate</th>
+<th id="Internet Users" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase" scope="col">Internet Users</th>
+<th id="Life Exp at Birth" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase" scope="col">Life Exp at Birth</th>
+<th id="Maternal Mortality Rate" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase" scope="col">Maternal Mortality Rate</th>
+<th id="Net Migration Rate" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase" scope="col">Net Migration Rate</th>
+<th id="Population" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase" scope="col">Population</th>
+<th id="Population Growth Rate" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase" scope="col">Population Growth Rate</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="name" style="font-family: 'Source Sans Pro'; font-weight: 400">Afghanistan</td>
+<td class="gt_row gt_right" headers="pop_est" style="font-family: 'Source Sans Pro'; font-weight: 400">38,041,754</td>
+<td class="gt_row gt_left" headers="iso_a3" style="font-family: 'Source Sans Pro'; font-weight: 400">AFG</td>
+<td class="gt_row gt_center" headers="country" style="font-family: 'Source Sans Pro'; font-weight: 400">Afghanistan</td>
+<td class="gt_row gt_right" headers="area" style="font-family: 'Source Sans Pro'; font-weight: 400">652,230</td>
+<td class="gt_row gt_right" headers="birth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">38.8</td>
+<td class="gt_row gt_right" headers="death_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">14.1</td>
+<td class="gt_row gt_right" headers="infant_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">117.2</td>
+<td class="gt_row gt_right" headers="internet_users" style="font-family: 'Source Sans Pro'; font-weight: 400">1,000,000.0</td>
+<td class="gt_row gt_right" headers="life_exp_at_birth" style="font-family: 'Source Sans Pro'; font-weight: 400">50.5</td>
+<td class="gt_row gt_right" headers="maternal_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">460.0</td>
+<td class="gt_row gt_right" headers="net_migration_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">−1.8</td>
+<td class="gt_row gt_right" headers="population" style="font-family: 'Source Sans Pro'; font-weight: 400">31,822,848</td>
+<td class="gt_row gt_right" headers="population_growth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">2.3</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="name" style="font-family: 'Source Sans Pro'; font-weight: 400">Albania</td>
+<td class="gt_row gt_right" headers="pop_est" style="font-family: 'Source Sans Pro'; font-weight: 400">2,854,191</td>
+<td class="gt_row gt_left" headers="iso_a3" style="font-family: 'Source Sans Pro'; font-weight: 400">ALB</td>
+<td class="gt_row gt_center" headers="country" style="font-family: 'Source Sans Pro'; font-weight: 400">Albania</td>
+<td class="gt_row gt_right" headers="area" style="font-family: 'Source Sans Pro'; font-weight: 400">28,748</td>
+<td class="gt_row gt_right" headers="birth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">12.7</td>
+<td class="gt_row gt_right" headers="death_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">6.5</td>
+<td class="gt_row gt_right" headers="infant_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">13.2</td>
+<td class="gt_row gt_right" headers="internet_users" style="font-family: 'Source Sans Pro'; font-weight: 400">1,300,000.0</td>
+<td class="gt_row gt_right" headers="life_exp_at_birth" style="font-family: 'Source Sans Pro'; font-weight: 400">78.0</td>
+<td class="gt_row gt_right" headers="maternal_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">27.0</td>
+<td class="gt_row gt_right" headers="net_migration_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">−3.3</td>
+<td class="gt_row gt_right" headers="population" style="font-family: 'Source Sans Pro'; font-weight: 400">3,020,209</td>
+<td class="gt_row gt_right" headers="population_growth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">0.3</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="name" style="font-family: 'Source Sans Pro'; font-weight: 400">Algeria</td>
+<td class="gt_row gt_right" headers="pop_est" style="font-family: 'Source Sans Pro'; font-weight: 400">43,053,054</td>
+<td class="gt_row gt_left" headers="iso_a3" style="font-family: 'Source Sans Pro'; font-weight: 400">DZA</td>
+<td class="gt_row gt_center" headers="country" style="font-family: 'Source Sans Pro'; font-weight: 400">Algeria</td>
+<td class="gt_row gt_right" headers="area" style="font-family: 'Source Sans Pro'; font-weight: 400">2,381,741</td>
+<td class="gt_row gt_right" headers="birth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">24.0</td>
+<td class="gt_row gt_right" headers="death_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">4.3</td>
+<td class="gt_row gt_right" headers="infant_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">21.8</td>
+<td class="gt_row gt_right" headers="internet_users" style="font-family: 'Source Sans Pro'; font-weight: 400">NA</td>
+<td class="gt_row gt_right" headers="life_exp_at_birth" style="font-family: 'Source Sans Pro'; font-weight: 400">76.4</td>
+<td class="gt_row gt_right" headers="maternal_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">97.0</td>
+<td class="gt_row gt_right" headers="net_migration_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">−0.9</td>
+<td class="gt_row gt_right" headers="population" style="font-family: 'Source Sans Pro'; font-weight: 400">38,813,722</td>
+<td class="gt_row gt_right" headers="population_growth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">1.9</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="name" style="font-family: 'Source Sans Pro'; font-weight: 400">Angola</td>
+<td class="gt_row gt_right" headers="pop_est" style="font-family: 'Source Sans Pro'; font-weight: 400">31,825,295</td>
+<td class="gt_row gt_left" headers="iso_a3" style="font-family: 'Source Sans Pro'; font-weight: 400">AGO</td>
+<td class="gt_row gt_center" headers="country" style="font-family: 'Source Sans Pro'; font-weight: 400">Angola</td>
+<td class="gt_row gt_right" headers="area" style="font-family: 'Source Sans Pro'; font-weight: 400">1,246,700</td>
+<td class="gt_row gt_right" headers="birth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">39.0</td>
+<td class="gt_row gt_right" headers="death_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">11.7</td>
+<td class="gt_row gt_right" headers="infant_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">80.0</td>
+<td class="gt_row gt_right" headers="internet_users" style="font-family: 'Source Sans Pro'; font-weight: 400">NA</td>
+<td class="gt_row gt_right" headers="life_exp_at_birth" style="font-family: 'Source Sans Pro'; font-weight: 400">55.3</td>
+<td class="gt_row gt_right" headers="maternal_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">450.0</td>
+<td class="gt_row gt_right" headers="net_migration_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">0.5</td>
+<td class="gt_row gt_right" headers="population" style="font-family: 'Source Sans Pro'; font-weight: 400">19,088,106</td>
+<td class="gt_row gt_right" headers="population_growth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">2.8</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="name" style="font-family: 'Source Sans Pro'; font-weight: 400">Argentina</td>
+<td class="gt_row gt_right" headers="pop_est" style="font-family: 'Source Sans Pro'; font-weight: 400">44,938,712</td>
+<td class="gt_row gt_left" headers="iso_a3" style="font-family: 'Source Sans Pro'; font-weight: 400">ARG</td>
+<td class="gt_row gt_center" headers="country" style="font-family: 'Source Sans Pro'; font-weight: 400">Argentina</td>
+<td class="gt_row gt_right" headers="area" style="font-family: 'Source Sans Pro'; font-weight: 400">2,780,400</td>
+<td class="gt_row gt_right" headers="birth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">16.9</td>
+<td class="gt_row gt_right" headers="death_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">7.3</td>
+<td class="gt_row gt_right" headers="infant_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">10.0</td>
+<td class="gt_row gt_right" headers="internet_users" style="font-family: 'Source Sans Pro'; font-weight: 400">13,694,000.0</td>
+<td class="gt_row gt_right" headers="life_exp_at_birth" style="font-family: 'Source Sans Pro'; font-weight: 400">77.5</td>
+<td class="gt_row gt_right" headers="maternal_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">77.0</td>
+<td class="gt_row gt_right" headers="net_migration_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">0.0</td>
+<td class="gt_row gt_right" headers="population" style="font-family: 'Source Sans Pro'; font-weight: 400">43,024,374</td>
+<td class="gt_row gt_right" headers="population_growth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">0.9</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="name" style="font-family: 'Source Sans Pro'; font-weight: 400">Armenia</td>
+<td class="gt_row gt_right" headers="pop_est" style="font-family: 'Source Sans Pro'; font-weight: 400">2,957,731</td>
+<td class="gt_row gt_left" headers="iso_a3" style="font-family: 'Source Sans Pro'; font-weight: 400">ARM</td>
+<td class="gt_row gt_center" headers="country" style="font-family: 'Source Sans Pro'; font-weight: 400">Armenia</td>
+<td class="gt_row gt_right" headers="area" style="font-family: 'Source Sans Pro'; font-weight: 400">29,743</td>
+<td class="gt_row gt_right" headers="birth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">13.9</td>
+<td class="gt_row gt_right" headers="death_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">9.3</td>
+<td class="gt_row gt_right" headers="infant_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">14.0</td>
+<td class="gt_row gt_right" headers="internet_users" style="font-family: 'Source Sans Pro'; font-weight: 400">208,200.0</td>
+<td class="gt_row gt_right" headers="life_exp_at_birth" style="font-family: 'Source Sans Pro'; font-weight: 400">74.1</td>
+<td class="gt_row gt_right" headers="maternal_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">30.0</td>
+<td class="gt_row gt_right" headers="net_migration_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">−5.9</td>
+<td class="gt_row gt_right" headers="population" style="font-family: 'Source Sans Pro'; font-weight: 400">3,060,631</td>
+<td class="gt_row gt_right" headers="population_growth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">−0.1</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="name" style="font-family: 'Source Sans Pro'; font-weight: 400">Australia</td>
+<td class="gt_row gt_right" headers="pop_est" style="font-family: 'Source Sans Pro'; font-weight: 400">25,364,307</td>
+<td class="gt_row gt_left" headers="iso_a3" style="font-family: 'Source Sans Pro'; font-weight: 400">AUS</td>
+<td class="gt_row gt_center" headers="country" style="font-family: 'Source Sans Pro'; font-weight: 400">Australia</td>
+<td class="gt_row gt_right" headers="area" style="font-family: 'Source Sans Pro'; font-weight: 400">7,741,220</td>
+<td class="gt_row gt_right" headers="birth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">12.2</td>
+<td class="gt_row gt_right" headers="death_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">7.1</td>
+<td class="gt_row gt_right" headers="infant_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">4.4</td>
+<td class="gt_row gt_right" headers="internet_users" style="font-family: 'Source Sans Pro'; font-weight: 400">15,810,000.0</td>
+<td class="gt_row gt_right" headers="life_exp_at_birth" style="font-family: 'Source Sans Pro'; font-weight: 400">82.1</td>
+<td class="gt_row gt_right" headers="maternal_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">7.0</td>
+<td class="gt_row gt_right" headers="net_migration_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">5.7</td>
+<td class="gt_row gt_right" headers="population" style="font-family: 'Source Sans Pro'; font-weight: 400">22,507,617</td>
+<td class="gt_row gt_right" headers="population_growth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">1.1</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="name" style="font-family: 'Source Sans Pro'; font-weight: 400">Austria</td>
+<td class="gt_row gt_right" headers="pop_est" style="font-family: 'Source Sans Pro'; font-weight: 400">8,877,067</td>
+<td class="gt_row gt_left" headers="iso_a3" style="font-family: 'Source Sans Pro'; font-weight: 400">AUT</td>
+<td class="gt_row gt_center" headers="country" style="font-family: 'Source Sans Pro'; font-weight: 400">Austria</td>
+<td class="gt_row gt_right" headers="area" style="font-family: 'Source Sans Pro'; font-weight: 400">83,871</td>
+<td class="gt_row gt_right" headers="birth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">8.8</td>
+<td class="gt_row gt_right" headers="death_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">10.4</td>
+<td class="gt_row gt_right" headers="infant_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">4.2</td>
+<td class="gt_row gt_right" headers="internet_users" style="font-family: 'Source Sans Pro'; font-weight: 400">6,143,000.0</td>
+<td class="gt_row gt_right" headers="life_exp_at_birth" style="font-family: 'Source Sans Pro'; font-weight: 400">80.2</td>
+<td class="gt_row gt_right" headers="maternal_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">4.0</td>
+<td class="gt_row gt_right" headers="net_migration_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">1.8</td>
+<td class="gt_row gt_right" headers="population" style="font-family: 'Source Sans Pro'; font-weight: 400">8,223,062</td>
+<td class="gt_row gt_right" headers="population_growth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">0.0</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="name" style="font-family: 'Source Sans Pro'; font-weight: 400">Azerbaijan</td>
+<td class="gt_row gt_right" headers="pop_est" style="font-family: 'Source Sans Pro'; font-weight: 400">10,023,318</td>
+<td class="gt_row gt_left" headers="iso_a3" style="font-family: 'Source Sans Pro'; font-weight: 400">AZE</td>
+<td class="gt_row gt_center" headers="country" style="font-family: 'Source Sans Pro'; font-weight: 400">Azerbaijan</td>
+<td class="gt_row gt_right" headers="area" style="font-family: 'Source Sans Pro'; font-weight: 400">86,600</td>
+<td class="gt_row gt_right" headers="birth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">17.0</td>
+<td class="gt_row gt_right" headers="death_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">7.1</td>
+<td class="gt_row gt_right" headers="infant_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">26.7</td>
+<td class="gt_row gt_right" headers="internet_users" style="font-family: 'Source Sans Pro'; font-weight: 400">2,420,000.0</td>
+<td class="gt_row gt_right" headers="life_exp_at_birth" style="font-family: 'Source Sans Pro'; font-weight: 400">71.9</td>
+<td class="gt_row gt_right" headers="maternal_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">43.0</td>
+<td class="gt_row gt_right" headers="net_migration_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">0.0</td>
+<td class="gt_row gt_right" headers="population" style="font-family: 'Source Sans Pro'; font-weight: 400">9,686,210</td>
+<td class="gt_row gt_right" headers="population_growth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">1.0</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="name" style="font-family: 'Source Sans Pro'; font-weight: 400">Bahamas</td>
+<td class="gt_row gt_right" headers="pop_est" style="font-family: 'Source Sans Pro'; font-weight: 400">389,482</td>
+<td class="gt_row gt_left" headers="iso_a3" style="font-family: 'Source Sans Pro'; font-weight: 400">BHS</td>
+<td class="gt_row gt_center" headers="country" style="font-family: 'Source Sans Pro'; font-weight: 400">Bahamas, The</td>
+<td class="gt_row gt_right" headers="area" style="font-family: 'Source Sans Pro'; font-weight: 400">13,880</td>
+<td class="gt_row gt_right" headers="birth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">15.6</td>
+<td class="gt_row gt_right" headers="death_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">7.0</td>
+<td class="gt_row gt_right" headers="infant_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">12.5</td>
+<td class="gt_row gt_right" headers="internet_users" style="font-family: 'Source Sans Pro'; font-weight: 400">115,800.0</td>
+<td class="gt_row gt_right" headers="life_exp_at_birth" style="font-family: 'Source Sans Pro'; font-weight: 400">71.9</td>
+<td class="gt_row gt_right" headers="maternal_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">47.0</td>
+<td class="gt_row gt_right" headers="net_migration_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">0.0</td>
+<td class="gt_row gt_right" headers="population" style="font-family: 'Source Sans Pro'; font-weight: 400">321,834</td>
+<td class="gt_row gt_right" headers="population_growth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">0.9</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="name" style="font-family: 'Source Sans Pro'; font-weight: 400">Bangladesh</td>
+<td class="gt_row gt_right" headers="pop_est" style="font-family: 'Source Sans Pro'; font-weight: 400">163,046,161</td>
+<td class="gt_row gt_left" headers="iso_a3" style="font-family: 'Source Sans Pro'; font-weight: 400">BGD</td>
+<td class="gt_row gt_center" headers="country" style="font-family: 'Source Sans Pro'; font-weight: 400">Bangladesh</td>
+<td class="gt_row gt_right" headers="area" style="font-family: 'Source Sans Pro'; font-weight: 400">143,998</td>
+<td class="gt_row gt_right" headers="birth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">21.6</td>
+<td class="gt_row gt_right" headers="death_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">5.6</td>
+<td class="gt_row gt_right" headers="infant_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">45.7</td>
+<td class="gt_row gt_right" headers="internet_users" style="font-family: 'Source Sans Pro'; font-weight: 400">617,300.0</td>
+<td class="gt_row gt_right" headers="life_exp_at_birth" style="font-family: 'Source Sans Pro'; font-weight: 400">70.7</td>
+<td class="gt_row gt_right" headers="maternal_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">240.0</td>
+<td class="gt_row gt_right" headers="net_migration_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">0.0</td>
+<td class="gt_row gt_right" headers="population" style="font-family: 'Source Sans Pro'; font-weight: 400">166,280,712</td>
+<td class="gt_row gt_right" headers="population_growth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">1.6</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="name" style="font-family: 'Source Sans Pro'; font-weight: 400">Belarus</td>
+<td class="gt_row gt_right" headers="pop_est" style="font-family: 'Source Sans Pro'; font-weight: 400">9,466,856</td>
+<td class="gt_row gt_left" headers="iso_a3" style="font-family: 'Source Sans Pro'; font-weight: 400">BLR</td>
+<td class="gt_row gt_center" headers="country" style="font-family: 'Source Sans Pro'; font-weight: 400">Belarus</td>
+<td class="gt_row gt_right" headers="area" style="font-family: 'Source Sans Pro'; font-weight: 400">207,600</td>
+<td class="gt_row gt_right" headers="birth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">10.9</td>
+<td class="gt_row gt_right" headers="death_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">13.5</td>
+<td class="gt_row gt_right" headers="infant_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">3.6</td>
+<td class="gt_row gt_right" headers="internet_users" style="font-family: 'Source Sans Pro'; font-weight: 400">2,643,000.0</td>
+<td class="gt_row gt_right" headers="life_exp_at_birth" style="font-family: 'Source Sans Pro'; font-weight: 400">72.2</td>
+<td class="gt_row gt_right" headers="maternal_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">4.0</td>
+<td class="gt_row gt_right" headers="net_migration_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">0.8</td>
+<td class="gt_row gt_right" headers="population" style="font-family: 'Source Sans Pro'; font-weight: 400">9,608,058</td>
+<td class="gt_row gt_right" headers="population_growth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">−0.2</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="name" style="font-family: 'Source Sans Pro'; font-weight: 400">Belgium</td>
+<td class="gt_row gt_right" headers="pop_est" style="font-family: 'Source Sans Pro'; font-weight: 400">11,484,055</td>
+<td class="gt_row gt_left" headers="iso_a3" style="font-family: 'Source Sans Pro'; font-weight: 400">BEL</td>
+<td class="gt_row gt_center" headers="country" style="font-family: 'Source Sans Pro'; font-weight: 400">Belgium</td>
+<td class="gt_row gt_right" headers="area" style="font-family: 'Source Sans Pro'; font-weight: 400">30,528</td>
+<td class="gt_row gt_right" headers="birth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">10.0</td>
+<td class="gt_row gt_right" headers="death_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">10.8</td>
+<td class="gt_row gt_right" headers="infant_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">4.2</td>
+<td class="gt_row gt_right" headers="internet_users" style="font-family: 'Source Sans Pro'; font-weight: 400">8,113,000.0</td>
+<td class="gt_row gt_right" headers="life_exp_at_birth" style="font-family: 'Source Sans Pro'; font-weight: 400">79.9</td>
+<td class="gt_row gt_right" headers="maternal_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">8.0</td>
+<td class="gt_row gt_right" headers="net_migration_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">1.2</td>
+<td class="gt_row gt_right" headers="population" style="font-family: 'Source Sans Pro'; font-weight: 400">10,449,361</td>
+<td class="gt_row gt_right" headers="population_growth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">0.0</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="name" style="font-family: 'Source Sans Pro'; font-weight: 400">Belize</td>
+<td class="gt_row gt_right" headers="pop_est" style="font-family: 'Source Sans Pro'; font-weight: 400">390,353</td>
+<td class="gt_row gt_left" headers="iso_a3" style="font-family: 'Source Sans Pro'; font-weight: 400">BLZ</td>
+<td class="gt_row gt_center" headers="country" style="font-family: 'Source Sans Pro'; font-weight: 400">Belize</td>
+<td class="gt_row gt_right" headers="area" style="font-family: 'Source Sans Pro'; font-weight: 400">22,966</td>
+<td class="gt_row gt_right" headers="birth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">25.1</td>
+<td class="gt_row gt_right" headers="death_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">6.0</td>
+<td class="gt_row gt_right" headers="infant_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">20.3</td>
+<td class="gt_row gt_right" headers="internet_users" style="font-family: 'Source Sans Pro'; font-weight: 400">36,000.0</td>
+<td class="gt_row gt_right" headers="life_exp_at_birth" style="font-family: 'Source Sans Pro'; font-weight: 400">68.5</td>
+<td class="gt_row gt_right" headers="maternal_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">53.0</td>
+<td class="gt_row gt_right" headers="net_migration_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">0.0</td>
+<td class="gt_row gt_right" headers="population" style="font-family: 'Source Sans Pro'; font-weight: 400">340,844</td>
+<td class="gt_row gt_right" headers="population_growth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">1.9</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="name" style="font-family: 'Source Sans Pro'; font-weight: 400">Benin</td>
+<td class="gt_row gt_right" headers="pop_est" style="font-family: 'Source Sans Pro'; font-weight: 400">11,801,151</td>
+<td class="gt_row gt_left" headers="iso_a3" style="font-family: 'Source Sans Pro'; font-weight: 400">BEN</td>
+<td class="gt_row gt_center" headers="country" style="font-family: 'Source Sans Pro'; font-weight: 400">Benin</td>
+<td class="gt_row gt_right" headers="area" style="font-family: 'Source Sans Pro'; font-weight: 400">112,622</td>
+<td class="gt_row gt_right" headers="birth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">36.5</td>
+<td class="gt_row gt_right" headers="death_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">8.4</td>
+<td class="gt_row gt_right" headers="infant_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">57.1</td>
+<td class="gt_row gt_right" headers="internet_users" style="font-family: 'Source Sans Pro'; font-weight: 400">NA</td>
+<td class="gt_row gt_right" headers="life_exp_at_birth" style="font-family: 'Source Sans Pro'; font-weight: 400">61.1</td>
+<td class="gt_row gt_right" headers="maternal_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">350.0</td>
+<td class="gt_row gt_right" headers="net_migration_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">0.0</td>
+<td class="gt_row gt_right" headers="population" style="font-family: 'Source Sans Pro'; font-weight: 400">10,160,556</td>
+<td class="gt_row gt_right" headers="population_growth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">2.8</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="name" style="font-family: 'Source Sans Pro'; font-weight: 400">Bhutan</td>
+<td class="gt_row gt_right" headers="pop_est" style="font-family: 'Source Sans Pro'; font-weight: 400">763,092</td>
+<td class="gt_row gt_left" headers="iso_a3" style="font-family: 'Source Sans Pro'; font-weight: 400">BTN</td>
+<td class="gt_row gt_center" headers="country" style="font-family: 'Source Sans Pro'; font-weight: 400">Bhutan</td>
+<td class="gt_row gt_right" headers="area" style="font-family: 'Source Sans Pro'; font-weight: 400">38,394</td>
+<td class="gt_row gt_right" headers="birth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">18.1</td>
+<td class="gt_row gt_right" headers="death_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">6.8</td>
+<td class="gt_row gt_right" headers="infant_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">37.9</td>
+<td class="gt_row gt_right" headers="internet_users" style="font-family: 'Source Sans Pro'; font-weight: 400">50,000.0</td>
+<td class="gt_row gt_right" headers="life_exp_at_birth" style="font-family: 'Source Sans Pro'; font-weight: 400">69.0</td>
+<td class="gt_row gt_right" headers="maternal_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">180.0</td>
+<td class="gt_row gt_right" headers="net_migration_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">0.0</td>
+<td class="gt_row gt_right" headers="population" style="font-family: 'Source Sans Pro'; font-weight: 400">733,643</td>
+<td class="gt_row gt_right" headers="population_growth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">1.1</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="name" style="font-family: 'Source Sans Pro'; font-weight: 400">Bolivia</td>
+<td class="gt_row gt_right" headers="pop_est" style="font-family: 'Source Sans Pro'; font-weight: 400">11,513,100</td>
+<td class="gt_row gt_left" headers="iso_a3" style="font-family: 'Source Sans Pro'; font-weight: 400">BOL</td>
+<td class="gt_row gt_center" headers="country" style="font-family: 'Source Sans Pro'; font-weight: 400">Bolivia</td>
+<td class="gt_row gt_right" headers="area" style="font-family: 'Source Sans Pro'; font-weight: 400">1,098,581</td>
+<td class="gt_row gt_right" headers="birth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">23.3</td>
+<td class="gt_row gt_right" headers="death_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">6.6</td>
+<td class="gt_row gt_right" headers="infant_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">38.6</td>
+<td class="gt_row gt_right" headers="internet_users" style="font-family: 'Source Sans Pro'; font-weight: 400">1,103,000.0</td>
+<td class="gt_row gt_right" headers="life_exp_at_birth" style="font-family: 'Source Sans Pro'; font-weight: 400">68.5</td>
+<td class="gt_row gt_right" headers="maternal_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">190.0</td>
+<td class="gt_row gt_right" headers="net_migration_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">−0.7</td>
+<td class="gt_row gt_right" headers="population" style="font-family: 'Source Sans Pro'; font-weight: 400">10,631,486</td>
+<td class="gt_row gt_right" headers="population_growth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">1.6</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="name" style="font-family: 'Source Sans Pro'; font-weight: 400">Bosnia and Herz.</td>
+<td class="gt_row gt_right" headers="pop_est" style="font-family: 'Source Sans Pro'; font-weight: 400">3,301,000</td>
+<td class="gt_row gt_left" headers="iso_a3" style="font-family: 'Source Sans Pro'; font-weight: 400">BIH</td>
+<td class="gt_row gt_center" headers="country" style="font-family: 'Source Sans Pro'; font-weight: 400">Bosnia and Herzegovina</td>
+<td class="gt_row gt_right" headers="area" style="font-family: 'Source Sans Pro'; font-weight: 400">51,197</td>
+<td class="gt_row gt_right" headers="birth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">8.9</td>
+<td class="gt_row gt_right" headers="death_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">9.6</td>
+<td class="gt_row gt_right" headers="infant_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">5.8</td>
+<td class="gt_row gt_right" headers="internet_users" style="font-family: 'Source Sans Pro'; font-weight: 400">1,422,000.0</td>
+<td class="gt_row gt_right" headers="life_exp_at_birth" style="font-family: 'Source Sans Pro'; font-weight: 400">76.3</td>
+<td class="gt_row gt_right" headers="maternal_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">8.0</td>
+<td class="gt_row gt_right" headers="net_migration_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">−0.4</td>
+<td class="gt_row gt_right" headers="population" style="font-family: 'Source Sans Pro'; font-weight: 400">3,871,643</td>
+<td class="gt_row gt_right" headers="population_growth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">−0.1</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="name" style="font-family: 'Source Sans Pro'; font-weight: 400">Botswana</td>
+<td class="gt_row gt_right" headers="pop_est" style="font-family: 'Source Sans Pro'; font-weight: 400">2,303,697</td>
+<td class="gt_row gt_left" headers="iso_a3" style="font-family: 'Source Sans Pro'; font-weight: 400">BWA</td>
+<td class="gt_row gt_center" headers="country" style="font-family: 'Source Sans Pro'; font-weight: 400">Botswana</td>
+<td class="gt_row gt_right" headers="area" style="font-family: 'Source Sans Pro'; font-weight: 400">581,730</td>
+<td class="gt_row gt_right" headers="birth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">21.3</td>
+<td class="gt_row gt_right" headers="death_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">13.3</td>
+<td class="gt_row gt_right" headers="infant_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">9.4</td>
+<td class="gt_row gt_right" headers="internet_users" style="font-family: 'Source Sans Pro'; font-weight: 400">120,000.0</td>
+<td class="gt_row gt_right" headers="life_exp_at_birth" style="font-family: 'Source Sans Pro'; font-weight: 400">54.1</td>
+<td class="gt_row gt_right" headers="maternal_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">160.0</td>
+<td class="gt_row gt_right" headers="net_migration_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">4.6</td>
+<td class="gt_row gt_right" headers="population" style="font-family: 'Source Sans Pro'; font-weight: 400">2,155,784</td>
+<td class="gt_row gt_right" headers="population_growth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">1.3</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="name" style="font-family: 'Source Sans Pro'; font-weight: 400">Brazil</td>
+<td class="gt_row gt_right" headers="pop_est" style="font-family: 'Source Sans Pro'; font-weight: 400">211,049,527</td>
+<td class="gt_row gt_left" headers="iso_a3" style="font-family: 'Source Sans Pro'; font-weight: 400">BRA</td>
+<td class="gt_row gt_center" headers="country" style="font-family: 'Source Sans Pro'; font-weight: 400">Brazil</td>
+<td class="gt_row gt_right" headers="area" style="font-family: 'Source Sans Pro'; font-weight: 400">8,514,877</td>
+<td class="gt_row gt_right" headers="birth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">14.7</td>
+<td class="gt_row gt_right" headers="death_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">6.5</td>
+<td class="gt_row gt_right" headers="infant_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">19.2</td>
+<td class="gt_row gt_right" headers="internet_users" style="font-family: 'Source Sans Pro'; font-weight: 400">75,982,000.0</td>
+<td class="gt_row gt_right" headers="life_exp_at_birth" style="font-family: 'Source Sans Pro'; font-weight: 400">73.3</td>
+<td class="gt_row gt_right" headers="maternal_mortality_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">56.0</td>
+<td class="gt_row gt_right" headers="net_migration_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">−0.1</td>
+<td class="gt_row gt_right" headers="population" style="font-family: 'Source Sans Pro'; font-weight: 400">202,656,788</td>
+<td class="gt_row gt_right" headers="population_growth_rate" style="font-family: 'Source Sans Pro'; font-weight: 400">0.8</td>
+</tr>
+</tbody>
+</table>
+
+</div>
 </div>
 </div>
 </figure>
+</div>
 </div>
 </section>
 <section id="key-learning-using-geom_text_repel-in-place-of-geom_text_sf-with-stat-sf_coordinates" class="level3">
@@ -403,101 +1184,126 @@ Projected CRS: WGS 84 / Pseudo-Mercator
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the transformed world map data with overlapping labels</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(world_map) <span class="sc">+</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Draws the base map with country shapes</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span>    </span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Adds country names as labels, without overlap prevention</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_text</span>(</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> country</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Applies a minimal theme for a clean visual layout</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>           </span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Sets title, subtitle, and caption for the plot</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"World Map: Labels Overlapping when using geom_sf_text()"</span>,</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Map in the Mercator Projection (CRS = 3857)"</span>,</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Source: {rnaturalearth} package data retrieved with ne_countries() function"</span></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the transformed world map data with repelled labels</span></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(world_map) <span class="sc">+</span></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Draws the base map with country shapes</span></span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span>    </span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Adds country names as labels with repel effect to prevent overlap</span></span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(</span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> country,</span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>      <span class="at">geometry =</span> geometry,</span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> population</span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">stat =</span> <span class="st">"sf_coordinates"</span>,   <span class="co"># Sets the stat for spatial coordinates</span></span>
-<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="st">"caption_font"</span>,   <span class="co"># Sets the font family for labels</span></span>
-<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="fl">0.01</span>           <span class="co"># Sets line width for label positioning</span></span>
-<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Scales the size of labels based on population</span></span>
-<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_continuous</span>(</span>
-<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">range =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">7</span>)</span>
-<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Applies a minimal theme for a clean visual layout</span></span>
-<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>    </span>
-<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Sets title, subtitle, and caption for the plot</span></span>
-<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"World Map: Labels with geom_text_repel() with stat = </span><span class="sc">\"</span><span class="st">sf_coordinates</span><span class="sc">\"</span><span class="st">"</span>,</span>
-<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Map in the Mercator Projection (CRS = 3857)"</span>,</span>
-<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Source: {rnaturalearth} package data retrieved with ne_countries() function"</span></span>
-<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Removes the legend for size</span></span>
-<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span></span>
-<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the transformed world map data with overlapping labels</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(world_map) <span class="sc">+</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Draws the base map with country shapes</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="fl">0.1</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span>    </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Adds country names as labels, without overlap prevention</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_text</span>(</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> country</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Applies a minimal theme for a clean visual layout</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>           </span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Sets title, subtitle, and caption for the plot</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"World Map: Labels Overlapping when using geom_sf_text()"</span>,</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Map in the Mercator Projection (CRS = 3857)"</span>,</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Source: {rnaturalearth} package data retrieved with ne_countries() function"</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid =</span> <span class="fu">element_line</span>(</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>      <span class="at">linewidth =</span> <span class="fl">0.1</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>,</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"images"</span>,</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"cartogram_types_1.png"</span>),</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">600</span>,</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">800</span>,</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the transformed world map data with repelled labels</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(world_map) <span class="sc">+</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Draws the base map with country shapes</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="fl">0.1</span>,       <span class="co"># Sets line width for label positioning</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"grey10"</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span>    </span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Adds country names as labels with repel effect to prevent overlap</span></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> country,</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>      <span class="at">geometry =</span> geometry,</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> population</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">stat =</span> <span class="st">"sf_coordinates"</span>,   <span class="co"># Sets the stat for spatial coordinates</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="st">"caption_font"</span>,   <span class="co"># Sets the font family for labels</span></span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">force_pull =</span> <span class="dv">100</span>,</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">force =</span> <span class="fl">0.01</span>,</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="fl">0.01</span></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Scales the size of labels based on population</span></span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_continuous</span>(</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>    <span class="at">range =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">25</span>)</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Applies a minimal theme for a clean visual layout</span></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(</span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_size =</span> <span class="dv">80</span></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span>    </span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Sets title, subtitle, and caption for the plot</span></span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"World Map: Labels with geom_text_repel() with stat = </span><span class="sc">\"</span><span class="st">sf_coordinates</span><span class="sc">\"</span><span class="st">"</span>,</span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Source: {rnaturalearth} package data retrieved with ne_countries() function"</span>,</span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span></span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Removes the legend for size</span></span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid =</span> <span class="fu">element_line</span>(</span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>      <span class="at">linewidth =</span> <span class="fl">0.01</span></span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>,</span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"images"</span>,</span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"cartogram_types_2.png"</span>),</span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">3700</span>,</span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">4900</span>,</span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span>,</span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a>  <span class="at">bg =</span> <span class="st">"white"</span></span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div id="fig-worldmap" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+</div>
+<div id="fig-basemap-w1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-worldmap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output-display">
-<div id="fig-worldmap-1" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-subfloat-fig figure">
-<div aria-describedby="fig-worldmap-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="cartogram_types_files/figure-html/fig-worldmap-1.png" class="img-fluid figure-img" data-ref-parent="fig-worldmap" width="672">
+<div aria-describedby="fig-basemap-w1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/cartogram_types_1.png" class="img-fluid figure-img">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-worldmap-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-(a) Basic World Map: With no effort to prevent overlapping of labels
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-basemap-w1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Basic World Map: With no effort to prevent overlapping of labels
 </figcaption>
 </figure>
 </div>
+<div id="fig-basemapw2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-basemapw2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/cartogram_types_2.png" class="img-fluid figure-img">
 </div>
-<div class="cell-output-display">
-<div id="fig-worldmap-2" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-subfloat-fig figure">
-<div aria-describedby="fig-worldmap-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="cartogram_types_files/figure-html/fig-worldmap-2.png" class="img-fluid figure-img" data-ref-parent="fig-worldmap" width="672">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-worldmap-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-(b) Labels Repelled from each other to prevent overlapping, using geom_text_repel() from package {ggrepel}
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-basemapw2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Labels Repelled from each other to prevent overlapping, using geom_text_repel() from package {ggrepel}
 </figcaption>
 </figure>
-</div>
-</div>
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-worldmap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: A world map drawn in Mercator Projection (CRS 3857) to be used as a base map for creating cartograms in the next step
-</figcaption>
-</figure>
-</div>
 </div>
 </section>
 <section id="step-3-converting-geometry-into-cartograms-geometry-using-cartogram" class="level3">
@@ -509,16 +1315,16 @@ Figure&nbsp;1: A world map drawn in Mercator Projection (CRS 3857) to be used as
 <li><p>a <em>non-contiguous cartogram</em> that allows countries to resize independently, resulting in more accurate shapes but less geographic continuity.</p></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Transforming the data to different cartogram types based on population</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a contiguous cartogram where countries maintain adjacency</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>world_map_cont <span class="ot">&lt;-</span> cartogram<span class="sc">::</span><span class="fu">cartogram_cont</span>(world_map, <span class="st">"population"</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a Dorling cartogram where each country is represented by a circle</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>world_map_dorling <span class="ot">&lt;-</span> cartogram<span class="sc">::</span><span class="fu">cartogram_dorling</span>(world_map, <span class="st">"population"</span>)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a non-contiguous cartogram where countries resize independently</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>world_map_ncont <span class="ot">&lt;-</span> cartogram<span class="sc">::</span><span class="fu">cartogram_ncont</span>(world_map, <span class="st">"population"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Transforming the data to different cartogram types based on population</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a contiguous cartogram where countries maintain adjacency</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>world_map_cont <span class="ot">&lt;-</span> cartogram<span class="sc">::</span><span class="fu">cartogram_cont</span>(world_map, <span class="st">"population"</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a Dorling cartogram where each country is represented by a circle</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>world_map_dorling <span class="ot">&lt;-</span> cartogram<span class="sc">::</span><span class="fu">cartogram_dorling</span>(world_map, <span class="st">"population"</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a non-contiguous cartogram where countries resize independently</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>world_map_ncont <span class="ot">&lt;-</span> cartogram<span class="sc">::</span><span class="fu">cartogram_ncont</span>(world_map, <span class="st">"population"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
@@ -526,12 +1332,111 @@ Figure&nbsp;1: A world map drawn in Mercator Projection (CRS 3857) to be used as
 <h1>Results</h1>
 <section id="type-1-a-continuous-cartogram" class="level3">
 <h3 class="anchored" data-anchor-id="type-1-a-continuous-cartogram">Type 1: A Continuous Cartogram</h3>
-<p>In this code, we generate a contiguous cartogram plot, shown in <a href="#fig-cartocont" class="quarto-xref">Figure&nbsp;2</a>, using <code>{ggplot2}</code> and <code>{sf}</code> libraries, with countries sized according to population. The code begins by arranging <code>world_map_cont</code> in descending order of population (so that the countries with larger population are displayed first, while we use the argument <code>check_overlap = TRUE</code> with <code>geom_sf_text()</code>. The cartogram plot is created using <code>geom_sf()</code> for shapes and <code>geom_sf_text()</code> for country labels, with label sizes reflecting population. Manual scales are applied to align fill and text colors with predefined palettes. The plot includes a centered title and minimal theme.</p>
+<p>In this code, we generate a contiguous cartogram plot, shown in <a href="#fig-cartocont" class="quarto-xref">Figure&nbsp;3</a>, using <code>{ggplot2}</code> and <code>{sf}</code> libraries, with countries sized according to population. The code begins by arranging <code>world_map_cont</code> in descending order of population (so that the countries with larger population are displayed first, while we use the argument <code>check_overlap = TRUE</code> with <code>geom_sf_text()</code>. The cartogram plot is created using <code>geom_sf()</code> for shapes and <code>geom_sf_text()</code> for country labels, with label sizes reflecting population. Manual scales are applied to align fill and text colors with predefined palettes. The plot includes a centered title and minimal theme.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Arrange the cartogram data by population in descending order</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> world_map_cont <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Arrange the cartogram data by population in descending order</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> world_map_cont <span class="sc">|&gt;</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(population)) <span class="sc">|&gt;</span> </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize ggplot, mapping fill and color aesthetics to country</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">fill =</span> country,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">colour =</span> country</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the country shapes without borders</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"transparent"</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Add text labels for each country with size proportional to population</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_text</span>(</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> country,</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> population,</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">geometry =</span> geometry</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="st">"caption_font"</span>,</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">fontface =</span> <span class="st">"bold"</span>,</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">check_overlap =</span> <span class="cn">TRUE</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Set continuous scale for text size within a specified range</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_continuous</span>(</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">range =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">10</span>)</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply manual color scale for fill and outline of countries</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> fill_palette</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> colour_palette</span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Add plot title and remove x and y axis labels</span></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>,</span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"A contiguous Cartogram of countries' population"</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply a minimal theme with custom font and size</span></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(</span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_family =</span> <span class="st">"caption_font"</span>,</span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_size =</span> <span class="dv">16</span></span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a><span class="co"># Customize plot appearance with centered title and invisible legend</span></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid =</span> <span class="fu">element_line</span>(</span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>      <span class="at">colour =</span> <span class="st">"grey90"</span>,</span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>      <span class="at">linetype =</span> <span class="dv">3</span>,</span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>      <span class="at">linewidth =</span> <span class="fl">0.1</span></span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>      <span class="at">hjust =</span> <span class="fl">0.5</span>,</span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>      <span class="at">margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>, <span class="st">"mm"</span>),</span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">32</span></span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>, <span class="st">"mm"</span>)</span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the plot as a PNG with defined size and white background</span></span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"cartogram_types_3.png"</span>),</span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">900</span>,</span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1200</span>,</span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span>,</span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a>  <span class="at">bg =</span> <span class="st">"white"</span></span>
+<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="fig-cartocont" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-cartocont-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/cartogram_types_3.png" class="img-fluid figure-img" width="1200">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cartocont-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: A World Map Cartogram, with countries sized by population, using data from CIA World Factbook. The contiguous cartogram ensures that neighbousing countries keep touching each other, although shapes are distorted.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="type-2-a-non-continuous-cartogram" class="level3">
+<h3 class="anchored" data-anchor-id="type-2-a-non-continuous-cartogram">Type 2: A Non-continuous Cartogram</h3>
+<p>The next code chunk generates a non-contiguous cartogram, shown in <a href="#fig-cartoncont" class="quarto-xref">Figure&nbsp;4</a>, where countries are resized according to population but maintain their original shapes, making it easier to recognize familiar geographic forms.. It uses two layers of <code>geom_sf()</code> to add the original world map with a grey outline for context and the resized cartogram countries with a semi-transparent overlay. Text labels are added for each country, sized by population, without overlapping.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Arrange the non-contiguous cartogram data by population in descending order</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> world_map_ncont <span class="sc">|&gt;</span> </span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(population)) <span class="sc">|&gt;</span> </span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize ggplot, mapping fill and color aesthetics to country</span></span>
@@ -542,95 +1447,104 @@ Figure&nbsp;1: A world map drawn in Mercator Projection (CRS 3857) to be used as
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the country shapes without borders</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the original world map with grey borders and white fill</span></span>
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"transparent"</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Add text labels for each country with size proportional to population</span></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_text</span>(</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> country,</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> population,</span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">geometry =</span> geometry</span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="st">"caption_font"</span>,</span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">fontface =</span> <span class="st">"bold"</span>,</span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">check_overlap =</span> <span class="cn">TRUE</span></span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Set continuous scale for text size within a specified range</span></span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_continuous</span>(</span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">range =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">10</span>)</span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply manual color scale for fill and outline of countries</span></span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(</span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> fill_palette</span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(</span>
-<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> colour_palette</span>
-<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Add plot title and remove x and y axis labels</span></span>
-<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>,</span>
-<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"A contiguous Cartogram of countries' population"</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> world_map,</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"white"</span>,</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"grey60"</span>,</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="fl">0.1</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the non-contiguous cartogram countries with transparency</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"transparent"</span>,</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.75</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Add text labels for each country with size proportional to population</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_text</span>(</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> country,</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> population,</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>      <span class="at">geometry =</span> geometry</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="st">"caption_font"</span>,</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">fontface =</span> <span class="st">"bold"</span>,</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">check_overlap =</span> <span class="cn">FALSE</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a><span class="co"># Set continuous scale for text size within a specified range</span></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_continuous</span>(</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">range =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">10</span>)</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply manual color scale for fill and outline of countries</span></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(</span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> fill_palette</span>
 <span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply a minimal theme with custom font and size</span></span>
-<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(</span>
-<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_family =</span> <span class="st">"caption_font"</span>,</span>
-<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_size =</span> <span class="dv">16</span></span>
-<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a><span class="co"># Customize plot appearance with centered title and invisible legend</span></span>
-<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
-<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid =</span> <span class="fu">element_line</span>(</span>
-<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>      <span class="at">colour =</span> <span class="st">"grey90"</span>,</span>
-<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>      <span class="at">linetype =</span> <span class="dv">3</span>,</span>
-<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>      <span class="at">linewidth =</span> <span class="fl">0.1</span></span>
-<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
-<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>      <span class="at">hjust =</span> <span class="fl">0.5</span>,</span>
-<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>      <span class="at">margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>, <span class="st">"mm"</span>),</span>
-<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">32</span></span>
-<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>, <span class="st">"mm"</span>)</span>
-<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the plot as a PNG with defined size and white background</span></span>
-<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
-<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
-<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
-<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"cartogram_types_1.png"</span>),</span>
-<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">900</span>,</span>
-<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1200</span>,</span>
-<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span>,</span>
-<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a>  <span class="at">bg =</span> <span class="st">"white"</span></span>
-<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(</span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> colour_palette</span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a><span class="co"># Add plot title and remove x and y axis labels</span></span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>,</span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"A non-contiguous Cartogram of countries' population - preserves the country shapes"</span></span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply a minimal theme with custom font and size</span></span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(</span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_family =</span> <span class="st">"caption_font"</span>,</span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_size =</span> <span class="dv">16</span></span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a><span class="co"># Customize plot appearance with centered title and invisible legend</span></span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid =</span> <span class="fu">element_line</span>(</span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>      <span class="at">colour =</span> <span class="st">"grey90"</span>,</span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>      <span class="at">linetype =</span> <span class="dv">3</span>,</span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>      <span class="at">linewidth =</span> <span class="fl">0.1</span></span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>      <span class="at">hjust =</span> <span class="fl">0.5</span>,</span>
+<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>      <span class="at">margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>, <span class="st">"mm"</span>),</span>
+<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">28</span></span>
+<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>, <span class="st">"mm"</span>)</span>
+<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the plot as a PNG with defined size and white background</span></span>
+<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
+<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"cartogram_types_4.png"</span>),</span>
+<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">900</span>,</span>
+<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1200</span>,</span>
+<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span>,</span>
+<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>  <span class="at">bg =</span> <span class="st">"white"</span></span>
+<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="fig-cartocont" class="quarto-float quarto-figure quarto-figure-center anchored">
+<div id="fig-cartoncont" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-cartocont-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/cartogram_types_1.png" class="img-fluid figure-img" width="1200">
+<div aria-describedby="fig-cartoncont-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/cartogram_types_4.png" class="img-fluid figure-img">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cartocont-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2: A World Map Cartogram, with countries sized by population, using data from CIA World Factbook. The contiguous cartogram ensures that neighbousing countries keep touching each other, although shapes are distorted.
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cartoncont-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: A non-contiguous cartogram of countries population, using data from CIA Factbook, shows that while shapes of countries are preserved, their neighbouring countries don’t touch each others’ borders anymore.
 </figcaption>
 </figure>
 </div>
 </section>
-<section id="type-2-a-non-continuous-cartogram" class="level3">
-<h3 class="anchored" data-anchor-id="type-2-a-non-continuous-cartogram">Type 2: A Non-continuous Cartogram</h3>
-<p>The next code chunk generates a non-contiguous cartogram, shown in <a href="#fig-cartoncont" class="quarto-xref">Figure&nbsp;3</a>, where countries are resized according to population but maintain their original shapes, making it easier to recognize familiar geographic forms.. It uses two layers of <code>geom_sf()</code> to add the original world map with a grey outline for context and the resized cartogram countries with a semi-transparent overlay. Text labels are added for each country, sized by population, without overlapping.</p>
+<section id="type-3-a-non-overlapping-circles-cartogram" class="level3">
+<h3 class="anchored" data-anchor-id="type-3-a-non-overlapping-circles-cartogram">Type 3: A non-overlapping circles Cartogram</h3>
+<p>This code snippet creates a Dorling cartogram, shown in <a href="#fig-cartodorling" class="quarto-xref">Figure&nbsp;5</a>, where countries are represented as non-overlapping circles sized according to their populations. The <code>ggplot</code> function is used to set up the aesthetic mappings for fill and color based on the country. The <code>geom_sf()</code> function is employed to add the circular representations of countries without outlines, while <code>geom_sf_text()</code> adds text labels for each country, sized according to their populations.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Arrange the non-contiguous cartogram data by population in descending order</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> world_map_ncont <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Arrange the Dorling cartogram data by population in descending order</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> world_map_dorling <span class="sc">|&gt;</span> </span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(population)) <span class="sc">|&gt;</span> </span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize ggplot, mapping fill and color aesthetics to country</span></span>
@@ -641,185 +1555,77 @@ Figure&nbsp;2: A World Map Cartogram, with countries sized by population, using 
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the original world map with grey borders and white fill</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the non-overlapping circles representing countries</span></span>
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> world_map,</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"white"</span>,</span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"grey60"</span>,</span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="fl">0.1</span></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the non-contiguous cartogram countries with transparency</span></span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"transparent"</span>,</span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.75</span></span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Add text labels for each country with size proportional to population</span></span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_text</span>(</span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> country,</span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> population,</span>
-<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>      <span class="at">geometry =</span> geometry</span>
-<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="st">"caption_font"</span>,</span>
-<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">fontface =</span> <span class="st">"bold"</span>,</span>
-<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">check_overlap =</span> <span class="cn">FALSE</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"transparent"</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Add text labels for each country, sized by population</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_text</span>(</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> country,</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> population,</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">geometry =</span> geometry</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="st">"caption_font"</span>,</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">fontface =</span> <span class="st">"bold"</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Set continuous scale for text size within a specified range</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_continuous</span>(</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">range =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">10</span>)</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply manual color scale for fill and Text of countries</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> fill_palette</span>
 <span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a><span class="co"># Set continuous scale for text size within a specified range</span></span>
-<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_continuous</span>(</span>
-<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">range =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">10</span>)</span>
-<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply manual color scale for fill and outline of countries</span></span>
-<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(</span>
-<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> fill_palette</span>
-<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(</span>
-<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> colour_palette</span>
-<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a><span class="co"># Add plot title and remove x and y axis labels</span></span>
-<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>,</span>
-<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"A non-contiguous Cartogram of countries' population - preserves the country shapes"</span></span>
-<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply a minimal theme with custom font and size</span></span>
-<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(</span>
-<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_family =</span> <span class="st">"caption_font"</span>,</span>
-<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_size =</span> <span class="dv">16</span></span>
-<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a><span class="co"># Customize plot appearance with centered title and invisible legend</span></span>
-<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
-<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid =</span> <span class="fu">element_line</span>(</span>
-<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>      <span class="at">colour =</span> <span class="st">"grey90"</span>,</span>
-<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>      <span class="at">linetype =</span> <span class="dv">3</span>,</span>
-<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>      <span class="at">linewidth =</span> <span class="fl">0.1</span></span>
-<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
-<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a>      <span class="at">hjust =</span> <span class="fl">0.5</span>,</span>
-<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a>      <span class="at">margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>, <span class="st">"mm"</span>),</span>
-<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">28</span></span>
-<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>, <span class="st">"mm"</span>)</span>
-<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the plot as a PNG with defined size and white background</span></span>
-<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
-<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
-<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
-<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"cartogram_types_2.png"</span>),</span>
-<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">900</span>,</span>
-<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1200</span>,</span>
-<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span>,</span>
-<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a>  <span class="at">bg =</span> <span class="st">"white"</span></span>
-<span id="cb7-89"><a href="#cb7-89" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-</div>
-<div id="fig-cartoncont" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-cartoncont-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/cartogram_types_2.png" class="img-fluid figure-img">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cartoncont-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3: A non-contiguous cartogram of countries population, using data from CIA Factbook, shows that while shapes of countries are preserved, their neighbouring countries don’t touch each others’ borders anymore.
-</figcaption>
-</figure>
-</div>
-</section>
-<section id="type-3-a-non-overlapping-circles-cartogram" class="level3">
-<h3 class="anchored" data-anchor-id="type-3-a-non-overlapping-circles-cartogram">Type 3: A non-overlapping circles Cartogram</h3>
-<p>This code snippet creates a Dorling cartogram, shown in <a href="#fig-cartodorling" class="quarto-xref">Figure&nbsp;4</a>, where countries are represented as non-overlapping circles sized according to their populations. The <code>ggplot</code> function is used to set up the aesthetic mappings for fill and color based on the country. The <code>geom_sf()</code> function is employed to add the circular representations of countries without outlines, while <code>geom_sf_text()</code> adds text labels for each country, sized according to their populations.</p>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Arrange the Dorling cartogram data by population in descending order</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> world_map_dorling <span class="sc">|&gt;</span> </span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(population)) <span class="sc">|&gt;</span> </span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize ggplot, mapping fill and color aesthetics to country</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">fill =</span> country,</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">colour =</span> country</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the non-overlapping circles representing countries</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"transparent"</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Add text labels for each country, sized by population</span></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_text</span>(</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> country,</span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> population,</span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">geometry =</span> geometry</span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="st">"caption_font"</span>,</span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">fontface =</span> <span class="st">"bold"</span></span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Set continuous scale for text size within a specified range</span></span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_continuous</span>(</span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">range =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">10</span>)</span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply manual color scale for fill and Text of countries</span></span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(</span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> fill_palette</span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(</span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> colour_palette</span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a><span class="co"># Add plot title and remove x and y axis labels</span></span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>,</span>
-<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"A non-overlapping circles Cartogram of countries' population."</span></span>
-<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply a map theme with custom font and size</span></span>
-<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>  ggthemes<span class="sc">::</span><span class="fu">theme_map</span>(</span>
-<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_family =</span> <span class="st">"caption_font"</span>,</span>
-<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_size =</span> <span class="dv">16</span></span>
-<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a><span class="co"># Customize plot appearance with centered title and invisible legend</span></span>
-<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
-<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
-<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>      <span class="at">hjust =</span> <span class="fl">0.5</span>,</span>
-<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>      <span class="at">margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>, <span class="st">"mm"</span>),</span>
-<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">28</span></span>
-<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>, <span class="st">"mm"</span>)</span>
-<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the plot as a PNG with defined size and white background</span></span>
-<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
-<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
-<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
-<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"cartogram_types_3.png"</span>),</span>
-<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">900</span>,</span>
-<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1200</span>,</span>
-<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span>,</span>
-<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a>  <span class="at">bg =</span> <span class="st">"white"</span></span>
-<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> colour_palette</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a><span class="co"># Add plot title and remove x and y axis labels</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>,</span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"A non-overlapping circles Cartogram of countries' population."</span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply a map theme with custom font and size</span></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>  ggthemes<span class="sc">::</span><span class="fu">theme_map</span>(</span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_family =</span> <span class="st">"caption_font"</span>,</span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_size =</span> <span class="dv">16</span></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a><span class="co"># Customize plot appearance with centered title and invisible legend</span></span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>      <span class="at">hjust =</span> <span class="fl">0.5</span>,</span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>      <span class="at">margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>, <span class="st">"mm"</span>),</span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">28</span></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>, <span class="st">"mm"</span>)</span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the plot as a PNG with defined size and white background</span></span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"cartogram_types_5.png"</span>),</span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">900</span>,</span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1200</span>,</span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span>,</span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a>  <span class="at">bg =</span> <span class="st">"white"</span></span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div id="fig-cartodorling" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cartodorling-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/cartogram_types_3.png" id="fig-cartodorling" class="img-fluid figure-img">
+<img src="images/cartogram_types_5.png" id="fig-cartodorling" class="img-fluid figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-cartodorling-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4
+Figure&nbsp;5
 </figcaption>
 </figure>
 </div>
@@ -1266,6 +2072,10 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script>
+<script src="https://giscus.app/client.js" data-repo="Aditya-Dahiya/visage" data-repo-id="R_kgDONAVlOw" data-category="General" data-category-id="DIC_kwDONAVlO84CjtPl" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script>
+<input type="hidden" id="giscus-base-theme" value="light">
+<input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 <footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/cartogram_types.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><div class="page-columns page-rows-contents page-layout-article"><div class="social-share"><a href="https://twitter.com/share?url=https://aditya-dahiya.github.io/visage/geocomputation/cartogram_types.html&amp;text=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="twitter"><i class="fab fa-twitter fa-fw fa-lg"></i></a><a href="https://www.linkedin.com/shareArticle?url=https://aditya-dahiya.github.io/visage/geocomputation/cartogram_types.html&amp;title=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="linkedin"><i class="fa-brands fa-linkedin-in fa-fw fa-lg"></i></a>  <a href="mailto:?subject=Visualizing Information and Spatial Analysis with ggplot2 Extensions&amp;body=Check out this link:https://aditya-dahiya.github.io/visage/geocomputation/cartogram_types.html" target="_blank" class="email"><i class="fa-solid fa-envelope fa-fw fa-lg"></i></a><a href="https://www.facebook.com/sharer.php?u=https://aditya-dahiya.github.io/visage/geocomputation/cartogram_types.html" target="_blank" class="facebook"><i class="fab fa-facebook-f fa-fw fa-lg"></i></a><a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' &amp;&amp; mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=Visualizing Information and Spatial Analysis with ggplot2 Extensions https://aditya-dahiya.github.io/visage/geocomputation/cartogram_types.html'}else{return false;}" target="_blank" class="mastodon"><i class="fa-brands fa-mastodon fa-fw fa-lg"></i></a></div></div>
 
