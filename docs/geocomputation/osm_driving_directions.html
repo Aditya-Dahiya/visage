@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Dahiya">
-<meta name="dcterms.date" content="2024-10-25">
+<meta name="dcterms.date" content="2024-10-26">
 
 <title>Driving Directions using Open Street Maps Routing Service – visage</title>
 <style>
@@ -236,7 +236,7 @@ div.csl-indent {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 25, 2024</p>
+      <p class="date">October 26, 2024</p>
     </div>
   </div>
   
@@ -248,9 +248,9 @@ div.csl-indent {
 </header>
 
 
-<p>This code provides a detailed methodology for creating a visually informative route map for a driving trip along the northern Mediterranean, integrating data visualization, spatial data handling, and Open Street Maps (OSM) routing services in R. Utilizing several packages, including <code>{sf}</code> for spatial data and <code>{tidygeocoder}</code> for geocoding, the code transforms a dataset of locations into spatial coordinates. By accessing OSRM (Open Source Routing Machine) through the <code>{osrm}</code> package, the code calculates and visualizes optimized driving routes between selected cities. Distances and travel durations are formatted using custom functions, enhancing the map’s usability and clarity.</p>
-<p>The geospatial data is presented using <code>{ggplot2}</code>, with additional styling from <code>{ggrepel}</code> for labels and <code>{patchwork}</code> to arrange plots. Base map layers are sourced from <code>{rnaturalearth}</code>, and a refined background layer is added using <code>{ggmap}</code> with Stadia map tiles, adjusted to EPSG:3857 using custom bounding box functions. This layering enables effective visualization of routes on custom raster maps. The code’s structure allows for modifications, such as changing cities or map styling, demonstrating the adaptability of R’s spatial data packages in route mapping and driving directions creation.</p>
-<p><strong>Inspired from the <a href="https://www.andrewheiss.com/blog/2023/06/01/geocoding-routing-openstreetmap-r/">tutorial</a><span class="citation" data-cites="heiss2023">(<a href="#ref-heiss2023" role="doc-biblioref">Heiss 2023</a>)</span> titled “<em>How to make fancy road trip maps with R and OpenStreetMap</em>”.</strong></p>
+<p>This code provides a detailed methodology for creating a visually informative route map for a driving trip along the northern Mediterranean, integrating data visualization, spatial data handling, and <a href="https://www.openstreetmap.org/">Open Street Maps</a> (OSM) routing services in <a href="https://cran.r-project.org/"><code>R</code></a>. Utilizing several packages, including <code>{sf}</code> <span class="citation" data-cites="sf-2">(<a href="#ref-sf-2" role="doc-biblioref">Pebesma and Bivand 2023</a>)</span> for spatial data and <code>{tidygeocoder}</code> <span class="citation" data-cites="tidygeocoder">(<a href="#ref-tidygeocoder" role="doc-biblioref">Cambon et al. 2021</a>)</span> for <strong><em>geocoding</em></strong>, the code transforms a dataset of locations into spatial coordinates. By accessing <a href="https://project-osrm.org/">OSRM</a> (Open Source Routing Machine) through the <code>{osrm}</code> <span class="citation" data-cites="osrm">(<a href="#ref-osrm" role="doc-biblioref">Giraud 2022</a>)</span>package, the code calculates and visualizes optimized driving routes between selected cities. Distances and travel durations are formatted using custom functions, enhancing the map’s usability and clarity.</p>
+<p>The geospatial data is presented using <code>{ggplot2}</code> <span class="citation" data-cites="ggplot2-2">(<a href="#ref-ggplot2-2" role="doc-biblioref">Wickham 2016</a>)</span> with additional styling from <code>{ggrepel}</code> <span class="citation" data-cites="ggrepel-2">(<a href="#ref-ggrepel-2" role="doc-biblioref">Slowikowski 2024</a>)</span> for labels and <code>{patchwork}</code> <span class="citation" data-cites="patchwork">(<a href="#ref-patchwork" role="doc-biblioref">Pedersen 2024</a>)</span> to arrange plots. Base map layers are sourced from <code>{rnaturalearth}</code> <span class="citation" data-cites="rnaturalearth">(<a href="#ref-rnaturalearth" role="doc-biblioref">Massicotte and South 2023</a>)</span> and a refined background layer is added using <code>{ggmap}</code> with <a href="https://stadiamaps.com/">Stadia map</a> tiles, adjusted to <a href="https://epsg.io/3857">EPSG:3857</a> using custom bounding box functions. This layering enables effective visualization of routes on custom raster maps. The code’s structure allows for modifications, such as changing cities or map styling, demonstrating the adaptability of R’s spatial data packages in route mapping and driving directions creation.</p>
+<p><strong>Inspired from this <a href="https://www.andrewheiss.com/blog/2023/06/01/geocoding-routing-openstreetmap-r/">tutorial</a></strong> <span class="citation" data-cites="heiss2023">(<a href="#ref-heiss2023" role="doc-biblioref">Heiss 2023</a>)</span> <strong>titled “<em>How to make fancy road trip maps with R and OpenStreetMap</em>”.</strong></p>
 <section id="step-1-setting-up-basics" class="level2">
 <h2 class="anchored" data-anchor-id="step-1-setting-up-basics">Step 1: Setting up basics</h2>
 <p>This code initializes an R project for geospatial data analysis and visualization, utilizing multiple packages for enhanced map presentation, styling, and data wrangling:</p>
@@ -392,27 +392,27 @@ Table&nbsp;1: The data to be used for further analysis
 </figcaption>
 <div aria-describedby="tbl-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="zlughvsteo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="zdaqkknbga" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Cairo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#zlughvsteo table {
+#zdaqkknbga table {
   font-family: Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#zlughvsteo thead, #zlughvsteo tbody, #zlughvsteo tfoot, #zlughvsteo tr, #zlughvsteo td, #zlughvsteo th {
+#zdaqkknbga thead, #zdaqkknbga tbody, #zdaqkknbga tfoot, #zdaqkknbga tr, #zdaqkknbga td, #zdaqkknbga th {
   border-style: none;
 }
 
-#zlughvsteo p {
+#zdaqkknbga p {
   margin: 0;
   padding: 0;
 }
 
-#zlughvsteo .gt_table {
+#zdaqkknbga .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -438,12 +438,12 @@ Table&nbsp;1: The data to be used for further analysis
   border-left-color: #D3D3D3;
 }
 
-#zlughvsteo .gt_caption {
+#zdaqkknbga .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#zlughvsteo .gt_title {
+#zdaqkknbga .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -455,7 +455,7 @@ Table&nbsp;1: The data to be used for further analysis
   border-bottom-width: 0;
 }
 
-#zlughvsteo .gt_subtitle {
+#zdaqkknbga .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -467,7 +467,7 @@ Table&nbsp;1: The data to be used for further analysis
   border-top-width: 0;
 }
 
-#zlughvsteo .gt_heading {
+#zdaqkknbga .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -479,13 +479,13 @@ Table&nbsp;1: The data to be used for further analysis
   border-right-color: #D3D3D3;
 }
 
-#zlughvsteo .gt_bottom_border {
+#zdaqkknbga .gt_bottom_border {
   border-bottom-style: none;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#zlughvsteo .gt_col_headings {
+#zdaqkknbga .gt_col_headings {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -500,7 +500,7 @@ Table&nbsp;1: The data to be used for further analysis
   border-right-color: #D3D3D3;
 }
 
-#zlughvsteo .gt_col_heading {
+#zdaqkknbga .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -520,7 +520,7 @@ Table&nbsp;1: The data to be used for further analysis
   overflow-x: hidden;
 }
 
-#zlughvsteo .gt_column_spanner_outer {
+#zdaqkknbga .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -532,15 +532,15 @@ Table&nbsp;1: The data to be used for further analysis
   padding-right: 4px;
 }
 
-#zlughvsteo .gt_column_spanner_outer:first-child {
+#zdaqkknbga .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#zlughvsteo .gt_column_spanner_outer:last-child {
+#zdaqkknbga .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#zlughvsteo .gt_column_spanner {
+#zdaqkknbga .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #000000;
@@ -552,11 +552,11 @@ Table&nbsp;1: The data to be used for further analysis
   width: 100%;
 }
 
-#zlughvsteo .gt_spanner_row {
+#zdaqkknbga .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#zlughvsteo .gt_group_heading {
+#zdaqkknbga .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -582,7 +582,7 @@ Table&nbsp;1: The data to be used for further analysis
   text-align: left;
 }
 
-#zlughvsteo .gt_empty_group_heading {
+#zdaqkknbga .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -597,15 +597,15 @@ Table&nbsp;1: The data to be used for further analysis
   vertical-align: middle;
 }
 
-#zlughvsteo .gt_from_md > :first-child {
+#zdaqkknbga .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#zlughvsteo .gt_from_md > :last-child {
+#zdaqkknbga .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#zlughvsteo .gt_row {
+#zdaqkknbga .gt_row {
   padding-top: 3px;
   padding-bottom: 3px;
   padding-left: 5px;
@@ -624,7 +624,7 @@ Table&nbsp;1: The data to be used for further analysis
   overflow-x: hidden;
 }
 
-#zlughvsteo .gt_stub {
+#zdaqkknbga .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -637,7 +637,7 @@ Table&nbsp;1: The data to be used for further analysis
   padding-right: 5px;
 }
 
-#zlughvsteo .gt_stub_row_group {
+#zdaqkknbga .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -651,15 +651,15 @@ Table&nbsp;1: The data to be used for further analysis
   vertical-align: top;
 }
 
-#zlughvsteo .gt_row_group_first td {
+#zdaqkknbga .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#zlughvsteo .gt_row_group_first th {
+#zdaqkknbga .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#zlughvsteo .gt_summary_row {
+#zdaqkknbga .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -669,16 +669,16 @@ Table&nbsp;1: The data to be used for further analysis
   padding-right: 5px;
 }
 
-#zlughvsteo .gt_first_summary_row {
+#zdaqkknbga .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#zlughvsteo .gt_first_summary_row.thick {
+#zdaqkknbga .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#zlughvsteo .gt_last_summary_row {
+#zdaqkknbga .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -688,7 +688,7 @@ Table&nbsp;1: The data to be used for further analysis
   border-bottom-color: #D3D3D3;
 }
 
-#zlughvsteo .gt_grand_summary_row {
+#zdaqkknbga .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -698,7 +698,7 @@ Table&nbsp;1: The data to be used for further analysis
   padding-right: 5px;
 }
 
-#zlughvsteo .gt_first_grand_summary_row {
+#zdaqkknbga .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -708,7 +708,7 @@ Table&nbsp;1: The data to be used for further analysis
   border-top-color: #D3D3D3;
 }
 
-#zlughvsteo .gt_last_grand_summary_row_top {
+#zdaqkknbga .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -718,11 +718,11 @@ Table&nbsp;1: The data to be used for further analysis
   border-bottom-color: #D3D3D3;
 }
 
-#zlughvsteo .gt_striped {
+#zdaqkknbga .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#zlughvsteo .gt_table_body {
+#zdaqkknbga .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -731,7 +731,7 @@ Table&nbsp;1: The data to be used for further analysis
   border-bottom-color: #D3D3D3;
 }
 
-#zlughvsteo .gt_footnotes {
+#zdaqkknbga .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -745,7 +745,7 @@ Table&nbsp;1: The data to be used for further analysis
   border-right-color: #D3D3D3;
 }
 
-#zlughvsteo .gt_footnote {
+#zdaqkknbga .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -754,7 +754,7 @@ Table&nbsp;1: The data to be used for further analysis
   padding-right: 5px;
 }
 
-#zlughvsteo .gt_sourcenotes {
+#zdaqkknbga .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -768,7 +768,7 @@ Table&nbsp;1: The data to be used for further analysis
   border-right-color: #D3D3D3;
 }
 
-#zlughvsteo .gt_sourcenote {
+#zdaqkknbga .gt_sourcenote {
   font-size: 12px;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -776,64 +776,73 @@ Table&nbsp;1: The data to be used for further analysis
   padding-right: 5px;
 }
 
-#zlughvsteo .gt_left {
+#zdaqkknbga .gt_left {
   text-align: left;
 }
 
-#zlughvsteo .gt_center {
+#zdaqkknbga .gt_center {
   text-align: center;
 }
 
-#zlughvsteo .gt_right {
+#zdaqkknbga .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#zlughvsteo .gt_font_normal {
+#zdaqkknbga .gt_font_normal {
   font-weight: normal;
 }
 
-#zlughvsteo .gt_font_bold {
+#zdaqkknbga .gt_font_bold {
   font-weight: bold;
 }
 
-#zlughvsteo .gt_font_italic {
+#zdaqkknbga .gt_font_italic {
   font-style: italic;
 }
 
-#zlughvsteo .gt_super {
+#zdaqkknbga .gt_super {
   font-size: 65%;
 }
 
-#zlughvsteo .gt_footnote_marks {
+#zdaqkknbga .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#zlughvsteo .gt_asterisk {
+#zdaqkknbga .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#zlughvsteo .gt_indent_1 {
+#zdaqkknbga .gt_indent_1 {
   text-indent: 5px;
 }
 
-#zlughvsteo .gt_indent_2 {
+#zdaqkknbga .gt_indent_2 {
   text-indent: 10px;
 }
 
-#zlughvsteo .gt_indent_3 {
+#zdaqkknbga .gt_indent_3 {
   text-indent: 15px;
 }
 
-#zlughvsteo .gt_indent_4 {
+#zdaqkknbga .gt_indent_4 {
   text-indent: 20px;
 }
 
-#zlughvsteo .gt_indent_5 {
+#zdaqkknbga .gt_indent_5 {
   text-indent: 25px;
+}
+
+#zdaqkknbga .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#zdaqkknbga div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
 }
 
 tbody tr:last-child {
@@ -1758,8 +1767,29 @@ Figure&nbsp;12: Day 8: Drive from Florence to Rome.
 </section>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-tidygeocoder" class="csl-entry" role="listitem">
+Cambon, Jesse, Diego Hernangómez, Christopher Belanger, and Daniel Possenriede. 2021. <span>“Tidygeocoder: An r Package for Geocoding”</span> 6: 3544. <a href="https://doi.org/10.21105/joss.03544">https://doi.org/10.21105/joss.03544</a>.
+</div>
+<div id="ref-osrm" class="csl-entry" role="listitem">
+Giraud, Timothée. 2022. <span>“<span></span>Osrm: Interface Between r and the OpenStreetMap-Based Routing Service OSRM<span></span>”</span> 7: 4574. <a href="https://doi.org/10.21105/joss.04574">https://doi.org/10.21105/joss.04574</a>.
+</div>
 <div id="ref-heiss2023" class="csl-entry" role="listitem">
 Heiss, Andrew. 2023. <span>“How to Make Fancy Road Trip Maps with r and OpenStreetMap.”</span> <a href="http://dx.doi.org/10.59350/rgwda-0tv16">http://dx.doi.org/10.59350/rgwda-0tv16</a>.
+</div>
+<div id="ref-rnaturalearth" class="csl-entry" role="listitem">
+Massicotte, Philippe, and Andy South. 2023. <span>“Rnaturalearth: World Map Data from Natural Earth.”</span> <a href="https://CRAN.R-project.org/package=rnaturalearth">https://CRAN.R-project.org/package=rnaturalearth</a>.
+</div>
+<div id="ref-sf-2" class="csl-entry" role="listitem">
+Pebesma, Edzer, and Roger Bivand. 2023. <span>“<span></span>Spatial Data Science: With Applications in r<span></span>.”</span> <a href="https://doi.org/10.1201/9780429459016">https://doi.org/10.1201/9780429459016</a>.
+</div>
+<div id="ref-patchwork" class="csl-entry" role="listitem">
+Pedersen, Thomas Lin. 2024. <span>“Patchwork: The Composer of Plots.”</span> <a href="https://CRAN.R-project.org/package=patchwork">https://CRAN.R-project.org/package=patchwork</a>.
+</div>
+<div id="ref-ggrepel-2" class="csl-entry" role="listitem">
+Slowikowski, Kamil. 2024. <span>“Ggrepel: Automatically Position Non-Overlapping Text Labels with ’Ggplot2’.”</span> <a href="https://CRAN.R-project.org/package=ggrepel">https://CRAN.R-project.org/package=ggrepel</a>.
+</div>
+<div id="ref-ggplot2-2" class="csl-entry" role="listitem">
+Wickham, Hadley. 2016. <span>“Ggplot2: Elegant Graphics for Data Analysis.”</span> <a href="https://ggplot2.tidyverse.org">https://ggplot2.tidyverse.org</a>.
 </div>
 </div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -2182,6 +2212,10 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script>
+<script src="https://giscus.app/client.js" data-repo="Aditya-Dahiya/visage" data-repo-id="R_kgDONAVlOw" data-category="General" data-category-id="DIC_kwDONAVlO84CjtPl" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script>
+<input type="hidden" id="giscus-base-theme" value="light">
+<input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 <footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/osm_driving_directions.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><div class="page-columns page-rows-contents page-layout-article"><div class="social-share"><a href="https://twitter.com/share?url=https://aditya-dahiya.github.io/visage/geocomputation/osm_driving_directions.html&amp;text=Creating Maps in R with ggplot2 having background Raster Images using ggmap" target="_blank" class="twitter"><i class="fab fa-twitter fa-fw fa-lg"></i></a><a href="https://www.linkedin.com/shareArticle?url=https://aditya-dahiya.github.io/visage/geocomputation/osm_driving_directions.html&amp;title=Creating Maps in R with ggplot2 having background Raster Images using ggmap" target="_blank" class="linkedin"><i class="fa-brands fa-linkedin-in fa-fw fa-lg"></i></a>  <a href="mailto:?subject=Creating Maps in R with ggplot2 having background Raster Images using ggmap&amp;body=Check out this link:https://aditya-dahiya.github.io/visage/geocomputation/osm_driving_directions.html" target="_blank" class="email"><i class="fa-solid fa-envelope fa-fw fa-lg"></i></a><a href="https://www.facebook.com/sharer.php?u=https://aditya-dahiya.github.io/visage/geocomputation/osm_driving_directions.html" target="_blank" class="facebook"><i class="fab fa-facebook-f fa-fw fa-lg"></i></a><a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' &amp;&amp; mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=Creating Maps in R with ggplot2 having background Raster Images using ggmap https://aditya-dahiya.github.io/visage/geocomputation/osm_driving_directions.html'}else{return false;}" target="_blank" class="mastodon"><i class="fa-brands fa-mastodon fa-fw fa-lg"></i></a></div></div>
 

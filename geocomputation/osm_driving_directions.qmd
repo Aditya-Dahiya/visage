@@ -1,7 +1,7 @@
 ---
 title: "Driving Directions using Open Street Maps Routing Service"
 subtitle: "Using {tidygeocoder}, {osrm}, {sf}, {tidyverse} and {ggmap} along with Open Source Techniques to plot driving directions along various cities in Europe in the norther-Mediterranean region"
-date: "2024-10-25"
+date: "2024-10-26"
 author: "Aditya Dahiya"
 bibliography: references.bib
 format:
@@ -24,13 +24,16 @@ share:
   email: true
   mastodon: true
   facebook: true
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
 ---
 
-This code provides a detailed methodology for creating a visually informative route map for a driving trip along the northern Mediterranean, integrating data visualization, spatial data handling, and Open Street Maps (OSM) routing services in R. Utilizing several packages, including `{sf}` for spatial data and `{tidygeocoder}` for geocoding, the code transforms a dataset of locations into spatial coordinates. By accessing OSRM (Open Source Routing Machine) through the `{osrm}` package, the code calculates and visualizes optimized driving routes between selected cities. Distances and travel durations are formatted using custom functions, enhancing the map's usability and clarity.
+This code provides a detailed methodology for creating a visually informative route map for a driving trip along the northern Mediterranean, integrating data visualization, spatial data handling, and [Open Street Maps](https://www.openstreetmap.org/) (OSM) routing services in [`R`](https://cran.r-project.org/). Utilizing several packages, including `{sf}` [@sf-2] for spatial data and `{tidygeocoder}` [@tidygeocoder] for ***geocoding***, the code transforms a dataset of locations into spatial coordinates. By accessing [OSRM](https://project-osrm.org/) (Open Source Routing Machine) through the `{osrm}` [@osrm]package, the code calculates and visualizes optimized driving routes between selected cities. Distances and travel durations are formatted using custom functions, enhancing the map's usability and clarity.
 
-The geospatial data is presented using `{ggplot2}`, with additional styling from `{ggrepel}` for labels and `{patchwork}` to arrange plots. Base map layers are sourced from `{rnaturalearth}`, and a refined background layer is added using `{ggmap}` with Stadia map tiles, adjusted to EPSG:3857 using custom bounding box functions. This layering enables effective visualization of routes on custom raster maps. The code's structure allows for modifications, such as changing cities or map styling, demonstrating the adaptability of R's spatial data packages in route mapping and driving directions creation.
+The geospatial data is presented using `{ggplot2}` [@ggplot2-2] with additional styling from `{ggrepel}` [@ggrepel-2] for labels and `{patchwork}` [@patchwork] to arrange plots. Base map layers are sourced from `{rnaturalearth}` [@rnaturalearth] and a refined background layer is added using `{ggmap}` with [Stadia map](https://stadiamaps.com/) tiles, adjusted to [EPSG:3857](https://epsg.io/3857) using custom bounding box functions. This layering enables effective visualization of routes on custom raster maps. The code's structure allows for modifications, such as changing cities or map styling, demonstrating the adaptability of R's spatial data packages in route mapping and driving directions creation.
 
-**Inspired from the [tutorial](https://www.andrewheiss.com/blog/2023/06/01/geocoding-routing-openstreetmap-r/)[@heiss2023] titled "*How to make fancy road trip maps with R and OpenStreetMap*".**
+**Inspired from this [tutorial](https://www.andrewheiss.com/blog/2023/06/01/geocoding-routing-openstreetmap-r/)** [@heiss2023] **titled "*How to make fancy road trip maps with R and OpenStreetMap*".**
 
 ## Step 1: Setting up basics
 
