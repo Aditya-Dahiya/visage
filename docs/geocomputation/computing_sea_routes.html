@@ -66,6 +66,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
+<link href="../visage_logo.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -77,6 +78,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <link href="../site_libs/quarto-contrib/social-share-0.1.0/social-share.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/social-share-0.1.0/all.css" rel="stylesheet">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -121,6 +125,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <link rel="stylesheet" href="../styles.css">
+<meta name="twitter:title" content="Computing shortest routes in the sea that avoid land – visage">
+<meta name="twitter:description" content="Using data from Killer Whales encounters in Salish Sea to plot routes of their recorded encounters, and showing those routes that dont intersect land - i.e., removing erroneous data.">
+<meta name="twitter:card" content="summary">
 </head>
 
 <body class="nav-fixed">
@@ -131,7 +138,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a href="../index.html" class="navbar-brand navbar-brand-logo">
-    <img src="../aditya-dahiya.jpg" alt="visage" class="navbar-logo">
+    <img src="../visage_logo.png" alt="visage" class="navbar-logo">
     </a>
     <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">visage</span>
@@ -152,7 +159,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Geo-Computation</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../ggplot2_ext.qmd"> 
+    <a class="nav-link" href="../ggplot2_ext.html"> 
 <span class="menu-text">ggplot2 Extensions</span></a>
   </li>  
   <li class="nav-item">
@@ -225,7 +232,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="quarto-title">
 <h1 class="title">Computing shortest routes in the sea that avoid land</h1>
 <p class="subtitle lead">Using data from Killer Whales encounters in Salish Sea to plot routes of their recorded encounters, and showing those routes that dont intersect land - i.e., removing erroneous data.</p>
-</div>
+  <div class="quarto-categories">
+    <div class="quarto-category">Routes</div>
+    <div class="quarto-category">Background Map</div>
+    <div class="quarto-category">Raster Map</div>
+    <div class="quarto-category">{sf}</div>
+  </div>
+  </div>
 
 
 
@@ -258,7 +271,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="fig-tidytuesday" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-tidytuesday-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/tidy_orcas_encounters.png" class="img-fluid figure-img">
+<a href="images/tidy_orcas_encounters.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;1: This map visualizes the movements of Southern Resident killer whales, with arrows marking the starting and ending points of each recorded encounter. The concentration of arrows within a small area highlights the key regions in the Salish Sea where these encounters occur most frequently. Background map images provided by StadiaMaps."><img src="images/tidy_orcas_encounters.png" class="img-fluid figure-img"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tidytuesday-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;1: This map visualizes the movements of <a href="https://en.wikipedia.org/wiki/Southern_resident_orcas">Southern Resident killer whales</a>, with arrows marking the starting and ending points of each recorded encounter. The concentration of arrows within a small area highlights the key regions in the <a href="https://en.wikipedia.org/wiki/Salish_Sea">Salish Sea</a> where these encounters occur most frequently. Background map images provided by <a href="https://stadiamaps.com/">StadiaMaps</a>.
@@ -1320,7 +1333,7 @@ Table&nbsp;2: A table of clean data that shows id, year, duration and starting a
 <div id="fig-routes12" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-routes12-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="computing_sea_routes_files/figure-html/fig-routes12-1.png" class="img-fluid figure-img" width="672">
+<a href="computing_sea_routes_files/figure-html/fig-routes12-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;2: The routes computed by the {geosphere} package’s gcIntermediate() function"><img src="computing_sea_routes_files/figure-html/fig-routes12-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-routes12-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2: The routes computed by the {geosphere} package’s gcIntermediate() function
@@ -1373,7 +1386,7 @@ Figure&nbsp;2: The routes computed by the {geosphere} package’s gcIntermediate
 <div id="fig-basemap1-1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-basemap1-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="computing_sea_routes_files/figure-html/fig-basemap1-1.png" class="img-fluid figure-img" data-ref-parent="fig-basemap1" width="672">
+<a href="computing_sea_routes_files/figure-html/fig-basemap1-1.png" class="lightbox" data-gallery="fig-basemap1" title="Figure&nbsp;3&nbsp;(a): Map of entire USA and Canada from {rgeoboundaries}"><img src="computing_sea_routes_files/figure-html/fig-basemap1-1.png" class="img-fluid figure-img" data-ref-parent="fig-basemap1" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-basemap1-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 (a) Map of entire USA and Canada from {rgeoboundaries}
@@ -1385,7 +1398,7 @@ Figure&nbsp;2: The routes computed by the {geosphere} package’s gcIntermediate
 <div id="fig-basemap1-2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-basemap1-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="computing_sea_routes_files/figure-html/fig-basemap1-2.png" class="img-fluid figure-img" data-ref-parent="fig-basemap1" width="672">
+<a href="computing_sea_routes_files/figure-html/fig-basemap1-2.png" class="lightbox" data-gallery="fig-basemap1" title="Figure&nbsp;3&nbsp;(b): Using the terra::crop() from {terra} to focus on Salish Sea area. The Salish Sea area plotted as an sf object"><img src="computing_sea_routes_files/figure-html/fig-basemap1-2.png" class="img-fluid figure-img" data-ref-parent="fig-basemap1" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-basemap1-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 (b) Using the terra::crop() from {terra} to focus on Salish Sea area. The Salish Sea area plotted as an sf object
@@ -1995,7 +2008,7 @@ Table&nbsp;3: A table of intersecting and non-intersecting routes
 <div id="fig-final2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-final2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/computing_sea_routes_1.png" class="img-fluid figure-img">
+<a href="images/computing_sea_routes_1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5" title="Figure&nbsp;4: This map visualizes the movements of Southern Resident killer whales, with arrows marking the starting and ending points of each recorded encounter. The concentration of arrows within a small area highlights the key regions in the Salish Sea where these encounters occur most frequently. Background map images provided by StadiaMaps."><img src="images/computing_sea_routes_1.png" class="img-fluid figure-img"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-final2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;4: This map visualizes the movements of Southern Resident killer whales, with arrows marking the starting and ending points of each recorded encounter. The concentration of arrows within a small area highlights the key regions in the Salish Sea where these encounters occur most frequently. Background map images provided by StadiaMaps.
@@ -3118,7 +3131,7 @@ Geodetic CRS:  WGS 84
 <div id="fig-basemap-1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-basemap-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="computing_sea_routes_files/figure-html/fig-basemap-1.png" class="img-fluid figure-img" data-ref-parent="fig-basemap" width="672">
+<a href="computing_sea_routes_files/figure-html/fig-basemap-1.png" class="lightbox" data-gallery="fig-basemap" title="Figure&nbsp;5&nbsp;(a): Map of entire USA and Canada from {rgeoboundaries}"><img src="computing_sea_routes_files/figure-html/fig-basemap-1.png" class="img-fluid figure-img" data-ref-parent="fig-basemap" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-basemap-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 (a) Map of entire USA and Canada from {rgeoboundaries}
@@ -3130,7 +3143,7 @@ Geodetic CRS:  WGS 84
 <div id="fig-basemap-2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-basemap-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="computing_sea_routes_files/figure-html/fig-basemap-2.png" class="img-fluid figure-img" data-ref-parent="fig-basemap" width="672">
+<a href="computing_sea_routes_files/figure-html/fig-basemap-2.png" class="lightbox" data-gallery="fig-basemap" title="Figure&nbsp;5&nbsp;(b): Using the terra::crop() from {terra} to focus on Salish Sea area"><img src="computing_sea_routes_files/figure-html/fig-basemap-2.png" class="img-fluid figure-img" data-ref-parent="fig-basemap" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-basemap-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 (b) Using the terra::crop() from {terra} to focus on Salish Sea area
@@ -3142,7 +3155,7 @@ Geodetic CRS:  WGS 84
 <div id="fig-basemap-3" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-basemap-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="computing_sea_routes_files/figure-html/fig-basemap-3.png" class="img-fluid figure-img" data-ref-parent="fig-basemap" width="672">
+<a href="computing_sea_routes_files/figure-html/fig-basemap-3.png" class="lightbox" data-gallery="fig-basemap" title="Figure&nbsp;5&nbsp;(c): The same Salish Sea area plotted as an sf object"><img src="computing_sea_routes_files/figure-html/fig-basemap-3.png" class="img-fluid figure-img" data-ref-parent="fig-basemap" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-basemap-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 (c) The same Salish Sea area plotted as an sf object
@@ -3187,7 +3200,7 @@ Figure&nbsp;5: Background Map of the Salish Sea Area in 2 steps: (4.1) Getting m
 <div id="fig-rast1-1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-rast1-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="computing_sea_routes_files/figure-html/fig-rast1-1.png" class="img-fluid figure-img" width="672">
+<a href="computing_sea_routes_files/figure-html/fig-rast1-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9" title="Figure&nbsp;6: The empty raster of 500 X 500 created using terra::rast()"><img src="computing_sea_routes_files/figure-html/fig-rast1-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rast1-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;6: The empty raster of 500 X 500 created using terra::rast()
@@ -3199,7 +3212,7 @@ Figure&nbsp;6: The empty raster of 500 X 500 created using terra::rast()
 <div id="fig-rast1-2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-rast1-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="computing_sea_routes_files/figure-html/fig-rast1-2.png" class="img-fluid figure-img" width="672">
+<a href="computing_sea_routes_files/figure-html/fig-rast1-2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10" title="Figure&nbsp;7: The raster is enhanced by adding the polygons data from the salish sea area map we cropped in the last step."><img src="computing_sea_routes_files/figure-html/fig-rast1-2.png" class="img-fluid figure-img" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rast1-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;7: The raster is enhanced by adding the polygons data from the salish sea area map we cropped in the last step.
@@ -3301,7 +3314,7 @@ Figure&nbsp;7: The raster is enhanced by adding the polygons data from the salis
 <div id="fig-shortpaths" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-shortpaths-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="computing_sea_routes_files/figure-html/fig-shortpaths-1.png" class="img-fluid figure-img" width="672">
+<a href="computing_sea_routes_files/figure-html/fig-shortpaths-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11" title="Figure&nbsp;8: The shortest paths computed using {gdistance} show us that many of them are passing over land - these seem to be errors in the data"><img src="computing_sea_routes_files/figure-html/fig-shortpaths-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-shortpaths-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;8: The shortest paths computed using {gdistance} show us that many of them are passing over land - these seem to be errors in the data
@@ -3952,7 +3965,7 @@ Figure&nbsp;8: The shortest paths computed using {gdistance} show us that many o
 <div id="fig-final1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-final1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="computing_sea_routes_files/figure-html/fig-final1-1.png" class="img-fluid figure-img" width="672">
+<a href="computing_sea_routes_files/figure-html/fig-final1-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12" title="Figure&nbsp;9: The final map with routes shown that don’t intersect land. The alpha (transparency) of each route is mapped to speed."><img src="computing_sea_routes_files/figure-html/fig-final1-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-final1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;9: The final map with routes shown that don’t intersect land. The alpha (transparency) of each route is mapped to speed.
@@ -4393,6 +4406,38 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 <footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/computing_sea_routes.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><div class="page-columns page-rows-contents page-layout-article"><div class="social-share"><a href="https://twitter.com/share?url=https://aditya-dahiya.github.io/visage/geocomputation/computing_sea_routes.html&amp;text=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="twitter"><i class="fab fa-twitter fa-fw fa-lg"></i></a><a href="https://www.linkedin.com/shareArticle?url=https://aditya-dahiya.github.io/visage/geocomputation/computing_sea_routes.html&amp;title=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="linkedin"><i class="fa-brands fa-linkedin-in fa-fw fa-lg"></i></a>  <a href="mailto:?subject=Visualizing Information and Spatial Analysis with ggplot2 Extensions&amp;body=Check out this link:https://aditya-dahiya.github.io/visage/geocomputation/computing_sea_routes.html" target="_blank" class="email"><i class="fa-solid fa-envelope fa-fw fa-lg"></i></a><a href="https://www.facebook.com/sharer.php?u=https://aditya-dahiya.github.io/visage/geocomputation/computing_sea_routes.html" target="_blank" class="facebook"><i class="fab fa-facebook-f fa-fw fa-lg"></i></a><a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' &amp;&amp; mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=Visualizing Information and Spatial Analysis with ggplot2 Extensions https://aditya-dahiya.github.io/visage/geocomputation/computing_sea_routes.html'}else{return false;}" target="_blank" class="mastodon"><i class="fa-brands fa-mastodon fa-fw fa-lg"></i></a></div></div>
+<script>var lightboxQuarto = GLightbox({"descPosition":"bottom","closeEffect":"zoom","openEffect":"zoom","loop":false,"selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
 
 
 

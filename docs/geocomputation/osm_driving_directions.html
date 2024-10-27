@@ -86,6 +86,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
+<link href="../visage_logo.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -97,6 +98,9 @@ div.csl-indent {
 <link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <link href="../site_libs/quarto-contrib/social-share-0.1.0/social-share.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/social-share-0.1.0/all.css" rel="stylesheet">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -127,6 +131,9 @@ div.csl-indent {
 
 
 <link rel="stylesheet" href="../styles.css">
+<meta name="twitter:title" content="Driving Directions using Open Street Maps Routing Service – visage">
+<meta name="twitter:description" content="Using {tidygeocoder}, {osrm}, {sf}, {tidyverse} and {ggmap} along with Open Source Techniques to plot driving directions along various cities in Europe in the norther-Mediterranean region">
+<meta name="twitter:card" content="summary">
 </head>
 
 <body class="nav-fixed">
@@ -137,7 +144,7 @@ div.csl-indent {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a href="../index.html" class="navbar-brand navbar-brand-logo">
-    <img src="../aditya-dahiya.jpg" alt="visage" class="navbar-logo">
+    <img src="../visage_logo.png" alt="visage" class="navbar-logo">
     </a>
     <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">visage</span>
@@ -158,7 +165,7 @@ div.csl-indent {
 <span class="menu-text">Geo-Computation</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../ggplot2_ext.qmd"> 
+    <a class="nav-link" href="../ggplot2_ext.html"> 
 <span class="menu-text">ggplot2 Extensions</span></a>
   </li>  
   <li class="nav-item">
@@ -220,7 +227,13 @@ div.csl-indent {
 <div class="quarto-title">
 <h1 class="title">Driving Directions using Open Street Maps Routing Service</h1>
 <p class="subtitle lead">Using {tidygeocoder}, {osrm}, {sf}, {tidyverse} and {ggmap} along with Open Source Techniques to plot driving directions along various cities in Europe in the norther-Mediterranean region</p>
-</div>
+  <div class="quarto-categories">
+    <div class="quarto-category">Routes</div>
+    <div class="quarto-category">{tidygeocoder}</div>
+    <div class="quarto-category">{osmr}</div>
+    <div class="quarto-category">Open Street Maps</div>
+  </div>
+  </div>
 
 
 
@@ -385,27 +398,27 @@ Table&nbsp;1: The data to be used for further analysis
 </figcaption>
 <div aria-describedby="tbl-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="abmtentybx" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="cqbucquzup" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Cairo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#abmtentybx table {
+#cqbucquzup table {
   font-family: Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#abmtentybx thead, #abmtentybx tbody, #abmtentybx tfoot, #abmtentybx tr, #abmtentybx td, #abmtentybx th {
+#cqbucquzup thead, #cqbucquzup tbody, #cqbucquzup tfoot, #cqbucquzup tr, #cqbucquzup td, #cqbucquzup th {
   border-style: none;
 }
 
-#abmtentybx p {
+#cqbucquzup p {
   margin: 0;
   padding: 0;
 }
 
-#abmtentybx .gt_table {
+#cqbucquzup .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -431,12 +444,12 @@ Table&nbsp;1: The data to be used for further analysis
   border-left-color: #D3D3D3;
 }
 
-#abmtentybx .gt_caption {
+#cqbucquzup .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#abmtentybx .gt_title {
+#cqbucquzup .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -448,7 +461,7 @@ Table&nbsp;1: The data to be used for further analysis
   border-bottom-width: 0;
 }
 
-#abmtentybx .gt_subtitle {
+#cqbucquzup .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -460,7 +473,7 @@ Table&nbsp;1: The data to be used for further analysis
   border-top-width: 0;
 }
 
-#abmtentybx .gt_heading {
+#cqbucquzup .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -472,13 +485,13 @@ Table&nbsp;1: The data to be used for further analysis
   border-right-color: #D3D3D3;
 }
 
-#abmtentybx .gt_bottom_border {
+#cqbucquzup .gt_bottom_border {
   border-bottom-style: none;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#abmtentybx .gt_col_headings {
+#cqbucquzup .gt_col_headings {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -493,7 +506,7 @@ Table&nbsp;1: The data to be used for further analysis
   border-right-color: #D3D3D3;
 }
 
-#abmtentybx .gt_col_heading {
+#cqbucquzup .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -513,7 +526,7 @@ Table&nbsp;1: The data to be used for further analysis
   overflow-x: hidden;
 }
 
-#abmtentybx .gt_column_spanner_outer {
+#cqbucquzup .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -525,15 +538,15 @@ Table&nbsp;1: The data to be used for further analysis
   padding-right: 4px;
 }
 
-#abmtentybx .gt_column_spanner_outer:first-child {
+#cqbucquzup .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#abmtentybx .gt_column_spanner_outer:last-child {
+#cqbucquzup .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#abmtentybx .gt_column_spanner {
+#cqbucquzup .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #000000;
@@ -545,11 +558,11 @@ Table&nbsp;1: The data to be used for further analysis
   width: 100%;
 }
 
-#abmtentybx .gt_spanner_row {
+#cqbucquzup .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#abmtentybx .gt_group_heading {
+#cqbucquzup .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -575,7 +588,7 @@ Table&nbsp;1: The data to be used for further analysis
   text-align: left;
 }
 
-#abmtentybx .gt_empty_group_heading {
+#cqbucquzup .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -590,15 +603,15 @@ Table&nbsp;1: The data to be used for further analysis
   vertical-align: middle;
 }
 
-#abmtentybx .gt_from_md > :first-child {
+#cqbucquzup .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#abmtentybx .gt_from_md > :last-child {
+#cqbucquzup .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#abmtentybx .gt_row {
+#cqbucquzup .gt_row {
   padding-top: 3px;
   padding-bottom: 3px;
   padding-left: 5px;
@@ -617,7 +630,7 @@ Table&nbsp;1: The data to be used for further analysis
   overflow-x: hidden;
 }
 
-#abmtentybx .gt_stub {
+#cqbucquzup .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -630,7 +643,7 @@ Table&nbsp;1: The data to be used for further analysis
   padding-right: 5px;
 }
 
-#abmtentybx .gt_stub_row_group {
+#cqbucquzup .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -644,15 +657,15 @@ Table&nbsp;1: The data to be used for further analysis
   vertical-align: top;
 }
 
-#abmtentybx .gt_row_group_first td {
+#cqbucquzup .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#abmtentybx .gt_row_group_first th {
+#cqbucquzup .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#abmtentybx .gt_summary_row {
+#cqbucquzup .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -662,16 +675,16 @@ Table&nbsp;1: The data to be used for further analysis
   padding-right: 5px;
 }
 
-#abmtentybx .gt_first_summary_row {
+#cqbucquzup .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#abmtentybx .gt_first_summary_row.thick {
+#cqbucquzup .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#abmtentybx .gt_last_summary_row {
+#cqbucquzup .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -681,7 +694,7 @@ Table&nbsp;1: The data to be used for further analysis
   border-bottom-color: #D3D3D3;
 }
 
-#abmtentybx .gt_grand_summary_row {
+#cqbucquzup .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -691,7 +704,7 @@ Table&nbsp;1: The data to be used for further analysis
   padding-right: 5px;
 }
 
-#abmtentybx .gt_first_grand_summary_row {
+#cqbucquzup .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -701,7 +714,7 @@ Table&nbsp;1: The data to be used for further analysis
   border-top-color: #D3D3D3;
 }
 
-#abmtentybx .gt_last_grand_summary_row_top {
+#cqbucquzup .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -711,11 +724,11 @@ Table&nbsp;1: The data to be used for further analysis
   border-bottom-color: #D3D3D3;
 }
 
-#abmtentybx .gt_striped {
+#cqbucquzup .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#abmtentybx .gt_table_body {
+#cqbucquzup .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -724,7 +737,7 @@ Table&nbsp;1: The data to be used for further analysis
   border-bottom-color: #D3D3D3;
 }
 
-#abmtentybx .gt_footnotes {
+#cqbucquzup .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -738,7 +751,7 @@ Table&nbsp;1: The data to be used for further analysis
   border-right-color: #D3D3D3;
 }
 
-#abmtentybx .gt_footnote {
+#cqbucquzup .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -747,7 +760,7 @@ Table&nbsp;1: The data to be used for further analysis
   padding-right: 5px;
 }
 
-#abmtentybx .gt_sourcenotes {
+#cqbucquzup .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -761,7 +774,7 @@ Table&nbsp;1: The data to be used for further analysis
   border-right-color: #D3D3D3;
 }
 
-#abmtentybx .gt_sourcenote {
+#cqbucquzup .gt_sourcenote {
   font-size: 12px;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -769,72 +782,72 @@ Table&nbsp;1: The data to be used for further analysis
   padding-right: 5px;
 }
 
-#abmtentybx .gt_left {
+#cqbucquzup .gt_left {
   text-align: left;
 }
 
-#abmtentybx .gt_center {
+#cqbucquzup .gt_center {
   text-align: center;
 }
 
-#abmtentybx .gt_right {
+#cqbucquzup .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#abmtentybx .gt_font_normal {
+#cqbucquzup .gt_font_normal {
   font-weight: normal;
 }
 
-#abmtentybx .gt_font_bold {
+#cqbucquzup .gt_font_bold {
   font-weight: bold;
 }
 
-#abmtentybx .gt_font_italic {
+#cqbucquzup .gt_font_italic {
   font-style: italic;
 }
 
-#abmtentybx .gt_super {
+#cqbucquzup .gt_super {
   font-size: 65%;
 }
 
-#abmtentybx .gt_footnote_marks {
+#cqbucquzup .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#abmtentybx .gt_asterisk {
+#cqbucquzup .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#abmtentybx .gt_indent_1 {
+#cqbucquzup .gt_indent_1 {
   text-indent: 5px;
 }
 
-#abmtentybx .gt_indent_2 {
+#cqbucquzup .gt_indent_2 {
   text-indent: 10px;
 }
 
-#abmtentybx .gt_indent_3 {
+#cqbucquzup .gt_indent_3 {
   text-indent: 15px;
 }
 
-#abmtentybx .gt_indent_4 {
+#cqbucquzup .gt_indent_4 {
   text-indent: 20px;
 }
 
-#abmtentybx .gt_indent_5 {
+#cqbucquzup .gt_indent_5 {
   text-indent: 25px;
 }
 
-#abmtentybx .katex-display {
+#cqbucquzup .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#abmtentybx div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#cqbucquzup div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 
@@ -1097,7 +1110,7 @@ tbody tr:last-child {
 <div id="fig-base-cities" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-base-cities-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/osm_driving_directions_4.png" class="img-fluid figure-img">
+<a href="images/osm_driving_directions_4.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;1: A basic map showing the selected cities and the map of selected countries using data available in {rnaturalearth} and ne_countries()"><img src="images/osm_driving_directions_4.png" class="img-fluid figure-img"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-base-cities-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;1: A basic map showing the selected cities and the map of selected countries using data available in {<code>rnaturalearth</code>} and <code>ne_countries</code>()
@@ -1206,7 +1219,7 @@ Figure&nbsp;1: A basic map showing the selected cities and the map of selected c
 <div id="fig-basedrive" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-basedrive-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/osm_driving_directions_2.png" class="img-fluid figure-img">
+<a href="images/osm_driving_directions_2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;2: A simple map of the country boundaries [from {rnaturalearth} and function ne_countries()] with the route computed by osrmRoute() from {osrm} and selected destination cities as red dots."><img src="images/osm_driving_directions_2.png" class="img-fluid figure-img"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-basedrive-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2: A simple map of the country boundaries [from {rnaturalearth} and function ne_countries()] with the route computed by osrmRoute() from {osrm} and selected destination cities as red dots.
@@ -1316,7 +1329,7 @@ Figure&nbsp;2: A simple map of the country boundaries [from {rnaturalearth} and 
 <div id="fig-raster-base" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-raster-base-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/osm_driving_directions_3.png" class="img-fluid figure-img">
+<a href="images/osm_driving_directions_3.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Figure&nbsp;3: The base map retrieved in the form of raster tiles, from {ggmap} using get_stadia_maps() with the map style “Stamen Terrain Background”"><img src="images/osm_driving_directions_3.png" class="img-fluid figure-img"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-raster-base-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;3: The base map retrieved in the form of raster tiles, from {ggmap} using get_stadia_maps() with the map style “Stamen Terrain Background”
@@ -1451,7 +1464,7 @@ Figure&nbsp;3: The base map retrieved in the form of raster tiles, from {ggmap} 
 <div id="fig-completeviz" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-completeviz-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/osm_driving_directions_1.png" class="img-fluid figure-img">
+<a href="images/osm_driving_directions_1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Figure&nbsp;4: The completed overall visualization - with a base map of raster tiles from {ggmap} get_stadia_map(), overlaid country names and boundaries from {rnaturalearth} ne_countries(), and routes from {osrm} package."><img src="images/osm_driving_directions_1.png" class="img-fluid figure-img"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-completeviz-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;4: The completed overall visualization - with a base map of raster tiles from {ggmap} get_stadia_map(), overlaid country names and boundaries from {rnaturalearth} ne_countries(), and routes from {osrm} package.
@@ -1654,7 +1667,7 @@ Figure&nbsp;4: The completed overall visualization - with a base map of raster t
 <div id="fig-day1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-day1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/osm_driving_directions_leg1.png" class="img-fluid figure-img">
+<a href="images/osm_driving_directions_leg1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5" title="Figure&nbsp;5: Day 1: Drive from Athens to Tirana."><img src="images/osm_driving_directions_leg1.png" class="img-fluid figure-img"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-day1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;5: Day 1: Drive from Athens to Tirana.
@@ -1666,7 +1679,7 @@ Figure&nbsp;5: Day 1: Drive from Athens to Tirana.
 <div id="fig-day2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-day2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/osm_driving_directions_leg2.png" class="img-fluid figure-img">
+<a href="images/osm_driving_directions_leg2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6" title="Figure&nbsp;6: Day 2: Drive from Tirana to Padogorica."><img src="images/osm_driving_directions_leg2.png" class="img-fluid figure-img"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-day2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;6: Day 2: Drive from Tirana to Padogorica.
@@ -1678,7 +1691,7 @@ Figure&nbsp;6: Day 2: Drive from Tirana to Padogorica.
 <div id="fig-day3" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-day3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/osm_driving_directions_leg3.png" class="img-fluid figure-img">
+<a href="images/osm_driving_directions_leg3.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7" title="Figure&nbsp;7: Day 3: Drive from Padogorica to Sarajevo."><img src="images/osm_driving_directions_leg3.png" class="img-fluid figure-img"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-day3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;7: Day 3: Drive from Padogorica to Sarajevo.
@@ -1690,7 +1703,7 @@ Figure&nbsp;7: Day 3: Drive from Padogorica to Sarajevo.
 <div id="fig-day4" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-day4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/osm_driving_directions_leg4.png" class="img-fluid figure-img">
+<a href="images/osm_driving_directions_leg4.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8" title="Figure&nbsp;8: Day 4: Drive from Sarajevo to Zagreb."><img src="images/osm_driving_directions_leg4.png" class="img-fluid figure-img"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-day4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;8: Day 4: Drive from Sarajevo to Zagreb.
@@ -1702,7 +1715,7 @@ Figure&nbsp;8: Day 4: Drive from Sarajevo to Zagreb.
 <div id="fig-day5" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-day5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/osm_driving_directions_leg5.png" class="img-fluid figure-img">
+<a href="images/osm_driving_directions_leg5.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9" title="Figure&nbsp;9: Day 5: Drive from Zagreb to Ljubljana."><img src="images/osm_driving_directions_leg5.png" class="img-fluid figure-img"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-day5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;9: Day 5: Drive from Zagreb to Ljubljana.
@@ -1714,7 +1727,7 @@ Figure&nbsp;9: Day 5: Drive from Zagreb to Ljubljana.
 <div id="fig-day6" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-day6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/osm_driving_directions_leg6.png" class="img-fluid figure-img">
+<a href="images/osm_driving_directions_leg6.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10" title="Figure&nbsp;10: Day 6: Drive from Ljubljana to Venice."><img src="images/osm_driving_directions_leg6.png" class="img-fluid figure-img"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-day6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;10: Day 6: Drive from Ljubljana to Venice.
@@ -1726,7 +1739,7 @@ Figure&nbsp;10: Day 6: Drive from Ljubljana to Venice.
 <div id="fig-day7" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-day7-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/osm_driving_directions_leg7.png" class="img-fluid figure-img">
+<a href="images/osm_driving_directions_leg7.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11" title="Figure&nbsp;11: Day 7: Drive from Venice to Florence."><img src="images/osm_driving_directions_leg7.png" class="img-fluid figure-img"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-day7-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;11: Day 7: Drive from Venice to Florence.
@@ -1738,7 +1751,7 @@ Figure&nbsp;11: Day 7: Drive from Venice to Florence.
 <div id="fig-day8" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-day8-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/osm_driving_directions_leg8.png" class="img-fluid figure-img">
+<a href="images/osm_driving_directions_leg8.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12" title="Figure&nbsp;12: Day 8: Drive from Florence to Rome."><img src="images/osm_driving_directions_leg8.png" class="img-fluid figure-img"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-day8-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;12: Day 8: Drive from Florence to Rome.
@@ -2205,6 +2218,38 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 <footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/osm_driving_directions.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><div class="page-columns page-rows-contents page-layout-article"><div class="social-share"><a href="https://twitter.com/share?url=https://aditya-dahiya.github.io/visage/geocomputation/osm_driving_directions.html&amp;text=Creating Maps in R with ggplot2 having background Raster Images using ggmap" target="_blank" class="twitter"><i class="fab fa-twitter fa-fw fa-lg"></i></a><a href="https://www.linkedin.com/shareArticle?url=https://aditya-dahiya.github.io/visage/geocomputation/osm_driving_directions.html&amp;title=Creating Maps in R with ggplot2 having background Raster Images using ggmap" target="_blank" class="linkedin"><i class="fa-brands fa-linkedin-in fa-fw fa-lg"></i></a>  <a href="mailto:?subject=Creating Maps in R with ggplot2 having background Raster Images using ggmap&amp;body=Check out this link:https://aditya-dahiya.github.io/visage/geocomputation/osm_driving_directions.html" target="_blank" class="email"><i class="fa-solid fa-envelope fa-fw fa-lg"></i></a><a href="https://www.facebook.com/sharer.php?u=https://aditya-dahiya.github.io/visage/geocomputation/osm_driving_directions.html" target="_blank" class="facebook"><i class="fab fa-facebook-f fa-fw fa-lg"></i></a><a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' &amp;&amp; mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=Creating Maps in R with ggplot2 having background Raster Images using ggmap https://aditya-dahiya.github.io/visage/geocomputation/osm_driving_directions.html'}else{return false;}" target="_blank" class="mastodon"><i class="fa-brands fa-mastodon fa-fw fa-lg"></i></a></div></div>
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","openEffect":"zoom","loop":false,"selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
 
 
 
