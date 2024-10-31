@@ -1,0 +1,199 @@
+---
+title: "Chapter 2: Geocomputation with R"
+date: "2024-10-31"
+author: "Aditya Dahiya"
+bibliography: references.bib
+format:
+  html:
+    code-fold: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: true
+  cache: true
+categories:
+  - "Geocomputation with R"
+  - "Textbook Solutions"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/geocomputation/computing_sea_routes.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+## 2.1 Introduction
+
+-   **Geographic Data Models**: Vector and raster models are foundational.
+    -   **Vector Model**: Represents geographic data as points, lines, and polygons with precise boundaries; commonly used in social sciences for features like human settlements.
+    -   **Raster Model**: Divides surfaces into cells; useful in environmental sciences, often based on remote sensing and aerial data. Scalable and consistent over large areas.
+-   **Choosing a Model**:
+    -   Vector is often used in social sciences.
+    -   Raster is prevalent in environmental studies.
+-   **R Implementation**:
+    -   Use [**`sf`**](https://r-spatial.github.io/sf/) for vector data.
+    -   Use [**`terra`**](https://rspatial.org/terra/) for raster data.
+
+```{r}
+#| label: setup
+#| eval: true
+#| echo: true
+#| code-fold: false
+
+library(sf)           # Simple Features in R
+library(terra)        # Raster Data in R
+library(spData)       # Spatial Datasets
+library(spDataLarge)  # Large Spatial Datasets
+library(tidyverse)    # Data Wrangling and Visualization
+```
+
+## 2.2 Vector Data
+
+-   **Vector Data**: Represents geographic features using points, lines, and polygons based on coordinate reference systems (CRS).
+    -   Example: London's coordinates `c(-0.1, 51.5)` in geographic CRS or `c(530000, 180000)` in projected CRS ([British National Grid](https://en.wikipedia.org/wiki/Ordnance_Survey_National_Grid#:~:text=The%20Ordnance%20Survey%20National%20Grid,to%20the%20west%20of%20the)).
+-   **CRS Overview**:
+    -   Geographic CRS uses `lon/lat` (0° longitude and latitude origin).
+    -   Projected CRS, like the British National Grid, is based on `Easting/Northing` coordinates with positive values.
+-   **Key dependencies / libraries used by the `sf` Package**:
+    -   [**`GDAL`**](https://gdal.org/): Handles geographic data formats
+    -   [**`PROJ`**](https://proj.org/): For CRS transformations
+    -   [**`GEOS`**](https://cran.r-project.org/package=geos): Supports planar geometry for projected data
+    -   [**`S2`**](https://s2geometry.io/): Manages spherical geometry for unprojected data (e.g., `lon/lat`), toggleable with `sf::sf_use_s2(FALSE)`.
+-   **Geometry Engines**:
+    -   **Planar (GEOS)**: For 2D projected data.
+    -   **Spherical (S2)**: For 3D unprojected data.
+
+### 2.2.1 Introduction to Simple Features
+
+-   **Simple Features (SF)**: Hierarchical model by OGC; supports multiple geometry types.
+-   **Core Types**: `sf` package in R supports 7 core geometry types (points, lines, polygons, and “multi” versions).
+-   **Library Integration**: `sf` replaces `sp`, `rgdal`, `rgeos`; unified interface for GEOS (geometry), GDAL (data I/O), PROJ (CRS).
+-   **Non-Planar Support**: Integrates `s2` for geographic (lon/lat) operations, used by default for accuracy on spherical geometries.
+-   **Data Storage**: SF objects are data frames with a spatial column (`geom`).
+-   **Vignettes**: Documentation accessible with `vignette(package = "sf")` for practical use and examples.
+-   **Plotting**: `plot(sf_object)` maps all variables, unlike single-map GIS tools.
+-   **Summary**: `summary()` gives spatial and attribute data insights.
+-   **Subset**: SF objects subsettable like data frames, retaining spatial metadata.
+
+```{r}
+#| label: sec-2-2-1
+#| eval: true
+#| include: true
+#| collapse: true
+#| code-fold: false
+
+# See which vignettes are available
+# vignette(package = "sf")
+
+world
+
+names(world)
+class(world)
+
+########### THE GEOMETRY COLUMN IS STICKY ################
+summary(world["lifeExp"])
+```
+
+```{r}
+#| label: fig-basic-plot-on-sf
+#| fig-cap: "The basic plot() function on a sf object produced multiple plots, one for each of the non-geometry variables (columns) in the plotted dataset."
+
+plot(world)
+
+```
+
+### 2.2.2 Why Simple Features?
+
+-   **Cross-Compatibility**: SF model is compatible with many GIS tools (e.g., QGIS, PostGIS), enabling easy data transfer.
+-   **Advantages of `sf` in R**:
+    -   **Data Handling**: Fast reading/writing of spatial data.
+    -   **Plotting**: Improved plotting speed and performance.
+    -   **Data Frame-Like**: `sf` objects behave like data frames.
+    -   **Consistent Naming**: `sf` functions are intuitive, starting with `st_`.
+    -   **Tidyverse-Friendly**: Works well with `|>` and integrates with tidyverse packages.
+-   **Data Import Options**:
+    -   `read_sf()`: Imports data as a tidy tibble (quietly).
+    -   `st_read()`: Imports data as a base R data frame (verbose).
+-   **Popularity**: `sf` is the primary package for spatial vector data in R, preferred over alternatives like `spatstat` and `terra`.
+
+```{r}
+#| label: sec-2-2-2
+#| eval: true
+#| include: true
+#| collapse: true
+#| code-fold: false
+
+world_dfr <- st_read(system.file("shapes/world.shp", package = "spData"))
+class(world_dfr)
+```
+
+```{r}
+#| eval: false
+world |> names()
+
+class(world)
+
+ggplot(world) + geom_sf()
+
+plot(world)
+
+world[1:2, 1:3]
+
+vignette("sf1")
+
+rbind(c(5, 2), c(1, 3), c(3, 4), c(3, 2))
+
+list(rbind(c(1, 5), c(4, 4), c(4, 1), c(2, 2), c(3, 2)), 
+                            rbind(c(1, 2), c(2, 4)))
+
+sf_use_s2()
+
+raster_filepath = system.file(
+  "raster/srtm.tif", 
+  package = "spDataLarge"
+  )
+
+my_rast = rast(raster_filepath)
+
+?rast
+
+class(my_rast)
+print(my_rast)
+my_rast
+object.size(my_rast)
+?srtm.tif
+ncell(my_rast)
+457*465
+res(my_rast)
+inMemory(my_rast)
+plot(my_rast)
+
+
+new_raster = rast(nrows = 36, ncols = 36, 
+                  xmin = -15, xmax = 15, ymin = -15, ymax = 15,
+                  vals = round(rnorm(n = 36*36) * 100, 1))
+
+plot(new_raster)
+
+multi_raster_file = system.file("raster/landsat.tif", package = "spDataLarge")
+multi_rast = rast(multi_raster_file)
+
+multi_rast |> 
+  plot()
+
+nlyr(multi_rast)
+
+
+
+
+```
