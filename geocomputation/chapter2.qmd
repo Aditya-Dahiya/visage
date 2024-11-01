@@ -75,11 +75,11 @@ library(tidyverse)    # Data Wrangling and Visualization
 
 ### 2.2.1 Introduction to Simple Features
 
--   **Simple Features (SF)**: Hierarchical model by OGC; supports multiple geometry types.
--   **Core Types**: `sf` package in R supports 7 core geometry types (points, lines, polygons, and “multi” versions).
+-   **Simple Features (SF)**: Hierarchical model by [OGC](https://www.ogc.org/) (Open Geospatial Consortium); supports multiple geometry types.
+-   **Core Types**: `sf` package in R supports 7 core geometry types (points, lines, polygons, and their “multi” versions).
 -   **Library Integration**: `sf` replaces `sp`, `rgdal`, `rgeos`; unified interface for GEOS (geometry), GDAL (data I/O), PROJ (CRS).
 -   **Non-Planar Support**: Integrates `s2` for geographic (lon/lat) operations, used by default for accuracy on spherical geometries.
--   **Data Storage**: SF objects are data frames with a spatial column (`geom`).
+-   **Data Storage**: SF objects are data frames with a spatial column (`geometry` or `geom`).
 -   **Vignettes**: Documentation accessible with `vignette(package = "sf")` for practical use and examples.
 -   **Plotting**: `plot(sf_object)` maps all variables, unlike single-map GIS tools.
 -   **Summary**: `summary()` gives spatial and attribute data insights.
@@ -89,11 +89,7 @@ library(tidyverse)    # Data Wrangling and Visualization
 #| label: sec-2-2-1
 #| eval: true
 #| include: true
-#| collapse: true
 #| code-fold: false
-
-# See which vignettes are available
-# vignette(package = "sf")
 
 world
 
@@ -114,13 +110,13 @@ plot(world)
 
 ### 2.2.2 Why Simple Features?
 
--   **Cross-Compatibility**: SF model is compatible with many GIS tools (e.g., QGIS, PostGIS), enabling easy data transfer.
--   **Advantages of `sf` in R**:
-    -   **Data Handling**: Fast reading/writing of spatial data.
-    -   **Plotting**: Improved plotting speed and performance.
-    -   **Data Frame-Like**: `sf` objects behave like data frames.
-    -   **Consistent Naming**: `sf` functions are intuitive, starting with `st_`.
-    -   **Tidyverse-Friendly**: Works well with `|>` and integrates with tidyverse packages.
+-   **Cross-Compatibility**: SF model is compatible with many GIS tools (e.g., [QGIS](https://www.qgis.org/), [PostGIS](https://postgis.net/)), enabling easy data transfer.
+-   **Advantages of `sf` in `R`**:
+    -   Data Handling: Fast reading/writing of spatial data.
+    -   Plotting: Improved plotting speed and performance.
+    -   Data Frame-Like: `sf` objects behave like data frames.
+    -   Consistent Naming: `sf` functions are intuitive, starting with `st_`.
+    -   Tidyverse-Friendly: Works well with `|>` and integrates with tidyverse packages.
 -   **Data Import Options**:
     -   `read_sf()`: Imports data as a tidy tibble (quietly).
     -   `st_read()`: Imports data as a base R data frame (verbose).
@@ -132,68 +128,354 @@ plot(world)
 #| include: true
 #| collapse: true
 #| code-fold: false
+#| message: true
 
 world_dfr <- st_read(system.file("shapes/world.shp", package = "spData"))
+world_dfr <- read_sf(system.file("shapes/world.shp", package = "spData"))
+
 class(world_dfr)
 ```
 
+### 2.2.3 Basic Maps
+
+-   **Plotting in `sf`**:
+    -   `plot()` creates multi-panel plots for multiple variables or a single-panel plot for one variable.
+    -   Supports fixed color customization using `col` and `border` arguments.
+
 ```{r}
-#| eval: false
-world |> names()
-
-class(world)
-
-ggplot(world) + geom_sf()
+#| label: fig-base-plot-fn
+#| fig-cap: "The base plot() function creates a faceted output with a map for each variable other than geometry"
 
 plot(world)
+```
 
-world[1:2, 1:3]
+-   **Layering Plots**: Add layers to existing plots with `add = TRUE`. Use `reset = FALSE` for plots with a key.
+-   **Overlaying Data**: Circles representing population size can be plotted using `cex` and `st_centroid()`.
+-   **Bounding Box Expansion**: `expandBB` adjusts the plot boundaries (bottom, left, top, right).
+-   **Limitations**: Base `plot()` is simple but limited in functionality; use `tmap` for advanced maps.
 
-vignette("sf1")
+### 2.2.4 Geometry Types
 
-rbind(c(5, 2), c(1, 3), c(3, 4), c(3, 2))
+-   **Geometry Basics:**
+    -   Core components of simple features; `sf` supports 18 types.
+    -   Focus on 7 common types: POINT, LINESTRING, POLYGON, MULTIPOINT, MULTILINESTRING, MULTIPOLYGON, GEOMETRYCOLLECTION.
+-   **Encoding Standards:**
+    -   WKB (Well-known binary): Hexadecimal, computer-friendly format.
+    -   WKT (Well-known text): Human-readable format, often shown for explanation.
+-   **Common Geometries:**
+    -   POINT: Single coordinate (e.g., `POINT (5 2)`).
+    -   LINESTRING: Connected sequence of points (e.g., `LINESTRING (1 5, 4 4, 4 1, 2 2, 3 2)`).
+    -   POLYGON: Closed ring of points (e.g., `POLYGON ((1 5, 2 2, 4 1, 4 4, 1 5))`).
+-   **Multi-Geometries:**
+    -   MULTIPOINT: Multiple points (e.g., `MULTIPOINT (5 2, 1 3, 3 4, 3 2)`).
+    -   MULTILINESTRING: Multiple linestrings (e.g., `MULTILINESTRING ((1 5, 4 4, 4 1, 2 2, 3 2), (1 2, 2 4))`).
+    -   MULTIPOLYGON: Multiple polygons (e.g., `MULTIPOLYGON (((1 5, 2 2, 4 1, 4 4, 1 5), (0 2, 1 2, 1 3, 0 3, 0 2)))`).
+-   **Geometry Collection:**
+    -   Mix of geometry types (e.g., `GEOMETRYCOLLECTION (MULTIPOINT (5 2, 1 3, 3 4, 3 2), LINESTRING (1 5, 4 4, 4 1, 2 2, 3 2))`).
 
-list(rbind(c(1, 5), c(4, 4), c(4, 1), c(2, 2), c(3, 2)), 
-                            rbind(c(1, 2), c(2, 4)))
+### 2.2.5 The sf Class
 
-sf_use_s2()
+-   **Structure of sf Objects**: Composed of geometries (`sfc` object) and non-geographic attributes (`data.frame` or `tibble`).
 
-raster_filepath = system.file(
-  "raster/srtm.tif", 
-  package = "spDataLarge"
-  )
+-   **Creation of sf Objects**: Steps:
 
-my_rast = rast(raster_filepath)
+    1.  Create geometry (`sfg`) with functions like `st_point()`
 
-?rast
+    2.  Convert to geometry column (`sfc`) with CRS using function `st_sfc(..., crs = "...")`
+
+    3.  Combine attributes (`data.frame`) with `sfc` using function `st_sf(..., geometry = ...)`
+
+<!-- -->
+
+-   **Characteristics**:
+
+    -   `sf` objects have dual class: `sf` and `data.frame`.
+    -   Spatial attributes stored in a `geometry` column.
+    -   `sf` behaves like a `data.frame` but with spatial extension.
+
+### 2.2.6 Simple Feature Geometries (`sfg`)
+
+An *sfg* object represents a single simple feature geometry. A simple feature geometry column (*sfc*) is a collection of *sfg* objects and can also include information about the coordinate reference system (CRS) being used.
+
+Geometries can be created using `st_` functions or imported from existing spatial files.
+
+-   **sfg Creation Functions**:
+    -   `st_point()`: Create a single point.
+    -   `st_linestring()`: Create a linestring.
+    -   `st_polygon()`: Create a polygon.
+    -   `st_multipoint()`: Create a multipoint.
+    -   `st_multilinestring()`: Create a multilinestring.
+    -   `st_multipolygon()`: Create a multipolygon.
+    -   `st_geometrycollection()`: Create a geometry collection.
+-   **Input Data Types**:
+    -   **Numeric Vector**: Single points.
+    -   **Matrix**: Sets of points for multipoint or linestring.
+    -   **List**: Complex structures for multilinestrings, (multi)polygons, or geometry collections.
+-   **Examples**:
+
+```{r}
+#| label: fig-geometries
+#| fig-cap: "Creating different sample geometry objects in R with {sf}"
+#| fig-subcap: 
+#|   - "A point"
+#|   - "A multipoint"
+#|   - "A linestring"
+#|   - "A polygon"
+#|   - "Polygon with a hole"
+#|   - "Multilinestring"
+#|   - "Multipolygon"
+#|   - "Geometry Collection"
+#| collapse: true
+#| layout-ncol: 2
+
+
+# Create a point
+point <- st_point(c(8, 3))  # POINT (8 3)
+print(point)
+ggplot(point) +
+  geom_sf()
+
+# Create a multipoint
+multipoint_matrix <- rbind(c(8, 3), c(2, 5), c(5, 7), c(7, 3))
+multipoint <- st_multipoint(multipoint_matrix)  # MULTIPOINT ((8 3), (2 5), (5 7), (7 3))
+print(multipoint)
+ggplot(multipoint) +
+  geom_sf()
+
+# Create a linestring
+linestring_matrix <- rbind(c(2, 8), c(6, 6), c(7, 2), c(5, 3), c(8, 4))
+linestring <- st_linestring(linestring_matrix)  # LINESTRING (2 8, 6 6, 7 2, 5 3, 8 4)
+print(linestring)
+ggplot(linestring) +
+  geom_sf()
+
+# Create a polygon
+polygon_list <- list(rbind(c(2, 8), c(4, 3), c(7, 2), c(6, 7), c(2, 8)))
+polygon <- st_polygon(polygon_list)  # POLYGON ((2 8, 4 3, 7 2, 6 7, 2 8))
+print(polygon)
+ggplot(polygon) +
+  geom_sf()
+
+# Polygon with a hole
+polygon_border <- rbind(c(2, 8), c(4, 3), c(7, 2), c(6, 7), c(2, 8))
+polygon_hole <- rbind(c(4, 6), c(5, 6), c(5, 5), c(4, 5), c(4, 6))
+polygon_with_hole_list <- list(polygon_border, polygon_hole)
+polygon_with_hole <- st_polygon(polygon_with_hole_list)  # POLYGON with a hole
+print(polygon_with_hole)
+ggplot(polygon_with_hole) +
+  geom_sf()
+
+# Create a multilinestring
+multilinestring_list = list(
+  rbind(c(2, 8), c(6, 6), c(7, 2), c(5, 3), c(8, 4)),
+  rbind(c(3, 2), c(5, 8))
+)
+multilinestring = st_multilinestring(multilinestring_list)  # MULTILINESTRING
+print(multilinestring)
+ggplot(multilinestring) +
+  geom_sf()
+
+# Create a multipolygon
+multipolygon_list = list(
+  list(rbind(c(2, 8), c(4, 3), c(7, 2), c(6, 7), c(2, 8))),
+  list(rbind(c(0, 3), c(2, 3), c(2, 4), c(0, 4), c(0, 3)))
+)
+multipolygon = st_multipolygon(multipolygon_list)  # MULTIPOLYGON
+print(multipolygon)
+ggplot(multipolygon) +
+  geom_sf()
+
+# Create a geometry collection
+geometrycollection_list = list(st_multipoint(multipoint_matrix), st_linestring(linestring_matrix))
+geometry_collection = st_geometrycollection(geometrycollection_list)  # GEOMETRYCOLLECTION
+print(geometry_collection)
+ggplot(geometry_collection) +
+  geom_sf()
+```
+
+### 2.2.8 The `sfheaders` Package
+
+-   **Overview**:
+    -   `sfheaders` [@sfheaders] is an R package designed to efficiently create and manipulate `sf` objects from vectors, matrices, and data frames.
+    -   It does not rely on the `sf` library and instead uses underlying C++ code, enabling faster operations and the potential for further development with compiled code.
+-   **Compatibility**:
+    -   Although separate from `sf`, it is fully compatible, producing valid `sf` objects like `sfg`, `sfc`, and `sf`.
+-   **Key Functionality**:
+    -   Converts:
+        -   **Vector** → `sfg_POINT`
+        -   **Matrix** → `sfg_LINESTRING`
+        -   **Data Frame** → `sfg_POLYGON`
+    -   Creates `sfc` and `sf` objects using similar syntax.
+-   **Advantages**:
+    -   `sfheaders` is optimized for high-speed ‘deconstruction’ and ‘reconstruction’ of `sf` objects and casting between geometry types, offering faster performance than `sf` in many cases.
+
+### 2.2.9 Spherical Geometry Operations with S2
+
+-   **Concept**:
+    -   Spherical geometry operations acknowledge Earth's roundness, as opposed to planar operations that assume flat surfaces.
+    -   Since `sf` version 1.0.0, R integrates with Google’s S2 spherical geometry engine, enabling accurate global spatial operations.
+    -   S2 supports operations like distance, buffer, and area calculations, allowing accurate geocomputation on a spherical Earth model.
+    -   Known as a Discrete Global Grid System (DGGS), S2 is similar to other systems like H3, which is a global hexagonal index.
+-   **S2 Mode**:
+    -   By default, S2 is enabled in `sf`. Verify with:
+
+        ``` r
+        sf_use_s2()
+        ```
+
+    -   **Turning Off S2**:
+
+        ``` r
+        sf_use_s2(FALSE)
+        ```
+-   **S2 Limitations and Edge Cases**:
+    -   Some operations may fail due to S2's stricter definitions, potentially affecting legacy code. Error messages such as `Error in s2_geography_from_wkb ...` might require turning off S2.
+-   **Recommendation**:
+    -   Keep S2 enabled for accurate global calculations unless specific operations necessitate its deactivation.
+
+## 2.3 Raster Data
+
+-   The raster data model represents the world as a continuous grid of cells (pixels). Focuses on **regular grids**, where each cell is of constant size, though other grid types (e.g., rotated, sheared) exist.
+-   **Structure**:
+    -   Comprises a raster header and a matrix of equally spaced cells.
+    -   The raster header includes:
+        -   CRS (Coordinate Reference System)
+        -   Extent (geographical area covered)
+        -   Origin (starting point, often the lower left corner; the `terra` package defaults to the upper left).
+    -   Extent is defined by:
+        -   Number of columns (ncol)
+        -   Number of rows (nrow)
+        -   Cell size resolution
+-   **Cell Access and Modification**:
+    -   Cells can be accessed and modified by:
+        -   Cell ID
+        -   Explicitly specifying row and column indices.
+    -   This matrix representation is efficient as it avoids storing corner coordinates (unlike vector polygons).
+-   **Data Characteristics**:
+    -   Each cell can hold a single value, which can be either:
+        -   Continuous (e.g., elevation, temperature)
+        -   Categorical (e.g., land cover classes).
+-   **Applications**:
+    -   Raster maps are useful for continuous phenomena (e.g., temperature, population density) and can also represent discrete features (e.g., soil classes).
+
+### 2.3.1 `R` Packages for Working with Raster Data
+
+-   Several R packages for reading and processing raster datasets have emerged over the last two decades. The **`raster`** package was the first significant advancement in R’s raster capabilities when launched in 2010. It was the premier package until the development of **`terra`** and **`stars`**, both offering powerful functions for raster data.
+-   This book emphasizes **`terra`**, which replaces the older, slower raster package.
+-   **Comparison of `terra` and `stars`**:
+
+| **Feature**                     | **`terra`**                                                                        | **`stars`**                                                                                                |
+|--------------------|---------------------------|--------------------------|
+| **Primary Focus**               | Regular grids                                                                      | Supports regular, rotated, sheared, rectilinear, and curvilinear grids                                     |
+| **Data Structure**              | One or multi-layered rasters                                                       | Raster data cubes with multiple layers, time steps, and attributes                                         |
+| **Memory Management**           | Uses C++ code and pointers for data storage                                        | Uses lists of arrays for smaller rasters; file paths for larger ones                                       |
+| **Vector Data Integration**     | Uses its own class `SpatVector` but supports `sf` objects                          | Closely related to vector objects/functions in `sf`                                                        |
+| **Functions & Methods**         | Large number of built-in, purpose-specific functions (e.g., re-sampling, cropping) | Mix of built-in functions (`st_` prefix), existing `dplyr` functions, and custom methods for `R` functions |
+| **Conversion Between Packages** | Conversion to `stars` with `st_as_stars()`                                         | Conversion to `terra` with `rast()`                                                                        |
+| **Performance**                 | Generally optimized for speed and memory efficiency                                | Flexible, but performance varies based on data type and structure                                          |
+| **Best Use Cases**              | Single or multi-layer rasters; fast processing                                     | Complex data cubes with layers over time and multiple attributes                                           |
+| **Programming Language Basis**  | Primarily C++                                                                      | `R` with some C++ integration                                                                              |
+
+### 2.3.2 Introduction to **`terra`**
+
+-   The **`terra`** package is designed for handling raster objects in R, supporting a range of functions to create, read, export, manipulate, and process raster datasets.
+    -   While its functionality is similar to the older **`raster`** package, **`terra`** offers improved computational efficiency.
+    -   Despite **`terra`**'s advantages, the **`raster`** class system remains popular due to its widespread use in other R packages.
+    -   **`terra`** provides seamless translation between the two object types using functions like **`raster()`**, **`stack()`**, and **`brick()`** for backward compatibility.
+-   **Key Features**:
+    -   Low-Level Functionality: Includes functions that help in building new tools for raster data processing.
+    -   Memory Management: Supports processing of large raster datasets by dividing them into smaller chunks for iterative processing, allowing operations beyond available RAM capacity.
+
+```{r}
+#| label: terra-examples1
+#| collapse: true
+
+raster_filepath <- system.file("raster/srtm.tif", 
+                              package = "spDataLarge")
+my_rast <- rast(raster_filepath)
 
 class(my_rast)
+
+ext(my_rast)
+
 print(my_rast)
-my_rast
-object.size(my_rast)
-?srtm.tif
-ncell(my_rast)
-457*465
-res(my_rast)
-inMemory(my_rast)
-plot(my_rast)
-
-
-new_raster = rast(nrows = 36, ncols = 36, 
-                  xmin = -15, xmax = 15, ymin = -15, ymax = 15,
-                  vals = round(rnorm(n = 36*36) * 100, 1))
-
-plot(new_raster)
-
-multi_raster_file = system.file("raster/landsat.tif", package = "spDataLarge")
-multi_rast = rast(multi_raster_file)
-
-multi_rast |> 
-  plot()
-
-nlyr(multi_rast)
-
-
-
-
 ```
+
+-   **Dedicated Reporting Functions**:
+    -   **`dim()`**: Number of rows, columns, and layers.
+    -   **`ncell()`**: Total number of cells (pixels).
+    -   **`res()`**: Spatial resolution.
+    -   **`ext()`**: Spatial extent.
+    -   **`crs()`**: Coordinate reference system (CRS).
+    -   **`inMemory()`**: Checks if data is stored in memory or on disk.
+    -   **`sources`**: Shows file location.
+-   **Accessing Full Function List**:
+    -   Run `help("terra-package")` to see all available **`terra`** functions.
+
+### 2.3.3 Basic Map-Making
+
+-   **Plotting with** `terra`:
+    -   The **terra** package offers a simple way to create basic visualizations using the **plot()** function, specifically designed for **SpatRaster** objects.
+
+```{r}
+#| label: fig-terra-examples2
+#| fig-cap: "An example raster data displayed with {terra} using plot()"
+
+plot(my_rast)
+```
+
+-   **Advanced Plotting Options**:
+    -   **`plotRGB()`**: A specialized function in **terra** for creating color composite plots using three layers (e.g., red, green, blue bands) from a **SpatRaster** object.
+    -   **`tmap` Package** [@tmap]: Useful for creating both static and interactive maps for raster and vector data.
+    -   **`rasterVis` Package** [@rasterVis]: Includes functions such as **`levelplot()`** to create advanced visualizations, including faceted plots for displaying changes over time.
+
+### 2.3.4 Raster Classes
+
+-   The SpatRaster class in `terra` represents raster objects. Rasters are commonly created by reading a file using `rast()`
+    -   `terra` supports reading various formats via GDAL, only loading the header and a file pointer into RAM.
+-   **Creating Rasters from Scratch**: Use **rast()** to make new raster objects:
+    -   Fills values row-wise from the top left corner.
+    -   Resolution depends on rows, columns, and extent; defaults to degrees (WGS84 CRS).
+
+```{r}
+#| label: fig-new-raster
+#| fig-cap: "Creating a new raster from scratch"
+
+
+# Create a new SpatRaster object: a checkerboard design
+new_raster = rast(nrows = 50, ncols = 50, 
+                  xmin = 0, xmax = 50, 
+                  ymin = 0, ymax = 50,
+                  vals = rep(c(1, 0.25, 0.75, 0.5), 
+                             times = 12)) 
+
+
+# Plot the new raster
+plot(new_raster, 
+     col = c("darkblue", 
+             "white",
+             "blue",
+             "lightblue"), # Use blue and white for the design
+     axes = TRUE, 
+     box = FALSE)
+```
+
+-   **Handling Multi-Layer Rasters**:
+    -   **SpatRaster** supports multi-layer rasters, such as satellite or time-series data:
+
+        -   Use **`nlyr()`** to get the number of layers:
+
+        -   Access layers with **`[[`** or **`$`**.
+
+        -   Use **`subset()`** for layer extraction:
+-   **Combining Raster Layers**:
+    -   Merge **SpatRaster** layers using **c()**:
+-   **Saving SpatRaster Objects**:
+    -   Since they often point to files, direct saving to **.rds** or **.rda** isn't feasible.
+    -   Solutions:
+        1.  **`wrap()`**: Creates a temporary object for saving or cluster use.
+        2.  **`writeRaster()`**: Saves as a regular raster file.
+
+## 2.4 Coordinate Reference Systems
+
+{work in progress}
