@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Dahiya">
-<meta name="dcterms.date" content="2024-10-31">
+<meta name="dcterms.date" content="2024-11-03">
 
-<title>Chapter 2: Geocomputation with R – visage</title>
+<title>Geographic data in R (Chapter 2) – visage</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -128,11 +128,24 @@ div.csl-indent {
     "search-label": "Search"
   }
 }</script>
+<script src="../site_libs/core-js-2.5.3/shim.min.js"></script>
+
+<script src="../site_libs/react-18.2.0/react.min.js"></script>
+
+<script src="../site_libs/react-18.2.0/react-dom.min.js"></script>
+
+<script src="../site_libs/reactwidget-2.0.0/react-tools.umd.cjs"></script>
+
+<script src="../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+
+<link href="../site_libs/reactable-0.4.4/reactable.css" rel="stylesheet">
+
+<script src="../site_libs/reactable-binding-0.4.4/reactable.js"></script>
+
 
 
 <link rel="stylesheet" href="../styles.css">
 <meta name="twitter:title" content="Chapter 2: Geocomputation with R – visage">
-<meta name="twitter:description" content="Visualizing Information and Spatial Analysis with ggplot2 Extensions">
 <meta name="twitter:card" content="summary">
 </head>
 
@@ -228,7 +241,23 @@ div.csl-indent {
   <li><a href="#basic-map-making" id="toc-basic-map-making" class="nav-link" data-scroll-target="#basic-map-making">2.3.3 Basic Map-Making</a></li>
   <li><a href="#raster-classes" id="toc-raster-classes" class="nav-link" data-scroll-target="#raster-classes">2.3.4 Raster Classes</a></li>
   </ul></li>
-  <li><a href="#coordinate-reference-systems" id="toc-coordinate-reference-systems" class="nav-link" data-scroll-target="#coordinate-reference-systems">2.4 Coordinate Reference Systems</a></li>
+  <li><a href="#coordinate-reference-systems" id="toc-coordinate-reference-systems" class="nav-link" data-scroll-target="#coordinate-reference-systems">2.4 Coordinate Reference Systems</a>
+  <ul class="collapse">
+  <li><a href="#geographic-coordinate-reference-systems" id="toc-geographic-coordinate-reference-systems" class="nav-link" data-scroll-target="#geographic-coordinate-reference-systems">2.4.1 Geographic Coordinate Reference Systems</a></li>
+  <li><a href="#projected-coordinate-reference-systems" id="toc-projected-coordinate-reference-systems" class="nav-link" data-scroll-target="#projected-coordinate-reference-systems">2.4.2 Projected Coordinate Reference Systems</a></li>
+  <li><a href="#types-of-projections-and-their-characteristics" id="toc-types-of-projections-and-their-characteristics" class="nav-link" data-scroll-target="#types-of-projections-and-their-characteristics">Types of Projections and Their Characteristics</a></li>
+  <li><a href="#deformations-by-projection-type" id="toc-deformations-by-projection-type" class="nav-link" data-scroll-target="#deformations-by-projection-type">Deformations by Projection Type</a></li>
+  </ul></li>
+  <li><a href="#units" id="toc-units" class="nav-link" data-scroll-target="#units">2.5 Units</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><strong>2.6 Exercises</strong></a>
+  <ul class="collapse">
+  <li><a href="#e1" id="toc-e1" class="nav-link" data-scroll-target="#e1">E1</a></li>
+  <li><a href="#e2" id="toc-e2" class="nav-link" data-scroll-target="#e2">E2</a></li>
+  <li><a href="#e3" id="toc-e3" class="nav-link" data-scroll-target="#e3">E3</a></li>
+  <li><a href="#e4" id="toc-e4" class="nav-link" data-scroll-target="#e4">E4</a></li>
+  <li><a href="#e5" id="toc-e5" class="nav-link" data-scroll-target="#e5">E5</a></li>
+  <li><a href="#e6" id="toc-e6" class="nav-link" data-scroll-target="#e6">E6</a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/chapter2.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -237,7 +266,8 @@ div.csl-indent {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Chapter 2: Geocomputation with R</h1>
+<h1 class="title">Geographic data in R (Chapter 2)</h1>
+<p class="subtitle lead">Key Learnings from, and Solutions to the exercises in Chapter 2 of the book Geocomputation with R by Robin Lovelace, Jakub Nowosad and Jannes Muenchow.</p>
   <div class="quarto-categories">
     <div class="quarto-category">Geocomputation with R</div>
     <div class="quarto-category">Textbook Solutions</div>
@@ -258,7 +288,7 @@ div.csl-indent {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 31, 2024</p>
+      <p class="date">November 3, 2024</p>
     </div>
   </div>
   
@@ -831,9 +861,9 @@ Figure&nbsp;3: Creating different sample geometry objects in R with {sf}
 </ul>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 27%">
-<col style="width: 36%">
-<col style="width: 35%">
+<col style="width: 21%">
+<col style="width: 34%">
+<col style="width: 43%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -1059,10 +1089,1085 @@ Figure&nbsp;5: Creating a new raster from scratch
 </section>
 <section id="coordinate-reference-systems" class="level2">
 <h2 class="anchored" data-anchor-id="coordinate-reference-systems">2.4 Coordinate Reference Systems</h2>
-<p>{work in progress}</p>
+<ul>
+<li>CRSs (Coordinate Reference Systems) are essential for spatial data, defining how spatial elements correspond to the Earth’s surface (or other celestial bodies).</li>
+<li><strong>Types of CRSs</strong>:
+<ul>
+<li><strong>Geographic CRSs</strong>:
+<ul>
+<li>Represent data on a three-dimensional surface (e.g., latitude and longitude).</li>
+<li>Coordinate units are typically degrees.</li>
+</ul></li>
+<li><strong>Projected CRSs</strong>:
+<ul>
+<li>Represent data on a two-dimensional, flat plane.</li>
+<li>Transform spherical Earth data into a flat map.</li>
+<li>Coordinate units can be in meters, feet, etc.</li>
+</ul></li>
+</ul></li>
+</ul>
+<section id="geographic-coordinate-reference-systems" class="level3">
+<h3 class="anchored" data-anchor-id="geographic-coordinate-reference-systems">2.4.1 Geographic Coordinate Reference Systems</h3>
+<ul>
+<li>Geographic CRSs use longitude and latitude to identify locations on Earth.
+<ul>
+<li>Longitude: Measures East-West position relative to the Prime Meridian.</li>
+<li>Latitude: Measures North-South position relative to the equatorial plane.</li>
+<li>Distances are measured in <strong>angular units (degrees)</strong>, not meters, impacting spatial measurements (explored further in Section 7).</li>
+</ul></li>
+<li>The Earth can be modeled as spherical or ellipsoidal.
+<ul>
+<li><strong>Spherical models</strong>: Simplify calculations by assuming Earth is a perfect sphere.</li>
+<li><strong>Ellipsoidal models</strong>: More accurately represent Earth with distinct equatorial and polar radii. The equatorial radius is about 11.5 km longer than the polar radius due to Earth’s compression.</li>
+</ul></li>
+<li><strong>Datum</strong> refers to the model describing the relationship between coordinate values and actual locations on Earth. A datum consists of:
+<ol type="1">
+<li><p><strong>Ellipsoid</strong>: An idealized mathematical model of the Earth’s shape, which helps to approximate the Earth’s surface.</p></li>
+<li><p><strong>Origin Point</strong>: A fixed starting point for the coordinate system, where the ellipsoid is anchored to Earth.</p></li>
+<li><p><strong>Offset and Orientation</strong>: How the ellipsoid is aligned with respect to the actual shape of the Earth.</p></li>
+</ol></li>
+</ul>
+<!-- -->
+<ul>
+<li>The two types of Datums are: —
+<ul>
+<li><strong>Geocentric datum</strong> (e.g., WGS84): Centered at Earth’s center of gravity, providing global consistency but less local accuracy.</li>
+<li><strong>Local datum</strong> (e.g., NAD83): Adjusted for specific regions to better align with the Earth’s surface, accounting for local geographic variations (e.g., mountain ranges).</li>
+</ul></li>
+</ul>
+</section>
+<section id="projected-coordinate-reference-systems" class="level3">
+<h3 class="anchored" data-anchor-id="projected-coordinate-reference-systems">2.4.2 Projected Coordinate Reference Systems</h3>
+<ul>
+<li>Projected CRSs are based on geographic CRSs and use map projections to represent Earth’s three-dimensional surface in <strong>Easting</strong> and <strong>Northing</strong> (x and y) values. These CRSs rely on Cartesian coordinates on a flat surface, with an origin and linear units (<em>e.g.,</em> meters).</li>
+<li><strong>Deformations</strong>:
+<ul>
+<li>The conversion from 3D to 2D inherently introduces distortions. Projected CRSs can only preserve one or two of the following properties:
+<ul>
+<li><strong>Area</strong>: Preserved in <strong>equal-area</strong> projections.</li>
+<li><strong>Direction</strong>: Preserved in <strong>azimuthal</strong> projections.</li>
+<li><strong>Distance</strong>: Preserved in <strong>equidistant</strong> projections.</li>
+<li><strong>Shape</strong>: Preserved in <strong>conformal</strong> projections.</li>
+</ul></li>
+</ul></li>
+</ul>
+</section>
+<section id="types-of-projections-and-their-characteristics" class="level3">
+<h3 class="anchored" data-anchor-id="types-of-projections-and-their-characteristics">Types of Projections and Their Characteristics</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 33%">
+<col style="width: 22%">
+<col style="width: 22%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Type of Projection</strong></th>
+<th><strong>Description</strong></th>
+<th><strong>Common Properties Preserved</strong></th>
+<th><strong>Best Used For</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Conic</strong></td>
+<td>Projects Earth’s surface onto a cone.</td>
+<td>Area, shape</td>
+<td>Maps of mid-latitude regions</td>
+</tr>
+<tr class="even">
+<td><strong>Cylindrical</strong></td>
+<td>Projects Earth’s surface onto a cylinder.</td>
+<td>Direction, shape</td>
+<td>World maps</td>
+</tr>
+<tr class="odd">
+<td><strong>Planar (Azimuthal)</strong></td>
+<td>Projects onto a flat surface at a point or line.</td>
+<td>Distance, direction</td>
+<td>Polar region maps</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="deformations-by-projection-type" class="level3">
+<h3 class="anchored" data-anchor-id="deformations-by-projection-type">Deformations by Projection Type</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 50%">
+<col style="width: 29%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Property</strong></th>
+<th><strong>Definition</strong></th>
+<th><strong>Projection Type That Preserves It</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Area</strong></td>
+<td>The relative size of regions is maintained.</td>
+<td>Equal-area projections (e.g., Albers)</td>
+</tr>
+<tr class="even">
+<td><strong>Direction</strong></td>
+<td>Bearings from the center are accurate.</td>
+<td>Azimuthal projections (e.g., Lambert)</td>
+</tr>
+<tr class="odd">
+<td><strong>Distance</strong></td>
+<td>Correct distances are preserved along specific lines or from specific points.</td>
+<td>Equidistant projections (e.g., Equirectangular)</td>
+</tr>
+<tr class="even">
+<td><strong>Shape</strong></td>
+<td>Local angles and shapes are maintained, though areas are distorted.</td>
+<td>Conformal projections (e.g., Mercator)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Use the <a href="https://www.geo-projections.com/">Map Projection Explorer</a> for details.</li>
+<li>Use <code>st_crs()</code> for querying CRSs in <strong>sf objects</strong> and <code>crs()</code> for <strong>terra objects</strong>.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sf_proj_info</span>(<span class="at">type =</span> <span class="st">"proj"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">cols_label_with</span>(<span class="at">fn =</span> snakecase<span class="sc">::</span>to_title_case) <span class="sc">|&gt;</span> </span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  gtExtras<span class="sc">::</span><span class="fu">gt_theme_espn</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">opt_interactive</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div id="tbl-projection-types" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-projection-types-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: A list of the available projections supported by the PROJ library
+</figcaption>
+<div aria-describedby="tbl-projection-types-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="ptqginkkev" class=".gt_table" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+#ptqginkkev table {
+  font-family: Lato, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#ptqginkkev thead, #ptqginkkev tbody, #ptqginkkev tfoot, #ptqginkkev tr, #ptqginkkev td, #ptqginkkev th {
+  border-style: none;
+}
+
+#ptqginkkev p {
+  margin: 0;
+  padding: 0;
+}
+
+#ptqginkkev .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 3px;
+  border-top-color: #FFFFFF;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#ptqginkkev .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#ptqginkkev .gt_title {
+  color: #333333;
+  font-size: 24px;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#ptqginkkev .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#ptqginkkev .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ptqginkkev .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ptqginkkev .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ptqginkkev .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#ptqginkkev .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#ptqginkkev .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#ptqginkkev .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#ptqginkkev .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#ptqginkkev .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#ptqginkkev .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#ptqginkkev .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#ptqginkkev .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#ptqginkkev .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#ptqginkkev .gt_row {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #F6F7F7;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#ptqginkkev .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ptqginkkev .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#ptqginkkev .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#ptqginkkev .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#ptqginkkev .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ptqginkkev .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#ptqginkkev .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#ptqginkkev .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ptqginkkev .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ptqginkkev .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#ptqginkkev .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ptqginkkev .gt_striped {
+  background-color: #FAFAFA;
+}
+
+#ptqginkkev .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ptqginkkev .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ptqginkkev .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ptqginkkev .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ptqginkkev .gt_sourcenote {
+  font-size: 12px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ptqginkkev .gt_left {
+  text-align: left;
+}
+
+#ptqginkkev .gt_center {
+  text-align: center;
+}
+
+#ptqginkkev .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#ptqginkkev .gt_font_normal {
+  font-weight: normal;
+}
+
+#ptqginkkev .gt_font_bold {
+  font-weight: bold;
+}
+
+#ptqginkkev .gt_font_italic {
+  font-style: italic;
+}
+
+#ptqginkkev .gt_super {
+  font-size: 65%;
+}
+
+#ptqginkkev .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#ptqginkkev .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#ptqginkkev .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#ptqginkkev .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#ptqginkkev .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#ptqginkkev .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#ptqginkkev .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#ptqginkkev .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#ptqginkkev div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<div id="ptqginkkev" class="reactable html-widget" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="ptqginkkev">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"name":["adams_hemi","adams_ws1","adams_ws2","aea","aeqd","affine","airy","aitoff","alsk","apian","august","axisswap","bacon","bertin1953","bipc","boggs","bonne","calcofi","cart","cass","cc","ccon","cea","chamb","collg","col_urban","comill","crast","defmodel","deformation","denoy","eck1","eck2","eck3","eck4","eck5","eck6","eqearth","eqc","eqdc","euler","etmerc","fahey","fouc","fouc_s","gall","geoc","geogoffset","geos","gins8","gn_sinu","gnom","goode","gridshift","gs48","gs50","guyou","hammer","hatano","healpix","rhealpix","helmert","hgridshift","horner","igh","igh_o","imoll","imoll_o","imw_p","isea","kav5","kav7","krovak","labrd","laea","lagrng","larr","lask","lonlat","latlon","lcc","lcca","leac","lee_os","loxim","lsat","mbt_s","mbt_fps","mbtfpp","mbtfpq","mbtfps","merc","mil_os","mill","misrsom","moll","molobadekas","molodensky","murd1","murd2","murd3","natearth","natearth2","nell","nell_h","nicol","nsper","nzmg","noop","ob_tran","ocea","oea","omerc","ortel","ortho","pconic","patterson","peirce_q","pipeline","poly","pop","push","putp1","putp2","putp3","putp3p","putp4p","putp5","putp5p","putp6","putp6p","qua_aut","qsc","robin","rouss","rpoly","s2","sch","set","sinu","som","somerc","stere","sterea","gstmerc","tcc","tcea","times","tinshift","tissot","tmerc","tobmerc","topocentric","tpeqd","tpers","unitconvert","ups","urm5","urmfps","utm","vandg","vandg2","vandg3","vandg4","vertoffset","vitk1","vgridshift","wag1","wag2","wag3","wag4","wag5","wag6","wag7","webmerc","weren","wink1","wink2","wintri","xyzgridshift"],"description":["Adams Hemisphere in a Square","Adams World in a Square I","Adams World in a Square II","Albers Equal Area","Azimuthal Equidistant","Affine transformation","Airy","Aitoff","Modified Stereographic of Alaska","Apian Globular I","August Epicycloidal","Axis ordering","Bacon Globular","Bertin 1953","Bipolar conic of western hemisphere","Boggs Eumorphic","Bonne (Werner lat_1=90)","Cal Coop Ocean Fish Invest Lines/Stations","Geodetic/cartesian conversions","Cassini","Central Cylindrical","Central Conic","Equal Area Cylindrical","Chamberlin Trimetric","Collignon","Colombia Urban","Compact Miller","Craster Parabolic (Putnins P4)","Deformation model","Kinematic grid shift","Denoyer Semi-Elliptical","Eckert I","Eckert II","Eckert III","Eckert IV","Eckert V","Eckert VI","Equal Earth","Equidistant Cylindrical (Plate Carree)","Equidistant Conic","Euler","Extended Transverse Mercator","Fahey","Foucaut","Foucaut Sinusoidal","Gall (Gall Stereographic)","Geocentric Latitude","Geographic Offset","Geostationary Satellite View","Ginsburg VIII (TsNIIGAiK)","General Sinusoidal Series","Gnomonic","Goode Homolosine","Generic grid shift","Modified Stereographic of 48 U.S.","Modified Stereographic of 50 U.S.","Guyou","Hammer & Eckert-Greifendorff","Hatano Asymmetrical Equal Area","HEALPix","rHEALPix","3(6)-, 4(8)- and 7(14)-parameter Helmert shift","Horizontal grid shift","Horner polynomial evaluation","Interrupted Goode Homolosine","Interrupted Goode Homolosine Oceanic View","Interrupted Mollweide","Interrupted Mollweide Oceanic View","International Map of the World Polyconic","Icosahedral Snyder Equal Area","Kavrayskiy V","Kavrayskiy VII","Krovak","Laborde","Lambert Azimuthal Equal Area","Lagrange","Larrivee","Laskowski","Lat/long (Geodetic)","Lat/long (Geodetic alias)","Lambert Conformal Conic","Lambert Conformal Conic Alternative","Lambert Equal Area Conic","Lee Oblated Stereographic","Loximuthal","Space oblique for LANDSAT","McBryde-Thomas Flat-Polar Sine (No. 1)","McBryde-Thomas Flat-Pole Sine (No. 2)","McBride-Thomas Flat-Polar Parabolic","McBryde-Thomas Flat-Polar Quartic","McBryde-Thomas Flat-Polar Sinusoidal","Mercator","Miller Oblated Stereographic","Miller Cylindrical","Space oblique for MISR","Mollweide","Molodensky-Badekas transformation","Molodensky transform","Murdoch I","Murdoch II","Murdoch III","Natural Earth","Natural Earth 2","Nell","Nell-Hammer","Nicolosi Globular","Near-sided perspective","New Zealand Map Grid","No operation","General Oblique Transformation","Oblique Cylindrical Equal Area","Oblated Equal Area","Oblique Mercator","Ortelius Oval","Orthographic","Perspective Conic","Patterson Cylindrical","Peirce Quincuncial","Transformation pipeline manager","Polyconic (American)","Retrieve coordinate value from pipeline stack","Save coordinate value on pipeline stack","Putnins P1","Putnins P2","Putnins P3","Putnins P3'","Putnins P4'","Putnins P5","Putnins P5'","Putnins P6","Putnins P6'","Quartic Authalic","Quadrilateralized Spherical Cube","Robinson","Roussilhe Stereographic","Rectangular Polyconic","S2","Spherical Cross-track Height","Set coordinate value","Sinusoidal (Sanson-Flamsteed)","Space Oblique Mercator","Swiss. Obl. Mercator","Stereographic","Oblique Stereographic Alternative","Gauss-Schreiber Transverse Mercator (aka Gauss-Laborde Reunion)","Transverse Central Cylindrical","Transverse Cylindrical Equal Area","Times","Triangulation based transformation","Tissot","Transverse Mercator","Tobler-Mercator","Geocentric/Topocentric conversion","Two Point Equidistant","Tilted perspective","Unit conversion","Universal Polar Stereographic","Urmaev V","Urmaev Flat-Polar Sinusoidal","Universal Transverse Mercator (UTM)","van der Grinten (I)","van der Grinten II","van der Grinten III","van der Grinten IV","Vertical Offset and Slope","Vitkovsky I","Vertical grid shift","Wagner I (Kavrayskiy VI)","Wagner II","Wagner III","Wagner IV","Wagner V","Wagner VI","Wagner VII","Web Mercator / Pseudo Mercator","Werenskiold I","Winkel I","Winkel II","Winkel Tripel","Geocentric grid shift"]},"columns":[{"id":"name","name":"Name","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"description","name":"Description","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}}],"defaultPageSize":10,"showPageSizeOptions":false,"pageSizeOptions":[10,25,50,100],"paginationType":"numbers","showPagination":true,"showPageInfo":true,"minRows":1,"striped":true,"height":"auto","theme":{"color":"#333333","backgroundColor":"#FFFFFF","stripedColor":"#fafafa","style":{"fontFamily":"Lato, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"},"tableStyle":{"borderTopStyle":"solid","borderTopWidth":"2px","borderTopColor":"#D3D3D3"},"headerStyle":{"borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"#D3D3D3"}},"elementId":"ptqginkkev","dataKey":"da11b8da9a0c61d44ce66a7aaa35fe9c"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.style","tag.attribs.columns.1.style"],"jsHooks":[]}</script>
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+</section>
+<section id="units" class="level2">
+<h2 class="anchored" data-anchor-id="units">2.5 Units</h2>
+<ul>
+<li><p>CRSs include spatial units information, which is crucial for accurately interpreting distance and area.</p></li>
+<li><p>Cartographic best practices suggest adding scale indicators on maps to show the relationship between map and ground distances.</p></li>
+<li><p><strong>Units in <code>sf</code> Objects</strong>:</p>
+<ul>
+<li><code>sf</code> objects natively support units for geometric data, ensuring outputs from functions like <code>st_area()</code> come with a <code>units</code> attribute.</li>
+<li>This feature, supported by the <code>units</code> package, avoids confusion across different CRSs, which may use meters, feet, etc.</li>
+<li>To convert units, use <code>units::set_units()</code></li>
+</ul></li>
+<li><p><strong>Units in Raster Data</strong>:</p>
+<ul>
+<li>Unlike <code>sf</code>, raster packages do not natively support units.</li>
+<li>Users should be cautious when working with raster data to convert units properly.</li>
+<li>An example to calculate the area of India in square meters and then, square kilometres</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load required libraries</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(units)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the area of India in square meters</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>india_area <span class="ot">&lt;-</span> rnaturalearth<span class="sc">::</span><span class="fu">ne_countries</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(admin <span class="sc">==</span> <span class="st">"India"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_area</span>()</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>india_area</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>3.150428e+12 [m^2]</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert area to square kilometers</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Area of India in square kilometers:"</span>, <span class="fu">format</span>(<span class="fu">set_units</span>(india_area, km<span class="sc">^</span><span class="dv">2</span>))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Area of India in square kilometers: 3150428 [km^2]"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert area to hectares</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Area of India in hectares:"</span>, <span class="fu">format</span>(<span class="fu">set_units</span>(india_area, ha))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Area of India in hectares: 315042827 [ha]"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert area to acres</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Area of India in acres:"</span>, <span class="fu">format</span>(<span class="fu">set_units</span>(india_area, acre))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Area of India in acres: 778484666 [acre]"</code></pre>
+</div>
+</div>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises"><strong>2.6 Exercises</strong></h2>
+<hr>
+<section id="e1" class="level3">
+<h3 class="anchored" data-anchor-id="e1">E1</h3>
+<p>Using <code>summary()</code> on the geometry column of the <code>world</code> data object in the <code>spData</code> package provides valuable information about the spatial characteristics of the dataset:</p>
+<ol type="1">
+<li><strong>Geometry Type</strong>:
+<ul>
+<li>The output will indicate the type of geometries present in the <code>world</code> data object. Here, it is <code>MULTIPOLYGON</code> suggesting that the dataset represents the outlines of countries or regions in <strong>MULTIPLOYGON</strong> formats.</li>
+</ul></li>
+<li><strong>Number of Countries</strong>:
+<ul>
+<li>The summary will show the number of geometries or features present, which corresponds to the number of countries or regions represented in the <code>world</code> dataset. Here, it is <strong>177 countries</strong>.</li>
+</ul></li>
+<li><strong>Coordinate Reference System (CRS)</strong>:
+<ul>
+<li>The output will include details about the CRS, and in the present case it is <strong>EPSG:4326</strong>.</li>
+</ul></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>((spData<span class="sc">::</span>world<span class="sc">$</span>geom))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> MULTIPOLYGON     epsg:4326 +proj=long... 
+          177             0             0 </code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="e2" class="level3">
+<h3 class="anchored" data-anchor-id="e2">E2</h3>
+<p>To generate the world map, you can run the following code (as shown in Section 2.2.3):</p>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spData)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(world[<span class="dv">3</span><span class="sc">:</span><span class="dv">6</span>])</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(world[<span class="st">"pop"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-ex2-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ex2-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter2_files/figure-html/fig-ex2-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13" title="Figure&nbsp;6: Reproducing Figure 2.4 of the book"><img src="chapter2_files/figure-html/fig-ex2-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ex2-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Reproducing Figure 2.4 of the book
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-ex2-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ex2-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter2_files/figure-html/fig-ex2-2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-14" title="Figure&nbsp;7: Reproducing Figure 2.4 of the book"><img src="chapter2_files/figure-html/fig-ex2-2.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ex2-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Reproducing Figure 2.4 of the book
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Similarities</strong>:
+<ol type="1">
+<li>The map displays country boundaries and highlights the global population distribution as shown in the book.</li>
+<li>The color scale representing population data is consistent with that described in the book, with larger populations shown with more intense colors.</li>
+</ol></li>
+<li><strong>Differences</strong>:
+<ol type="1">
+<li>The aspect ratio or positioning of the map might vary depending on your screen resolution and window size.</li>
+<li>The color theme and legend display may differ if your R setup or graphic device uses default settings different from those in the book.</li>
+</ol></li>
+<li><strong><code>cex</code> Argument</strong>: This parameter controls the size of plotting symbols in R. It is a numeric value that acts as a multiplier for the default size of symbols.
+<ul>
+<li>Setting <code>cex</code> to values larger than 1 enlarges symbols, while values less than 1 shrink them.</li>
+</ul></li>
+<li><strong>Reason for <code>cex = sqrt(world$pop) / 10000</code></strong> : The code sets <code>cex</code> to <code>sqrt(world$pop) / 10000</code> to scale the size of the points on the map in proportion to the population of each country. This square root transformation is used to moderate the variation in symbol sizes because population values can vary significantly between countries. Dividing by 10,000 helps to reduce the symbol size to a reasonable range for plotting.</li>
+</ul>
+<p><strong>Other Ideas: —</strong></p>
+<ul>
+<li><strong>Bubble Plot</strong>: Overlay a bubble plot on the map with points sized by population.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(world[<span class="st">"pop"</span>])</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">st_coordinates</span>(<span class="fu">st_centroid</span>(world<span class="sc">$</span>geom)), </span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">cex =</span> <span class="fu">sqrt</span>(world<span class="sc">$</span>pop) <span class="sc">/</span> <span class="dv">5000</span>, </span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">pch =</span> <span class="dv">19</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="chapter2_files/figure-html/unnamed-chunk-14-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-15"><img src="chapter2_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Choropleth Map</strong>: Use color gradients to represent population density.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tmap)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(world) <span class="sc">+</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="st">"pop"</span>, <span class="at">style =</span> <span class="st">"jenks"</span>, </span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">palette =</span> <span class="st">"Blues"</span>, </span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">title =</span> <span class="st">"Population"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="chapter2_files/figure-html/unnamed-chunk-15-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-16"><img src="chapter2_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Log Transformation</strong>: Visualize population using a log scale for better differentiation.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>world<span class="sc">$</span>log_pop <span class="ot">=</span> <span class="fu">log10</span>(world<span class="sc">$</span>pop <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(world[<span class="st">"log_pop"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="chapter2_files/figure-html/unnamed-chunk-16-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-17"><img src="chapter2_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="e3" class="level3">
+<h3 class="anchored" data-anchor-id="e3">E3</h3>
+<p>To create a map of Nigeria in context and customize it using the <code>plot()</code> function, you can follow these steps:</p>
+<p><strong>Step 1:</strong> Load Necessary Libraries and Data: Make sure you have the <code>spData</code> package loaded and access to the world spatial data.</p>
+<p><strong>Step 2:</strong> Plotting Nigeria in Context: You can plot Nigeria by subsetting the <code>world</code> data and adjusting parameters such as <code>lwd</code> (line width), <code>col</code> (color), and <code>expandBB</code> (expanding the bounding box). Here’s an example code snippet:</p>
+<p><strong>Step 3:</strong> Annotating the Map: To annotate the map with text labels, you can use the <code>text()</code> function. Here’s an example where we add the name of Nigeria and its capital, Abuja:</p>
+<p><strong>Step 4:</strong> Exploring the <code>text()</code> Documentation</p>
+<ul>
+<li><strong><code>lwd</code></strong>: This argument controls the line width for the borders of the countries.</li>
+<li><strong><code>col</code></strong>: This argument sets the fill color for the countries. You can customize it based on your preference.</li>
+<li><strong><code>expandBB</code></strong>: This argument expands the bounding box of the plot, which can help visualize nearby areas more clearly.</li>
+</ul>
+<hr>
+</section>
+<section id="e4" class="level3">
+<h3 class="anchored" data-anchor-id="e4">E4</h3>
+<p>To create an empty <code>SpatRaster</code> object with 10 columns and 10 rows, assign random values between 0 and 10, and then plot it, you can use the <code>terra</code> package in R. Here’s how you can do it:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(terra)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Create an empty SpatRaster object with 10 columns and 10 rows</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>my_raster <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="at">nrows =</span> <span class="dv">10</span>, <span class="at">ncols =</span> <span class="dv">10</span>)</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Assign random values between 0 and 10</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="fu">values</span>(my_raster) <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="fu">ncell</span>(my_raster), <span class="at">min =</span> <span class="dv">0</span>, <span class="at">max =</span> <span class="dv">10</span>)</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the raster</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(my_raster, <span class="at">main =</span> <span class="st">"Random Values Raster"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="chapter2_files/figure-html/unnamed-chunk-17-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-18"><img src="chapter2_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="e5" class="level3">
+<h3 class="anchored" data-anchor-id="e5">E5</h3>
+<p>To read in the <code>raster/nlcd.tif</code> file from the <code>spDataLarge</code> package and examine its properties, you can follow these steps in R:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spDataLarge)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(terra)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the raster file</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>nlcd_raster <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="fu">system.file</span>(<span class="st">"raster/nlcd.tif"</span>, <span class="at">package =</span> <span class="st">"spDataLarge"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Information You Can Obtain: —</strong></p>
+<ol type="1">
+<li><p><strong>Basic Properties</strong>: The <code>print(nlcd_raster)</code> command will provide you with information about the raster, including its dimensions, number of layers, and type of data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the basic properties of the raster</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(nlcd_raster)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>class       : SpatRaster 
+dimensions  : 1359, 1073, 1  (nrow, ncol, nlyr)
+resolution  : 31.5303, 31.52466  (x, y)
+extent      : 301903.3, 335735.4, 4111244, 4154086  (xmin, xmax, ymin, ymax)
+coord. ref. : NAD83 / UTM zone 12N (EPSG:26912) 
+source      : nlcd.tif 
+color table : 1 
+categories  : levels 
+name        :   levels 
+min value   :    Water 
+max value   : Wetlands </code></pre>
+</div>
+</div></li>
+<li><p><strong>Summary Statistics</strong>: The <code>summary(nlcd_raster)</code> function will give you basic statistics about the raster values, such as minimum, maximum, and mean values. In this case, it tells the number of cells with Forest, Shrubland, Barren, Developed, Cultivated, Wetlands and Other land-use types.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get summary statistics</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(nlcd_raster)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        levels     
+ Forest    :52620  
+ Shrubland :37463  
+ Barren    : 7290  
+ Developed : 1203  
+ Cultivated:  596  
+ Wetlands  :  443  
+ (Other)   :  421  </code></pre>
+</div>
+</div></li>
+<li><p><strong>Extent</strong>: The <code>ext(nlcd_raster)</code> command will provide the geographical extent of the raster, showing the minimum and maximum x and y coordinates.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the extent of the raster</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ext</span>(nlcd_raster)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>SpatExtent : 301903.344386758, 335735.354381954, 4111244.46098842, 4154086.47216415 (xmin, xmax, ymin, ymax)</code></pre>
+</div>
+</div></li>
+<li><p><strong>Rows and Columns</strong>: You can find the number of rows and columns in the raster using <code>nrow(nlcd_raster)</code> and <code>ncol(nlcd_raster)</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the number of rows and columns</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(nlcd_raster)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1359</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ncol</span>(nlcd_raster)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1073</code></pre>
+</div>
+</div></li>
+<li><p><strong>Coordinate Reference System (CRS)</strong>: The <code>crs(nlcd_raster)</code> command will return the CRS of the raster, which is essential for spatial analyses.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the coordinate reference system (CRS)</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str_view</span>(<span class="fu">crs</span>(nlcd_raster))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] │ PROJCRS["NAD83 / UTM zone 12N",
+    │     BASEGEOGCRS["NAD83",
+    │         DATUM["North American Datum 1983",
+    │             ELLIPSOID["GRS 1980",6378137,298.257222101,
+    │                 LENGTHUNIT["metre",1]]],
+    │         PRIMEM["Greenwich",0,
+    │             ANGLEUNIT["degree",0.0174532925199433]],
+    │         ID["EPSG",4269]],
+    │     CONVERSION["UTM zone 12N",
+    │         METHOD["Transverse Mercator",
+    │             ID["EPSG",9807]],
+    │         PARAMETER["Latitude of natural origin",0,
+    │             ANGLEUNIT["degree",0.0174532925199433],
+    │             ID["EPSG",8801]],
+    │         PARAMETER["Longitude of natural origin",-111,
+    │             ANGLEUNIT["degree",0.0174532925199433],
+    │             ID["EPSG",8802]],
+    │         PARAMETER["Scale factor at natural origin",0.9996,
+    │             SCALEUNIT["unity",1],
+    │             ID["EPSG",8805]],
+    │         PARAMETER["False easting",500000,
+    │             LENGTHUNIT["metre",1],
+    │             ID["EPSG",8806]],
+    │         PARAMETER["False northing",0,
+    │             LENGTHUNIT["metre",1],
+    │             ID["EPSG",8807]]],
+    │     CS[Cartesian,2],
+    │         AXIS["(E)",east,
+    │             ORDER[1],
+    │             LENGTHUNIT["metre",1]],
+    │         AXIS["(N)",north,
+    │             ORDER[2],
+    │             LENGTHUNIT["metre",1]],
+    │     USAGE[
+    │         SCOPE["Engineering survey, topographic mapping."],
+    │         AREA["North America - between 114°W and 108°W - onshore and offshore. Canada - Alberta; Northwest Territories; Nunavut; Saskatchewan. United States (USA) - Arizona; Colorado; Idaho; Montana; New Mexico; Utah; Wyoming."],
+    │         BBOX[31.33,-114,84,-108]],
+    │     ID["EPSG",26912]]</code></pre>
+</div>
+</div></li>
+<li><p><strong>Resolution</strong>: You can check the resolution of the raster with the <code>res(nlcd_raster)</code> function, which will indicate the size of each pixel.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the resolution of the raster</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">res</span>(nlcd_raster)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 31.53030 31.52466</code></pre>
+</div>
+</div></li>
+<li><p><strong>Values</strong>: The <code>values(nlcd_raster)</code> command allows you to access the actual values contained in the raster. Here, I am printing only the first few values.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the values of the raster</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">values</span>(nlcd_raster) <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     levels
+[1,]      4
+[2,]      4
+[3,]      5
+[4,]      4
+[5,]      4
+[6,]      4</code></pre>
+</div>
+</div></li>
+</ol>
+<hr>
+</section>
+<section id="e6" class="level3">
+<h3 class="anchored" data-anchor-id="e6">E6</h3>
+<p>To check the Coordinate Reference System (CRS) of the <code>raster/nlcd.tif</code> file from the <code>spDataLarge</code> package, you can use the following steps in R. The CRS provides essential information about how the spatial data is projected on the Earth’s surface.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spDataLarge)</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(terra)</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the raster file</span></span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>nlcd_raster <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="fu">system.file</span>(<span class="st">"raster/nlcd.tif"</span>, <span class="at">package =</span> <span class="st">"spDataLarge"</span>))</span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the coordinate reference system (CRS)</span></span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>nlcd_crs <span class="ot">&lt;-</span> <span class="fu">crs</span>(nlcd_raster)</span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a>nlcd_crs <span class="sc">|&gt;</span> <span class="fu">str_view</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] │ PROJCRS["NAD83 / UTM zone 12N",
+    │     BASEGEOGCRS["NAD83",
+    │         DATUM["North American Datum 1983",
+    │             ELLIPSOID["GRS 1980",6378137,298.257222101,
+    │                 LENGTHUNIT["metre",1]]],
+    │         PRIMEM["Greenwich",0,
+    │             ANGLEUNIT["degree",0.0174532925199433]],
+    │         ID["EPSG",4269]],
+    │     CONVERSION["UTM zone 12N",
+    │         METHOD["Transverse Mercator",
+    │             ID["EPSG",9807]],
+    │         PARAMETER["Latitude of natural origin",0,
+    │             ANGLEUNIT["degree",0.0174532925199433],
+    │             ID["EPSG",8801]],
+    │         PARAMETER["Longitude of natural origin",-111,
+    │             ANGLEUNIT["degree",0.0174532925199433],
+    │             ID["EPSG",8802]],
+    │         PARAMETER["Scale factor at natural origin",0.9996,
+    │             SCALEUNIT["unity",1],
+    │             ID["EPSG",8805]],
+    │         PARAMETER["False easting",500000,
+    │             LENGTHUNIT["metre",1],
+    │             ID["EPSG",8806]],
+    │         PARAMETER["False northing",0,
+    │             LENGTHUNIT["metre",1],
+    │             ID["EPSG",8807]]],
+    │     CS[Cartesian,2],
+    │         AXIS["(E)",east,
+    │             ORDER[1],
+    │             LENGTHUNIT["metre",1]],
+    │         AXIS["(N)",north,
+    │             ORDER[2],
+    │             LENGTHUNIT["metre",1]],
+    │     USAGE[
+    │         SCOPE["Engineering survey, topographic mapping."],
+    │         AREA["North America - between 114°W and 108°W - onshore and offshore. Canada - Alberta; Northwest Territories; Nunavut; Saskatchewan. United States (USA) - Arizona; Colorado; Idaho; Montana; New Mexico; Utah; Wyoming."],
+    │         BBOX[31.33,-114,84,-108]],
+    │     ID["EPSG",26912]]</code></pre>
+</div>
+</div>
+<p><strong>Understanding the CRS Information: —</strong></p>
+<p>The output from the <code>crs(nlcd_raster)</code> command will typically include details such as:</p>
+<ol type="1">
+<li><p><strong>Projection Type</strong>: Indicates whether the CRS is geographic (latitude and longitude) or projected (a flat representation). Here, it is North American <strong>NAD83 / UTM Zone 12 N</strong></p></li>
+<li><p><strong>Datum</strong>: Information about the geodetic datum used, which is crucial for accurately locating points on the Earth’s surface. Here, it is North American Datum 1983.</p></li>
+<li><p><strong>Coordinate Units</strong>: Specifies the units of measurement used for the coordinates, such as degrees (for geographic CRSs) or meters (for projected CRSs). Here, it is in metres, as shown in:</p>
+<pre><code>LENGTHUNIT["metre",1]</code></pre></li>
+<li><p><strong>EPSG Code</strong>: If applicable, the output might include an EPSG code, which is a standardized reference number for a specific CRS. This code can be used to look up more detailed information about the CRS. Here, it is: —</p>
+<pre><code>ID["EPSG",26912]</code></pre></li>
+<li><p><strong>Transformation Parameters</strong>: If it’s a projected CRS, the output may include parameters related to the projection method, such as central meridian, standard parallels, and false easting/northing. Here, they are: —</p>
+<pre><code>|         PRIMEM["Greenwich",0,     
+│             ANGLEUNIT["degree",0.0174532925199433]],     
+│         ID["EPSG",4269]], 
+|
+|
+│     CONVERSION["UTM zone 12N",     
+│         METHOD["Transverse Mercator",     
+│             ID["EPSG",9807]],     
+│         PARAMETER["Latitude of natural origin",0,     
+│             ANGLEUNIT["degree",0.0174532925199433],     
+│             ID["EPSG",8801]],     
+│         PARAMETER["Longitude of natural origin",-111,     
+|             ANGLEUNIT["degree",0.0174532925199433],     
+│             ID["EPSG",8802]],     
+│         PARAMETER["Scale factor at natural origin",0.9996,
+│             SCALEUNIT["unity",1],     
+│             ID["EPSG",8805]],     
+│         PARAMETER["False easting",500000,     
+│             LENGTHUNIT["metre",1],     
+│             ID["EPSG",8806]],     
+│         PARAMETER["False northing",0,     
+│             LENGTHUNIT["metre",1],     
+│             ID["EPSG",8807]]],</code></pre></li>
+</ol>
 
 
 
+</section>
 </section>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
@@ -1502,7 +2607,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 <footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/chapter2.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><div class="page-columns page-rows-contents page-layout-article"><div class="social-share"><a href="https://twitter.com/share?url=https://aditya-dahiya.github.io/visage/geocomputation/computing_sea_routes.html&amp;text=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="twitter"><i class="fab fa-twitter fa-fw fa-lg"></i></a><a href="https://www.linkedin.com/shareArticle?url=https://aditya-dahiya.github.io/visage/geocomputation/computing_sea_routes.html&amp;title=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="linkedin"><i class="fa-brands fa-linkedin-in fa-fw fa-lg"></i></a>  <a href="mailto:?subject=Visualizing Information and Spatial Analysis with ggplot2 Extensions&amp;body=Check out this link:https://aditya-dahiya.github.io/visage/geocomputation/computing_sea_routes.html" target="_blank" class="email"><i class="fa-solid fa-envelope fa-fw fa-lg"></i></a><a href="https://www.facebook.com/sharer.php?u=https://aditya-dahiya.github.io/visage/geocomputation/computing_sea_routes.html" target="_blank" class="facebook"><i class="fab fa-facebook-f fa-fw fa-lg"></i></a><a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' &amp;&amp; mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=Visualizing Information and Spatial Analysis with ggplot2 Extensions https://aditya-dahiya.github.io/visage/geocomputation/computing_sea_routes.html'}else{return false;}" target="_blank" class="mastodon"><i class="fa-brands fa-mastodon fa-fw fa-lg"></i></a></div></div>
-<script>var lightboxQuarto = GLightbox({"loop":false,"descPosition":"bottom","openEffect":"zoom","closeEffect":"zoom","selector":".lightbox"});
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","selector":".lightbox","descPosition":"bottom","loop":false,"openEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

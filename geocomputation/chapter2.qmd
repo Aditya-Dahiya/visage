@@ -1,6 +1,7 @@
 ---
-title: "Chapter 2: Geocomputation with R"
-date: "2024-10-31"
+title: "Geographic data in R (Chapter 2)"
+subtitle: "Key Learnings from, and Solutions to the exercises in Chapter 2 of the book Geocomputation with R by Robin Lovelace, Jakub Nowosad and Jannes Muenchow."
+date: "2024-11-3"
 author: "Aditya Dahiya"
 bibliography: references.bib
 format:
@@ -365,7 +366,7 @@ ggplot(geometry_collection) +
 -   **Comparison of `terra` and `stars`**:
 
 | **Feature**                     | **`terra`**                                                                        | **`stars`**                                                                                                |
-|--------------------|---------------------------|--------------------------|
+|----------------|-------------------------|--------------------------------|
 | **Primary Focus**               | Regular grids                                                                      | Supports regular, rotated, sheared, rectilinear, and curvilinear grids                                     |
 | **Data Structure**              | One or multi-layered rasters                                                       | Raster data cubes with multiple layers, time steps, and attributes                                         |
 | **Memory Management**           | Uses C++ code and pointers for data storage                                        | Uses lists of arrays for smaller rasters; file paths for larger ones                                       |
@@ -478,4 +479,388 @@ plot(new_raster,
 
 ## 2.4 Coordinate Reference Systems
 
-{work in progress}
+-   CRSs (Coordinate Reference Systems) are essential for spatial data, defining how spatial elements correspond to the Earth’s surface (or other celestial bodies).
+-   **Types of CRSs**:
+    -   **Geographic CRSs**:
+        -   Represent data on a three-dimensional surface (e.g., latitude and longitude).
+        -   Coordinate units are typically degrees.
+    -   **Projected CRSs**:
+        -   Represent data on a two-dimensional, flat plane.
+        -   Transform spherical Earth data into a flat map.
+        -   Coordinate units can be in meters, feet, etc.
+
+### 2.4.1 Geographic Coordinate Reference Systems
+
+-   Geographic CRSs use longitude and latitude to identify locations on Earth.
+    -   Longitude: Measures East-West position relative to the Prime Meridian.
+    -   Latitude: Measures North-South position relative to the equatorial plane.
+    -   Distances are measured in **angular units (degrees)**, not meters, impacting spatial measurements (explored further in Section 7).
+-   The Earth can be modeled as spherical or ellipsoidal.
+    -   **Spherical models**: Simplify calculations by assuming Earth is a perfect sphere.
+    -   **Ellipsoidal models**: More accurately represent Earth with distinct equatorial and polar radii. The equatorial radius is about 11.5 km longer than the polar radius due to Earth's compression.
+-   **Datum** refers to the model describing the relationship between coordinate values and actual locations on Earth. A datum consists of:
+    1.  **Ellipsoid**: An idealized mathematical model of the Earth's shape, which helps to approximate the Earth's surface.
+
+    2.  **Origin Point**: A fixed starting point for the coordinate system, where the ellipsoid is anchored to Earth.
+
+    3.  **Offset and Orientation**: How the ellipsoid is aligned with respect to the actual shape of the Earth.
+
+<!-- -->
+
+-   The two types of Datums are: —
+    -   **Geocentric datum** (e.g., WGS84): Centered at Earth’s center of gravity, providing global consistency but less local accuracy.
+    -   **Local datum** (e.g., NAD83): Adjusted for specific regions to better align with the Earth’s surface, accounting for local geographic variations (e.g., mountain ranges).
+
+### 2.4.2 Projected Coordinate Reference Systems
+
+-   Projected CRSs are based on geographic CRSs and use map projections to represent Earth's three-dimensional surface in **Easting** and **Northing** (x and y) values. These CRSs rely on Cartesian coordinates on a flat surface, with an origin and linear units (*e.g.,* meters).
+-   **Deformations**:
+    -   The conversion from 3D to 2D inherently introduces distortions. Projected CRSs can only preserve one or two of the following properties:
+        -   **Area**: Preserved in **equal-area** projections.
+        -   **Direction**: Preserved in **azimuthal** projections.
+        -   **Distance**: Preserved in **equidistant** projections.
+        -   **Shape**: Preserved in **conformal** projections.
+
+### Types of Projections and Their Characteristics
+
+| **Type of Projection** | **Description**                                  | **Common Properties Preserved** | **Best Used For**            |
+|----------------|------------------------|----------------|----------------|
+| **Conic**              | Projects Earth’s surface onto a cone.            | Area, shape                     | Maps of mid-latitude regions |
+| **Cylindrical**        | Projects Earth’s surface onto a cylinder.        | Direction, shape                | World maps                   |
+| **Planar (Azimuthal)** | Projects onto a flat surface at a point or line. | Distance, direction             | Polar region maps            |
+
+### Deformations by Projection Type
+
+| **Property**  | **Definition**                                                                | **Projection Type That Preserves It**           |
+|---------------|------------------------------------|---------------------|
+| **Area**      | The relative size of regions is maintained.                                   | Equal-area projections (e.g., Albers)           |
+| **Direction** | Bearings from the center are accurate.                                        | Azimuthal projections (e.g., Lambert)           |
+| **Distance**  | Correct distances are preserved along specific lines or from specific points. | Equidistant projections (e.g., Equirectangular) |
+| **Shape**     | Local angles and shapes are maintained, though areas are distorted.           | Conformal projections (e.g., Mercator)          |
+
+-   Use the [Map Projection Explorer](https://www.geo-projections.com/) for details.
+-   Use `st_crs()` for querying CRSs in **sf objects** and `crs()` for **terra objects**.
+
+```{r}
+#| label: tbl-projection-types
+#| tbl-cap: "A list of the available projections supported by the PROJ library"
+
+
+sf_proj_info(type = "proj") |> 
+  as_tibble() |> 
+  gt::gt() |> 
+  gt::cols_label_with(fn = snakecase::to_title_case) |> 
+  gtExtras::gt_theme_espn() |> 
+  gt::opt_interactive()
+```
+
+## 2.5 Units
+
+-   CRSs include spatial units information, which is crucial for accurately interpreting distance and area.
+
+-   Cartographic best practices suggest adding scale indicators on maps to show the relationship between map and ground distances.
+
+-   **Units in `sf` Objects**:
+
+    -   `sf` objects natively support units for geometric data, ensuring outputs from functions like `st_area()` come with a `units` attribute.
+    -   This feature, supported by the `units` package, avoids confusion across different CRSs, which may use meters, feet, etc.
+    -   To convert units, use `units::set_units()`
+
+-   **Units in Raster Data**:
+
+    -   Unlike `sf`, raster packages do not natively support units.
+    -   Users should be cautious when working with raster data to convert units properly.
+    -   An example to calculate the area of India in square meters and then, square kilometres
+
+```{r}
+#| label: india-area
+#| code-fold: false
+
+# Load required libraries
+library(sf)
+library(units)
+
+# Calculate the area of India in square meters
+india_area <- rnaturalearth::ne_countries() |> 
+  filter(admin == "India") |> 
+  st_area()
+india_area
+
+# Convert area to square kilometers
+print(paste("Area of India in square kilometers:", format(set_units(india_area, km^2))))
+
+# Convert area to hectares
+print(paste("Area of India in hectares:", format(set_units(india_area, ha))))
+
+# Convert area to acres
+print(paste("Area of India in acres:", format(set_units(india_area, acre))))
+```
+
+## **2.6 Exercises**
+
+------------------------------------------------------------------------
+
+### E1
+
+Using `summary()` on the geometry column of the `world` data object in the `spData` package provides valuable information about the spatial characteristics of the dataset:
+
+1.  **Geometry Type**:
+    -   The output will indicate the type of geometries present in the `world` data object. Here, it is `MULTIPOLYGON` suggesting that the dataset represents the outlines of countries or regions in **MULTIPLOYGON** formats.
+2.  **Number of Countries**:
+    -   The summary will show the number of geometries or features present, which corresponds to the number of countries or regions represented in the `world` dataset. Here, it is **177 countries**.
+3.  **Coordinate Reference System (CRS)**:
+    -   The output will include details about the CRS, and in the present case it is **EPSG:4326**.
+
+```{r}
+#| code-fold: false
+
+summary((spData::world$geom))
+```
+
+------------------------------------------------------------------------
+
+### E2
+
+To generate the world map, you can run the following code (as shown in Section 2.2.3):
+
+```{r}
+#| layout-ncol: 2
+#| fig-cap: "Reproducing Figure 2.4 of the book"
+#| label: fig-ex2
+
+
+library(spData)
+plot(world[3:6])
+plot(world["pop"])
+
+```
+
+-   **Similarities**:
+    1.  The map displays country boundaries and highlights the global population distribution as shown in the book.
+    2.  The color scale representing population data is consistent with that described in the book, with larger populations shown with more intense colors.
+-   **Differences**:
+    1.  The aspect ratio or positioning of the map might vary depending on your screen resolution and window size.
+    2.  The color theme and legend display may differ if your R setup or graphic device uses default settings different from those in the book.
+-   **`cex` Argument**: This parameter controls the size of plotting symbols in R. It is a numeric value that acts as a multiplier for the default size of symbols.
+    -   Setting `cex` to values larger than 1 enlarges symbols, while values less than 1 shrink them.
+-   **Reason for `cex = sqrt(world$pop) / 10000`** : The code sets `cex` to `sqrt(world$pop) / 10000` to scale the size of the points on the map in proportion to the population of each country. This square root transformation is used to moderate the variation in symbol sizes because population values can vary significantly between countries. Dividing by 10,000 helps to reduce the symbol size to a reasonable range for plotting.
+
+**Other Ideas: —**
+
+-   **Bubble Plot**: Overlay a bubble plot on the map with points sized by population.
+
+```{r}
+plot(world["pop"])
+points(st_coordinates(st_centroid(world$geom)), 
+       cex = sqrt(world$pop) / 5000, 
+       col = "red", pch = 19)
+```
+
+-   **Choropleth Map**: Use color gradients to represent population density.
+
+```{r}
+library(tmap)
+tm_shape(world) +
+  tm_polygons("pop", style = "jenks", 
+              palette = "Blues", 
+              title = "Population")
+```
+
+-   **Log Transformation**: Visualize population using a log scale for better differentiation.
+
+```{r}
+world$log_pop = log10(world$pop + 1)
+plot(world["log_pop"])
+```
+
+------------------------------------------------------------------------
+
+### E3
+
+To create a map of Nigeria in context and customize it using the `plot()` function, you can follow these steps:
+
+**Step 1:** Load Necessary Libraries and Data: Make sure you have the `spData` package loaded and access to the world spatial data.
+
+**Step 2:** Plotting Nigeria in Context: You can plot Nigeria by subsetting the `world` data and adjusting parameters such as `lwd` (line width), `col` (color), and `expandBB` (expanding the bounding box). Here’s an example code snippet:
+
+**Step 3:** Annotating the Map: To annotate the map with text labels, you can use the `text()` function. Here’s an example where we add the name of Nigeria and its capital, Abuja:
+
+**Step 4:** Exploring the `text()` Documentation
+
+-   **`lwd`**: This argument controls the line width for the borders of the countries.
+-   **`col`**: This argument sets the fill color for the countries. You can customize it based on your preference.
+-   **`expandBB`**: This argument expands the bounding box of the plot, which can help visualize nearby areas more clearly.
+
+------------------------------------------------------------------------
+
+### E4
+
+To create an empty `SpatRaster` object with 10 columns and 10 rows, assign random values between 0 and 10, and then plot it, you can use the `terra` package in R. Here's how you can do it:
+
+```{r}
+library(terra)
+
+# Create an empty SpatRaster object with 10 columns and 10 rows
+my_raster <- rast(nrows = 10, ncols = 10)
+
+# Assign random values between 0 and 10
+values(my_raster) <- runif(ncell(my_raster), min = 0, max = 10)
+
+# Plot the raster
+plot(my_raster, main = "Random Values Raster")
+```
+
+------------------------------------------------------------------------
+
+### E5
+
+To read in the `raster/nlcd.tif` file from the `spDataLarge` package and examine its properties, you can follow these steps in R:
+
+```{r}
+#| code-fold: false
+
+
+library(spDataLarge)
+library(terra)
+
+# Read the raster file
+nlcd_raster <- rast(system.file("raster/nlcd.tif", package = "spDataLarge"))
+```
+
+**Information You Can Obtain: —**
+
+1.  **Basic Properties**: The `print(nlcd_raster)` command will provide you with information about the raster, including its dimensions, number of layers, and type of data.
+
+    ```{r}
+    #| code-fold: false
+
+    # Check the basic properties of the raster
+    print(nlcd_raster)
+
+    ```
+
+2.  **Summary Statistics**: The `summary(nlcd_raster)` function will give you basic statistics about the raster values, such as minimum, maximum, and mean values. In this case, it tells the number of cells with Forest, Shrubland, Barren, Developed, Cultivated, Wetlands and Other land-use types.
+
+    ```{r}
+    #| code-fold: false
+
+    # Get summary statistics
+    summary(nlcd_raster)
+    ```
+
+3.  **Extent**: The `ext(nlcd_raster)` command will provide the geographical extent of the raster, showing the minimum and maximum x and y coordinates.
+
+    ```{r}
+    #| code-fold: false
+
+    # Check the extent of the raster
+    ext(nlcd_raster)
+    ```
+
+4.  **Rows and Columns**: You can find the number of rows and columns in the raster using `nrow(nlcd_raster)` and `ncol(nlcd_raster)`.
+
+    ```{r}
+    #| code-fold: false
+
+    # Get the number of rows and columns
+    nrow(nlcd_raster)
+    ncol(nlcd_raster)
+    ```
+
+5.  **Coordinate Reference System (CRS)**: The `crs(nlcd_raster)` command will return the CRS of the raster, which is essential for spatial analyses.
+
+    ```{r}
+    #| code-fold: false
+
+
+    # Get the coordinate reference system (CRS)
+    str_view(crs(nlcd_raster))
+
+    ```
+
+6.  **Resolution**: You can check the resolution of the raster with the `res(nlcd_raster)` function, which will indicate the size of each pixel.
+
+    ```{r}
+    #| code-fold: false
+
+    # Check the resolution of the raster
+    res(nlcd_raster)
+    ```
+
+7.  **Values**: The `values(nlcd_raster)` command allows you to access the actual values contained in the raster. Here, I am printing only the first few values.
+
+    ```{r}
+    #| code-fold: false
+
+
+    # Get the values of the raster
+    values(nlcd_raster) |> head()
+    ```
+
+------------------------------------------------------------------------
+
+### E6
+
+To check the Coordinate Reference System (CRS) of the `raster/nlcd.tif` file from the `spDataLarge` package, you can use the following steps in R. The CRS provides essential information about how the spatial data is projected on the Earth’s surface.
+
+```{r}
+#| code-fold: false
+
+library(spDataLarge)
+library(terra)
+
+# Read the raster file
+nlcd_raster <- rast(system.file("raster/nlcd.tif", package = "spDataLarge"))
+
+# Check the coordinate reference system (CRS)
+nlcd_crs <- crs(nlcd_raster)
+nlcd_crs |> str_view()
+```
+
+**Understanding the CRS Information: —**
+
+The output from the `crs(nlcd_raster)` command will typically include details such as:
+
+1.  **Projection Type**: Indicates whether the CRS is geographic (latitude and longitude) or projected (a flat representation). Here, it is North American **NAD83 / UTM Zone 12 N**
+
+2.  **Datum**: Information about the geodetic datum used, which is crucial for accurately locating points on the Earth's surface. Here, it is North American Datum 1983.
+
+3.  **Coordinate Units**: Specifies the units of measurement used for the coordinates, such as degrees (for geographic CRSs) or meters (for projected CRSs). Here, it is in metres, as shown in:
+
+    ```         
+    LENGTHUNIT["metre",1]
+    ```
+
+4.  **EPSG Code**: If applicable, the output might include an EPSG code, which is a standardized reference number for a specific CRS. This code can be used to look up more detailed information about the CRS. Here, it is: —
+
+    ```         
+    ID["EPSG",26912]
+    ```
+
+5.  **Transformation Parameters**: If it’s a projected CRS, the output may include parameters related to the projection method, such as central meridian, standard parallels, and false easting/northing. Here, they are: —
+
+    ```         
+    |         PRIMEM["Greenwich",0,     
+    │             ANGLEUNIT["degree",0.0174532925199433]],     
+    │         ID["EPSG",4269]], 
+    |
+    |
+    │     CONVERSION["UTM zone 12N",     
+    │         METHOD["Transverse Mercator",     
+    │             ID["EPSG",9807]],     
+    │         PARAMETER["Latitude of natural origin",0,     
+    │             ANGLEUNIT["degree",0.0174532925199433],     
+    │             ID["EPSG",8801]],     
+    │         PARAMETER["Longitude of natural origin",-111,     
+    |             ANGLEUNIT["degree",0.0174532925199433],     
+    │             ID["EPSG",8802]],     
+    │         PARAMETER["Scale factor at natural origin",0.9996,
+    │             SCALEUNIT["unity",1],     
+    │             ID["EPSG",8805]],     
+    │         PARAMETER["False easting",500000,     
+    │             LENGTHUNIT["metre",1],     
+    │             ID["EPSG",8806]],     
+    │         PARAMETER["False northing",0,     
+    │             LENGTHUNIT["metre",1],     
+    │             ID["EPSG",8807]]],
+    ```
