@@ -7,8 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Dahiya">
+<meta name="dcterms.date" content="2024-11-08">
 
-<title>Geo-Computation – visage</title>
+<title>Chapter 3: Attribute data operations – visage</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -21,28 +22,62 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<link href="./visage_logo.png" rel="icon" type="image/png">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../visage_logo.png" rel="icon" type="image/png">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/quarto-contrib/social-share-0.1.0/social-share.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/social-share-0.1.0/all.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -70,68 +105,11 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
 
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-geocomputation .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
 
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-subtitle',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-title-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-geocomputation'] = new List('listing-geocomputation', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
-
-<link rel="stylesheet" href="styles.css">
-<link rel="alternate" type="application/rss+xml" title="visage" href="geocomputation.xml" data-external="1"><meta name="twitter:title" content="Geo-Computation – visage">
+<link rel="stylesheet" href="../styles.css">
+<meta name="twitter:title" content="Chapter 3: Attribute data operations – visage">
+<meta name="twitter:description" content="Key Learnings from, and Solutions to the exercises in Chapter 3 of the book Geocomputation with R by Robin Lovelace, Jakub Nowosad and Jannes Muenchow.">
 <meta name="twitter:card" content="summary">
 </head>
 
@@ -142,10 +120,10 @@ window.Quarto = {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="./index.html" class="navbar-brand navbar-brand-logo">
-    <img src="./visage_logo.png" alt="visage" class="navbar-logo">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../visage_logo.png" alt="visage" class="navbar-logo">
     </a>
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">visage</span>
     </a>
   </div>
@@ -156,25 +134,25 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
+    <a class="nav-link" href="../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./geocomputation.html" aria-current="page"> 
+    <a class="nav-link" href="../geocomputation.html"> 
 <span class="menu-text">Geo-Computation</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./ggplot2_ext.html"> 
+    <a class="nav-link" href="../ggplot2_ext.html"> 
 <span class="menu-text">ggplot2 Extensions</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
+    <a class="nav-link" href="../about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools tools-wide">
-    <a href="./index.xml" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-rss"></i></a>
+    <a href="../index.xml" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-rss"></i></a>
     <div class="dropdown">
       <a href="" title="" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label=""><i class="bi bi-github"></i></a>
       <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
@@ -204,15 +182,28 @@ window.Quarto = {
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(6)</span></div><div class="category" data-category="Background Map">Background Map <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Cartogram">Cartogram <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Geocomputation with R">Geocomputation with R <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Open Street Maps">Open Street Maps <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Quarto customization">Quarto customization <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Raster Map">Raster Map <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Routes">Routes <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Textbook Solutions">Textbook Solutions <span class="quarto-category-count">(2)</span></div><div class="category" data-category="{cartogram}">{cartogram} <span class="quarto-category-count">(1)</span></div><div class="category" data-category="{ggmap}">{ggmap} <span class="quarto-category-count">(1)</span></div><div class="category" data-category="{ggrepel}">{ggrepel} <span class="quarto-category-count">(1)</span></div><div class="category" data-category="{osmr}">{osmr} <span class="quarto-category-count">(1)</span></div><div class="category" data-category="{sf}">{sf} <span class="quarto-category-count">(1)</span></div><div class="category" data-category="{tidygeocoder}">{tidygeocoder} <span class="quarto-category-count">(1)</span></div></div></div>
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link active" data-scroll-target="#prerequisites">Prerequisites</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">3.1 Introduction</a></li>
+  <li><a href="#vector-attribute-manipulation" id="toc-vector-attribute-manipulation" class="nav-link" data-scroll-target="#vector-attribute-manipulation">3.2 Vector Attribute Manipulation</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/chapter3.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Geo-Computation</h1>
-</div>
+<h1 class="title">Chapter 3: Attribute data operations</h1>
+<p class="subtitle lead">Key Learnings from, and Solutions to the exercises in Chapter 3 of the book Geocomputation with R by Robin Lovelace, Jakub Nowosad and Jannes Muenchow.</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">Geocomputation with R</div>
+    <div class="quarto-category">Textbook Solutions</div>
+  </div>
+  </div>
 
 
 
@@ -225,6 +216,12 @@ window.Quarto = {
           </div>
   </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 8, 2024</p>
+    </div>
+  </div>
   
     
   </div>
@@ -234,120 +231,107 @@ window.Quarto = {
 </header>
 
 
-
-
-
-
-<div class="quarto-listing quarto-listing-container-table" id="listing-geocomputation">
-<div class="listing-actions-group">
-   <div class="input-group input-group-sm quarto-listing-sort">
-     <span class="input-group-text"><i class="bi bi-sort-down"></i></span>
-     <select id="listing-geocomputation-sort" class="form-select" aria-label="Order By" onchange="window['quarto-listings']['listing-geocomputation'].sort(this.options[this.selectedIndex].value, { order: this.options[this.selectedIndex].getAttribute('data-direction')})">
-       <option value="" disabled="" selected="" hidden="">Order By</option>
-       <option value="index" data-direction="asc">Default</option>
-         <option value="listing-title-sort" data-direction="asc">
-          Title
-        </option>
-     </select>
-  </div>
-    <div class="input-group input-group-sm quarto-listing-filter">
-      <span class="input-group-text"><i class="bi bi-search"></i></span>
-      <input type="text" class="search form-control" placeholder="Filter">
-    </div>
+<section id="prerequisites" class="level3">
+<h3 class="anchored" data-anchor-id="prerequisites">Prerequisites</h3>
+<ul>
+<li><code>sf</code> for vector data manipulation (<a href="https://r-spatial.github.io/sf/">link</a>)</li>
+<li><code>terra</code> for raster data manipulation (<a href="https://rspatial.org/terra/">link</a>)</li>
+<li><code>dplyr</code> for data frame operations (<a href="https://dplyr.tidyverse.org/">link</a>)</li>
+<li><code>spData</code> for example datasets (<a href="https://cran.r-project.org/web/packages/spData/index.html">link</a>)</li>
+</ul>
+</section>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">3.1 Introduction</h2>
+<ul>
+<li><strong>Attribute Data</strong>: Non-spatial info tied to geographic data (e.g., bus stop name or elevation).
+<ul>
+<li><strong>Vector Example</strong>: A bus stop’s location as POINT (-0.098 51.495) with attributes like its name.</li>
+<li><strong>Raster Example</strong>: Pixel values represent attributes (e.g., elevation); location defined by matrix indices and resolution.</li>
+</ul></li>
+<li><strong>Chapter Focus</strong>:
+<ul>
+<li>Manipulating geographic objects using attributes (e.g., names, elevations).</li>
+<li>Techniques: subsetting, aggregation, joining data, creating new variables.</li>
+<li>Vector and raster data operations are similar and interchangeable (e.g., subsetting, spatial joins).</li>
+</ul></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)        <span class="co"># Handling Simple Features in R</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(terra)     <span class="co"># Handling Rasters in R</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse) <span class="co"># Data Wrangling</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spData)    <span class="co"># Spatial Data-sets</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
-<table class="quarto-listing-table table table-striped table-hover">
-<thead>
-<tr>
-<th>
-Date
-</th>
-<th>
-<a class="sort" data-sort="listing-title-sort" onclick="if (this.classList.contains('sort-asc')) { this.classList.add('sort-desc'); this.classList.remove('sort-asc') } else { this.classList.add('sort-asc'); this.classList.remove('sort-desc')} return false;">Title</a>
-</th>
-<th>
-Subtitle
-</th>
-</tr>
-</thead>
-<tbody class="list">
-<tr data-index="0" data-categories="Geocomputation with R,Textbook Solutions" data-listing-date-sort="1731004200000" data-listing-file-modified-sort="1731040512552" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="614" data-listing-title-sort="Chapter 3: Attribute data operations" data-listing-filename-sort="chapter3.qmd" onclick="href = this.querySelector('a').getAttribute('href');
- if (href) { window.location=href ; return false; }">
-<td>
-<span class="listing-date">Nov 8, 2024</span>
-</td>
-<td>
-<a href="./geocomputation/chapter3.html" class="title listing-title">Chapter 3: Attribute data operations</a>
-</td>
-<td>
-<span class="listing-subtitle">Key Learnings from, and Solutions to the exercises in Chapter 3 of the book Geocomputation with R by Robin Lovelace, Jakub Nowosad and Jannes Muenchow.</span>
-</td>
-</tr>
-<tr data-index="1" data-categories="Geocomputation with R,Textbook Solutions" data-listing-date-sort="1730572200000" data-listing-file-modified-sort="1731040533713" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="40" data-listing-word-count-sort="7832" data-listing-title-sort="Chapter 2: Geographic data in R" data-listing-filename-sort="chapter2.qmd" onclick="href = this.querySelector('a').getAttribute('href');
- if (href) { window.location=href ; return false; }">
-<td>
-<span class="listing-date">Nov 3, 2024</span>
-</td>
-<td>
-<a href="./geocomputation/chapter2.html" class="title listing-title">Chapter 2: Geographic data in R</a>
-</td>
-<td>
-<span class="listing-subtitle">Key Learnings from, and Solutions to the exercises in Chapter 2 of the book Geocomputation with R by Robin Lovelace, Jakub Nowosad and Jannes Muenchow.</span>
-</td>
-</tr>
-<tr data-index="2" data-categories="Routes,{tidygeocoder},{osmr},Open Street Maps" data-listing-date-sort="1729881000000" data-listing-file-modified-sort="1730000058439" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="32" data-listing-word-count-sort="6226" data-listing-title-sort="Driving Directions using Open Street Maps Routing Service" data-listing-filename-sort="osm_driving_directions.qmd" onclick="href = this.querySelector('a').getAttribute('href');
- if (href) { window.location=href ; return false; }">
-<td>
-<span class="listing-date">Oct 26, 2024</span>
-</td>
-<td>
-<a href="./geocomputation/osm_driving_directions.html" class="title listing-title">Driving Directions using Open Street Maps Routing Service</a>
-</td>
-<td>
-<span class="listing-subtitle">Using {tidygeocoder}, {osrm}, {sf}, {tidyverse} and {ggmap} along with Open Source Techniques to plot driving directions along various cities in Europe in the norther-Mediterranean region</span>
-</td>
-</tr>
-<tr data-index="3" data-categories="Cartogram,{cartogram},{ggrepel},Quarto customization" data-listing-date-sort="1729794600000" data-listing-file-modified-sort="1729999980204" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="50" data-listing-word-count-sort="9901" data-listing-title-sort="3 types of Cartograms in R with {sf} and {cartogram}" data-listing-filename-sort="cartogram_types.qmd" onclick="href = this.querySelector('a').getAttribute('href');
- if (href) { window.location=href ; return false; }">
-<td>
-<span class="listing-date">Oct 25, 2024</span>
-</td>
-<td>
-<a href="./geocomputation/cartogram_types.html" class="title listing-title">3 types of Cartograms in R with {sf} and {cartogram}</a>
-</td>
-<td>
-<span class="listing-subtitle">Creating Cartograms – contiguous, non-contiguous and packed-circles – in R with {cartogram}, and making non-overlapping text annotations in maps, and custom callouts in Quarto.</span>
-</td>
-</tr>
-<tr data-index="4" data-categories="Routes,Background Map,Raster Map,{sf}" data-listing-date-sort="1729362600000" data-listing-file-modified-sort="1730000160122" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="20" data-listing-word-count-sort="3880" data-listing-title-sort="Computing shortest routes in the sea that avoid land" data-listing-filename-sort="computing_sea_routes.qmd" onclick="href = this.querySelector('a').getAttribute('href');
- if (href) { window.location=href ; return false; }">
-<td>
-<span class="listing-date">Oct 20, 2024</span>
-</td>
-<td>
-<a href="./geocomputation/computing_sea_routes.html" class="title listing-title">Computing shortest routes in the sea that avoid land</a>
-</td>
-<td>
-<span class="listing-subtitle">Using data from Killer Whales encounters in Salish Sea to plot routes of their recorded encounters, and showing those routes that dont intersect land - i.e., removing erroneous data.</span>
-</td>
-</tr>
-<tr data-index="5" data-categories="Raster Map,Background Map,{ggmap}" data-listing-date-sort="1729017000000" data-listing-file-modified-sort="1730000125847" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="10" data-listing-word-count-sort="1980" data-listing-title-sort="Creating Maps in R with ggplot2 having background Raster Images using ggmap" data-listing-filename-sort="ggmap_rasters.qmd" onclick="href = this.querySelector('a').getAttribute('href');
- if (href) { window.location=href ; return false; }">
-<td>
-<span class="listing-date">Oct 16, 2024</span>
-</td>
-<td>
-<a href="./geocomputation/ggmap_rasters.html" class="title listing-title">Creating Maps in R with ggplot2 having background Raster Images using ggmap</a>
-</td>
-<td>
-<span class="listing-subtitle">Learning how to create maps in R using the {ggmap} package, integrating custom raster base maps with {ggplot2} for geospatial data visualization. This page covers the setup, API authentication, and plotting functions to map data effectively.</span>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="listing-no-matching d-none">
-No matching items
-</div>
-</div></main> <!-- /main -->
+</section>
+<section id="vector-attribute-manipulation" class="level2">
+<h2 class="anchored" data-anchor-id="vector-attribute-manipulation">3.2 Vector Attribute Manipulation</h2>
+<ul>
+<li><strong><code>sf</code> Package</strong>:
+<ul>
+<li>Extends base R’s <code>data.frame</code> with a geometry column (<code>sfc</code> class) for spatial features (points, lines, polygons).</li>
+<li>Geometry column often named <code>geometry</code> or <code>geom</code>, but customizable.</li>
+</ul></li>
+<li><strong>Manipulation Methods</strong>:
+<ul>
+<li>Methods like <code>aggregate()</code>, <code>cbind()</code>, <code>merge()</code>, and <code>rbind()</code> work seamlessly with <code>sf</code> objects.</li>
+<li>Compatible with tidyverse functions (<code>dplyr</code>, <code>tidyr</code>) and can be used with <code>data.table</code> (partial compatibility noted in issue <a href="https://github.com/Rdatatable/data.table/issues/2273">#2273</a>).</li>
+<li>Dropping geometry (<code>st_drop_geometry()</code>) can speed up attribute data operations when spatial data is not required.</li>
+</ul></li>
+<li><strong>Advantages</strong>:
+<ul>
+<li><code>sf</code>’s integration with the tidyverse allows robust, efficient data manipulation.</li>
+<li>Compatible with tidyverse functions (e.g., <code>dplyr</code>), making it versatile for data analysis.</li>
+</ul></li>
+</ul>
+<p><strong>Major Pitfalls of Using Spatial Data with the Tidyverse</strong></p>
+<ol type="1">
+<li><strong>Name Clashes</strong>
+<ul>
+<li>Functions like <code>select()</code> from <a href="https://dplyr.tidyverse.org/reference/select.html"><code>dplyr</code></a> can mask similar functions from the <a href="https://rspatial.github.io/raster/reference/select.html"><code>raster</code></a> package.</li>
+<li>Use fully qualified names (e.g., <a href="https://dplyr.tidyverse.org/reference/select.html"><code>dplyr::select()</code></a>) to avoid conflicts.</li>
+</ul></li>
+<li><strong>Compatibility Issues with <code>sp</code> Package</strong>
+<ul>
+<li>The older <a href="https://cran.r-project.org/web/packages/sp/index.html"><code>sp</code></a> package does not integrate well with tidyverse functions.</li>
+<li>Requires conversion between <code>sp</code> and <a href="https://r-spatial.github.io/sf/articles/sf1.html"><code>sf</code></a> object types using functions like <a href="https://www.rdocumentation.org/packages/methods/versions/3.6.2/topics/as"><code>as()</code></a> or <a href="https://r-spatial.github.io/sf/reference/st_as_sf.html"><code>st_as_sf()</code></a>.</li>
+</ul></li>
+<li><strong>Handling Multipolygon Objects</strong>
+<ul>
+<li>Multiple geometries in objects can cause unexpected plotting results.</li>
+<li>Resolve issues by casting to simpler geometry types using <a href="https://r-spatial.github.io/sf/reference/st_cast.html"><code>st_cast()</code></a>.</li>
+</ul></li>
+<li><strong>Spatial Subsetting Challenges</strong>
+<ul>
+<li>Verbose syntax when using tidyverse functions like <a href="https://dplyr.tidyverse.org/reference/filter.html"><code>filter()</code></a> with spatial predicates like <a href="https://r-spatial.github.io/sf/reference/st_intersects.html"><code>st_intersects()</code></a>.</li>
+<li>May result in altered row names, complicating joins and comparisons.</li>
+</ul></li>
+<li><strong>Row Name Alterations</strong>
+<ul>
+<li>Tidyverse operations may drop or alter row names, affecting joins and comparisons. See related discussion in <a href="https://github.com/tidyverse/dplyr/issues/366">tidyverse/dplyr#366</a>.</li>
+</ul></li>
+<li><strong>Attribute Alteration Pitfall</strong>
+<ul>
+<li>Results from tidyverse functions may differ from base R operations due to row name discrepancies.</li>
+<li>Example functions: <a href="https://dplyr.tidyverse.org/reference/filter.html"><code>filter()</code></a> vs base R subsetting (<code>[]</code>).</li>
+</ul></li>
+<li><strong>Issues with <code>bind_rows()</code></strong>
+<ul>
+<li><a href="https://dplyr.tidyverse.org/reference/bind.html"><code>bind_rows()</code></a> fails on spatial objects; use alternatives like setting geometries to NULL with <a href="https://r-spatial.github.io/sf/reference/st_set_geometry.html"><code>st_set_geometry()</code></a> before combining.</li>
+</ul></li>
+<li><strong>Limited Raster Data Support</strong>
+<ul>
+<li>Tidyverse integration with <a href="https://rspatial.github.io/raster/"><code>raster</code></a> data is minimal.</li>
+<li>Initial efforts like <a href="https://cran.r-project.org/web/packages/tabularaster/index.html"><code>tabularaster</code></a>, <a href="https://cran.r-project.org/web/packages/sfraster/index.html"><code>sfraster</code></a>, and <a href="https://r-spatial.github.io/stars/"><code>stars</code></a> aim to enhance support.</li>
+</ul></li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -773,8 +757,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <input type="hidden" id="giscus-base-theme" value="light">
 <input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/chapter3.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><div class="page-columns page-rows-contents page-layout-article"><div class="social-share"><a href="https://twitter.com/share?url=https://aditya-dahiya.github.io/visage/geocomputation/chapter3.html&amp;text=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="twitter"><i class="fab fa-twitter fa-fw fa-lg"></i></a><a href="https://www.linkedin.com/shareArticle?url=https://aditya-dahiya.github.io/visage/geocomputation/chapter3.html&amp;title=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="linkedin"><i class="fa-brands fa-linkedin-in fa-fw fa-lg"></i></a>  <a href="mailto:?subject=Visualizing Information and Spatial Analysis with ggplot2 Extensions&amp;body=Check out this link:https://aditya-dahiya.github.io/visage/geocomputation/chapter3.html" target="_blank" class="email"><i class="fa-solid fa-envelope fa-fw fa-lg"></i></a><a href="https://www.facebook.com/sharer.php?u=https://aditya-dahiya.github.io/visage/geocomputation/chapter3.html" target="_blank" class="facebook"><i class="fab fa-facebook-f fa-fw fa-lg"></i></a><a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' &amp;&amp; mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=Visualizing Information and Spatial Analysis with ggplot2 Extensions https://aditya-dahiya.github.io/visage/geocomputation/chapter3.html'}else{return false;}" target="_blank" class="mastodon"><i class="fa-brands fa-mastodon fa-fw fa-lg"></i></a></div></div>
 
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+</body></html>

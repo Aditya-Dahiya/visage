@@ -10,9 +10,140 @@
 <atom:link href="https://aditya-dahiya.github.io/visage/index.html/geocomputation.xml" rel="self" type="application/rss+xml"/>
 <description>Visualizing Information and Spatial Analysis with ggplot2 Extensions</description>
 <generator>quarto-1.5.57</generator>
-<lastBuildDate>Sat, 02 Nov 2024 18:30:00 GMT</lastBuildDate>
+<lastBuildDate>Thu, 07 Nov 2024 18:30:00 GMT</lastBuildDate>
 <item>
-  <title>Geographic data in R (Chapter 2)</title>
+  <title>Chapter 3: Attribute data operations</title>
+  <dc:creator>Aditya Dahiya</dc:creator>
+  <link>https://aditya-dahiya.github.io/visage/index.html/geocomputation/chapter3.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="prerequisites" class="level3">
+<h3 class="anchored" data-anchor-id="prerequisites">Prerequisites</h3>
+<ul>
+<li><code>sf</code> for vector data manipulation (<a href="https://r-spatial.github.io/sf/">link</a>)</li>
+<li><code>terra</code> for raster data manipulation (<a href="https://rspatial.org/terra/">link</a>)</li>
+<li><code>dplyr</code> for data frame operations (<a href="https://dplyr.tidyverse.org/">link</a>)</li>
+<li><code>spData</code> for example datasets (<a href="https://cran.r-project.org/web/packages/spData/index.html">link</a>)</li>
+</ul>
+</section>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">3.1 Introduction</h2>
+<ul>
+<li><strong>Attribute Data</strong>: Non-spatial info tied to geographic data (e.g., bus stop name or elevation).
+<ul>
+<li><strong>Vector Example</strong>: A bus stop’s location as POINT (-0.098 51.495) with attributes like its name.</li>
+<li><strong>Raster Example</strong>: Pixel values represent attributes (e.g., elevation); location defined by matrix indices and resolution.</li>
+</ul></li>
+<li><strong>Chapter Focus</strong>:
+<ul>
+<li>Manipulating geographic objects using attributes (e.g., names, elevations).</li>
+<li>Techniques: subsetting, aggregation, joining data, creating new variables.</li>
+<li>Vector and raster data operations are similar and interchangeable (e.g., subsetting, spatial joins).</li>
+</ul></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(sf)        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Handling Simple Features in R</span></span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(terra)     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Handling Rasters in R</span></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Data Wrangling</span></span>
+<span id="cb1-4"></span>
+<span id="cb1-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(spData)    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Spatial Data-sets</span></span></code></pre></div>
+</details>
+</div>
+</section>
+<section id="vector-attribute-manipulation" class="level2">
+<h2 class="anchored" data-anchor-id="vector-attribute-manipulation">3.2 Vector Attribute Manipulation</h2>
+<ul>
+<li><strong><code>sf</code> Package</strong>:
+<ul>
+<li>Extends base R’s <code>data.frame</code> with a geometry column (<code>sfc</code> class) for spatial features (points, lines, polygons).</li>
+<li>Geometry column often named <code>geometry</code> or <code>geom</code>, but customizable.</li>
+</ul></li>
+<li><strong>Manipulation Methods</strong>:
+<ul>
+<li>Methods like <code>aggregate()</code>, <code>cbind()</code>, <code>merge()</code>, and <code>rbind()</code> work seamlessly with <code>sf</code> objects.</li>
+<li>Compatible with tidyverse functions (<code>dplyr</code>, <code>tidyr</code>) and can be used with <code>data.table</code> (partial compatibility noted in issue <a href="https://github.com/Rdatatable/data.table/issues/2273">#2273</a>).</li>
+<li>Dropping geometry (<code>st_drop_geometry()</code>) can speed up attribute data operations when spatial data is not required.</li>
+</ul></li>
+<li><strong>Advantages</strong>:
+<ul>
+<li><code>sf</code>’s integration with the tidyverse allows robust, efficient data manipulation.</li>
+<li>Compatible with tidyverse functions (e.g., <code>dplyr</code>), making it versatile for data analysis.</li>
+</ul></li>
+</ul>
+<p><strong>Major Pitfalls of Using Spatial Data with the Tidyverse</strong></p>
+<ol type="1">
+<li><strong>Name Clashes</strong>
+<ul>
+<li>Functions like <code>select()</code> from <a href="https://dplyr.tidyverse.org/reference/select.html"><code>dplyr</code></a> can mask similar functions from the <a href="https://rspatial.github.io/raster/reference/select.html"><code>raster</code></a> package.</li>
+<li>Use fully qualified names (e.g., <a href="https://dplyr.tidyverse.org/reference/select.html"><code>dplyr::select()</code></a>) to avoid conflicts.</li>
+</ul></li>
+<li><strong>Compatibility Issues with <code>sp</code> Package</strong>
+<ul>
+<li>The older <a href="https://cran.r-project.org/web/packages/sp/index.html"><code>sp</code></a> package does not integrate well with tidyverse functions.</li>
+<li>Requires conversion between <code>sp</code> and <a href="https://r-spatial.github.io/sf/articles/sf1.html"><code>sf</code></a> object types using functions like <a href="https://www.rdocumentation.org/packages/methods/versions/3.6.2/topics/as"><code>as()</code></a> or <a href="https://r-spatial.github.io/sf/reference/st_as_sf.html"><code>st_as_sf()</code></a>.</li>
+</ul></li>
+<li><strong>Handling Multipolygon Objects</strong>
+<ul>
+<li>Multiple geometries in objects can cause unexpected plotting results.</li>
+<li>Resolve issues by casting to simpler geometry types using <a href="https://r-spatial.github.io/sf/reference/st_cast.html"><code>st_cast()</code></a>.</li>
+</ul></li>
+<li><strong>Spatial Subsetting Challenges</strong>
+<ul>
+<li>Verbose syntax when using tidyverse functions like <a href="https://dplyr.tidyverse.org/reference/filter.html"><code>filter()</code></a> with spatial predicates like <a href="https://r-spatial.github.io/sf/reference/st_intersects.html"><code>st_intersects()</code></a>.</li>
+<li>May result in altered row names, complicating joins and comparisons.</li>
+</ul></li>
+<li><strong>Row Name Alterations</strong>
+<ul>
+<li>Tidyverse operations may drop or alter row names, affecting joins and comparisons. See related discussion in <a href="https://github.com/tidyverse/dplyr/issues/366">tidyverse/dplyr#366</a>.</li>
+</ul></li>
+<li><strong>Attribute Alteration Pitfall</strong>
+<ul>
+<li>Results from tidyverse functions may differ from base R operations due to row name discrepancies.</li>
+<li>Example functions: <a href="https://dplyr.tidyverse.org/reference/filter.html"><code>filter()</code></a> vs base R subsetting (<code>[]</code>).</li>
+</ul></li>
+<li><strong>Issues with <code>bind_rows()</code></strong>
+<ul>
+<li><a href="https://dplyr.tidyverse.org/reference/bind.html"><code>bind_rows()</code></a> fails on spatial objects; use alternatives like setting geometries to NULL with <a href="https://r-spatial.github.io/sf/reference/st_set_geometry.html"><code>st_set_geometry()</code></a> before combining.</li>
+</ul></li>
+<li><strong>Limited Raster Data Support</strong>
+<ul>
+<li>Tidyverse integration with <a href="https://rspatial.github.io/raster/"><code>raster</code></a> data is minimal.</li>
+<li>Initial efforts like <a href="https://cran.r-project.org/web/packages/tabularaster/index.html"><code>tabularaster</code></a>, <a href="https://cran.r-project.org/web/packages/sfraster/index.html"><code>sfraster</code></a>, and <a href="https://r-spatial.github.io/stars/"><code>stars</code></a> aim to enhance support.</li>
+</ul></li>
+</ol>
+
+
+</section>
+
+ ]]></description>
+  <category>Geocomputation with R</category>
+  <category>Textbook Solutions</category>
+  <guid>https://aditya-dahiya.github.io/visage/index.html/geocomputation/chapter3.html</guid>
+  <pubDate>Thu, 07 Nov 2024 18:30:00 GMT</pubDate>
+</item>
+<item>
+  <title>Chapter 2: Geographic data in R</title>
   <dc:creator>Aditya Dahiya</dc:creator>
   <link>https://aditya-dahiya.github.io/visage/index.html/geocomputation/chapter2.html</link>
   <description><![CDATA[ 
@@ -1099,9 +1230,9 @@ font-style: inherit;">FALSE</span>)</span></code></pre></div></li>
 </ul>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 21%">
-<col style="width: 34%">
-<col style="width: 43%">
+<col style="width: 22%">
+<col style="width: 33%">
+<col style="width: 44%">
 </colgroup>
 <thead>
 <tr class="header">

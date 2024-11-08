@@ -1,0 +1,101 @@
+---
+title: "Chapter 3: Attribute data operations"
+subtitle: "Key Learnings from, and Solutions to the exercises in Chapter 3 of the book Geocomputation with R by Robin Lovelace, Jakub Nowosad and Jannes Muenchow."
+date: "2024-11-08"
+author: "Aditya Dahiya"
+bibliography: references.bib
+format:
+  html:
+    code-fold: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: true
+  cache: true
+categories:
+  - "Geocomputation with R"
+  - "Textbook Solutions"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/geocomputation/chapter3.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+### Prerequisites
+
+-   `sf` for vector data manipulation ([link](https://r-spatial.github.io/sf/))
+-   `terra` for raster data manipulation ([link](https://rspatial.org/terra/))
+-   `dplyr` for data frame operations ([link](https://dplyr.tidyverse.org/))
+-   `spData` for example datasets ([link](https://cran.r-project.org/web/packages/spData/index.html))
+
+## 3.1 Introduction
+
+-   **Attribute Data**: Non-spatial info tied to geographic data (e.g., bus stop name or elevation).
+    -   **Vector Example**: A bus stop's location as POINT (-0.098 51.495) with attributes like its name.
+    -   **Raster Example**: Pixel values represent attributes (e.g., elevation); location defined by matrix indices and resolution.
+-   **Chapter Focus**:
+    -   Manipulating geographic objects using attributes (e.g., names, elevations).
+    -   Techniques: subsetting, aggregation, joining data, creating new variables.
+    -   Vector and raster data operations are similar and interchangeable (e.g., subsetting, spatial joins).
+
+```{r}
+#| label: setup
+
+library(sf)        # Handling Simple Features in R
+library(terra)     # Handling Rasters in R
+library(tidyverse) # Data Wrangling
+
+library(spData)    # Spatial Data-sets
+
+
+```
+
+## 3.2 Vector Attribute Manipulation
+
+-   **`sf` Package**:
+    -   Extends base R's `data.frame` with a geometry column (`sfc` class) for spatial features (points, lines, polygons).
+    -   Geometry column often named `geometry` or `geom`, but customizable.
+-   **Manipulation Methods**:
+    -   Methods like `aggregate()`, `cbind()`, `merge()`, and `rbind()` work seamlessly with `sf` objects.
+    -   Compatible with tidyverse functions (`dplyr`, `tidyr`) and can be used with `data.table` (partial compatibility noted in issue [#2273](https://github.com/Rdatatable/data.table/issues/2273)).
+    -   Dropping geometry (`st_drop_geometry()`) can speed up attribute data operations when spatial data is not required.
+-   **Advantages**:
+    -   `sf`'s integration with the tidyverse allows robust, efficient data manipulation.
+    -   Compatible with tidyverse functions (e.g., `dplyr`), making it versatile for data analysis.
+
+**Major Pitfalls of Using Spatial Data with the Tidyverse**
+
+1.  **Name Clashes**
+    -   Functions like `select()` from [`dplyr`](https://dplyr.tidyverse.org/reference/select.html) can mask similar functions from the [`raster`](https://rspatial.github.io/raster/reference/select.html) package.
+    -   Use fully qualified names (e.g., [`dplyr::select()`](https://dplyr.tidyverse.org/reference/select.html)) to avoid conflicts.
+2.  **Compatibility Issues with `sp` Package**
+    -   The older [`sp`](https://cran.r-project.org/web/packages/sp/index.html) package does not integrate well with tidyverse functions.
+    -   Requires conversion between `sp` and [`sf`](https://r-spatial.github.io/sf/articles/sf1.html) object types using functions like [`as()`](https://www.rdocumentation.org/packages/methods/versions/3.6.2/topics/as) or [`st_as_sf()`](https://r-spatial.github.io/sf/reference/st_as_sf.html).
+3.  **Handling Multipolygon Objects**
+    -   Multiple geometries in objects can cause unexpected plotting results.
+    -   Resolve issues by casting to simpler geometry types using [`st_cast()`](https://r-spatial.github.io/sf/reference/st_cast.html).
+4.  **Spatial Subsetting Challenges**
+    -   Verbose syntax when using tidyverse functions like [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) with spatial predicates like [`st_intersects()`](https://r-spatial.github.io/sf/reference/st_intersects.html).
+    -   May result in altered row names, complicating joins and comparisons.
+5.  **Row Name Alterations**
+    -   Tidyverse operations may drop or alter row names, affecting joins and comparisons. See related discussion in [tidyverse/dplyr#366](https://github.com/tidyverse/dplyr/issues/366).
+6.  **Attribute Alteration Pitfall**
+    -   Results from tidyverse functions may differ from base R operations due to row name discrepancies.
+    -   Example functions: [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) vs base R subsetting (`[]`).
+7.  **Issues with `bind_rows()`**
+    -   [`bind_rows()`](https://dplyr.tidyverse.org/reference/bind.html) fails on spatial objects; use alternatives like setting geometries to NULL with [`st_set_geometry()`](https://r-spatial.github.io/sf/reference/st_set_geometry.html) before combining.
+8.  **Limited Raster Data Support**
+    -   Tidyverse integration with [`raster`](https://rspatial.github.io/raster/) data is minimal.
+    -   Initial efforts like [`tabularaster`](https://cran.r-project.org/web/packages/tabularaster/index.html), [`sfraster`](https://cran.r-project.org/web/packages/sfraster/index.html), and [`stars`](https://r-spatial.github.io/stars/) aim to enhance support.
