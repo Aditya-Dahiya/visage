@@ -216,7 +216,15 @@ div.callout-keylearning.callout-style-default .callout-icon::before, div.callout
   <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">3.1 Introduction</a></li>
   <li><a href="#vector-attribute-manipulation" id="toc-vector-attribute-manipulation" class="nav-link" data-scroll-target="#vector-attribute-manipulation">3.2 Vector Attribute Manipulation</a>
   <ul class="collapse">
-  <li><a href="#vector-attribute-subsetting" id="toc-vector-attribute-subsetting" class="nav-link" data-scroll-target="#vector-attribute-subsetting">3.2.1 Vector Attribute Subsetting</a></li>
+  <li><a href="#vector-attribute-sub-setting" id="toc-vector-attribute-sub-setting" class="nav-link" data-scroll-target="#vector-attribute-sub-setting">3.2.1 Vector Attribute Sub-setting</a></li>
+  <li><a href="#chaining-commands-with-pipes" id="toc-chaining-commands-with-pipes" class="nav-link" data-scroll-target="#chaining-commands-with-pipes">3.2.2 Chaining Commands with Pipes</a></li>
+  <li><a href="#vector-attribute-aggregation" id="toc-vector-attribute-aggregation" class="nav-link" data-scroll-target="#vector-attribute-aggregation">3.2.3 Vector Attribute Aggregation</a></li>
+  <li><a href="#vector-attribute-joining" id="toc-vector-attribute-joining" class="nav-link" data-scroll-target="#vector-attribute-joining">3.2.4 Vector Attribute Joining</a></li>
+  <li><a href="#creating-attributes-and-removing-spatial-information" id="toc-creating-attributes-and-removing-spatial-information" class="nav-link" data-scroll-target="#creating-attributes-and-removing-spatial-information">3.2.5 Creating attributes and removing spatial information</a></li>
+  </ul></li>
+  <li><a href="#manipulating-raster-objects" id="toc-manipulating-raster-objects" class="nav-link" data-scroll-target="#manipulating-raster-objects">3.3 Manipulating Raster Objects</a>
+  <ul class="collapse">
+  <li><a href="#raster-subsetting" id="toc-raster-subsetting" class="nav-link" data-scroll-target="#raster-subsetting"><strong>3.3.1 Raster subsetting</strong></a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/chapter3.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
@@ -812,7 +820,16 @@ Table&nbsp;1: Methods available for the class ‘sf’ in R using {sf} package
 <li>Compatible with tidyverse functions (e.g., <code>dplyr</code>), making it versatile for data analysis.</li>
 </ul></li>
 </ul>
-<div class="key-learning">
+<div class="callout callout-style-default callout-keylearning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Relevant Topic
+</div>
+</div>
+<div class="callout-body-container callout-body">
 <p><strong>Major Pitfalls of Using Spatial Data with the Tidyverse</strong></p>
 <ol type="1">
 <li><strong>Name Clashes</strong>
@@ -868,60 +885,252 @@ Table&nbsp;1: Methods available for the class ‘sf’ in R using {sf} package
 </ul></li>
 </ol>
 </div>
-<section id="vector-attribute-subsetting" class="level3">
-<h3 class="anchored" data-anchor-id="vector-attribute-subsetting">3.2.1 Vector Attribute Subsetting</h3>
+</div>
+<section id="vector-attribute-sub-setting" class="level3">
+<h3 class="anchored" data-anchor-id="vector-attribute-sub-setting">3.2.1 Vector Attribute Sub-setting</h3>
 <ul>
-<li><strong>Base R Subsetting</strong>:
+<li><strong>Base R Sub-setting</strong>:
 <ul>
 <li><p>Uses <code>[</code> operator and <code>subset()</code> function for rows and columns selection.</p></li>
-<li><p>Syntax: <code>object[i, j]</code> returns rows indexed by <code>i</code> and columns by <code>j</code>.</p>
-<ul>
-<li>Example: <code>world[1:5, ]</code> returns the first 5 rows and all columns.</li>
+<li><p>Syntax: <code>object[i, j]</code> returns rows indexed by <code>i</code> and columns by <code>j</code>.</p></li>
 </ul></li>
-<li><p>Examples:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>world[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, ]          <span class="co"># First 6 rows</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>world[, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]          <span class="co"># First 3 columns</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>world[, <span class="fu">c</span>(<span class="st">"name_long"</span>, <span class="st">"pop"</span>)] <span class="co"># Columns by name</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p>Logical Indexing Example:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>i_small <span class="ot">=</span> world<span class="sc">$</span>area_km2 <span class="sc">&lt;</span> <span class="dv">10000</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>small_countries <span class="ot">=</span> world[i_small, ]   <span class="co"># Subset countries with area &lt; 10,000 km2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p>Using <code>subset()</code> function:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>small_countries <span class="ot">=</span> <span class="fu">subset</span>(world, area_km2 <span class="sc">&lt;</span> <span class="dv">10000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-</ul></li>
-<li><strong>dplyr Subsetting Functions</strong>:
+<li><strong><code>dplyr</code> Sub-setting Functions</strong>:
 <ul>
 <li><p><code>filter()</code> and <code>slice()</code> for rows, <code>select()</code> for columns.</p></li>
-<li><p><strong><code>select()</code></strong>: Subsets columns by name or position.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>world1 <span class="ot">=</span> <span class="fu">select</span>(world, name_long, pop)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>world2 <span class="ot">=</span> <span class="fu">select</span>(world, name_long<span class="sc">:</span>pop)    <span class="co"># Selects a range of columns</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>world3 <span class="ot">=</span> <span class="fu">select</span>(world, <span class="sc">-</span>subregion, <span class="sc">-</span>area_km2)   <span class="co"># Removes specific columns</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>world4 <span class="ot">=</span> <span class="fu">select</span>(world, name_long, <span class="at">population =</span> pop)   <span class="co"># Renames columns</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p>Helper functions in <code>select()</code> like <code>contains()</code>, <code>starts_with()</code>, <code>num_range()</code>.</p>
-<ul>
-<li>Example: <code>select(world, contains("pop"))</code> selects columns containing “pop”.</li>
-</ul></li>
+<li><p><strong><code>select()</code></strong>: Subsets columns by name or position.</p></li>
+<li><p>Helper functions in <code>select()</code> like <code>contains()</code>, <code>starts_with()</code>, <code>num_range()</code>.</p></li>
 </ul></li>
 <li><strong>Extracting a Single Column</strong>:
 <ul>
-<li><p>Use <code>pull()</code> (dplyr), <code>$</code>, or <code>[[</code> (base R).</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pull</span>(world, pop)     <span class="co"># Extracts 'pop' column as a vector</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>world<span class="sc">$</span>pop</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>world[[<span class="st">"pop"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li>Use <code>pull()</code> (<code>dplyr</code>), <code>$</code>, or <code>[[</code> (base <code>R</code>).</li>
 </ul></li>
 <li><strong>Row Selection</strong>:
 <ul>
-<li><p><strong><code>slice()</code></strong>: Selects rows by index.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">slice</span>(world, <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>)   <span class="co"># Returns the first 6 rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p><strong><code>filter()</code></strong>: Filters rows based on conditions.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>world7 <span class="ot">=</span> <span class="fu">filter</span>(world, area_km2 <span class="sc">&lt;</span> <span class="dv">10000</span>)  <span class="co"># Small area countries</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>world7 <span class="ot">=</span> <span class="fu">filter</span>(world, lifeExp <span class="sc">&gt;</span> <span class="dv">82</span>)      <span class="co"># High life expectancy countries</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong><code>slice()</code></strong>: Selects rows by index.</p></li>
+<li><p><strong><code>filter()</code></strong>: Filters rows based on conditions.</p></li>
 </ul></li>
 <li><strong>Comparison Operators</strong>:
 <ul>
 <li>Standard operators can be used in <code>filter()</code>: <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>==</code>, <code>!=</code>.</li>
 </ul></li>
 </ul>
-<p><strong>Summary</strong>: - Base R and <code>dplyr</code> offer flexible methods for subsetting <code>sf</code> objects, allowing users to retain or drop geometry as needed. - The <code>dplyr</code> functions (<code>filter()</code>, <code>select()</code>, <code>pull()</code>) are intuitive and integrate well with the tidyverse workflows. - Logical vectors and helper functions enhance subsetting efficiency in both base R and tidyverse.</p>
+<p>The <code>dplyr</code> functions (<code>filter()</code>, <code>select()</code>, <code>pull()</code>) are intuitive and integrate well with the tidyverse workflows.</p>
+</section>
+<section id="chaining-commands-with-pipes" class="level3">
+<h3 class="anchored" data-anchor-id="chaining-commands-with-pipes">3.2.2 Chaining Commands with Pipes</h3>
+<ul>
+<li><strong>Pipe Operator</strong>:
+<ul>
+<li><strong><code>%&gt;%</code></strong> (from the <strong><code>magrittr</code></strong> package) and native <strong><code>|&gt;</code></strong> (from R 4.1.0 onwards) enable chaining commands, improving readability and flow of code.</li>
+<li>The output of one function becomes the input of the next.</li>
+<li>Alternative: Nested Function Calls: The same operation without pipes uses nested functions, which is harder to read.</li>
+</ul></li>
+<li><strong>Splitting into Multiple Lines</strong>:
+<ul>
+<li>Useful for debugging and inspecting intermediate results but can clutter the environment.</li>
+</ul></li>
+<li><strong>Key Packages</strong>:
+<ul>
+<li><a href="https://dplyr.tidyverse.org/"><strong><code>dplyr</code></strong></a>: Provides verbs like <code>filter()</code>, <code>select()</code>, <code>slice()</code>, and supports pipe workflows.</li>
+<li><a href="https://magrittr.tidyverse.org/"><strong><code>magrittr</code></strong></a>: Provides <code>%&gt;%</code> operator for chaining functions.</li>
+</ul></li>
+</ul>
+</section>
+<section id="vector-attribute-aggregation" class="level3">
+<h3 class="anchored" data-anchor-id="vector-attribute-aggregation">3.2.3 Vector Attribute Aggregation</h3>
+<ul>
+<li>Aggregation is summarizing data using one or more grouping variables, often leading to a smaller dataset. It is useful for data reduction, especially when working with large datasets.</li>
+<li><strong>Base R Approach</strong>
+<ul>
+<li><strong>Using <code>aggregate()</code></strong>:
+<ul>
+<li><p>Example: Calculating total population per continent.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>world_agg1 <span class="ot">=</span> <span class="fu">aggregate</span>(pop <span class="sc">~</span> continent, </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">FUN =</span> sum, </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">data =</span> world, </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                       <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><a href="https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/aggregate"><strong><code>aggregate()</code></strong></a> groups data and applies a function (e.g., <code>sum</code>).</li>
+<li>Result: A non-spatial data frame with two columns (<code>continent</code>, <code>pop</code>).</li>
+</ul></li>
+</ul></li>
+<li><strong>Using <code>aggregate.sf()</code></strong>:
+<ul>
+<li><p>For spatial objects (<code>sf</code>), use <code>aggregate()</code> with <code>by</code> argument:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>world_agg2 <span class="ot">=</span> <span class="fu">aggregate</span>(world[<span class="st">"pop"</span>], </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">by =</span> <span class="fu">list</span>(world<span class="sc">$</span>continent), </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">FUN =</span> sum, </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                       <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li>This results in an <strong><code>sf</code></strong> object with eight features representing continents.</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li><strong><code>dplyr</code> Approach</strong>
+<ul>
+<li><strong>Using <code>group_by()</code> and <code>summarize()</code></strong>:
+<ul>
+<li><p>Equivalent to <code>aggregate()</code>, but offers flexibility and control:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>world_agg3 <span class="ot">=</span> world <span class="sc">|&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(continent) <span class="sc">|&gt;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">pop =</span> <span class="fu">sum</span>(pop, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><a href="https://dplyr.tidyverse.org/reference/group_by.html"><strong><code>group_by()</code></strong></a> defines grouping variables.</li>
+<li><a href="https://dplyr.tidyverse.org/reference/summarise.html"><strong><code>summarize()</code></strong></a> applies aggregation functions.</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>For more details, refer to the help pages of <a href="https://dplyr.tidyverse.org/reference/summarise.html"><code>summarize()</code></a> and the <strong>dplyr</strong> package vignette: <code>vignette(package = "dplyr")</code>.</li>
+<li>Check <a href="https://r4ds.had.co.nz/transform.html">Chapter 5</a> of <a href="https://r4ds.had.co.nz/"><em>R for Data Science</em></a>.</li>
+</ul>
+</section>
+<section id="vector-attribute-joining" class="level3">
+<h3 class="anchored" data-anchor-id="vector-attribute-joining">3.2.4 Vector Attribute Joining</h3>
+<ul>
+<li><p>Joining involves combining tables based on a shared key variable. In R, <code>dplyr</code> functions like <code>left_join()</code> and <code>inner_join()</code> are commonly used for this purpose.</p>
+<ul>
+<li>The join functions in <code>dplyr</code> (<code>left_join</code>, <code>inner_join</code>, etc.) follow conventions from SQL, allowing easy and consistent data merging.</li>
+<li>These functions work similarly for both non-spatial (<code>data.frame</code>) and spatial (<code>sf</code>) objects. The geometry list column in <code>sf</code> objects is the key difference.</li>
+</ul></li>
+<li><p><strong>When merging an <code>sf</code> object with a data.frame</strong></p>
+<ul>
+<li>The resulting object remains an <code>sf</code> object, keeping its spatial features intact while adding new columns for coffee production.</li>
+</ul></li>
+<li><p><strong>Handling Key Variables</strong>:</p>
+<ul>
+<li>If datasets have key variables with matching names (e.g., <code>name_long</code>), joining works automatically.</li>
+<li>If the key variables differ, either:
+<ul>
+<li>Rename the variable to match, or</li>
+<li>Use the <code>by</code> argument to specify the joining variables explicitly.</li>
+</ul></li>
+</ul></li>
+<li><p><strong>Inner Joins</strong>:</p>
+<ul>
+<li>An <strong>inner join</strong> keeps only the rows with matching key variables in both datasets. This reduces the number of rows, depending on the overlap in key variables.</li>
+</ul></li>
+<li><p><strong>Troubleshooting Joins</strong>:</p>
+<ul>
+<li>If some rows are missing in the result (e.g., due to differing key names like “Congo, Dem. Rep.&nbsp;of”), identify mismatches using <code>setdiff()</code>.</li>
+<li>Use regex matching from the <code>stringr</code> package to identify correct key names for adjustments.</li>
+</ul></li>
+<li><p><strong>Reversing Joins</strong>:</p>
+<ul>
+<li>You can also join starting with a non-spatial dataset and adding spatial variables from an <code>sf</code> object.</li>
+<li><strong>The result will be a non-spatial <code>data.frame</code> (tibble), unless explicitly converted to an <code>sf</code> object using <code>st_as_sf()</code>.</strong></li>
+</ul></li>
+<li><p><strong>Further Resources</strong>:</p>
+<ul>
+<li><p><a href="https://r4ds.had.co.nz/relational-data.html?q=join#relational-data">Chapter 13</a> on Relational Data in <a href="https://r4ds.had.co.nz/relational-data.html?q=join#relational-data">R for Data Science</a> by Grolemund and Wickham (2016)</p></li>
+<li><p>The <a href="https://asardaes.github.io/table.express/articles/joins.html">documentation</a>&nbsp;describing joins with&nbsp;<strong><code>data.table</code></strong> package.</p></li>
+<li><p>The join <a href="https://geocompx.github.io/geocompkg/articles/join.html">vignette</a> in the <code>geocompkg</code> package, which is summarized below: —</p></li>
+</ul></li>
+</ul>
+<div class="callout callout-style-default callout-keylearning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Relevant Topic
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Spatial Joins Extended</strong></p>
+<ul>
+<li>Spatial Joins: Combines attributes from different datasets based on a common key, useful for integrating non-spatial (attribute) data with spatial data.</li>
+</ul>
+<section id="left-join" class="level4">
+<h4 class="anchored" data-anchor-id="left-join">Left Join</h4>
+<ul>
+<li>Adds attributes to all observations from the left dataset with matched values from the right.</li>
+</ul>
+</section>
+<section id="joining-by-different-column-names" class="level4">
+<h4 class="anchored" data-anchor-id="joining-by-different-column-names">Joining by Different Column Names</h4>
+<ul>
+<li><p>Case: If key columns have different names, use a named vector to specify the keys</p></li>
+<li><p>Issue: Duplicate columns (e.g., <code>tbl_1_var.x</code> and <code>tbl_2_var.y</code>). Resolved by specifying all keys.</p></li>
+</ul>
+</section>
+<section id="joining-with-a-non-spatial-first-argument" class="level4">
+<h4 class="anchored" data-anchor-id="joining-with-a-non-spatial-first-argument">Joining with a Non-Spatial First Argument</h4>
+<ul>
+<li>Dropping Geometry: <code>st_drop_geometry()</code> removes spatial attributes, allowing joins with standard data frames.</li>
+</ul>
+</section>
+<section id="inner-join" class="level4">
+<h4 class="anchored" data-anchor-id="inner-join">Inner Join</h4>
+<ul>
+<li>Keeps only rows with matching keys in both datasets.</li>
+</ul>
+</section>
+</div>
+</div>
+</section>
+<section id="creating-attributes-and-removing-spatial-information" class="level3">
+<h3 class="anchored" data-anchor-id="creating-attributes-and-removing-spatial-information">3.2.5 Creating attributes and removing spatial information</h3>
+<ul>
+<li><strong>Creating new attributes</strong>:
+<ul>
+<li>Calculate a new attribute using <code>mutate()</code> from <code>dplyr</code>. Example: <code>population / area</code>.</li>
+<li>Use <code>mutate()</code> to add the new column without overwriting the geometry column.</li>
+</ul></li>
+<li><strong>Combining columns</strong>:
+<ul>
+<li>Use <a href="https://tidyr.tidyverse.org/reference/unite.html"><code>unite()</code></a> from <code>tidyr</code> to merge two or more columns into one (e.g., <code>continent</code> and <code>region_un</code>).</li>
+<li><code>unite()</code> allows setting a separator (e.g., <code>:</code>) and can optionally remove the original columns.</li>
+</ul></li>
+<li><strong>Splitting columns</strong>:
+<ul>
+<li>Use <a href="https://tidyr.tidyverse.org/reference/separate_wider_delim.html"><code>separate_wider_position()</code></a> and <a href="https://tidyr.tidyverse.org/reference/separate_wider_delim.html"><code>separate_wider_delim()</code></a>from <code>tidyr</code> to split a combined column back into its original components.</li>
+</ul></li>
+<li><strong>Renaming columns</strong>:
+<ul>
+<li>Use <a href="https://dplyr.tidyverse.org/reference/rename.html"><code>rename()</code></a> from <code>dplyr</code> for renaming specific columns.</li>
+<li>For renaming all columns, use <a href="https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/setNames"><code>setNames()</code></a> with a character vector for new names.</li>
+</ul></li>
+<li><strong>Removing geometry</strong>:
+<ul>
+<li>Use <a href="https://r-spatial.github.io/sf/reference/st_geometry.html"><code>st_drop_geometry()</code></a> to drop the spatial information while retaining the attributes in a non-spatial <code>data.frame</code>. This method is preferred over manually selecting non-geometry columns as it avoids unintended issues.</li>
+</ul></li>
+</ul>
+</section>
+</section>
+<section id="manipulating-raster-objects" class="level2">
+<h2 class="anchored" data-anchor-id="manipulating-raster-objects">3.3 Manipulating Raster Objects</h2>
+<ul>
+<li><strong>Raster Data Model</strong>:
+<ul>
+<li>Represents continuous surfaces, unlike vector data which use discrete entities (points, lines, polygons).</li>
+<li>Useful for representing spatial phenomena like elevation, temperature, and land cover.</li>
+</ul></li>
+<li><strong>Creating a Raster Object</strong>:
+<ul>
+<li>Use <code>rast()</code> function to create raster objects.</li>
+<li>The <code>vals</code> argument assigns numeric values to each cell.</li>
+</ul></li>
+<li><strong>Categorical Raster Values</strong>:
+<ul>
+<li>Can hold logical or factor (categorical) values.</li>
+<li>Example: Creating a raster for soil types (<code>clay</code>, <code>silt</code>, <code>sand</code>).</li>
+</ul></li>
+<li><strong>Raster Attribute Table (RAT)</strong>:
+<ul>
+<li>Stores additional information about raster values, accessible with <code>cats()</code>.</li>
+<li>Each layer’s attribute data can be modified with <code>levels()</code>.</li>
+</ul></li>
+<li><strong>Color Table</strong>:
+<ul>
+<li>Categorical rasters can store color information using a color table with RGB (Red, Green, Blue) or RGBA (Red, Green, Blue, Alpha) columns.</li>
+<li>Use <code>coltab()</code> to view or set color tables.</li>
+<li>Saving the raster (e.g., as GeoTIFF) includes the color table information.</li>
+</ul></li>
+</ul>
+<section id="raster-subsetting" class="level3">
+<h3 class="anchored" data-anchor-id="raster-subsetting"><strong>3.3.1 Raster subsetting</strong></h3>
+<p><em>(under construction)</em></p>
 
 
 </section>
