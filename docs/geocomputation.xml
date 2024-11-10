@@ -74,23 +74,611 @@ font-style: inherit;"># Spatial Data-sets</span></span></code></pre></div>
 <section id="vector-attribute-manipulation" class="level2">
 <h2 class="anchored" data-anchor-id="vector-attribute-manipulation">3.2 Vector Attribute Manipulation</h2>
 <ul>
-<li><strong><code>sf</code> Package</strong>:
+<li><p><strong><code>sf</code> Package</strong>:</p>
 <ul>
 <li>Extends base R’s <code>data.frame</code> with a geometry column (<code>sfc</code> class) for spatial features (points, lines, polygons).</li>
-<li>Geometry column often named <code>geometry</code> or <code>geom</code>, but customizable.</li>
+<li>Geometry column often named <code>geometry</code> or <code>geom</code>, but <strong>customizable</strong>.</li>
 </ul></li>
-<li><strong>Manipulation Methods</strong>:
+<li><p><strong>Manipulation Methods</strong>:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">methods</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">class =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sf"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_tibble</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb2-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rename</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">methods =</span> x) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">methods =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">str_replace_all</span>(methods, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">",sf"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"  "</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">methods =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">str_replace_all</span>(methods, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".sf"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"  "</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-6">  gt<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">gt</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-7">  gt<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tab_header</span>(</span>
+<span id="cb2-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Methods available"</span></span>
+<span id="cb2-9">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-10">  gt<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">opt_interactive</span>()</span></code></pre></div>
+</details>
+<div id="tbl-methods-sf" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-methods-sf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Methods available for the class ‘sf’ in R using {sf} package
+</figcaption>
+<div aria-describedby="tbl-methods-sf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="bqcigtscbp" class=".gt_table" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#bqcigtscbp table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#bqcigtscbp thead, #bqcigtscbp tbody, #bqcigtscbp tfoot, #bqcigtscbp tr, #bqcigtscbp td, #bqcigtscbp th {
+  border-style: none;
+}
+
+#bqcigtscbp p {
+  margin: 0;
+  padding: 0;
+}
+
+#bqcigtscbp .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#bqcigtscbp .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#bqcigtscbp .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#bqcigtscbp .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#bqcigtscbp .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#bqcigtscbp .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bqcigtscbp .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#bqcigtscbp .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#bqcigtscbp .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#bqcigtscbp .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#bqcigtscbp .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#bqcigtscbp .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#bqcigtscbp .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#bqcigtscbp .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#bqcigtscbp .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#bqcigtscbp .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#bqcigtscbp .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#bqcigtscbp .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#bqcigtscbp .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bqcigtscbp .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#bqcigtscbp .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#bqcigtscbp .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#bqcigtscbp .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bqcigtscbp .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#bqcigtscbp .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#bqcigtscbp .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bqcigtscbp .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bqcigtscbp .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#bqcigtscbp .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bqcigtscbp .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#bqcigtscbp .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bqcigtscbp .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#bqcigtscbp .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bqcigtscbp .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#bqcigtscbp .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bqcigtscbp .gt_left {
+  text-align: left;
+}
+
+#bqcigtscbp .gt_center {
+  text-align: center;
+}
+
+#bqcigtscbp .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#bqcigtscbp .gt_font_normal {
+  font-weight: normal;
+}
+
+#bqcigtscbp .gt_font_bold {
+  font-weight: bold;
+}
+
+#bqcigtscbp .gt_font_italic {
+  font-style: italic;
+}
+
+#bqcigtscbp .gt_super {
+  font-size: 65%;
+}
+
+#bqcigtscbp .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#bqcigtscbp .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#bqcigtscbp .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#bqcigtscbp .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#bqcigtscbp .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#bqcigtscbp .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#bqcigtscbp .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#bqcigtscbp .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#bqcigtscbp div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<div style="font-family:system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;border-top-style:solid;border-top-width:2px;border-top-color:#D3D3D3;">
+<div class="gt_heading gt_title gt_font_normal" style="text-size:bigger;">Methods available</div>
+<div class="gt_heading gt_subtitle "></div>
+</div>
+<div id="bqcigtscbp" class="reactable html-widget" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="bqcigtscbp">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"methods":["$<-  ","[  ","[[<-  ","[<-  ","aggregate  ","anti_join  ","arrange  ","as.data.frame  ","cbind  ","coerce,oldClass,S3-method","coerce  ,Spatial-method","coerce  ,SpatRaster-method","coerce  ,SpatVector-method","coerce,Spatial  -method","crs  -method","dbDataType,DBIObject  -method","dbDataType,PostgreSQLConnection  -method","dbWriteTable,DBIObject,character  -method","dbWriteTable,PostgreSQLConnection,character  -method","distance,SpatRaster  -method","distinct  ","dplyr_reconstruct  ","drop_na  ","duplicated  ","ext  -method","extract,SpatRaster  -method","filter  ","full_join  ","gather  ","group_by  ","group_split  ","identify  ","initialize,oldClass-method","inner_join  ","left_join  ","lines  -method","mask,SpatRaster  -method","merge  ","mutate  ","nest  ","pivot_longer  ","pivot_wider  ","plot  ","points  -method","points  ","polys  -method","print  ","rasterize  ,SpatRaster-method","rbind  ","rename  ","rename_with  ","right_join  ","rowwise  ","sample_frac  ","sample_n  ","select  ","semi_join  ","separate  ","separate_rows  ","show,oldClass-method","slice  ","slotsFromS3,oldClass-method","spread  ","st_agr  ","st_agr<-  ","st_area  ","st_as_s2  ","st_as    ","st_as  c  ","st_bbox  ","st_boundary  ","st_break_antimeridian  ","st_buffer  ","st_cast  ","st_centroid  ","st_collection_extract  ","st_concave_hull  ","st_convex_hull  ","st_coordinates  ","st_crop  ","st_crs  ","st_crs<-  ","st_difference  ","st_drop_geometry  ","st_exterior_ring  ","st_filter  ","st_geometry  ","st_geometry<-  ","st_inscribed_circle  ","st_interpolate_aw  ","st_intersection  ","st_intersects  ","st_is  ","st_is_valid  ","st_join  ","st_line_merge  ","st_m_range  ","st_make_valid  ","st_minimum_rotated_rectangle  ","st_nearest_points  ","st_node  ","st_normalize  ","st_point_on_surface  ","st_polygonize  ","st_precision  ","st_reverse  ","st_sample  ","st_segmentize  ","st_set_precision  ","st_shift_longitude  ","st_simplify  ","st_snap  ","st_sym_difference  ","st_tra  orm  ","st_triangulate  ","st_triangulate_constrained  ","st_union  ","st_voronoi  ","st_wrap_dateline  ","st_write  ","st_z_range  ","st_zm  ","summarise  ","svc  -method","text  ","tra  orm  ","transmute  ","ungroup  ","unite  ","unnest  ","vect  -method"]},"columns":[{"id":"methods","name":"methods","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}}],"defaultPageSize":10,"showPageSizeOptions":false,"pageSizeOptions":[10,25,50,100],"paginationType":"numbers","showPagination":true,"showPageInfo":true,"minRows":1,"height":"auto","theme":{"color":"#333333","backgroundColor":"#FFFFFF","stripedColor":"rgba(128,128,128,0.05)","style":{"fontFamily":"system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"},"tableStyle":{"borderTopStyle":"solid","borderTopWidth":"2px","borderTopColor":"#D3D3D3"},"headerStyle":{"borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"#D3D3D3"}},"elementId":"bqcigtscbp","dataKey":"cca70f43f6631eb080efbbc9d14d448b"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.style"],"jsHooks":[]}</script>
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
 <ul>
-<li>Methods like <code>aggregate()</code>, <code>cbind()</code>, <code>merge()</code>, and <code>rbind()</code> work seamlessly with <code>sf</code> objects.</li>
-<li>Compatible with tidyverse functions (<code>dplyr</code>, <code>tidyr</code>) and can be used with <code>data.table</code> (partial compatibility noted in issue <a href="https://github.com/Rdatatable/data.table/issues/2273">#2273</a>).</li>
-<li>Dropping geometry (<code>st_drop_geometry()</code>) can speed up attribute data operations when spatial data is not required.</li>
-</ul></li>
-<li><strong>Advantages</strong>:
+<li><p>Methods like <code>aggregate()</code>, <code>cbind()</code>, <code>merge()</code>, and <code>rbind()</code> work seamlessly with <code>sf</code> objects.</p></li>
+<li><p>Compatible with tidyverse functions (<code>dplyr</code>, <code>tidyr</code>) and can be used with <code>data.table</code> (partial compatibility noted in issue <a href="https://github.com/Rdatatable/data.table/issues/2273">#2273</a>).</p></li>
+<li><p>Dropping geometry (<code>st_drop_geometry()</code>) can speed up attribute data operations when spatial data is not required.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Original 'world' dataset</span></span>
+<span id="cb3-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dim</span>(world)</span>
+<span id="cb3-3"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1] 177  11</span></span>
+<span id="cb3-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">class</span>(world)</span>
+<span id="cb3-5"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1] "sf"         "tbl_df"     "tbl"        "data.frame"</span></span>
+<span id="cb3-6"></span>
+<span id="cb3-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Dropping the geometry column: Effects</span></span>
+<span id="cb3-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_drop_geometry</span>(world) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb3-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dim</span>()</span>
+<span id="cb3-10"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1] 177  10</span></span>
+<span id="cb3-11"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_drop_geometry</span>(world) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb3-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">class</span>()</span>
+<span id="cb3-13"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1] "tbl_df"     "tbl"        "data.frame"</span></span></code></pre></div>
+</div></li>
+<li><p><strong>Advantages</strong>:</p>
 <ul>
 <li><code>sf</code>’s integration with the tidyverse allows robust, efficient data manipulation.</li>
 <li>Compatible with tidyverse functions (e.g., <code>dplyr</code>), making it versatile for data analysis.</li>
 </ul></li>
 </ul>
+<div class="key-learning">
 <p><strong>Major Pitfalls of Using Spatial Data with the Tidyverse</strong></p>
 <ol type="1">
 <li><strong>Name Clashes</strong>
@@ -101,17 +689,84 @@ font-style: inherit;"># Spatial Data-sets</span></span></code></pre></div>
 <li><strong>Compatibility Issues with <code>sp</code> Package</strong>
 <ul>
 <li>The older <a href="https://cran.r-project.org/web/packages/sp/index.html"><code>sp</code></a> package does not integrate well with tidyverse functions.</li>
-<li>Requires conversion between <code>sp</code> and <a href="https://r-spatial.github.io/sf/articles/sf1.html"><code>sf</code></a> object types using functions like <a href="https://www.rdocumentation.org/packages/methods/versions/3.6.2/topics/as"><code>as()</code></a> or <a href="https://r-spatial.github.io/sf/reference/st_as_sf.html"><code>st_as_sf()</code></a>.</li>
+<li>Requires conversion between <code>sp</code> to <a href="https://r-spatial.github.io/sf/articles/sf1.html"><code>sf</code></a> object types using functions like <a href="https://r-spatial.github.io/sf/reference/st_as_sf.html"><code>st_as_sf()</code></a>.</li>
 </ul></li>
 <li><strong>Handling Multipolygon Objects</strong>
 <ul>
 <li>Multiple geometries in objects can cause unexpected plotting results.</li>
-<li>Resolve issues by casting to simpler geometry types using <a href="https://r-spatial.github.io/sf/reference/st_cast.html"><code>st_cast()</code></a>.</li>
+<li>Resolve issues by casting to simpler geometry types using <code>st_cast(to = "POLYGON")</code>.</li>
 </ul></li>
 <li><strong>Spatial Subsetting Challenges</strong>
 <ul>
-<li>Verbose syntax when using tidyverse functions like <a href="https://dplyr.tidyverse.org/reference/filter.html"><code>filter()</code></a> with spatial predicates like <a href="https://r-spatial.github.io/sf/reference/st_intersects.html"><code>st_intersects()</code></a>.</li>
-<li>May result in altered row names, complicating joins and comparisons.</li>
+<li><p>Verbose syntax when using tidyverse functions like <a href="https://dplyr.tidyverse.org/reference/filter.html"><code>filter()</code></a> with spatial predicates like <a href="https://r-spatial.github.io/sf/reference/st_intersects.html"><code>st_intersects()</code></a>.</p></li>
+<li><p>May result in altered row names, complicating joins and comparisons.</p></li>
+<li><p>Other option is spatial subsetting using base <code>R</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1">lnd_buff <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> lnd[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, ] <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb4-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_transform</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">27700</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># uk CRS</span></span>
+<span id="cb4-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_buffer</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500000</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb4-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_transform</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span>)</span>
+<span id="cb4-5">near_lnd <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> world[lnd_buff, ]</span>
+<span id="cb4-6">world_poly <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> world <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb4-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_cast</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">to =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"POLYGON"</span>)</span>
+<span id="cb4-8">near_lnd_new <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> world_poly[lnd_buff, ]</span>
+<span id="cb4-9">near_lnd_tidy <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> world <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb4-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersects</span>(., lnd_buff, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>))</span></code></pre></div>
+</div></li>
 </ul></li>
 <li><strong>Row Name Alterations</strong>
 <ul>
@@ -132,8 +787,176 @@ font-style: inherit;"># Spatial Data-sets</span></span></code></pre></div>
 <li>Initial efforts like <a href="https://cran.r-project.org/web/packages/tabularaster/index.html"><code>tabularaster</code></a>, <a href="https://cran.r-project.org/web/packages/sfraster/index.html"><code>sfraster</code></a>, and <a href="https://r-spatial.github.io/stars/"><code>stars</code></a> aim to enhance support.</li>
 </ul></li>
 </ol>
+</div>
+<section id="vector-attribute-subsetting" class="level3">
+<h3 class="anchored" data-anchor-id="vector-attribute-subsetting">3.2.1 Vector Attribute Subsetting</h3>
+<ul>
+<li><strong>Base R Subsetting</strong>:
+<ul>
+<li><p>Uses <code>[</code> operator and <code>subset()</code> function for rows and columns selection.</p></li>
+<li><p>Syntax: <code>object[i, j]</code> returns rows indexed by <code>i</code> and columns by <code>j</code>.</p>
+<ul>
+<li>Example: <code>world[1:5, ]</code> returns the first 5 rows and all columns.</li>
+</ul></li>
+<li><p>Examples:</p>
+<div class="sourceCode" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">world[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>, ]          <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># First 6 rows</span></span>
+<span id="cb5-2">world[, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>]          <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># First 3 columns</span></span>
+<span id="cb5-3">world[, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"name_long"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pop"</span>)] <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Columns by name</span></span></code></pre></div></li>
+<li><p>Logical Indexing Example:</p>
+<div class="sourceCode" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">i_small <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> world<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>area_km2 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10000</span></span>
+<span id="cb6-2">small_countries <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> world[i_small, ]   <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Subset countries with area &lt; 10,000 km2</span></span></code></pre></div></li>
+<li><p>Using <code>subset()</code> function:</p>
+<div class="sourceCode" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">small_countries <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">subset</span>(world, area_km2 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10000</span>)</span></code></pre></div></li>
+</ul></li>
+<li><strong>dplyr Subsetting Functions</strong>:
+<ul>
+<li><p><code>filter()</code> and <code>slice()</code> for rows, <code>select()</code> for columns.</p></li>
+<li><p><strong><code>select()</code></strong>: Subsets columns by name or position.</p>
+<div class="sourceCode" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">world1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(world, name_long, pop)</span>
+<span id="cb8-2">world2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(world, name_long<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>pop)    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Selects a range of columns</span></span>
+<span id="cb8-3">world3 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(world, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>subregion, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>area_km2)   <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Removes specific columns</span></span>
+<span id="cb8-4">world4 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(world, name_long, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">population =</span> pop)   <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Renames columns</span></span></code></pre></div></li>
+<li><p>Helper functions in <code>select()</code> like <code>contains()</code>, <code>starts_with()</code>, <code>num_range()</code>.</p>
+<ul>
+<li>Example: <code>select(world, contains("pop"))</code> selects columns containing “pop”.</li>
+</ul></li>
+</ul></li>
+<li><strong>Extracting a Single Column</strong>:
+<ul>
+<li><p>Use <code>pull()</code> (dplyr), <code>$</code>, or <code>[[</code> (base R).</p>
+<div class="sourceCode" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull</span>(world, pop)     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Extracts 'pop' column as a vector</span></span>
+<span id="cb9-2">world<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>pop</span>
+<span id="cb9-3">world[[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pop"</span>]]</span></code></pre></div></li>
+</ul></li>
+<li><strong>Row Selection</strong>:
+<ul>
+<li><p><strong><code>slice()</code></strong>: Selects rows by index.</p>
+<div class="sourceCode" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">slice</span>(world, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>)   <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Returns the first 6 rows</span></span></code></pre></div></li>
+<li><p><strong><code>filter()</code></strong>: Filters rows based on conditions.</p>
+<div class="sourceCode" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1">world7 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(world, area_km2 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10000</span>)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Small area countries</span></span>
+<span id="cb11-2">world7 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(world, lifeExp <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">82</span>)      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># High life expectancy countries</span></span></code></pre></div></li>
+</ul></li>
+<li><strong>Comparison Operators</strong>:
+<ul>
+<li>Standard operators can be used in <code>filter()</code>: <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>==</code>, <code>!=</code>.</li>
+</ul></li>
+</ul>
+<p><strong>Summary</strong>: - Base R and <code>dplyr</code> offer flexible methods for subsetting <code>sf</code> objects, allowing users to retain or drop geometry as needed. - The <code>dplyr</code> functions (<code>filter()</code>, <code>select()</code>, <code>pull()</code>) are intuitive and integrate well with the tidyverse workflows. - Logical vectors and helper functions enhance subsetting efficiency in both base R and tidyverse.</p>
 
 
+</section>
 </section>
 
  ]]></description>
