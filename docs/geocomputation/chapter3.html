@@ -78,6 +78,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <link href="../site_libs/quarto-contrib/social-share-0.1.0/social-share.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/social-share-0.1.0/all.css" rel="stylesheet">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -224,7 +227,28 @@ div.callout-keylearning.callout-style-default .callout-icon::before, div.callout
   </ul></li>
   <li><a href="#manipulating-raster-objects" id="toc-manipulating-raster-objects" class="nav-link" data-scroll-target="#manipulating-raster-objects">3.3 Manipulating Raster Objects</a>
   <ul class="collapse">
-  <li><a href="#raster-subsetting" id="toc-raster-subsetting" class="nav-link" data-scroll-target="#raster-subsetting"><strong>3.3.1 Raster subsetting</strong></a></li>
+  <li><a href="#raster-subsetting" id="toc-raster-subsetting" class="nav-link" data-scroll-target="#raster-subsetting">3.3.1 Raster subsetting</a></li>
+  <li><a href="#summarizing-raster-objects" id="toc-summarizing-raster-objects" class="nav-link" data-scroll-target="#summarizing-raster-objects">3.3.2 Summarizing Raster Objects</a></li>
+  </ul></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">3.4 Exercises</a>
+  <ul class="collapse">
+  <li><a href="#e1" id="toc-e1" class="nav-link" data-scroll-target="#e1">E1</a></li>
+  <li><a href="#e2" id="toc-e2" class="nav-link" data-scroll-target="#e2">E2</a></li>
+  <li><a href="#e3" id="toc-e3" class="nav-link" data-scroll-target="#e3">E3</a></li>
+  <li><a href="#e4" id="toc-e4" class="nav-link" data-scroll-target="#e4">E4</a></li>
+  <li><a href="#e5" id="toc-e5" class="nav-link" data-scroll-target="#e5">E5</a></li>
+  <li><a href="#e6" id="toc-e6" class="nav-link" data-scroll-target="#e6">E6</a></li>
+  <li><a href="#e7" id="toc-e7" class="nav-link" data-scroll-target="#e7">E7</a></li>
+  <li><a href="#e8" id="toc-e8" class="nav-link" data-scroll-target="#e8">E8</a></li>
+  <li><a href="#e9" id="toc-e9" class="nav-link" data-scroll-target="#e9">E9</a></li>
+  <li><a href="#e10" id="toc-e10" class="nav-link" data-scroll-target="#e10">E10</a></li>
+  <li><a href="#e11" id="toc-e11" class="nav-link" data-scroll-target="#e11">E11</a></li>
+  <li><a href="#e12" id="toc-e12" class="nav-link" data-scroll-target="#e12">E12</a></li>
+  <li><a href="#e13" id="toc-e13" class="nav-link" data-scroll-target="#e13">E13</a></li>
+  <li><a href="#e14" id="toc-e14" class="nav-link" data-scroll-target="#e14">E14</a></li>
+  <li><a href="#e15" id="toc-e15" class="nav-link" data-scroll-target="#e15">E15</a></li>
+  <li><a href="#e16" id="toc-e16" class="nav-link" data-scroll-target="#e16">E16</a></li>
+  <li><a href="#e17" id="toc-e17" class="nav-link" data-scroll-target="#e17">E17</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/chapter3.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
@@ -944,26 +968,11 @@ Relevant Topic
 <ul>
 <li><strong>Using <code>aggregate()</code></strong>:
 <ul>
-<li><p>Example: Calculating total population per continent.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>world_agg1 <span class="ot">=</span> <span class="fu">aggregate</span>(pop <span class="sc">~</span> continent, </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">FUN =</span> sum, </span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">data =</span> world, </span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                       <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<ul>
-<li><a href="https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/aggregate"><strong><code>aggregate()</code></strong></a> groups data and applies a function (e.g., <code>sum</code>).</li>
-<li>Result: A non-spatial data frame with two columns (<code>continent</code>, <code>pop</code>).</li>
-</ul></li>
+<li><a href="https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/aggregate"><strong><code>aggregate()</code></strong></a> groups data and applies a function (e.g., <code>sum</code>). Result: A non-spatial data frame with two columns (<code>continent</code>, <code>pop</code>).</li>
 </ul></li>
 <li><strong>Using <code>aggregate.sf()</code></strong>:
 <ul>
-<li><p>For spatial objects (<code>sf</code>), use <code>aggregate()</code> with <code>by</code> argument:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>world_agg2 <span class="ot">=</span> <span class="fu">aggregate</span>(world[<span class="st">"pop"</span>], </span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">by =</span> <span class="fu">list</span>(world<span class="sc">$</span>continent), </span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">FUN =</span> sum, </span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                       <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<ul>
-<li>This results in an <strong><code>sf</code></strong> object with eight features representing continents.</li>
-</ul></li>
+<li>For spatial objects (<code>sf</code>), use <code>aggregate()</code> with <code>by</code> argument. This results in an <strong><code>sf</code></strong> object with eight features representing continents.</li>
 </ul></li>
 </ul></li>
 <li><strong><code>dplyr</code> Approach</strong>
@@ -971,18 +980,87 @@ Relevant Topic
 <li><strong>Using <code>group_by()</code> and <code>summarize()</code></strong>:
 <ul>
 <li><p>Equivalent to <code>aggregate()</code>, but offers flexibility and control:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>world_agg3 <span class="ot">=</span> world <span class="sc">|&gt;</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(continent) <span class="sc">|&gt;</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">pop =</span> <span class="fu">sum</span>(pop, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li><a href="https://dplyr.tidyverse.org/reference/group_by.html"><strong><code>group_by()</code></strong></a> defines grouping variables.</li>
 <li><a href="https://dplyr.tidyverse.org/reference/summarise.html"><strong><code>summarize()</code></strong></a> applies aggregation functions.</li>
 </ul></li>
 </ul></li>
 </ul></li>
-<li>For more details, refer to the help pages of <a href="https://dplyr.tidyverse.org/reference/summarise.html"><code>summarize()</code></a> and the <strong>dplyr</strong> package vignette: <code>vignette(package = "dplyr")</code>.</li>
-<li>Check <a href="https://r4ds.had.co.nz/transform.html">Chapter 5</a> of <a href="https://r4ds.had.co.nz/"><em>R for Data Science</em></a>.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>world <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(continent) <span class="sc">|&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">pop =</span> <span class="fu">sum</span>(pop, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 8 features and 2 fields
+Geometry type: GEOMETRY
+Dimension:     XY
+Bounding box:  xmin: -180 ymin: -89.9 xmax: 180 ymax: 83.64513
+Geodetic CRS:  WGS 84
+# A tibble: 8 × 3
+  continent                      pop                                        geom
+  &lt;chr&gt;                        &lt;dbl&gt;                              &lt;GEOMETRY [°]&gt;
+1 Africa                  1154946633 MULTIPOLYGON (((36.86623 22, 36.69069 22.2…
+2 Antarctica                       0 MULTIPOLYGON (((-180 -89.9, 180 -89.9, 180…
+3 Asia                    4311408059 MULTIPOLYGON (((36.14976 35.82153, 35.9050…
+4 Europe                   669036256 MULTIPOLYGON (((26.29 35.29999, 25.74502 3…
+5 North America            565028684 MULTIPOLYGON (((-82.26815 23.18861, -82.51…
+6 Oceania                   37757833 MULTIPOLYGON (((166.7932 -15.66881, 167.00…
+7 Seven seas (open ocean)          0 POLYGON ((68.935 -48.625, 68.8675 -48.83, …
+8 South America            412060811 MULTIPOLYGON (((-66.95992 -54.89681, -66.4…</code></pre>
+</div>
+</div>
+<ul>
+<li>More details on grouped data and <a href="https://dplyr.tidyverse.org/reference/summarise.html"><code>summarize()</code></a> from the <strong>dplyr</strong> package vignettes.</li>
+</ul>
+<div class="callout callout-style-default callout-keylearning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Relevant Topic
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong><code>dplyr</code></strong> functions are highly effective when applied to grouped data frames (<code>grouped_df</code> objects). Here are the main points covered:</p>
+<ul>
+<li><p><strong>Grouping Data</strong>: Use <a href="https://dplyr.tidyverse.org/reference/group_by.html"><strong><code>group_by()</code></strong></a> to create groups within a data frame based on one or more variables.</p>
+<ul>
+<li>To count rows in each group, use <a href="https://dplyr.tidyverse.org/reference/tally.html"><strong><code>tally()</code></strong></a>.</li>
+</ul></li>
+<li><p><strong>Accessing Group Metadata</strong>:</p>
+<ul>
+<li><strong><code>group_keys()</code></strong>: Shows underlying group data. <a href="https://dplyr.tidyverse.org/reference/group_keys.html">Details here</a>.</li>
+<li><strong><code>group_vars()</code></strong>: Retrieves names of the grouping variables. <a href="https://dplyr.tidyverse.org/reference/group_vars.html">Details here</a>.</li>
+</ul></li>
+<li><p><strong>Modifying Groups</strong>:</p>
+<ul>
+<li>To overwrite or add grouping variables, use <code>.add = TRUE</code> with <strong><code>group_by()</code></strong>. <a href="https://dplyr.tidyverse.org/reference/group_by.html">Read more</a>.</li>
+<li>To remove groups, use <a href="https://dplyr.tidyverse.org/reference/ungroup.html"><strong><code>ungroup()</code></strong></a>.</li>
+</ul></li>
+<li><p><strong>Verbs and Grouping</strong>:</p>
+<ul>
+<li><strong><code>summarise()</code></strong>: Computes summary statistics per group. The <code>.groups</code> argument controls grouping structure. <a href="https://dplyr.tidyverse.org/reference/summarise.html">More on <code>summarise()</code></a>.</li>
+</ul></li>
+<li><p><strong>Column Manipulation</strong>:</p>
+<ul>
+<li><strong><code>select()</code></strong> retains grouping variables by default. <a href="https://dplyr.tidyverse.org/reference/select.html">More on <code>select()</code></a>.</li>
+<li><strong><code>rename()</code></strong> and <strong><code>relocate()</code></strong> function the same way for grouped and ungrouped data. <a href="https://dplyr.tidyverse.org/reference/relocate.html">Details here</a>.</li>
+</ul></li>
+<li><p><strong>Sorting Groups</strong>:</p>
+<ul>
+<li><strong><code>arrange()</code></strong>: Sorts data, with <code>.by_group = TRUE</code> option to sort within groups. <a href="https://dplyr.tidyverse.org/reference/arrange.html">More on <code>arrange()</code></a>.</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<ul>
+<li>Check out <a href="https://r4ds.had.co.nz/transform.html">Chapter 5</a> of <a href="https://r4ds.had.co.nz/"><em>R for Data Science</em></a>.</li>
 </ul>
 </section>
 <section id="vector-attribute-joining" class="level3">
@@ -1129,8 +1207,959 @@ Relevant Topic
 </ul></li>
 </ul>
 <section id="raster-subsetting" class="level3">
-<h3 class="anchored" data-anchor-id="raster-subsetting"><strong>3.3.1 Raster subsetting</strong></h3>
-<p><em>(under construction)</em></p>
+<h3 class="anchored" data-anchor-id="raster-subsetting">3.3.1 Raster subsetting</h3>
+<ul>
+<li><p><strong>Raster Subsetting</strong>:</p>
+<ul>
+<li>Involves selecting specific parts of a raster dataset using the base R subsetting operator <code>[ , ]</code>.</li>
+<li><strong>Subsetting Methods</strong>:
+<ol type="1">
+<li><strong>Row-Column Indexing</strong>: Accesses cells using specific row and column coordinates.</li>
+<li><strong>Cell IDs</strong>: Accesses cells using unique numeric identifiers for each raster cell.</li>
+<li><strong>Coordinates and Spatial Objects</strong>: These methods are used for spatial subsetting, using another spatial object to subset a raster.</li>
+</ol></li>
+</ul></li>
+<li><p><strong>Examples</strong>:</p>
+<ul>
+<li>Accessing the top-left pixel value using row-column indexing:</li>
+</ul></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A simple raster</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  elev <span class="ot">&lt;-</span> <span class="fu">rast</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">nrows =</span> <span class="dv">10</span>, <span class="at">ncols =</span> <span class="dv">10</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">xmin =</span> <span class="sc">-</span><span class="fl">1.5</span>, <span class="at">xmax =</span> <span class="fl">1.5</span>, <span class="at">ymin =</span> <span class="sc">-</span><span class="fl">1.5</span>, <span class="at">ymax =</span> <span class="fl">1.5</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">vals =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">100</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    ) </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># A raster with categorical levels</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>grain <span class="ot">&lt;-</span> <span class="fu">rast</span>(</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrows =</span> <span class="dv">10</span>, <span class="at">ncols =</span> <span class="dv">10</span>,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">xmin =</span> <span class="sc">-</span><span class="fl">1.5</span>, <span class="at">xmax =</span> <span class="fl">1.5</span>, <span class="at">ymin =</span> <span class="sc">-</span><span class="fl">1.5</span>, <span class="at">ymax =</span> <span class="fl">1.5</span>,</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">vals =</span> <span class="fu">sample</span>(</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">c</span>(<span class="st">"Wheat"</span>, <span class="st">"Rice"</span>, <span class="st">"Maize"</span>, <span class="st">"Others"</span>),</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">100</span>,</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">replace =</span> <span class="cn">TRUE</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Print the "elev" object to visualize the design</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(elev)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="do">## class       : SpatRaster </span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="do">## dimensions  : 10, 10, 1  (nrow, ncol, nlyr)</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="do">## resolution  : 0.3, 0.3  (x, y)</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="do">## extent      : -1.5, 1.5, -1.5, 1.5  (xmin, xmax, ymin, ymax)</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="do">## coord. ref. : lon/lat WGS 84 (CRS84) (OGC:CRS84) </span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="do">## source(s)   : memory</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="do">## name        : lyr.1 </span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="do">## min value   :     1 </span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="do">## max value   :   100</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot the raster object to visualize the matrix as an image</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">plot</span>(</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>      elev, </span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">main =</span> <span class="st">"Raster Object with a Sequential Pattern"</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="chapter3_files/figure-html/raster-1-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="chapter3_files/figure-html/raster-1-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Accessing using row number and column number</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    elev[<span class="dv">1</span>, <span class="dv">1</span>]</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="do">##   lyr.1</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 1     1</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    elev[<span class="dv">10</span>,<span class="dv">5</span>]</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="do">##   lyr.1</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 1    95</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">plot</span>(</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>      grain,</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">main =</span> <span class="st">"Raster Object with 4 categorical levels"</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="chapter3_files/figure-html/raster-1-2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="chapter3_files/figure-html/raster-1-2.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Accessing using row number and column number</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    grain[<span class="dv">1</span>,<span class="dv">1</span>]</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="do">##   lyr.1</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 1 Wheat</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    grain[<span class="dv">10</span>, <span class="dv">10</span>]</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="do">##   lyr.1</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="do">## 1  Rice</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># A multilayered raster - combining both</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    two_layers <span class="ot">&lt;-</span> <span class="fu">c</span>(elev, grain)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(two_layers)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="do">## class       : SpatRaster </span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="do">## dimensions  : 10, 10, 2  (nrow, ncol, nlyr)</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="do">## resolution  : 0.3, 0.3  (x, y)</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="do">## extent      : -1.5, 1.5, -1.5, 1.5  (xmin, xmax, ymin, ymax)</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="do">## coord. ref. : lon/lat WGS 84 (CRS84) (OGC:CRS84) </span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="do">## source(s)   : memory</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="do">## names       : lyr.1, lyr.1 </span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="do">## min values  :     1, Maize </span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="do">## max values  :   100, Wheat</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">names</span>(two_layers) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Continuous variable"</span>, </span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"Categorical variable"</span>)</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">plot</span>(</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>      two_layers</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="chapter3_files/figure-html/raster-1-3.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="chapter3_files/figure-html/raster-1-3.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li>Accessing the first cell using its Cell ID:</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Accessing raster values using cell ID</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>elev[<span class="dv">1</span>]</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="do">##   lyr.1</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 1     1</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>elev[<span class="dv">95</span>]</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="do">##   lyr.1</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 1    95</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<ul>
+<li><p><strong>Subsetting Multi-layered Rasters</strong>:</p>
+<ul>
+<li>For multi-layer raster objects (e.g., <code>two_layers = c(grain, elev)</code>), subsetting returns values from each layer:</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>two_layers[<span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Continuous variable Categorical variable
+1                   1                Wheat</code></pre>
+</div>
+</div>
+<ul>
+<li>To extract all cell values from a raster:</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extracting all values - single layer raster</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>elev[][<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>]  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1]  1  2  3  4  5  6  7  8  9 10</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># It is Equivalent to using the values() function</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">values</span>(elev)[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1]  1  2  3  4  5  6  7  8  9 10</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extracting all values - multi-layer raster</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co"># It returns a data.frame</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">values</span>(two_layers) <span class="sc">|&gt;</span> </span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 100 × 2
+   `Continuous variable` `Categorical variable`
+                   &lt;int&gt;                  &lt;int&gt;
+ 1                     1                      4
+ 2                     2                      1
+ 3                     3                      3
+ 4                     4                      2
+ 5                     5                      2
+ 6                     6                      2
+ 7                     7                      4
+ 8                     8                      3
+ 9                     9                      2
+10                    10                      3
+# ℹ 90 more rows</code></pre>
+</div>
+</div>
+<ul>
+<li><p><strong>Modifying Raster Values</strong>:</p>
+<ul>
+<li>Change specific cell values by combining subsetting with assignment:</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>elev[<span class="dv">5</span>, <span class="dv">5</span>] <span class="ot">=</span> <span class="dv">0</span>  <span class="co"># Sets the value of the 1 central cells to 0</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(elev)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="chapter3_files/figure-html/unnamed-chunk-10-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="chapter3_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li>Modify multiple cells simultaneously:</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>elev[<span class="dv">5</span>, <span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">6</span>)] <span class="ot">=</span> <span class="dv">0</span>  <span class="co"># Sets the value of the central 2 cells to 0</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(elev)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="chapter3_files/figure-html/unnamed-chunk-11-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="chapter3_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><p><strong>Replacing Values in Multi-layered Rasters</strong>:</p>
+<ul>
+<li>Modify cell values in a multi-layer raster using a matrix with corresponding layers and cell indices:</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Assigns new values for Cell ID 1 in both layers</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>two_layers[<span class="dv">45</span>] <span class="ot">=</span> <span class="fu">cbind</span>(<span class="fu">c</span>(<span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">4</span>))  </span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(two_layers)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="chapter3_files/figure-html/unnamed-chunk-12-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img src="chapter3_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This subsetting approach allows efficient extraction and manipulation of raster cell values, enabling the customization of raster datasets for specific analytical needs.</p>
+</section>
+<section id="summarizing-raster-objects" class="level3">
+<h3 class="anchored" data-anchor-id="summarizing-raster-objects">3.3.2 Summarizing Raster Objects</h3>
+<ul>
+<li><strong>Descriptive Statistics</strong>:
+<ul>
+<li>The <strong>terra</strong> package provides functions for summarizing raster objects.</li>
+<li>Printing a raster object directly shows the <strong>minimum</strong> and <strong>maximum</strong> values.</li>
+<li>The <a href="https://rspatial.github.io/terra/reference/summary.html"><code>summary()</code></a> function provides detailed statistics:
+<ul>
+<li>For <strong>continuous rasters</strong>: Minimum, maximum, quartiles, and count of NAs.</li>
+<li>For <strong>categorical rasters</strong>: Counts of each unique class.</li>
+</ul></li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(two_layers)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="do">##  Continuous.variable Categorical.variable</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="do">##  Min.   :  1.00      Maize :18           </span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="do">##  1st Qu.: 24.75      Others:32           </span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="do">##  Median : 50.50      Rice  :22           </span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="do">##  Mean   : 50.06      Wheat :28           </span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="do">##  3rd Qu.: 75.25                          </span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  Max.   :100.00</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li><strong>Custom Summary Statistics</strong>:
+<ul>
+<li>The <a href="https://rspatial.github.io/terra/reference/global.html"><code>global()</code></a> function calculates additional statistics like <strong>standard deviation</strong> and can be used to apply custom summary statistics.</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">global</span>(two_layers, sum)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                      sum
+Continuous variable  5006
+Categorical variable  260</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">global</span>(two_layers, mean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                      mean
+Continuous variable  50.06
+Categorical variable  2.60</code></pre>
+</div>
+</div>
+<ul>
+<li><strong>Frequency Table</strong>:
+<ul>
+<li>The <a href="https://rspatial.github.io/terra/reference/freq.html"><code>freq()</code></a> function generates a frequency table for categorical raster values, showing counts of each category.</li>
+</ul></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">freq</span>(two_layers<span class="sc">$</span><span class="st">`</span><span class="at">Categorical variable</span><span class="st">`</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  gtExtras<span class="sc">::</span><span class="fu">gt_theme_538</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div id="tbl-freq-raster" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-freq-raster-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Frequency table using freq() on raster objects
+</figcaption>
+<div aria-describedby="tbl-freq-raster-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="jhwinrqozo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cairo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+#jhwinrqozo table {
+  font-family: Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#jhwinrqozo thead, #jhwinrqozo tbody, #jhwinrqozo tfoot, #jhwinrqozo tr, #jhwinrqozo td, #jhwinrqozo th {
+  border-style: none;
+}
+
+#jhwinrqozo p {
+  margin: 0;
+  padding: 0;
+}
+
+#jhwinrqozo .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: 400;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: none;
+  border-top-width: 3px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#jhwinrqozo .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#jhwinrqozo .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#jhwinrqozo .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#jhwinrqozo .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#jhwinrqozo .gt_bottom_border {
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#jhwinrqozo .gt_col_headings {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #000000;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#jhwinrqozo .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#jhwinrqozo .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#jhwinrqozo .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#jhwinrqozo .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#jhwinrqozo .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #000000;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#jhwinrqozo .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#jhwinrqozo .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #000000;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#jhwinrqozo .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #000000;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #FFFFFF;
+  vertical-align: middle;
+}
+
+#jhwinrqozo .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#jhwinrqozo .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#jhwinrqozo .gt_row {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#jhwinrqozo .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 0px;
+  border-right-color: #FFFFFF;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#jhwinrqozo .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#jhwinrqozo .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#jhwinrqozo .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#jhwinrqozo .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#jhwinrqozo .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#jhwinrqozo .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#jhwinrqozo .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#jhwinrqozo .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#jhwinrqozo .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#jhwinrqozo .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#jhwinrqozo .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#jhwinrqozo .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#jhwinrqozo .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#jhwinrqozo .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#jhwinrqozo .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#jhwinrqozo .gt_sourcenote {
+  font-size: 12px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#jhwinrqozo .gt_left {
+  text-align: left;
+}
+
+#jhwinrqozo .gt_center {
+  text-align: center;
+}
+
+#jhwinrqozo .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#jhwinrqozo .gt_font_normal {
+  font-weight: normal;
+}
+
+#jhwinrqozo .gt_font_bold {
+  font-weight: bold;
+}
+
+#jhwinrqozo .gt_font_italic {
+  font-style: italic;
+}
+
+#jhwinrqozo .gt_super {
+  font-size: 65%;
+}
+
+#jhwinrqozo .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#jhwinrqozo .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#jhwinrqozo .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#jhwinrqozo .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#jhwinrqozo .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#jhwinrqozo .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#jhwinrqozo .gt_indent_5 {
+  text-indent: 25px;
+}
+
+tbody tr:last-child {
+  border-bottom: 2px solid #ffffff00;
+}
+</style>
+
+<table class="gt_table do-not-create-environment cell caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="header gt_col_headings">
+<th id="layer" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase" scope="col">layer</th>
+<th id="value" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase" scope="col">value</th>
+<th id="count" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase" scope="col">count</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_right" headers="layer">1</td>
+<td class="gt_row gt_left" headers="value">Maize</td>
+<td class="gt_row gt_right" headers="count">18</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="layer">1</td>
+<td class="gt_row gt_left" headers="value">Others</td>
+<td class="gt_row gt_right" headers="count">32</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="layer">1</td>
+<td class="gt_row gt_left" headers="value">Rice</td>
+<td class="gt_row gt_right" headers="count">22</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="layer">1</td>
+<td class="gt_row gt_left" headers="value">Wheat</td>
+<td class="gt_row gt_right" headers="count">28</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<ul>
+<li><strong>Visualization of Raster Statistics</strong>:
+<ul>
+<li>Several functions like <a href="https://rspatial.github.io/terra/reference/hist.html"><code>hist()</code></a>, <a href="https://rspatial.github.io/terra/reference/boxplot.html"><code>boxplot()</code></a>, and <a href="https://rspatial.github.io/terra/reference/density.html"><code>density()</code></a> work directly with raster objects to visualize statistics.</li>
+<li>If visualization functions do not support raster objects, values can be extracted using <a href="https://rspatial.github.io/terra/reference/values.html"><code>values()</code></a> for further plotting.</li>
+</ul></li>
+<li><strong>Handling Function Name Clashes</strong>:
+<ul>
+<li>Some functions (e.g., <code>extract()</code>) exist in multiple packages like <strong>terra</strong> and <strong>tidyr</strong>, leading to conflicts.</li>
+<li>To avoid issues, call functions with full namespaces (e.g., <code>tidyr::extract()</code>).
+<ul>
+<li>Use <a href="https://stat.ethz.ch/R-manual/R-devel/library/base/html/detach.html"><code>detach()</code></a> to unload conflicting packages, but be cautious as it may impact dependent packages.</li>
+</ul></li>
+</ul></li>
+</ul>
+</section>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises">3.4 Exercises</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(terra)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spData)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(us_states)</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(us_states_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="e1" class="level3">
+<h3 class="anchored" data-anchor-id="e1">E1</h3>
+<p><strong>Create a new object called <code>us_states_name</code> that contains only the <code>NAME</code> column from the <code>us_states</code> object using either base R (<code>[</code>) or tidyverse (<a href="https://dplyr.tidyverse.org/reference/select.html"><code>select()</code></a>) syntax. What is the class of the new object and what makes it geographic?</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>us_states_name <span class="ot">&lt;-</span> us_states <span class="sc">|&gt;</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(NAME)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(us_states_name)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "sf"         "data.frame"</code></pre>
+</div>
+</div>
+<p>The new object of the class <code>sf</code>, and the stickiness of the <code>geometry</code> column makes it a geographical dataset.</p>
+<hr>
+</section>
+<section id="e2" class="level3">
+<h3 class="anchored" data-anchor-id="e2">E2</h3>
+<p><strong>Select columns from the <code>us_states</code> object which contain population data. Obtain the same result using a different command (bonus: try to find three ways of obtaining the same result). Hint: try to use helper functions, such as <code>contains</code> or <code>matches</code> from dplyr (see <a href="https://tidyselect.r-lib.org/reference/starts_with.html"><code>?contains</code></a>).</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>us_states</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 49 features and 6 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: -124.7042 ymin: 24.55868 xmax: -66.9824 ymax: 49.38436
+Geodetic CRS:  NAD83
+First 10 features:
+   GEOID        NAME   REGION             AREA total_pop_10 total_pop_15
+1     01     Alabama    South 133709.27 [km^2]      4712651      4830620
+2     04     Arizona     West 295281.25 [km^2]      6246816      6641928
+3     08    Colorado     West 269573.06 [km^2]      4887061      5278906
+4     09 Connecticut Norteast  12976.59 [km^2]      3545837      3593222
+5     12     Florida    South 151052.01 [km^2]     18511620     19645772
+6     13     Georgia    South 152725.21 [km^2]      9468815     10006693
+7     16       Idaho     West 216512.66 [km^2]      1526797      1616547
+8     18     Indiana  Midwest  93648.40 [km^2]      6417398      6568645
+9     20      Kansas  Midwest 213037.08 [km^2]      2809329      2892987
+10    22   Louisiana    South 122345.76 [km^2]      4429940      4625253
+                         geometry
+1  MULTIPOLYGON (((-88.20006 3...
+2  MULTIPOLYGON (((-114.7196 3...
+3  MULTIPOLYGON (((-109.0501 4...
+4  MULTIPOLYGON (((-73.48731 4...
+5  MULTIPOLYGON (((-81.81169 2...
+6  MULTIPOLYGON (((-85.60516 3...
+7  MULTIPOLYGON (((-116.916 45...
+8  MULTIPOLYGON (((-87.52404 4...
+9  MULTIPOLYGON (((-102.0517 4...
+10 MULTIPOLYGON (((-92.01783 2...</code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="e3" class="level3">
+<h3 class="anchored" data-anchor-id="e3">E3</h3>
+<p><strong>Find all states with the following characteristics (bonus: find <em>and</em> plot them):</strong></p>
+<ul>
+<li><p><strong>Belong to the Midwest region.</strong></p></li>
+<li><p><strong>Belong to the West region, have an area below 250,000 km<sup>2</sup><em>and</em> in 2015 a population greater than 5,000,000 residents (hint: you may need to use the function <a href="https://r-quantities.github.io/units/reference/units.html"><code>units::set_units()</code></a> or <a href="https://rdrr.io/r/base/numeric.html"><code>as.numeric()</code></a>).</strong></p></li>
+<li><p><strong>Belong to the South region, had an area larger than 150,000 km<sup>2</sup> and a total population in 2015 larger than 7,000,000 residents.</strong></p></li>
+</ul>
+<hr>
+</section>
+<section id="e4" class="level3">
+<h3 class="anchored" data-anchor-id="e4">E4</h3>
+<p><strong>What was the total population in 2015 in the <code>us_states</code> dataset? What was the minimum and maximum total population in 2015?</strong></p>
+<hr>
+</section>
+<section id="e5" class="level3">
+<h3 class="anchored" data-anchor-id="e5">E5</h3>
+<p><strong>How many states are there in each region?</strong></p>
+<hr>
+</section>
+<section id="e6" class="level3">
+<h3 class="anchored" data-anchor-id="e6">E6</h3>
+<p><strong>What was the minimum and maximum total population in 2015 in each region? What was the total population in 2015 in each region?</strong></p>
+<hr>
+</section>
+<section id="e7" class="level3">
+<h3 class="anchored" data-anchor-id="e7">E7</h3>
+<p><strong>Add variables from <code>us_states_df</code> to <code>us_states</code>, and create a new object called <code>us_states_stats</code>. What function did you use and why? Which variable is the key in both datasets? What is the class of the new object?</strong></p>
+<hr>
+</section>
+<section id="e8" class="level3">
+<h3 class="anchored" data-anchor-id="e8">E8</h3>
+<p><strong><code>us_states_df</code> has two more rows than <code>us_states</code>. How can you find them? (Hint: try to use the <a href="https://dplyr.tidyverse.org/reference/filter-joins.html"><code>dplyr::anti_join()</code></a> function.)</strong></p>
+<hr>
+</section>
+<section id="e9" class="level3">
+<h3 class="anchored" data-anchor-id="e9">E9</h3>
+<p><strong>What was the population density in 2015 in each state? What was the population density in 2010 in each state?</strong></p>
+<hr>
+</section>
+<section id="e10" class="level3">
+<h3 class="anchored" data-anchor-id="e10">E10</h3>
+<p><strong>How much has population density changed between 2010 and 2015 in each state? Calculate the change in percentages and map them.</strong></p>
+<hr>
+</section>
+<section id="e11" class="level3">
+<h3 class="anchored" data-anchor-id="e11">E11</h3>
+<p><strong>Change the columns’ names in <code>us_states</code> to lowercase. (Hint: helper functions - <a href="https://rdrr.io/r/base/chartr.html"><code>tolower()</code></a> and <a href="https://rdrr.io/r/base/colnames.html"><code>colnames()</code></a> may help.)</strong></p>
+<hr>
+</section>
+<section id="e12" class="level3">
+<h3 class="anchored" data-anchor-id="e12">E12</h3>
+<p><strong>Using <code>us_states</code> and <code>us_states_df</code> create a new object called <code>us_states_sel</code>. The new object should have only two variables: <code>median_income_15</code> and <code>geometry</code>. Change the name of the <code>median_income_15</code> column to <code>Income</code>.</strong></p>
+<hr>
+</section>
+<section id="e13" class="level3">
+<h3 class="anchored" data-anchor-id="e13">E13</h3>
+<p><strong>Calculate the change in the number of residents living below the poverty level between 2010 and 2015 for each state. (Hint: See ?us_states_df for documentation on the poverty level columns.) Bonus: Calculate the change in the <em>percentage</em> of residents living below the poverty level in each state.</strong></p>
+<hr>
+</section>
+<section id="e14" class="level3">
+<h3 class="anchored" data-anchor-id="e14">E14</h3>
+<p><strong>What was the minimum, average and maximum state’s number of people living below the poverty line in 2015 for each region? Bonus: What is the region with the largest increase in people living below the poverty line?</strong></p>
+<hr>
+</section>
+<section id="e15" class="level3">
+<h3 class="anchored" data-anchor-id="e15">E15</h3>
+<p><strong>Create a raster from scratch, with nine rows and columns and a resolution of 0.5 decimal degrees (WGS84). Fill it with random numbers. Extract the values of the four corner cells.</strong></p>
+<hr>
+</section>
+<section id="e16" class="level3">
+<h3 class="anchored" data-anchor-id="e16">E16</h3>
+<p><strong>What is the most common class of our example raster <code>grain</code>?</strong></p>
+<hr>
+</section>
+<section id="e17" class="level3">
+<h3 class="anchored" data-anchor-id="e17">E17</h3>
+<p><strong>Plot the histogram and the boxplot of the <code>dem.tif</code> file from the spDataLarge package (<code>system.file("raster/dem.tif", package = "spDataLarge")</code>).</strong></p>
 
 
 </section>
@@ -1563,6 +2592,38 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 <footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/chapter3.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><div class="page-columns page-rows-contents page-layout-article"><div class="social-share"><a href="https://twitter.com/share?url=https://aditya-dahiya.github.io/visage/geocomputation/chapter3.html&amp;text=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="twitter"><i class="fab fa-twitter fa-fw fa-lg"></i></a><a href="https://www.linkedin.com/shareArticle?url=https://aditya-dahiya.github.io/visage/geocomputation/chapter3.html&amp;title=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="linkedin"><i class="fa-brands fa-linkedin-in fa-fw fa-lg"></i></a>  <a href="mailto:?subject=Visualizing Information and Spatial Analysis with ggplot2 Extensions&amp;body=Check out this link:https://aditya-dahiya.github.io/visage/geocomputation/chapter3.html" target="_blank" class="email"><i class="fa-solid fa-envelope fa-fw fa-lg"></i></a><a href="https://www.facebook.com/sharer.php?u=https://aditya-dahiya.github.io/visage/geocomputation/chapter3.html" target="_blank" class="facebook"><i class="fab fa-facebook-f fa-fw fa-lg"></i></a><a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' &amp;&amp; mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=Visualizing Information and Spatial Analysis with ggplot2 Extensions https://aditya-dahiya.github.io/visage/geocomputation/chapter3.html'}else{return false;}" target="_blank" class="mastodon"><i class="fa-brands fa-mastodon fa-fw fa-lg"></i></a></div></div>
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","openEffect":"zoom","descPosition":"bottom","loop":false,"selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
 
 
 

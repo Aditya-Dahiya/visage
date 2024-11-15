@@ -203,43 +203,59 @@ The `dplyr` functions (`filter()`, `select()`, `pull()`) are intuitive and integ
 -   Aggregation is summarizing data using one or more grouping variables, often leading to a smaller dataset. It is useful for data reduction, especially when working with large datasets.
 -   **Base R Approach**
     -   **Using `aggregate()`**:
-        -   Example: Calculating total population per continent.
-
-            ``` r
-            world_agg1 = aggregate(pop ~ continent, 
-                                   FUN = sum, 
-                                   data = world, 
-                                   na.rm = TRUE)
-            ```
-
-            -   [**`aggregate()`**](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/aggregate) groups data and applies a function (e.g., `sum`).
-            -   Result: A non-spatial data frame with two columns (`continent`, `pop`).
+        -   [**`aggregate()`**](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/aggregate) groups data and applies a function (e.g., `sum`). Result: A non-spatial data frame with two columns (`continent`, `pop`).
     -   **Using `aggregate.sf()`**:
-        -   For spatial objects (`sf`), use `aggregate()` with `by` argument:
-
-            ``` r
-            world_agg2 = aggregate(world["pop"], 
-                                   by = list(world$continent), 
-                                   FUN = sum, 
-                                   na.rm = TRUE)
-            ```
-
-            -   This results in an **`sf`** object with eight features representing continents.
+        -   For spatial objects (`sf`), use `aggregate()` with `by` argument. This results in an **`sf`** object with eight features representing continents.
 -   **`dplyr` Approach**
     -   **Using `group_by()` and `summarize()`**:
         -   Equivalent to `aggregate()`, but offers flexibility and control:
 
-            ``` r
-            library(dplyr)
-            world_agg3 = world |>
-              group_by(continent) |>
-              summarize(pop = sum(pop, na.rm = TRUE))
-            ```
-
             -   [**`group_by()`**](https://dplyr.tidyverse.org/reference/group_by.html) defines grouping variables.
             -   [**`summarize()`**](https://dplyr.tidyverse.org/reference/summarise.html) applies aggregation functions.
--   For more details, refer to the help pages of [`summarize()`](https://dplyr.tidyverse.org/reference/summarise.html) and the **dplyr** package vignette: `vignette(package = "dplyr")`.
--   Check [Chapter 5](https://r4ds.had.co.nz/transform.html) of [*R for Data Science*](https://r4ds.had.co.nz/).
+
+```{r}
+#| eval: true
+
+library(dplyr)
+world |>
+  group_by(continent) |>
+  summarize(pop = sum(pop, na.rm = TRUE))
+```
+
+-   More details on grouped data and [`summarize()`](https://dplyr.tidyverse.org/reference/summarise.html) from the **dplyr** package vignettes.
+
+::: keylearning
+**`dplyr`** functions are highly effective when applied to grouped data frames (`grouped_df` objects). Here are the main points covered:
+
+-   **Grouping Data**: Use [**`group_by()`**](https://dplyr.tidyverse.org/reference/group_by.html) to create groups within a data frame based on one or more variables.
+
+    -   To count rows in each group, use [**`tally()`**](https://dplyr.tidyverse.org/reference/tally.html).
+
+-   **Accessing Group Metadata**:
+
+    -   **`group_keys()`**: Shows underlying group data. [Details here](https://dplyr.tidyverse.org/reference/group_keys.html).
+    -   **`group_vars()`**: Retrieves names of the grouping variables. [Details here](https://dplyr.tidyverse.org/reference/group_vars.html).
+
+-   **Modifying Groups**:
+
+    -   To overwrite or add grouping variables, use `.add = TRUE` with **`group_by()`**. [Read more](https://dplyr.tidyverse.org/reference/group_by.html).
+    -   To remove groups, use [**`ungroup()`**](https://dplyr.tidyverse.org/reference/ungroup.html).
+
+-   **Verbs and Grouping**:
+
+    -   **`summarise()`**: Computes summary statistics per group. The `.groups` argument controls grouping structure. [More on `summarise()`](https://dplyr.tidyverse.org/reference/summarise.html).
+
+-   **Column Manipulation**:
+
+    -   **`select()`** retains grouping variables by default. [More on `select()`](https://dplyr.tidyverse.org/reference/select.html).
+    -   **`rename()`** and **`relocate()`** function the same way for grouped and ungrouped data. [Details here](https://dplyr.tidyverse.org/reference/relocate.html).
+
+-   **Sorting Groups**:
+
+    -   **`arrange()`**: Sorts data, with `.by_group = TRUE` option to sort within groups. [More on `arrange()`](https://dplyr.tidyverse.org/reference/arrange.html).
+:::
+
+-   Check out [Chapter 5](https://r4ds.had.co.nz/transform.html) of [*R for Data Science*](https://r4ds.had.co.nz/).
 
 ### 3.2.4 Vector Attribute Joining
 
@@ -340,6 +356,355 @@ The `dplyr` functions (`filter()`, `select()`, `pull()`) are intuitive and integ
     -   Use `coltab()` to view or set color tables.
     -   Saving the raster (e.g., as GeoTIFF) includes the color table information.
 
-### **3.3.1 Raster subsetting**
+### 3.3.1 Raster subsetting
 
-*(under construction)*
+-   **Raster Subsetting**:
+
+    -   Involves selecting specific parts of a raster dataset using the base R subsetting operator `[ , ]`.
+    -   **Subsetting Methods**:
+        1.  **Row-Column Indexing**: Accesses cells using specific row and column coordinates.
+        2.  **Cell IDs**: Accesses cells using unique numeric identifiers for each raster cell.
+        3.  **Coordinates and Spatial Objects**: These methods are used for spatial subsetting, using another spatial object to subset a raster.
+
+-   **Examples**:
+
+    -   Accessing the top-left pixel value using row-column indexing:
+
+```{r}
+#| label: raster-1
+#| collapse: true
+#| eval: true
+
+# A simple raster
+  elev <- rast(
+    nrows = 10, ncols = 10,
+    xmin = -1.5, xmax = 1.5, ymin = -1.5, ymax = 1.5,
+    vals = 1:100
+    ) 
+
+# A raster with categorical levels
+grain <- rast(
+  nrows = 10, ncols = 10,
+  xmin = -1.5, xmax = 1.5, ymin = -1.5, ymax = 1.5,
+  vals = sample(
+    x = c("Wheat", "Rice", "Maize", "Others"),
+    size = 100,
+    replace = TRUE
+  )
+)
+
+    # Print the "elev" object to visualize the design
+    print(elev)
+
+    # Plot the raster object to visualize the matrix as an image
+    plot(
+      elev, 
+      main = "Raster Object with a Sequential Pattern"
+    )
+
+    # Accessing using row number and column number
+    elev[1, 1]
+
+    elev[10,5]
+
+
+    plot(
+      grain,
+      main = "Raster Object with 4 categorical levels"
+    )
+
+    # Accessing using row number and column number
+
+    grain[1,1]
+
+    grain[10, 10]
+
+    # A multilayered raster - combining both
+    two_layers <- c(elev, grain)
+
+    print(two_layers)
+    names(two_layers) <- c("Continuous variable", 
+                           "Categorical variable")
+    plot(
+      two_layers
+    )
+
+```
+
+-   Accessing the first cell using its Cell ID:
+
+```{r}
+#| eval: true
+#| label: raster-2
+#| collapse: true
+
+# Accessing raster values using cell ID
+elev[1]
+elev[95]
+```
+
+-   **Subsetting Multi-layered Rasters**:
+
+    -   For multi-layer raster objects (e.g., `two_layers = c(grain, elev)`), subsetting returns values from each layer:
+
+```{r}
+#| eval: true
+#| code-fold: false
+
+two_layers[1]
+
+```
+
+-   To extract all cell values from a raster:
+
+```{r}
+#| eval: true
+#| code-fold: false
+
+# Extracting all values - single layer raster
+elev[][1:10]  
+
+# It is Equivalent to using the values() function
+values(elev)[1:10]
+
+# Extracting all values - multi-layer raster
+# It returns a data.frame
+values(two_layers) |> 
+  as_tibble()
+```
+
+-   **Modifying Raster Values**:
+
+    -   Change specific cell values by combining subsetting with assignment:
+
+```{r}
+#| eval: true
+#| code-fold: false
+
+elev[5, 5] = 0  # Sets the value of the 1 central cells to 0
+
+plot(elev)
+
+```
+
+-   Modify multiple cells simultaneously:
+
+```{r}
+#| eval: true
+#| code-fold: false
+
+
+elev[5, c(5,6)] = 0  # Sets the value of the central 2 cells to 0
+
+plot(elev)
+
+```
+
+-   **Replacing Values in Multi-layered Rasters**:
+
+    -   Modify cell values in a multi-layer raster using a matrix with corresponding layers and cell indices:
+
+```{r}
+#| eval: true
+#| code-fold: false
+# Assigns new values for Cell ID 1 in both layers
+two_layers[45] = cbind(c(1), c(4))  
+
+plot(two_layers)
+```
+
+This subsetting approach allows efficient extraction and manipulation of raster cell values, enabling the customization of raster datasets for specific analytical needs.
+
+### 3.3.2 Summarizing Raster Objects
+
+-   **Descriptive Statistics**:
+    -   The **terra** package provides functions for summarizing raster objects.
+    -   Printing a raster object directly shows the **minimum** and **maximum** values.
+    -   The [`summary()`](https://rspatial.github.io/terra/reference/summary.html) function provides detailed statistics:
+        -   For **continuous rasters**: Minimum, maximum, quartiles, and count of NAs.
+        -   For **categorical rasters**: Counts of each unique class.
+
+```{r}
+#| eval: true
+#| collapse: true
+#| code-fold: false
+
+summary(two_layers)
+```
+
+-   **Custom Summary Statistics**:
+    -   The [`global()`](https://rspatial.github.io/terra/reference/global.html) function calculates additional statistics like **standard deviation** and can be used to apply custom summary statistics.
+
+```{r}
+#| eval: true
+#| code-fold: false
+
+global(two_layers, sum)
+
+global(two_layers, mean)
+
+```
+
+-   **Frequency Table**:
+    -   The [`freq()`](https://rspatial.github.io/terra/reference/freq.html) function generates a frequency table for categorical raster values, showing counts of each category.
+
+```{r}
+#| eval: true
+#| tbl-cap: "Frequency table using freq() on raster objects"
+#| label: tbl-freq-raster
+
+freq(two_layers$`Categorical variable`) |> 
+  gt::gt() |> 
+  gtExtras::gt_theme_538()
+
+```
+
+-   **Visualization of Raster Statistics**:
+    -   Several functions like [`hist()`](https://rspatial.github.io/terra/reference/hist.html), [`boxplot()`](https://rspatial.github.io/terra/reference/boxplot.html), and [`density()`](https://rspatial.github.io/terra/reference/density.html) work directly with raster objects to visualize statistics.
+    -   If visualization functions do not support raster objects, values can be extracted using [`values()`](https://rspatial.github.io/terra/reference/values.html) for further plotting.
+-   **Handling Function Name Clashes**:
+    -   Some functions (e.g., `extract()`) exist in multiple packages like **terra** and **tidyr**, leading to conflicts.
+    -   To avoid issues, call functions with full namespaces (e.g., `tidyr::extract()`).
+        -   Use [`detach()`](https://stat.ethz.ch/R-manual/R-devel/library/base/html/detach.html) to unload conflicting packages, but be cautious as it may impact dependent packages.
+
+## 3.4 Exercises
+
+```{r}
+#| code-fold: false
+#| eval: true
+#| echo: true
+
+library(sf)
+library(dplyr)
+library(terra)
+library(spData)
+data(us_states)
+data(us_states_df)
+
+```
+
+### E1
+
+**Create a new object called `us_states_name` that contains only the `NAME` column from the `us_states` object using either base R (`[`) or tidyverse ([`select()`](https://dplyr.tidyverse.org/reference/select.html)) syntax. What is the class of the new object and what makes it geographic?**
+
+```{r}
+#| code-fold: false
+#| eval: true
+
+us_states_name <- us_states |> 
+  select(NAME)
+
+class(us_states_name)
+```
+
+The new object of the class `sf`, and the stickiness of the `geometry` column makes it a geographical dataset.
+
+------------------------------------------------------------------------
+
+### E2
+
+**Select columns from the `us_states` object which contain population data. Obtain the same result using a different command (bonus: try to find three ways of obtaining the same result). Hint: try to use helper functions, such as `contains` or `matches` from dplyr (see [`?contains`](https://tidyselect.r-lib.org/reference/starts_with.html)).**
+
+```{r}
+#| code-fold: false
+#| eval: true
+
+us_states
+
+```
+
+------------------------------------------------------------------------
+
+### E3
+
+**Find all states with the following characteristics (bonus: find *and* plot them):**
+
+-   **Belong to the Midwest region.**
+
+-   **Belong to the West region, have an area below 250,000 km^2^*and* in 2015 a population greater than 5,000,000 residents (hint: you may need to use the function [`units::set_units()`](https://r-quantities.github.io/units/reference/units.html) or [`as.numeric()`](https://rdrr.io/r/base/numeric.html)).**
+
+-   **Belong to the South region, had an area larger than 150,000 km^2^ and a total population in 2015 larger than 7,000,000 residents.**
+
+------------------------------------------------------------------------
+
+### E4
+
+**What was the total population in 2015 in the `us_states` dataset? What was the minimum and maximum total population in 2015?**
+
+------------------------------------------------------------------------
+
+### E5
+
+**How many states are there in each region?**
+
+------------------------------------------------------------------------
+
+### E6
+
+**What was the minimum and maximum total population in 2015 in each region? What was the total population in 2015 in each region?**
+
+------------------------------------------------------------------------
+
+### E7
+
+**Add variables from `us_states_df` to `us_states`, and create a new object called `us_states_stats`. What function did you use and why? Which variable is the key in both datasets? What is the class of the new object?**
+
+------------------------------------------------------------------------
+
+### E8
+
+**`us_states_df` has two more rows than `us_states`. How can you find them? (Hint: try to use the [`dplyr::anti_join()`](https://dplyr.tidyverse.org/reference/filter-joins.html) function.)**
+
+------------------------------------------------------------------------
+
+### E9
+
+**What was the population density in 2015 in each state? What was the population density in 2010 in each state?**
+
+------------------------------------------------------------------------
+
+### E10
+
+**How much has population density changed between 2010 and 2015 in each state? Calculate the change in percentages and map them.**
+
+------------------------------------------------------------------------
+
+### E11
+
+**Change the columns’ names in `us_states` to lowercase. (Hint: helper functions - [`tolower()`](https://rdrr.io/r/base/chartr.html) and [`colnames()`](https://rdrr.io/r/base/colnames.html) may help.)**
+
+------------------------------------------------------------------------
+
+### E12
+
+**Using `us_states` and `us_states_df` create a new object called `us_states_sel`. The new object should have only two variables: `median_income_15` and `geometry`. Change the name of the `median_income_15` column to `Income`.**
+
+------------------------------------------------------------------------
+
+### E13
+
+**Calculate the change in the number of residents living below the poverty level between 2010 and 2015 for each state. (Hint: See ?us_states_df for documentation on the poverty level columns.) Bonus: Calculate the change in the *percentage* of residents living below the poverty level in each state.**
+
+------------------------------------------------------------------------
+
+### E14
+
+**What was the minimum, average and maximum state’s number of people living below the poverty line in 2015 for each region? Bonus: What is the region with the largest increase in people living below the poverty line?**
+
+------------------------------------------------------------------------
+
+### E15
+
+**Create a raster from scratch, with nine rows and columns and a resolution of 0.5 decimal degrees (WGS84). Fill it with random numbers. Extract the values of the four corner cells.**
+
+------------------------------------------------------------------------
+
+### E16
+
+**What is the most common class of our example raster `grain`?**
+
+------------------------------------------------------------------------
+
+### E17
+
+**Plot the histogram and the boxplot of the `dem.tif` file from the spDataLarge package (`system.file("raster/dem.tif", package = "spDataLarge")`).**
