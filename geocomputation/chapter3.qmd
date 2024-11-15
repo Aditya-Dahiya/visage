@@ -607,11 +607,20 @@ The new object of the class `sf`, and the stickiness of the `geometry` column ma
 
 ```{r}
 #| code-fold: false
-#| eval: true
+#| eval: false
 
-us_states
+us_states |> 
+  select(contains("pop"))
 
+us_states |> 
+  select(where(is.double)) |> 
+  select(-AREA)
+
+us_states |> 
+  select(5:6)
 ```
+
+The above three methods all select the columns `total_pop_10` and `total_pop_15` . Notice that the column `geometry` is sticky, and can be removed using `st_drop_geometry()`.
 
 ------------------------------------------------------------------------
 
@@ -621,9 +630,48 @@ us_states
 
 -   **Belong to the Midwest region.**
 
+    The code shown below gives out the names of all such states.
+
+```{r}
+#| code-fold: false
+#| eval: true
+
+us_states |> 
+  filter(REGION == "Midwest") |> 
+  pull(NAME) |> 
+  paste(collapse = ", ")
+```
+
 -   **Belong to the West region, have an area below 250,000 km^2^*and* in 2015 a population greater than 5,000,000 residents (hint: you may need to use the function [`units::set_units()`](https://r-quantities.github.io/units/reference/units.html) or [`as.numeric()`](https://rdrr.io/r/base/numeric.html)).**
 
+    Only Washington State qualifies all three conditions. Code is shown below.
+
+```{r}
+#| eval: true
+#| code-fold: false
+
+us_states |> 
+  filter(REGION == "West") |> 
+  filter(total_pop_15 > 5e6) |> 
+  filter(as.numeric(AREA) < 250000)
+
+us_states |> 
+  filter(REGION == "West") |> 
+  filter(total_pop_15 > 5e6) |> 
+  filter(AREA < units::set_units(250000, "km2"))
+```
+
 -   **Belong to the South region, had an area larger than 150,000 km^2^ and a total population in 2015 larger than 7,000,000 residents.**
+
+    The states that fulfil these conditions are Florida, Georgia and Texas.
+
+```{r}
+us_states |> 
+  filter(REGION == "South") |> 
+  filter(AREA > units::set_units(150000, "km2")) |> 
+  filter(total_pop_15 > 7e6) |> 
+  pull(NAME)
+```
 
 ------------------------------------------------------------------------
 
@@ -631,11 +679,49 @@ us_states
 
 **What was the total population in 2015 in the `us_states` dataset? What was the minimum and maximum total population in 2015?**
 
+The total population in the `us_states` dataset in the year 2015 was 314,375,347. The minimum total population in 2015 was 579,679 (Wyoming), and the maximum total population was 38,421,464 (California).
+
+```{r}
+#| label: q-3
+#| collapse: true
+#| code-fold: false
+#| eval: true
+
+us_states |> 
+  st_drop_geometry() |> 
+  as_tibble() |> 
+  summarise(
+    total_pop_15 = sum(total_pop_15)
+  )
+
+us_states |> 
+  st_drop_geometry() |> 
+  slice_min(order_by = total_pop_15, n = 1)
+
+us_states |> 
+  st_drop_geometry() |> 
+  slice_max(order_by = total_pop_15, n = 1)
+```
+
 ------------------------------------------------------------------------
 
 ### E5
 
 **How many states are there in each region?**
+
+The number of states in each region are shown in @tbl-st-region below.
+
+```{r}
+#| label: tbl-st-region
+#| tbl-cap: "Table showing number of states in each region."
+
+us_states |> 
+  st_drop_geometry() |> 
+  count(REGION, name = "Number of States") |> 
+  gt::gt() |> 
+  gtExtras::gt_theme_538()
+
+```
 
 ------------------------------------------------------------------------
 
@@ -643,11 +729,70 @@ us_states
 
 **What was the minimum and maximum total population in 2015 in each region? What was the total population in 2015 in each region?**
 
+The minimum and maximum total population in 2015 in each region is shown in @tbl-e6-1. The total population in each region in 2015 is shown in @tbl-e6-2.
+
+```{r}
+#| label: tbl-e6
+#| tbl-cap: "Region-wise total and minimum-maximum populations"
+#| tbl-subcap: 
+#|   - "Minimum and maximum populations, region-wise, in 2015"
+#|   - "Total population, region-wise, in 2015"
+us_states |> 
+  as_tibble() |> 
+  group_by(REGION) |> 
+  slice_min(order_by = total_pop_15, n = 1) |> 
+  select(REGION, NAME, total_pop_15) |> 
+  ungroup() |> 
+  gt::gt() |> 
+  gt::fmt_number(
+    columns = total_pop_15,
+    decimals = 0
+  ) |> 
+  gt::cols_label_with(fn = snakecase::to_title_case) |> 
+  gtExtras::gt_theme_538()
+
+
+us_states |> 
+  as_tibble() |> 
+  group_by(REGION) |> 
+  summarise(
+    total_population_2015 = sum(total_pop_15)
+  ) |> 
+  select(REGION, total_population_2015) |> 
+  ungroup() |> 
+  gt::gt() |> 
+  gt::fmt_number(
+    columns = total_population_2015,
+    decimals = 0
+  ) |> 
+  gt::cols_label_with(fn = snakecase::to_title_case) |> 
+  gtExtras::gt_theme_538()
+
+```
+
 ------------------------------------------------------------------------
 
 ### E7
 
 **Add variables from `us_states_df` to `us_states`, and create a new object called `us_states_stats`. What function did you use and why? Which variable is the key in both datasets? What is the class of the new object?**
+
+The function we use to accomplish this task is `left_join()` and the key in both datasets are the state names, called `NAME` in `us_states` dataset, and `state` in `us_states_df` dataset.
+
+The class of the new object depends on which object is used first on the `left_join()` function, if `us_states` (an sf object) is used first, the class of new object is `sf` . However, if the `us_states_df` (a data frame) is used first, the resulting object is a `data.frame` or `tibble`.
+
+```{r}
+#| eval: true
+#| code-fold: false
+#| collapse: true
+
+us_states |> 
+  left_join(us_states_df, by = join_by(NAME == state)) |> 
+  class()
+
+us_states_df |> 
+  left_join(us_states, by = join_by(state == NAME)) |> 
+  class()
+```
 
 ------------------------------------------------------------------------
 
@@ -655,11 +800,53 @@ us_states
 
 **`us_states_df` has two more rows than `us_states`. How can you find them? (Hint: try to use the [`dplyr::anti_join()`](https://dplyr.tidyverse.org/reference/filter-joins.html) function.)**
 
+The two rows that more more in `us_states_df` are shown below: —
+
+```{r}
+#| code-fold: false
+#| eval: true
+#| label: tbl-e8
+#| tbl-cap: "The two extra rows in `us_states_df`"
+
+
+us_states_df |> 
+  anti_join(us_states, by = join_by(state == NAME)) |> 
+  gt::gt() |> 
+  gtExtras::gt_theme_538() |> 
+  gt::cols_label_with(fn = snakecase::to_title_case)
+```
+
 ------------------------------------------------------------------------
 
 ### E9
 
 **What was the population density in 2015 in each state? What was the population density in 2010 in each state?**
+
+The @tbl-e9 shows the population density.
+
+```{r}
+#| label: tbl-e9
+#| tbl-cap: "A table showing population density in 2010 and 2015 in each state"
+#| eval: true
+
+us_states |> 
+  st_drop_geometry() |> 
+  as_tibble() |> 
+  mutate(
+    population_density_2010 = total_pop_10 / as.numeric(AREA),
+    population_density_2015 = total_pop_15 / as.numeric(AREA),
+    .keep = "unused"
+  ) |> 
+  select(-GEOID) |> 
+  gt::gt() |> 
+  gt::opt_interactive() |> 
+  gtExtras::gt_theme_espn() |> 
+  gt::fmt_number(
+    decimals = 1
+  ) |> 
+  gt::cols_label_with(fn = snakecase::to_title_case)
+
+```
 
 ------------------------------------------------------------------------
 
@@ -667,11 +854,96 @@ us_states
 
 **How much has population density changed between 2010 and 2015 in each state? Calculate the change in percentages and map them.**
 
+The @tbl-e10 shows how much the population density has changed between 2010 and 2015 in each state. The @fig-e10 shows the percentage change in a map of the US.
+
+```{r}
+#| label: tbl-e10
+#| tbl-cap: "Table showing change in population density between 2010 and 2015"
+#| eval: true
+
+
+us_states |> 
+  st_drop_geometry() |> 
+  as_tibble() |> 
+  mutate(
+    population_density_2010 = total_pop_10 / as.numeric(AREA),
+    population_density_2015 = total_pop_15 / as.numeric(AREA),
+    change_in_density = (population_density_2015 - population_density_2010)/population_density_2010,
+    .keep = "unused"
+  ) |> 
+  select(-GEOID) |> 
+  gt::gt() |> 
+  gt::opt_interactive() |> 
+  gtExtras::gt_theme_espn() |> 
+  gt::fmt_number(
+    decimals = 1
+  ) |> 
+  gt::fmt_percent(
+    columns = change_in_density
+  ) |> 
+  gt::cols_label_with(fn = snakecase::to_title_case)
+```
+
+```{r}
+#| label: fig-e10
+#| fig-cap: "Map of the change in population density"
+#| eval: true
+
+
+us_states |> 
+  mutate(
+    population_density_2010 = total_pop_10 / as.numeric(AREA),
+    population_density_2015 = total_pop_15 / as.numeric(AREA),
+    change_in_density = (population_density_2015 - population_density_2010)/population_density_2010,
+    .keep = "unused"
+  ) |> 
+  ggplot() +
+  geom_sf(
+    mapping = aes(
+      fill = change_in_density
+    )
+  ) +
+  geom_sf_text(
+    mapping = aes(
+      label = paste0(
+        round(
+          change_in_density * 100,
+          1
+        ),
+        "%"
+      )
+    ),
+    size = 3
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "ggthemes::Red-Green Diverging",
+    labels = scales::label_percent(),
+    name = "Change in population density between 2010 and 2015",
+    limits = c(-0.05, 0.1)
+  ) +
+  ggthemes::theme_map() +
+  theme(
+    legend.position = "bottom",
+    legend.title.position = "top"
+  )
+  
+```
+
 ------------------------------------------------------------------------
 
 ### E11
 
 **Change the columns’ names in `us_states` to lowercase. (Hint: helper functions - [`tolower()`](https://rdrr.io/r/base/chartr.html) and [`colnames()`](https://rdrr.io/r/base/colnames.html) may help.)**
+
+A very easy method is using the `janitor` package and the function `clean_names()`
+
+```{r}
+
+us_states |> 
+  janitor::clean_names() |> 
+  as_tibble() |> 
+  print(n = 5)
+```
 
 ------------------------------------------------------------------------
 
@@ -679,11 +951,64 @@ us_states
 
 **Using `us_states` and `us_states_df` create a new object called `us_states_sel`. The new object should have only two variables: `median_income_15` and `geometry`. Change the name of the `median_income_15` column to `Income`.**
 
+The new object `us_states_sel` is created as shown below.
+
+```{r}
+#| label: e12
+
+us_states_sel <- us_states |> 
+  left_join(us_states_df, by = join_by(NAME == state)) |> 
+  select(Income = median_income_15, geometry)
+
+us_states_sel
+```
+
 ------------------------------------------------------------------------
 
 ### E13
 
-**Calculate the change in the number of residents living below the poverty level between 2010 and 2015 for each state. (Hint: See ?us_states_df for documentation on the poverty level columns.) Bonus: Calculate the change in the *percentage* of residents living below the poverty level in each state.**
+**Calculate the change in the number of residents living below the poverty level between 2010 and 2015 for each state. (Hint: See `?us_states_df` for documentation on the poverty level columns.) Bonus: Calculate the change in the *percentage* of residents living below the poverty level in each state.**
+
+The @tbl-e13-a shows the change in the number of residents living below the poverty level between 2010 and 2015 for each state.
+
+```{r}
+#| label: tbl-e13-a
+#| tbl-cap: "The change in the number of residents living below the poverty level between 2010 and 2015 for each state"
+
+us_states_df |> 
+  mutate(
+    change_in_poverty = poverty_level_15 - poverty_level_10
+  ) |> 
+  select(state, change_in_poverty) |> 
+  gt::gt() |> 
+  gt::fmt_number(decimals = 0) |> 
+  gt::cols_label_with(fn = snakecase::to_title_case) |> 
+  gt::opt_interactive() 
+```
+
+The @tbl-e13-b shows the change in the *percentage* of residents living below the poverty level in each state.
+
+```{r}
+#| label: tbl-e13-b
+#| tbl-cap: "Table showing the change in the percentage of residents living below the poverty level in each state."
+
+
+us_states |> 
+  st_drop_geometry() |> 
+  left_join(us_states_df, by = join_by(NAME == state)) |> 
+  as_tibble() |> 
+  mutate(
+    state = NAME,
+    poverty_2010 = poverty_level_10 / total_pop_10,
+    poverty_2015 = poverty_level_15 / total_pop_15,
+    change_in_poverty = poverty_2015 - poverty_2010,
+    .keep = "none"
+  ) |> 
+  gt::gt() |> 
+  gt::fmt_percent() |> 
+  gt::cols_label_with(fn = snakecase::to_title_case) |> 
+  gt::opt_interactive()
+```
 
 ------------------------------------------------------------------------
 
@@ -691,11 +1016,84 @@ us_states
 
 **What was the minimum, average and maximum state’s number of people living below the poverty line in 2015 for each region? Bonus: What is the region with the largest increase in people living below the poverty line?**
 
+The the minimum, average and maximum state’s number of people living below the poverty line in 2015 for each region are shown in @tbl-e14-a below.
+
+```{r}
+#| label: tbl-e14-a
+#| tbl-cap: "A table showing  the minimum, average and maximum state’s number of people living below the poverty line in 2015 for each region"
+
+us_states |> 
+  st_drop_geometry() |> 
+  select(state = NAME, region = REGION) |> 
+  left_join(us_states_df) |> 
+  as_tibble() |> 
+  group_by(region) |> 
+  summarise(
+    minimum_poverty_2015 = min(poverty_level_15),
+    maximum_poverty_2015 = max(poverty_level_15),
+    average_poverty_2015 = mean(poverty_level_15)
+  ) |> 
+  gt::gt() |> 
+  gt::cols_label_with(fn = snakecase::to_title_case) |> 
+  gt::fmt_number(decimals = 0)
+```
+
+As evident in @tbl-e14-b, the region with the largest increase in people living below the poverty line is **the South Region**.
+
+```{r}
+#| label: tbl-e14-b
+#| tbl-cap: "Table showing the region with the largest increase in people living below the poverty line"
+us_states |> 
+  st_drop_geometry() |> 
+  select(state = NAME, region = REGION) |> 
+  as_tibble() |> 
+  left_join(us_states_df) |> 
+  group_by(region) |> 
+  summarise(
+    change_total_poverty = sum(poverty_level_15) - sum(poverty_level_10)
+  ) |> 
+  arrange(desc(change_total_poverty)) |> 
+  gt::gt() |> 
+  gt::cols_label_with(fn = snakecase::to_title_case) |> 
+  gt::fmt_number(decimals = 0)
+```
+
 ------------------------------------------------------------------------
 
 ### E15
 
 **Create a raster from scratch, with nine rows and columns and a resolution of 0.5 decimal degrees (WGS84). Fill it with random numbers. Extract the values of the four corner cells.**
+
+```{r}
+#| code-fold: false
+#| eval: true
+#| collapse: true
+
+# Load the terra package
+library(terra)
+
+# Create a raster with 9 rows and 9 columns, resolution of 0.5 degrees
+r <- rast(nrows = 9, ncols = 9, 
+          resolution = 0.5, 
+          crs = "EPSG:4326")
+
+# Fill the raster with random numbers
+values(r) <- runif(ncell(r))
+
+# Print the raster
+print(r)
+
+plot(r)
+# Extract the values of the four corner cells
+# Top-left (1, 1), Top-right (1, 9), Bottom-left (9, 1), 
+# # Bottom-right (9, 9)
+
+r[1,1]
+r[1,9]
+r[9,1]
+r[9,9]
+
+```
 
 ------------------------------------------------------------------------
 
@@ -703,8 +1101,74 @@ us_states
 
 **What is the most common class of our example raster `grain`?**
 
+```{r}
+#| eval: true
+#| code-fold: true
+#| label: tbl-e16
+#| tbl-cap: "The count of different classes in the example raster `grain`."
+
+
+grain_order <-  c("clay", "silt", "sand")
+grain_char <- sample(grain_order, 36, replace = TRUE)
+grain_fact <-  factor(grain_char, levels = grain_order)
+grain <-rast(nrows = 6, ncols = 6, 
+             xmin = -1.5, xmax = 1.5, 
+             ymin = -1.5, ymax = 1.5,
+             vals = grain_fact)
+
+answer <- freq(grain) |> 
+  arrange(desc(count))
+
+gt::gt(answer) |> 
+  gt::cols_label_with(fn = snakecase::to_title_case)
+
+```
+
+The most common class is the `r answer$value[1]` .
+
 ------------------------------------------------------------------------
 
 ### E17
 
 **Plot the histogram and the boxplot of the `dem.tif` file from the spDataLarge package (`system.file("raster/dem.tif", package = "spDataLarge")`).**
+
+The plots are shown in @fig-e17
+
+```{r}
+#| eval: true
+#| code-fold: false
+#| label: fig-e17
+#| fig-cap: "Plots produced for question E17"
+#| fig-subcap: 
+#|   - "Histogram of the raster dem.tif using base R hist()"
+#|   - "Boxplot of the raster dem.tif using base R boxplot()"
+#|   - "Histogram of the values in raster dem.tif using ggplot2"
+#|   - "Boxplot of the values in raster dem.tif using ggplot2"
+
+temp_rast <- rast(system.file("raster/dem.tif", package = "spDataLarge"))
+
+hist(temp_rast)
+
+boxplot(temp_rast)
+
+# Using ggplot2 methods
+
+temp_rast |> 
+  values() |> 
+  as_tibble() |> 
+  ggplot(aes(dem)) +
+  geom_histogram(
+    fill = "white",
+    colour = "grey20"
+  )
+
+temp_rast |> 
+  values() |> 
+  as_tibble() |> 
+  ggplot(aes(dem)) +
+  geom_boxplot(
+    fill = "white",
+    colour = "grey20",
+    staplewidth = 0.5
+  )
+```
