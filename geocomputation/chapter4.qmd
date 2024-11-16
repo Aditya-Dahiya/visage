@@ -1,0 +1,198 @@
+---
+title: "Chapter 4: Spatial data operations"
+subtitle: "Key Learnings from, and Solutions to the exercises in Chapter 4 of the book Geocomputation with R by Robin Lovelace, Jakub Nowosad and Jannes Muenchow."
+date: "2024-11-16"
+author: "Aditya Dahiya"
+bibliography: references.bib
+format:
+  html:
+    code-fold: false
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: true
+  cache: true
+  collapse: true
+categories:
+  - "Geocomputation with R"
+  - "Textbook Solutions"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/geocomputation/chapter4.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+```{r}
+#| label: setup
+
+library(sf)        # Simple Features in R
+library(terra)     # Handling rasters in R
+library(tidyverse) # All things tidy; Data Wrangling
+library(spData)    # Spatial Datasets
+
+sysfonts::font_add_google("Saira Extra Condensed", "caption_font")
+showtext::showtext_auto()
+```
+
+## 4.1 Introduction to Spatial Operations
+
+-   **Spatial Operations**: Include spatial joins for vectors and local/focal operations for rasters, allowing modification based on location and shape.
+    -   Relation to Non-Spatial Operations: Many spatial operations (e.g., subsetting, joining) have non-spatial counterparts.
+-   **Spatial Joins**: Can be done in multiple ways (e.g., **intersect**, **within distance**), unlike non-spatial joins *(refer to [fuzzyjoin](https://cran.r-project.org/web/packages/fuzzyjoin/index.html) package [@fuzzyjoin] for alternatives).*
+    -   Types of Spatial Relationships: Includes operations like intersects and disjoint. Distance calculations explore spatial relationships.
+-   **Raster Operations**:
+    1.  Subsetting (Section 4.3.1)
+    2.  Map Algebra: Modifies raster cell values through local, focal, zonal, and global operations (Sections 4.3.3 to 4.3.6).
+    3.  Merging Rasters: Demonstrated with reproducible examples (Section 4.3.8).
+-   **Coordinate Reference System (CRS)**: Consistency in CRS is essential for spatial operations..
+
+## 4.2 Spatial operations on vector data
+
+### 4.2.1 Spatial Subsetting
+
+-   Spatial subsetting extracts features from a spatial object (`x`) that relate spatially to another object (`y`).
+-   Syntax: Use the `[ ]` operator: `x[y, , op = st_intersects]`.
+    -   `x`: Target `sf` object.
+
+    -   `y`: Subsetting `sf` object.
+
+    -   `op`: Topological relation (default is `st_intersects`).
+
+        [sf package documentation](https://r-spatial.github.io/sf/)
+-   Default Operator: `st_intersects()` selects features intersecting with the subsetting object. Alternative operators like `st_disjoint()` can be used for different relations.
+    -   Example: `nz_height[canterbury, ]` returns high points within Canterbury from the `nz_height` dataset in the spData package ([spData documentation](https://nowosad.github.io/spData/)).
+-   Topological Relations: Include `touches`, `crosses`, and `within`. These determine spatial relationships between features in `x` and `y`.
+-   Sparse Geometry Binary Predicate (sgbp):
+    -   Using `st_intersects()`, an `sgbp` list object is created.
+    -   Convert `sgbp` to logical vector for subsetting using `lengths({sgbp_object_name} > 0)`
+    -   Using `sparse = FALSE` argument in `st_intersects()` returns a dense matrix.
+-   Tidyverse Alternative: [`st_filter()`](https://r-spatial.github.io/sf/reference/st_filter.html) from the sf package simplifies spatial subsetting, increasing compatibility with `dplyr`.
+-   Output Consistency: Subsets created using `[ ]`, logical vectors, or `st_filter()` are equivalent in spatial operations.
+
+```{r}
+#| label: fig-4-2-1
+#| fig-cap: "Spatial Subsetting and plotting with tidyverse and ggplot2 methods"
+#| fig-subcap: 
+#|   - "New Zealand Map with all the peaks"
+#|   - "New Zealand Map focussing on peaks that intersect with Canterbury"
+#| collapse: true
+
+data("nz")
+data("nz_height")
+
+class(nz)
+
+nz |> 
+  ggplot() +
+  geom_sf(fill = "white") +
+  ggrepel::geom_text_repel(
+    mapping = aes(
+      label = Name,
+      geometry = geom
+    ),
+    size = 4,
+    family = "caption_font",
+    stat = "sf_coordinates"
+  ) +
+  geom_sf(
+    data = nz_height,
+    pch = 2,
+    colour = "red",
+    size = 3
+  ) +
+  scale_fill_manual(
+    values = c("white", "pink")
+  ) +
+  theme_void() +
+  theme(
+    plot.background = element_rect(
+      fill = "lightblue"
+    ),
+    legend.position = "none"
+  )
+
+# Total peaks in New Zealand
+nz_height |> dim()
+
+# Peaks within Canterbury in New Zealand
+
+# Base R Version
+canterbury <- nz |> filter(Name == "Canterbury")
+nz_height[canterbury,] |> dim()
+
+# Tidyverse Version
+nz_height |>
+  st_filter(
+    nz |> filter(Name == "Canterbury"),
+    .predicate = st_intersects
+  ) |> 
+  dim()
+
+# Getting the peaks which are inside Canterbury
+canterbury_ids <- nz_height |>
+  st_filter(
+    nz |> filter(Name == "Canterbury"),
+    .predicate = st_intersects
+  ) |> 
+  pull(t50_fid)
+
+nz_height |> 
+  mutate(in_canterbury = t50_fid %in% canterbury_ids) |> 
+  ggplot() +
+  
+  # Base NZ Map and Label for Canterbury
+  geom_sf(
+    data = nz,
+    mapping = aes(
+      fill = Name == "Canterbury"
+    )
+  ) +
+  geom_sf_text(
+    data = filter(nz, Name == "Canterbury"),
+    mapping = aes(
+      label = Name,
+      geometry = geom
+    ),
+    size = 4,
+    family = "caption_font"
+  ) +
+  
+  # Plotting the peaks, and colouring by presence in Canterbury
+  geom_sf(
+    mapping = aes(
+      colour = in_canterbury,
+      size = in_canterbury
+    ),
+    pch = 2
+  ) +
+  
+  scale_fill_manual(
+    values = c("white", "lightpink")
+  ) +
+  scale_colour_manual(
+    values = c("black", "red")
+  ) +
+  theme_void() +
+  theme(
+    plot.background = element_rect(
+      fill = "lightblue"
+    ),
+    legend.position = "none"
+  )
+```
+
+```{r}
+
+```

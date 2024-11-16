@@ -10,7 +10,549 @@
 <atom:link href="https://aditya-dahiya.github.io/visage/index.html/geocomputation.xml" rel="self" type="application/rss+xml"/>
 <description>Visualizing Information and Spatial Analysis with ggplot2 Extensions</description>
 <generator>quarto-1.5.57</generator>
-<lastBuildDate>Thu, 07 Nov 2024 18:30:00 GMT</lastBuildDate>
+<lastBuildDate>Fri, 15 Nov 2024 18:30:00 GMT</lastBuildDate>
+<item>
+  <title>Chapter 4: Spatial data operations</title>
+  <dc:creator>Aditya Dahiya</dc:creator>
+  <link>https://aditya-dahiya.github.io/visage/index.html/geocomputation/chapter4.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(sf)        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Simple Features in R</span></span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(terra)     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Handling rasters in R</span></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># All things tidy; Data Wrangling</span></span>
+<span id="cb1-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(spData)    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Spatial Datasets</span></span>
+<span id="cb1-5"></span>
+<span id="cb1-6">sysfonts<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">font_add_google</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Saira Extra Condensed"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"caption_font"</span>)</span>
+<span id="cb1-7">showtext<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">showtext_auto</span>()</span></code></pre></div>
+</div>
+<section id="introduction-to-spatial-operations" class="level2">
+<h2 class="anchored" data-anchor-id="introduction-to-spatial-operations">4.1 Introduction to Spatial Operations</h2>
+<ul>
+<li><strong>Spatial Operations</strong>: Include spatial joins for vectors and local/focal operations for rasters, allowing modification based on location and shape.
+<ul>
+<li>Relation to Non-Spatial Operations: Many spatial operations (e.g., subsetting, joining) have non-spatial counterparts.</li>
+</ul></li>
+<li><strong>Spatial Joins</strong>: Can be done in multiple ways (e.g., <strong>intersect</strong>, <strong>within distance</strong>), unlike non-spatial joins <em>(refer to <a href="https://cran.r-project.org/web/packages/fuzzyjoin/index.html">fuzzyjoin</a> package <span class="citation" data-cites="fuzzyjoin">(Robinson 2020)</span> for alternatives).</em>
+<ul>
+<li>Types of Spatial Relationships: Includes operations like intersects and disjoint. Distance calculations explore spatial relationships.</li>
+</ul></li>
+<li><strong>Raster Operations</strong>:
+<ol type="1">
+<li>Subsetting (Section 4.3.1)</li>
+<li>Map Algebra: Modifies raster cell values through local, focal, zonal, and global operations (Sections 4.3.3 to 4.3.6).</li>
+<li>Merging Rasters: Demonstrated with reproducible examples (Section 4.3.8).</li>
+</ol></li>
+<li><strong>Coordinate Reference System (CRS)</strong>: Consistency in CRS is essential for spatial operations..</li>
+</ul>
+</section>
+<section id="spatial-operations-on-vector-data" class="level2">
+<h2 class="anchored" data-anchor-id="spatial-operations-on-vector-data">4.2 Spatial operations on vector data</h2>
+<section id="spatial-subsetting" class="level3">
+<h3 class="anchored" data-anchor-id="spatial-subsetting">4.2.1 Spatial Subsetting</h3>
+<ul>
+<li>Spatial subsetting extracts features from a spatial object (<code>x</code>) that relate spatially to another object (<code>y</code>).</li>
+<li>Syntax: Use the <code>[ ]</code> operator: <code>x[y, , op = st_intersects]</code>.
+<ul>
+<li><p><code>x</code>: Target <code>sf</code> object.</p></li>
+<li><p><code>y</code>: Subsetting <code>sf</code> object.</p></li>
+<li><p><code>op</code>: Topological relation (default is <code>st_intersects</code>).</p>
+<p><a href="https://r-spatial.github.io/sf/">sf package documentation</a></p></li>
+</ul></li>
+<li>Default Operator: <code>st_intersects()</code> selects features intersecting with the subsetting object. Alternative operators like <code>st_disjoint()</code> can be used for different relations.
+<ul>
+<li>Example: <code>nz_height[canterbury, ]</code> returns high points within Canterbury from the <code>nz_height</code> dataset in the spData package (<a href="https://nowosad.github.io/spData/">spData documentation</a>).</li>
+</ul></li>
+<li>Topological Relations: Include <code>touches</code>, <code>crosses</code>, and <code>within</code>. These determine spatial relationships between features in <code>x</code> and <code>y</code>.</li>
+<li>Sparse Geometry Binary Predicate (sgbp):
+<ul>
+<li>Using <code>st_intersects()</code>, an <code>sgbp</code> list object is created.</li>
+<li>Convert <code>sgbp</code> to logical vector for subsetting using <code>lengths({sgbp_object_name} &gt; 0)</code></li>
+<li>Using <code>sparse = FALSE</code> argument in <code>st_intersects()</code> returns a dense matrix.</li>
+</ul></li>
+<li>Tidyverse Alternative: <a href="https://r-spatial.github.io/sf/reference/st_filter.html"><code>st_filter()</code></a> from the sf package simplifies spatial subsetting, increasing compatibility with <code>dplyr</code>.</li>
+<li>Output Consistency: Subsets created using <code>[ ]</code>, logical vectors, or <code>st_filter()</code> are equivalent in spatial operations.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"nz"</span>)</span>
+<span id="cb2-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"nz_height"</span>)</span>
+<span id="cb2-3"></span>
+<span id="cb2-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">class</span>(nz)</span>
+<span id="cb2-5"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1] "sf"         "data.frame"</span></span>
+<span id="cb2-6"></span>
+<span id="cb2-7">nz <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-10">  ggrepel<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_text_repel</span>(</span>
+<span id="cb2-11">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb2-12">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> Name,</span>
+<span id="cb2-13">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">geometry =</span> geom</span>
+<span id="cb2-14">    ),</span>
+<span id="cb2-15">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>,</span>
+<span id="cb2-16">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"caption_font"</span>,</span>
+<span id="cb2-17">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">stat =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sf_coordinates"</span></span>
+<span id="cb2-18">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-19">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb2-20">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> nz_height,</span>
+<span id="cb2-21">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pch =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,</span>
+<span id="cb2-22">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>,</span>
+<span id="cb2-23">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span></span>
+<span id="cb2-24">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-25">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_manual</span>(</span>
+<span id="cb2-26">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pink"</span>)</span>
+<span id="cb2-27">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-28">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_void</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-29">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb2-30">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.background =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_rect</span>(</span>
+<span id="cb2-31">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lightblue"</span></span>
+<span id="cb2-32">    ),</span>
+<span id="cb2-33">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"none"</span></span>
+<span id="cb2-34">  )</span>
+<span id="cb2-35"></span>
+<span id="cb2-36"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Total peaks in New Zealand</span></span>
+<span id="cb2-37">nz_height <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dim</span>()</span>
+<span id="cb2-38"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1] 101   3</span></span>
+<span id="cb2-39"></span>
+<span id="cb2-40"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Peaks within Canterbury in New Zealand</span></span>
+<span id="cb2-41"></span>
+<span id="cb2-42"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Base R Version</span></span>
+<span id="cb2-43">canterbury <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> nz <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(Name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Canterbury"</span>)</span>
+<span id="cb2-44">nz_height[canterbury,] <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dim</span>()</span>
+<span id="cb2-45"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1] 70  3</span></span>
+<span id="cb2-46"></span>
+<span id="cb2-47"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Tidyverse Version</span></span>
+<span id="cb2-48">nz_height <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb2-49">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_filter</span>(</span>
+<span id="cb2-50">    nz <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(Name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Canterbury"</span>),</span>
+<span id="cb2-51">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.predicate =</span> st_intersects</span>
+<span id="cb2-52">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-53">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dim</span>()</span>
+<span id="cb2-54"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1] 70  3</span></span>
+<span id="cb2-55"></span>
+<span id="cb2-56"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Getting the peaks which are inside Canterbury</span></span>
+<span id="cb2-57">canterbury_ids <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> nz_height <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb2-58">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_filter</span>(</span>
+<span id="cb2-59">    nz <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(Name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Canterbury"</span>),</span>
+<span id="cb2-60">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.predicate =</span> st_intersects</span>
+<span id="cb2-61">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-62">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull</span>(t50_fid)</span>
+<span id="cb2-63"></span>
+<span id="cb2-64">nz_height <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-65">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">in_canterbury =</span> t50_fid <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%in%</span> canterbury_ids) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-66">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-67">  </span>
+<span id="cb2-68">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Base NZ Map and Label for Canterbury</span></span>
+<span id="cb2-69">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb2-70">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> nz,</span>
+<span id="cb2-71">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb2-72">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> Name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Canterbury"</span></span>
+<span id="cb2-73">    )</span>
+<span id="cb2-74">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-75">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf_text</span>(</span>
+<span id="cb2-76">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(nz, Name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Canterbury"</span>),</span>
+<span id="cb2-77">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb2-78">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> Name,</span>
+<span id="cb2-79">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">geometry =</span> geom</span>
+<span id="cb2-80">    ),</span>
+<span id="cb2-81">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>,</span>
+<span id="cb2-82">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"caption_font"</span></span>
+<span id="cb2-83">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-84">  </span>
+<span id="cb2-85">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Plotting the peaks, and colouring by presence in Canterbury</span></span>
+<span id="cb2-86">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb2-87">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb2-88">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> in_canterbury,</span>
+<span id="cb2-89">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> in_canterbury</span>
+<span id="cb2-90">    ),</span>
+<span id="cb2-91">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pch =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span></span>
+<span id="cb2-92">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-93">  </span>
+<span id="cb2-94">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_manual</span>(</span>
+<span id="cb2-95">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lightpink"</span>)</span>
+<span id="cb2-96">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-97">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_colour_manual</span>(</span>
+<span id="cb2-98">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"black"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>)</span>
+<span id="cb2-99">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-100">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_void</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-101">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb2-102">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.background =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_rect</span>(</span>
+<span id="cb2-103">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lightblue"</span></span>
+<span id="cb2-104">    ),</span>
+<span id="cb2-105">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"none"</span></span>
+<span id="cb2-106">  )</span></code></pre></div>
+<div id="fig-4-2-1" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-4-2-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="fig-4-2-1-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-4-2-1-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-4-2-1-1.png" class="lightbox" data-gallery="fig-4-2-1" title="Figure&nbsp;1&nbsp;(a): New Zealand Map with all the peaks"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/chapter4_files/figure-html/fig-4-2-1-1.png" class="img-fluid figure-img" data-ref-parent="fig-4-2-1" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-4-2-1-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) New Zealand Map with all the peaks
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-4-2-1-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-4-2-1-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-4-2-1-2.png" class="lightbox" data-gallery="fig-4-2-1" title="Figure&nbsp;1&nbsp;(b): New Zealand Map focussing on peaks that intersect with Canterbury"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/chapter4_files/figure-html/fig-4-2-1-2.png" class="img-fluid figure-img" data-ref-parent="fig-4-2-1" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-4-2-1-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) New Zealand Map focussing on peaks that intersect with Canterbury
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-4-2-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Spatial Subsetting and plotting with tidyverse and ggplot2 methods
+</figcaption>
+</figure>
+</div>
+</div>
+
+
+
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0">
+<div id="ref-fuzzyjoin" class="csl-entry">
+Robinson, David. 2020. <span>“Fuzzyjoin: Join Tables Together on Inexact Matching.”</span> <a href="https://CRAN.R-project.org/package=fuzzyjoin">https://CRAN.R-project.org/package=fuzzyjoin</a>.
+</div>
+</div></section></div> ]]></description>
+  <category>Geocomputation with R</category>
+  <category>Textbook Solutions</category>
+  <guid>https://aditya-dahiya.github.io/visage/index.html/geocomputation/chapter4.html</guid>
+  <pubDate>Fri, 15 Nov 2024 18:30:00 GMT</pubDate>
+</item>
 <item>
   <title>Chapter 3: Attribute data operations</title>
   <dc:creator>Aditya Dahiya</dc:creator>
@@ -3768,7 +4310,7 @@ tbody tr:last-child {
 }
 </style>
 
-<div id="tbl-e6-1" class="gt_table do-not-create-environment quarto-float quarto-figure quarto-figure-center anchored" data-quarto-postprocess="true" data-quarto-bootstrap="false" data-quarto-disable-processing="false">
+<div id="tbl-e6-1" class="gt_table do-not-create-environment quarto-float quarto-figure quarto-figure-center anchored" data-quarto-disable-processing="false" data-quarto-bootstrap="false" data-quarto-postprocess="true">
 <figure class="quarto-float quarto-subfloat-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-subfloat-caption quarto-subfloat-tbl" id="tbl-e6-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 (a) Minimum and maximum populations, region-wise, in 2015
@@ -4261,7 +4803,7 @@ tbody tr:last-child {
 }
 </style>
 
-<div id="tbl-e6-2" class="gt_table do-not-create-environment quarto-float quarto-figure quarto-figure-center anchored" data-quarto-postprocess="true" data-quarto-bootstrap="false" data-quarto-disable-processing="false">
+<div id="tbl-e6-2" class="gt_table do-not-create-environment quarto-float quarto-figure quarto-figure-center anchored" data-quarto-disable-processing="false" data-quarto-bootstrap="false" data-quarto-postprocess="true">
 <figure class="quarto-float quarto-subfloat-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-subfloat-caption quarto-subfloat-tbl" id="tbl-e6-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 (b) Total population, region-wise, in 2015
