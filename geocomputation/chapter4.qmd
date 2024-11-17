@@ -237,10 +237,10 @@ nz_height |>
 -   **Symmetrical vs. non-symmetrical relations**:
     -   Symmetrical relations (e.g., `equals`, `intersects`, `crosses`) yield the same result when order of input is swapped.
     -   Non-symmetrical relations (e.g., `contains`, `within`) depend on the order of input geometries.
--   **Binary predicates** in **`sf`** package test spatial relationships between vector geometries. See [vignette("sf3")](https://r-spatial.github.io/sf/articles/sf3.html).
+-   **Binary predicates** in **`sf`** package test spatial relationships between vector geometries. See [vignette("sf3")](https://r-spatial.github.io/sf/articles/sf3.html). The following binary predicates exist in `sf` : —
 
 | Function | Description | Symmetrical? |
-|----------------|-----------------------------------------|---------------|
+|-----------------|---------------------------------------|-----------------|
 | `st_intersects` | Checks if geometries intersect. | Yes |
 | `st_disjoint` | Checks if geometries do not intersect (are disjoint). | Yes |
 | `st_touches` | Checks if geometries have at least one boundary point in common. | Yes |
@@ -443,3 +443,78 @@ sf_points |>
   st_covered_by(sf_poly1, sparse = F)
 
 ```
+
+### 4.2.3 Distance Relations
+
+-   **Distance relations** are continuous, unlike binary topological relations which return TRUE/FALSE values.
+-   The [**`st_distance()`**](https://r-spatial.github.io/sf/reference/st_distance.html) function calculates distances between two **sf** objects, returning a matrix with units of measurement (e.g., meters).
+-   [**`st_centroid()`**](https://r-spatial.github.io/sf/reference/st_centroid.html): Computes the geometric centroid of a spatial feature, useful for representing a region's central point in distance calculations.
+-   **Matrix output**:
+    -   Results are returned as a matrix, even for single value calculations.
+    -   Computes a distance matrix between all combinations of features in objects (e.g., distances between multiple points and polygons).
+-   **Point-to-polygon distance**: Represents the shortest distance from a point to any part of the polygon.
+-   **Usage in distance-based joins**: [`st_distance()`](https://r-spatial.github.io/sf/reference/st_distance.html) is also used for performing joins based on distance criteria.
+
+```{r}
+#| label: tbl-distance
+#| tbl-cap: "Code output for use of st_centroid() and st_distance()"
+
+# Central points of Auckland and Canterbury Regions
+df1 <- nz |> 
+  filter(str_detect(Name, "Auck|Canter")) |> 
+  st_centroid() |> 
+  select(Name, geom)
+
+# Top 3 highest peaks in New Zealand
+df2 <- nz_height |> 
+  slice_max(order_by = elevation, n = 3)
+
+# Finding the distance matrix
+st_distance(df1, df2) |> 
+  as_tibble() |> 
+  mutate(state = c("Auckland", "Canterbury")) |> 
+  relocate(state) |> 
+  mutate(
+    across(
+      .cols = -state,
+      .fns = as.numeric
+    )
+  ) |> 
+  gt::gt() |> 
+  gt::fmt_number(
+    decimals = 1,
+    scale_by = 1e-3
+  ) |> 
+  gt::cols_label(V1 = "Highest Peak", 
+                 V2 = "Second",
+                 V3 = "Third",
+                 state = "Centroid of the State") |> 
+  gt::tab_header(
+    title = "Distance in kilometers"
+  ) |> 
+  gtExtras::gt_theme_538()
+```
+
+### 4.2.4 DE-9IM Strings
+
+-   The **Dimensionally Extended 9-Intersection Model (DE-9IM)** underlies binary spatial predicates. This model forms the basis for many spatial operations and helps create custom spatial predicates.
+-   **Origins**:
+    -   Initially named “DE + 9IM,” it refers to the **dimensions of intersections** between the boundaries, interiors, and exteriors of two geometries (Clementini and Di Felice 1995).
+    -   It applies to two-dimensional geometries (points, lines, polygons) in Euclidean space, requiring data in a projected coordinate reference system (CRS).
+-   **How DE-9IM Works**:
+    -   The model visualizes intersections between components of two geometries (interior, boundary, exterior) in a 3x3 matrix form, indicating the dimension of the intersection (0 for points, 1 for lines, 2 for polygons, and F for false).
+    -   Flattening this matrix row-wise results in the DE-9IM string: **"212111212"**.
+-   **Using `st_relate()`**: The [`st_relate()`](https://r-spatial.github.io/sf/reference/st_relate.html) function returns DE-9IM strings to describe spatial relations.
+-   **Developing Custom Predicates**:
+    -   By interpreting DE-9IM strings, custom binary spatial predicates like **queen** and **rook** relations can be created:
+        -   **Queen relations** (shared border or point): Pattern `F***T****`.
+
+        -   **Rook relations** (shared linear intersection): Pattern `F***1****`.
+    -   Custom functions using [`st_relate()`](https://r-spatial.github.io/sf/reference/st_relate.html):
+
+``` r
+st_queen = function(x, y) st_relate(x, y, pattern = "F***T****")
+st_rook = function(x, y) st_relate(x, y, pattern = "F***1****")
+```
+
+-   This identifies which geometries in a grid have queen or rook relations to the central geometry.
