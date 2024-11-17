@@ -105,6 +105,8 @@ font-style: inherit;">showtext_auto</span>()</span></code></pre></div>
 <li>Output Consistency: Subsets created using <code>[ ]</code>, logical vectors, or <code>st_filter()</code> are equivalent in spatial operations.</li>
 </ul>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">data</span>(<span class="st" style="color: #20794D;
@@ -123,15 +125,18 @@ font-style: inherit;">class</span>(nz)</span>
 background-color: null;
 font-style: italic;">## [1] "sf"         "data.frame"</span></span>
 <span id="cb2-6"></span>
-<span id="cb2-7">nz <span class="sc" style="color: #5E5E5E;
+<span id="cb2-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># A plot for all regions and all peaks</span></span>
+<span id="cb2-8">nz <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-8">  <span class="fu" style="color: #4758AB;
+<span id="cb2-9">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb2-9">  <span class="fu" style="color: #4758AB;
+<span id="cb2-10">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -140,69 +145,69 @@ background-color: null;
 font-style: inherit;">"white"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb2-10">  ggrepel<span class="sc" style="color: #5E5E5E;
+<span id="cb2-11">  ggrepel<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_text_repel</span>(</span>
-<span id="cb2-11">    <span class="at" style="color: #657422;
+<span id="cb2-12">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">aes</span>(</span>
-<span id="cb2-12">      <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">label =</span> Name,</span>
 <span id="cb2-13">      <span class="at" style="color: #657422;
 background-color: null;
+font-style: inherit;">label =</span> Name,</span>
+<span id="cb2-14">      <span class="at" style="color: #657422;
+background-color: null;
 font-style: inherit;">geometry =</span> geom</span>
-<span id="cb2-14">    ),</span>
-<span id="cb2-15">    <span class="at" style="color: #657422;
+<span id="cb2-15">    ),</span>
+<span id="cb2-16">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">4</span>,</span>
-<span id="cb2-16">    <span class="at" style="color: #657422;
+<span id="cb2-17">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">family =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"caption_font"</span>,</span>
-<span id="cb2-17">    <span class="at" style="color: #657422;
+<span id="cb2-18">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">stat =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"sf_coordinates"</span></span>
-<span id="cb2-18">  ) <span class="sc" style="color: #5E5E5E;
+<span id="cb2-19">  ) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb2-19">  <span class="fu" style="color: #4758AB;
+<span id="cb2-20">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_sf</span>(</span>
-<span id="cb2-20">    <span class="at" style="color: #657422;
+<span id="cb2-21">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">data =</span> nz_height,</span>
-<span id="cb2-21">    <span class="at" style="color: #657422;
+<span id="cb2-22">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">pch =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">2</span>,</span>
-<span id="cb2-22">    <span class="at" style="color: #657422;
+<span id="cb2-23">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"red"</span>,</span>
-<span id="cb2-23">    <span class="at" style="color: #657422;
+<span id="cb2-24">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">3</span></span>
-<span id="cb2-24">  ) <span class="sc" style="color: #5E5E5E;
+<span id="cb2-25">  ) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb2-25">  <span class="fu" style="color: #4758AB;
+<span id="cb2-26">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">scale_fill_manual</span>(</span>
-<span id="cb2-26">    <span class="at" style="color: #657422;
+<span id="cb2-27">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">values =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -211,55 +216,71 @@ background-color: null;
 font-style: inherit;">"white"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"pink"</span>)</span>
-<span id="cb2-27">  ) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb2-28">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">theme_void</span>() <span class="sc" style="color: #5E5E5E;
+<span id="cb2-28">  ) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
 <span id="cb2-29">  <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">theme</span>(</span>
+font-style: inherit;">labs</span>(</span>
 <span id="cb2-30">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"All peaks in New Zealand, and all regions."</span></span>
+<span id="cb2-31">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-32">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_void</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-33">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb2-34">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">plot.background =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">element_rect</span>(</span>
-<span id="cb2-31">      <span class="at" style="color: #657422;
+<span id="cb2-35">      <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"lightblue"</span></span>
-<span id="cb2-32">    ),</span>
-<span id="cb2-33">    <span class="at" style="color: #657422;
+font-style: inherit;">"lightblue"</span>,</span>
+<span id="cb2-36">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span></span>
+<span id="cb2-37">    ),</span>
+<span id="cb2-38">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"none"</span></span>
-<span id="cb2-34">  )</span>
-<span id="cb2-35"></span>
-<span id="cb2-36"><span class="co" style="color: #5E5E5E;
+<span id="cb2-39">  )</span>
+<span id="cb2-40"></span>
+<span id="cb2-41"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Total peaks in New Zealand</span></span>
-<span id="cb2-37">nz_height <span class="sc" style="color: #5E5E5E;
+<span id="cb2-42">nz_height <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">dim</span>()</span>
-<span id="cb2-38"><span class="do" style="color: #5E5E5E;
+<span id="cb2-43"><span class="do" style="color: #5E5E5E;
 background-color: null;
 font-style: italic;">## [1] 101   3</span></span>
-<span id="cb2-39"></span>
-<span id="cb2-40"><span class="co" style="color: #5E5E5E;
+<span id="cb2-44"></span>
+<span id="cb2-45"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Peaks within Canterbury in New Zealand</span></span>
-<span id="cb2-41"></span>
-<span id="cb2-42"><span class="co" style="color: #5E5E5E;
+<span id="cb2-46"></span>
+<span id="cb2-47"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Base R Version</span></span>
-<span id="cb2-43">canterbury <span class="ot" style="color: #003B4F;
+<span id="cb2-48">canterbury <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> nz <span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -270,25 +291,25 @@ background-color: null;
 font-style: inherit;">==</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Canterbury"</span>)</span>
-<span id="cb2-44">nz_height[canterbury,] <span class="sc" style="color: #5E5E5E;
+<span id="cb2-49">nz_height[canterbury,] <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">dim</span>()</span>
-<span id="cb2-45"><span class="do" style="color: #5E5E5E;
+<span id="cb2-50"><span class="do" style="color: #5E5E5E;
 background-color: null;
 font-style: italic;">## [1] 70  3</span></span>
-<span id="cb2-46"></span>
-<span id="cb2-47"><span class="co" style="color: #5E5E5E;
+<span id="cb2-51"></span>
+<span id="cb2-52"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Tidyverse Version</span></span>
-<span id="cb2-48">nz_height <span class="sc" style="color: #5E5E5E;
+<span id="cb2-53">nz_height <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span></span>
-<span id="cb2-49">  <span class="fu" style="color: #4758AB;
+<span id="cb2-54">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">st_filter</span>(</span>
-<span id="cb2-50">    nz <span class="sc" style="color: #5E5E5E;
+<span id="cb2-55">    nz <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -297,31 +318,31 @@ background-color: null;
 font-style: inherit;">==</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Canterbury"</span>),</span>
-<span id="cb2-51">    <span class="at" style="color: #657422;
+<span id="cb2-56">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">.predicate =</span> st_intersects</span>
-<span id="cb2-52">  ) <span class="sc" style="color: #5E5E5E;
+<span id="cb2-57">  ) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-53">  <span class="fu" style="color: #4758AB;
+<span id="cb2-58">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">dim</span>()</span>
-<span id="cb2-54"><span class="do" style="color: #5E5E5E;
+<span id="cb2-59"><span class="do" style="color: #5E5E5E;
 background-color: null;
 font-style: italic;">## [1] 70  3</span></span>
-<span id="cb2-55"></span>
-<span id="cb2-56"><span class="co" style="color: #5E5E5E;
+<span id="cb2-60"></span>
+<span id="cb2-61"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Getting the peaks which are inside Canterbury</span></span>
-<span id="cb2-57">canterbury_ids <span class="ot" style="color: #003B4F;
+<span id="cb2-62">canterbury_ids <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> nz_height <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span></span>
-<span id="cb2-58">  <span class="fu" style="color: #4758AB;
+<span id="cb2-63">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">st_filter</span>(</span>
-<span id="cb2-59">    nz <span class="sc" style="color: #5E5E5E;
+<span id="cb2-64">    nz <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -330,20 +351,20 @@ background-color: null;
 font-style: inherit;">==</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Canterbury"</span>),</span>
-<span id="cb2-60">    <span class="at" style="color: #657422;
+<span id="cb2-65">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">.predicate =</span> st_intersects</span>
-<span id="cb2-61">  ) <span class="sc" style="color: #5E5E5E;
+<span id="cb2-66">  ) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-62">  <span class="fu" style="color: #4758AB;
+<span id="cb2-67">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">pull</span>(t50_fid)</span>
-<span id="cb2-63"></span>
-<span id="cb2-64">nz_height <span class="sc" style="color: #5E5E5E;
+<span id="cb2-68"></span>
+<span id="cb2-69">nz_height <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-65">  <span class="fu" style="color: #4758AB;
+<span id="cb2-70">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -352,41 +373,41 @@ background-color: null;
 font-style: inherit;">%in%</span> canterbury_ids) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-66">  <span class="fu" style="color: #4758AB;
+<span id="cb2-71">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb2-67">  </span>
-<span id="cb2-68">  <span class="co" style="color: #5E5E5E;
+<span id="cb2-72">  </span>
+<span id="cb2-73">  <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Base NZ Map and Label for Canterbury</span></span>
-<span id="cb2-69">  <span class="fu" style="color: #4758AB;
+<span id="cb2-74">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_sf</span>(</span>
-<span id="cb2-70">    <span class="at" style="color: #657422;
+<span id="cb2-75">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">data =</span> nz,</span>
-<span id="cb2-71">    <span class="at" style="color: #657422;
+<span id="cb2-76">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">aes</span>(</span>
-<span id="cb2-72">      <span class="at" style="color: #657422;
+<span id="cb2-77">      <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">fill =</span> Name <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">==</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Canterbury"</span></span>
-<span id="cb2-73">    )</span>
-<span id="cb2-74">  ) <span class="sc" style="color: #5E5E5E;
+<span id="cb2-78">    )</span>
+<span id="cb2-79">  ) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb2-75">  <span class="fu" style="color: #4758AB;
+<span id="cb2-80">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_sf_text</span>(</span>
-<span id="cb2-76">    <span class="at" style="color: #657422;
+<span id="cb2-81">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">data =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -395,63 +416,63 @@ background-color: null;
 font-style: inherit;">==</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Canterbury"</span>),</span>
-<span id="cb2-77">    <span class="at" style="color: #657422;
+<span id="cb2-82">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">aes</span>(</span>
-<span id="cb2-78">      <span class="at" style="color: #657422;
+<span id="cb2-83">      <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">label =</span> Name,</span>
-<span id="cb2-79">      <span class="at" style="color: #657422;
+<span id="cb2-84">      <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">geometry =</span> geom</span>
-<span id="cb2-80">    ),</span>
-<span id="cb2-81">    <span class="at" style="color: #657422;
+<span id="cb2-85">    ),</span>
+<span id="cb2-86">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">4</span>,</span>
-<span id="cb2-82">    <span class="at" style="color: #657422;
+<span id="cb2-87">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">family =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"caption_font"</span></span>
-<span id="cb2-83">  ) <span class="sc" style="color: #5E5E5E;
+<span id="cb2-88">  ) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb2-84">  </span>
-<span id="cb2-85">  <span class="co" style="color: #5E5E5E;
+<span id="cb2-89">  </span>
+<span id="cb2-90">  <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Plotting the peaks, and colouring by presence in Canterbury</span></span>
-<span id="cb2-86">  <span class="fu" style="color: #4758AB;
+<span id="cb2-91">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_sf</span>(</span>
-<span id="cb2-87">    <span class="at" style="color: #657422;
+<span id="cb2-92">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">aes</span>(</span>
-<span id="cb2-88">      <span class="at" style="color: #657422;
+<span id="cb2-93">      <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">colour =</span> in_canterbury,</span>
-<span id="cb2-89">      <span class="at" style="color: #657422;
+<span id="cb2-94">      <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">size =</span> in_canterbury</span>
-<span id="cb2-90">    ),</span>
-<span id="cb2-91">    <span class="at" style="color: #657422;
+<span id="cb2-95">    ),</span>
+<span id="cb2-96">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">pch =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">2</span></span>
-<span id="cb2-92">  ) <span class="sc" style="color: #5E5E5E;
+<span id="cb2-97">  ) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb2-93">  </span>
-<span id="cb2-94">  <span class="fu" style="color: #4758AB;
+<span id="cb2-98">  </span>
+<span id="cb2-99">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">scale_fill_manual</span>(</span>
-<span id="cb2-95">    <span class="at" style="color: #657422;
+<span id="cb2-100">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">values =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -460,13 +481,13 @@ background-color: null;
 font-style: inherit;">"white"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"lightpink"</span>)</span>
-<span id="cb2-96">  ) <span class="sc" style="color: #5E5E5E;
+<span id="cb2-101">  ) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb2-97">  <span class="fu" style="color: #4758AB;
+<span id="cb2-102">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">scale_colour_manual</span>(</span>
-<span id="cb2-98">    <span class="at" style="color: #657422;
+<span id="cb2-103">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">values =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -475,34 +496,67 @@ background-color: null;
 font-style: inherit;">"black"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"red"</span>)</span>
-<span id="cb2-99">  ) <span class="sc" style="color: #5E5E5E;
+<span id="cb2-104">  ) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb2-100">  <span class="fu" style="color: #4758AB;
+<span id="cb2-105">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">guides</span>(</span>
+<span id="cb2-106">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"none"</span></span>
+<span id="cb2-107">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-108">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb2-109">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Peaks within Canterbury Region?"</span>,</span>
+<span id="cb2-110">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Peaks within Canterbury Region?"</span>,</span>
+<span id="cb2-111">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Highlighting Peaks within Canterbury region"</span></span>
+<span id="cb2-112">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-113">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">theme_void</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb2-101">  <span class="fu" style="color: #4758AB;
+<span id="cb2-114">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">theme</span>(</span>
-<span id="cb2-102">    <span class="at" style="color: #657422;
+<span id="cb2-115">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">plot.background =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">element_rect</span>(</span>
-<span id="cb2-103">      <span class="at" style="color: #657422;
+<span id="cb2-116">      <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"lightblue"</span></span>
-<span id="cb2-104">    ),</span>
-<span id="cb2-105">    <span class="at" style="color: #657422;
+<span id="cb2-117">    ),</span>
+<span id="cb2-118">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"none"</span></span>
-<span id="cb2-106">  )</span></code></pre></div>
+font-style: inherit;">"bottom"</span></span>
+<span id="cb2-119">  )</span></code></pre></div>
+</details>
 <div id="fig-4-2-1" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-4-2-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -536,6 +590,1132 @@ Figure&nbsp;1: Spatial Subsetting and plotting with tidyverse and ggplot2 method
 </figcaption>
 </figure>
 </div>
+</div>
+<p>Example code for <code>st_intersects()</code> and <code>st_disjoint()</code> : these functions produce a sparse predicate list only. Hence, correct way to use them would be <code>st_filter()</code> with <code>.predicate = &lt;function&gt;</code> argument.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1">nz_height <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb3-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersects</span>(</span>
+<span id="cb3-3">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(nz, Name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Canterbury"</span>)</span>
+<span id="cb3-4">  )</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Sparse geometry binary predicate list of length 101, where the
+predicate was `intersects'
+first 10 elements:
+ 1: (empty)
+ 2: (empty)
+ 3: (empty)
+ 4: (empty)
+ 5: 1
+ 6: 1
+ 7: 1
+ 8: 1
+ 9: 1
+ 10: 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The 70 peaks within Canterbury region</span></span>
+<span id="cb5-2">nz_height <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb5-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_filter</span>(</span>
+<span id="cb5-4">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(nz, Name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Canterbury"</span>),</span>
+<span id="cb5-5">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.predicate =</span> st_intersects</span>
+<span id="cb5-6">  )</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 70 features and 2 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: 1365809 ymin: 5158491 xmax: 1654899 ymax: 5350463
+Projected CRS: NZGD2000 / New Zealand Transverse Mercator 2000
+First 10 features:
+   t50_fid elevation                geometry
+1  2362630      2749 POINT (1378170 5158491)
+2  2362814      2822 POINT (1389460 5168749)
+3  2362817      2778 POINT (1390166 5169466)
+4  2363991      3004 POINT (1372357 5172729)
+5  2363993      3114 POINT (1372062 5173236)
+6  2363994      2882 POINT (1372810 5173419)
+7  2363995      2796 POINT (1372579 5173989)
+8  2363997      3070 POINT (1373796 5174144)
+9  2363998      3061 POINT (1373955 5174231)
+10 2363999      3077 POINT (1373984 5175228)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The 31 peaks outside Canterbury Region</span></span>
+<span id="cb7-2">nz_height <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb7-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_filter</span>(</span>
+<span id="cb7-4">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(nz, Name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Canterbury"</span>),</span>
+<span id="cb7-5">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.predicate =</span> st_disjoint</span>
+<span id="cb7-6">  )</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 31 features and 2 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: 1204143 ymin: 5048309 xmax: 1822492 ymax: 5650492
+Projected CRS: NZGD2000 / New Zealand Transverse Mercator 2000
+First 10 features:
+   t50_fid elevation                geometry
+1  2353944      2723 POINT (1204143 5049971)
+2  2354404      2820 POINT (1234725 5048309)
+3  2354405      2830 POINT (1235915 5048745)
+4  2369113      3033 POINT (1259702 5076570)
+5  2363996      2759 POINT (1373264 5175442)
+6  2364028      2756 POINT (1374183 5177165)
+7  2364029      2800 POINT (1374469 5176966)
+8  2364031      2788 POINT (1375422 5177253)
+9  2364166      2782 POINT (1383006 5181085)
+10 2364167      2905 POINT (1383486 5181270)</code></pre>
+</div>
+</div>
+</section>
+<section id="topological-relations" class="level3">
+<h3 class="anchored" data-anchor-id="topological-relations">4.2.2 Topological Relations</h3>
+<ul>
+<li><strong>Topological relations</strong> describe spatial relationships between objects using logical TRUE or FALSE statements <em>(Egenhofer and Herring, 1990)</em>.</li>
+<li><strong>Symmetrical vs.&nbsp;non-symmetrical relations</strong>:
+<ul>
+<li>Symmetrical relations (e.g., <code>equals</code>, <code>intersects</code>, <code>crosses</code>) yield the same result when order of input is swapped.</li>
+<li>Non-symmetrical relations (e.g., <code>contains</code>, <code>within</code>) depend on the order of input geometries.</li>
+</ul></li>
+<li><strong>Binary predicates</strong> in <strong><code>sf</code></strong> package test spatial relationships between vector geometries. See <a href="https://r-spatial.github.io/sf/articles/sf3.html">vignette(“sf3”)</a>.</li>
+</ul>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 56%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Description</th>
+<th>Symmetrical?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>st_intersects</code></td>
+<td>Checks if geometries intersect.</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td><code>st_disjoint</code></td>
+<td>Checks if geometries do not intersect (are disjoint).</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td><code>st_touches</code></td>
+<td>Checks if geometries have at least one boundary point in common.</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td><code>st_crosses</code></td>
+<td>Checks if a geometry crosses another (e.g., a line crosses a polygon).</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td><code>st_overlaps</code></td>
+<td>Checks if geometries have some but not all interior points in common.</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td><code>st_equals</code></td>
+<td>Checks if geometries are topologically equal.</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td><code>st_within</code></td>
+<td>Checks if a geometry is completely contained within another.</td>
+<td><strong>No</strong></td>
+</tr>
+<tr class="even">
+<td><code>st_contains</code></td>
+<td>Checks if a geometry contains another completely.</td>
+<td><strong>No</strong></td>
+</tr>
+<tr class="odd">
+<td><code>st_contains_properly</code></td>
+<td>Checks if a geometry contains another but not vice versa.</td>
+<td><strong>No</strong></td>
+</tr>
+<tr class="even">
+<td><code>st_covers</code></td>
+<td>Checks if a geometry covers another (includes boundary).</td>
+<td><strong>No</strong></td>
+</tr>
+<tr class="odd">
+<td><code>st_covered_by</code></td>
+<td>Checks if a geometry is covered by another (includes boundary).</td>
+<td><strong>No</strong></td>
+</tr>
+<tr class="even">
+<td><code>st_equals_exact</code></td>
+<td>Checks if geometries are exactly equal within a given tolerance.</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td><code>st_is_within_distance</code></td>
+<td>Checks if geometries are within a specified distance from each other.</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Sparse matrix output</strong>: Functions like <code>st_intersects()</code> use sparse matrices to save memory by only registering positive results; setting <code>sparse = FALSE</code> returns a dense matrix.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create two polygons</span></span>
+<span id="cb9-2"> polygon1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_polygon</span>(</span>
+<span id="cb9-3">   <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>),</span>
+<span id="cb9-4">     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ncol =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,</span>
+<span id="cb9-5">     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">byrow =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span></span>
+<span id="cb9-6">   ))</span>
+<span id="cb9-7"> )</span>
+<span id="cb9-8"></span>
+<span id="cb9-9"> polygon2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_polygon</span>(</span>
+<span id="cb9-10">   <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>),</span>
+<span id="cb9-11">     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ncol =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,</span>
+<span id="cb9-12">     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">byrow =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span></span>
+<span id="cb9-13">   ))</span>
+<span id="cb9-14"> )</span>
+<span id="cb9-15"></span>
+<span id="cb9-16"> polygon3 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_polygon</span>(</span>
+<span id="cb9-17">   <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>,</span>
+<span id="cb9-18">                 <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>, </span>
+<span id="cb9-19">                 <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span>, </span>
+<span id="cb9-20">                 <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span>, </span>
+<span id="cb9-21">                 <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>),</span>
+<span id="cb9-22">     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ncol =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,</span>
+<span id="cb9-23">     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">byrow =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span></span>
+<span id="cb9-24">   ))</span>
+<span id="cb9-25"> )</span>
+<span id="cb9-26"></span>
+<span id="cb9-27"> polygon4 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_polygon</span>(</span>
+<span id="cb9-28">   <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>, </span>
+<span id="cb9-29">                 <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>, </span>
+<span id="cb9-30">                 <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.4</span>, </span>
+<span id="cb9-31">                 <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.4</span>, </span>
+<span id="cb9-32">                 <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>),</span>
+<span id="cb9-33">     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ncol =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,</span>
+<span id="cb9-34">     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">byrow =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span></span>
+<span id="cb9-35">   ))</span>
+<span id="cb9-36"> )</span>
+<span id="cb9-37"> </span>
+<span id="cb9-38"> <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Convert to sf objects</span></span>
+<span id="cb9-39"> sf_poly1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_sfc</span>(polygon1, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span>)</span>
+<span id="cb9-40"> sf_poly2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_sfc</span>(polygon2, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span>)</span>
+<span id="cb9-41"> sf_poly3 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_sfc</span>(polygon3, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span>)</span>
+<span id="cb9-42"> sf_poly4 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_sfc</span>(polygon4, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span>)</span>
+<span id="cb9-43"> </span>
+<span id="cb9-44"> <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a collection of points</span></span>
+<span id="cb9-45"> points <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_sfc</span>(</span>
+<span id="cb9-46">   <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_point</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.25</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.25</span>)),</span>
+<span id="cb9-47">   <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_point</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.75</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.75</span>)),</span>
+<span id="cb9-48">   <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_point</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.25</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.25</span>)),</span>
+<span id="cb9-49">   <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span></span>
+<span id="cb9-50"> )</span>
+<span id="cb9-51"></span>
+<span id="cb9-52"> sf_points <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tibble</span>(</span>
+<span id="cb9-53">   <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">point =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"p1"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"p2"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"p3"</span>),</span>
+<span id="cb9-54">   <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">geometry =</span> points</span>
+<span id="cb9-55"> ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb9-56">   <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_as_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb9-57">   <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_set_crs</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span>)</span>
+<span id="cb9-58"></span>
+<span id="cb9-59"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Keeping environment clean</span></span>
+<span id="cb9-60"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rm</span>(polygon1, polygon2, </span>
+<span id="cb9-61">   polygon3, polygon4,</span>
+<span id="cb9-62">   points)</span>
+<span id="cb9-63"></span>
+<span id="cb9-64"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Visualize the objects</span></span>
+<span id="cb9-65"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-66">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> sf_poly1, </span>
+<span id="cb9-67">          <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sf_poly1"</span>),</span>
+<span id="cb9-68">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-69">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> sf_poly2, </span>
+<span id="cb9-70">          <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sf_poly2"</span>),</span>
+<span id="cb9-71">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-72">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> sf_poly3, </span>
+<span id="cb9-73">          <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sf_poly3"</span>),</span>
+<span id="cb9-74">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-75">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> sf_poly4, </span>
+<span id="cb9-76">          <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sf_poly4"</span>),</span>
+<span id="cb9-77">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-78">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> sf_points,</span>
+<span id="cb9-79">          <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> point),</span>
+<span id="cb9-80">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pch =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">21</span>,</span>
+<span id="cb9-81">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-82">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-83">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>()</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-create-objects" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-create-objects-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-create-objects-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Figure&nbsp;2: Some example objects to demonstrate the topological relations"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/chapter4_files/figure-html/fig-create-objects-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-create-objects-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Some example objects to demonstrate the topological relations
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">#################### Symmetrical Relations ######################</span></span>
+<span id="cb10-2"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The order in which sf objects are placed does not matter</span></span>
+<span id="cb10-3"></span>
+<span id="cb10-4"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## st_intersects()----------------------------------------</span></span>
+<span id="cb10-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersects</span>(sf_poly1, sf_poly2, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F) </span>
+<span id="cb10-6"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##      [,1]</span></span>
+<span id="cb10-7"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] TRUE</span></span>
+<span id="cb10-8"></span>
+<span id="cb10-9"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersects</span>(sf_poly1, sf_points, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F) </span>
+<span id="cb10-10"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##      [,1] [,2]  [,3]</span></span>
+<span id="cb10-11"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] TRUE TRUE FALSE</span></span>
+<span id="cb10-12"></span>
+<span id="cb10-13"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersects</span>(sf_poly1, sf_poly3, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-14"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##       [,1]</span></span>
+<span id="cb10-15"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] FALSE</span></span>
+<span id="cb10-16"></span>
+<span id="cb10-17"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersects</span>(sf_poly2 ,sf_poly3, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F) </span>
+<span id="cb10-18"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##      [,1]</span></span>
+<span id="cb10-19"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] TRUE</span></span>
+<span id="cb10-20"></span>
+<span id="cb10-21"></span>
+<span id="cb10-22"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># st_disjoint()------------------------------------------</span></span>
+<span id="cb10-23"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_disjoint</span>(sf_poly1, sf_poly4, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-24"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##      [,1]</span></span>
+<span id="cb10-25"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] TRUE</span></span>
+<span id="cb10-26"></span>
+<span id="cb10-27"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_disjoint</span>(sf_poly2, sf_poly3, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F) </span>
+<span id="cb10-28"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##       [,1]</span></span>
+<span id="cb10-29"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] FALSE</span></span>
+<span id="cb10-30"></span>
+<span id="cb10-31"></span>
+<span id="cb10-32"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># st_touches()-------------------------------------------</span></span>
+<span id="cb10-33"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_touches</span>(sf_poly1, sf_poly2, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F) </span>
+<span id="cb10-34"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##       [,1]</span></span>
+<span id="cb10-35"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] FALSE</span></span>
+<span id="cb10-36"></span>
+<span id="cb10-37"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_touches</span>(sf_poly2, sf_poly3, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-38"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##      [,1]</span></span>
+<span id="cb10-39"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] TRUE</span></span>
+<span id="cb10-40"></span>
+<span id="cb10-41"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_touches</span>(sf_poly1, sf_points, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-42"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##       [,1]  [,2]  [,3]</span></span>
+<span id="cb10-43"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] FALSE FALSE FALSE</span></span>
+<span id="cb10-44"></span>
+<span id="cb10-45"></span>
+<span id="cb10-46"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># st_crosses()-------------------------------------------</span></span>
+<span id="cb10-47"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crosses</span>(sf_poly1, sf_poly2, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-48"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##       [,1]</span></span>
+<span id="cb10-49"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] FALSE</span></span>
+<span id="cb10-50"></span>
+<span id="cb10-51"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crosses</span>(sf_poly1, sf_points, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-52"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##       [,1]  [,2]  [,3]</span></span>
+<span id="cb10-53"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] FALSE FALSE FALSE</span></span>
+<span id="cb10-54"></span>
+<span id="cb10-55"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># st_overlaps()</span></span>
+<span id="cb10-56"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_overlaps</span>(sf_poly1, sf_poly2, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-57"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##      [,1]</span></span>
+<span id="cb10-58"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] TRUE</span></span>
+<span id="cb10-59"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_overlaps</span>(sf_poly1, sf_points, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-60"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##       [,1]  [,2]  [,3]</span></span>
+<span id="cb10-61"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] FALSE FALSE FALSE</span></span>
+<span id="cb10-62"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_overlaps</span>(sf_poly3, sf_poly3, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-63"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##       [,1]</span></span>
+<span id="cb10-64"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] FALSE</span></span>
+<span id="cb10-65"></span>
+<span id="cb10-66"></span>
+<span id="cb10-67"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># st_equals()-------------------------------------------</span></span>
+<span id="cb10-68"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_equals</span>(sf_poly1, sf_poly1, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-69"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##      [,1]</span></span>
+<span id="cb10-70"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] TRUE</span></span>
+<span id="cb10-71"></span>
+<span id="cb10-72"></span>
+<span id="cb10-73"></span>
+<span id="cb10-74"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># st_equals_exact()-------------------------------------</span></span>
+<span id="cb10-75"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_equals_exact</span>(sf_poly1, sf_poly2, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">par =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-76"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##       [,1]</span></span>
+<span id="cb10-77"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] FALSE</span></span>
+<span id="cb10-78"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_equals_exact</span>(sf_poly1, sf_poly2, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">par =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-79"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##      [,1]</span></span>
+<span id="cb10-80"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] TRUE</span></span>
+<span id="cb10-81"></span>
+<span id="cb10-82"></span>
+<span id="cb10-83"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># st_is_within_distance()-------------------------------</span></span>
+<span id="cb10-84"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_is_within_distance</span>(sf_poly1, sf_poly2, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dist =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-85"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##      [,1]</span></span>
+<span id="cb10-86"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] TRUE</span></span>
+<span id="cb10-87"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_is_within_distance</span>(sf_poly2, sf_poly3, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dist =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-88"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##      [,1]</span></span>
+<span id="cb10-89"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] TRUE</span></span>
+<span id="cb10-90"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_is_within_distance</span>(sf_poly3, sf_poly4, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dist =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-91"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##       [,1]</span></span>
+<span id="cb10-92"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] FALSE</span></span>
+<span id="cb10-93"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_is_within_distance</span>(sf_poly3, sf_poly4, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dist =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">13</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-94"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##       [,1]</span></span>
+<span id="cb10-95"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] FALSE</span></span>
+<span id="cb10-96"></span>
+<span id="cb10-97"></span>
+<span id="cb10-98"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">#################### Non-Symmetrical Relations ####################</span></span>
+<span id="cb10-99"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The order in which sf objects are placed changes the outcome</span></span>
+<span id="cb10-100"></span>
+<span id="cb10-101"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># st_within()-------------------------------------------</span></span>
+<span id="cb10-102">sf_points <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-103">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_within</span>(sf_poly1, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-104"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##       [,1]</span></span>
+<span id="cb10-105"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,]  TRUE</span></span>
+<span id="cb10-106"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [2,]  TRUE</span></span>
+<span id="cb10-107"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [3,] FALSE</span></span>
+<span id="cb10-108"></span>
+<span id="cb10-109">sf_poly1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-110">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_within</span>(sf_points, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-111"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##       [,1]  [,2]  [,3]</span></span>
+<span id="cb10-112"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] FALSE FALSE FALSE</span></span>
+<span id="cb10-113"></span>
+<span id="cb10-114">sf_poly1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-115">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_within</span>(sf_poly2, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-116"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##       [,1]</span></span>
+<span id="cb10-117"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] FALSE</span></span>
+<span id="cb10-118"></span>
+<span id="cb10-119"></span>
+<span id="cb10-120"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># st_contains()-----------------------------------------</span></span>
+<span id="cb10-121">sf_poly1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-122">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_contains</span>(sf_points, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-123"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##      [,1] [,2]  [,3]</span></span>
+<span id="cb10-124"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] TRUE TRUE FALSE</span></span>
+<span id="cb10-125"></span>
+<span id="cb10-126">sf_points <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-127">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_contains</span>(sf_poly1, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-128"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##       [,1]</span></span>
+<span id="cb10-129"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] FALSE</span></span>
+<span id="cb10-130"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [2,] FALSE</span></span>
+<span id="cb10-131"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [3,] FALSE</span></span>
+<span id="cb10-132"></span>
+<span id="cb10-133"></span>
+<span id="cb10-134"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># st_covers()-------------------------------------------</span></span>
+<span id="cb10-135">sf_poly1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-136">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_covers</span>(sf_points, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-137"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##      [,1] [,2]  [,3]</span></span>
+<span id="cb10-138"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] TRUE TRUE FALSE</span></span>
+<span id="cb10-139"></span>
+<span id="cb10-140">sf_poly2 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-141">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_covers</span>(sf_poly1, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-142"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##       [,1]</span></span>
+<span id="cb10-143"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,] FALSE</span></span>
+<span id="cb10-144"></span>
+<span id="cb10-145"></span>
+<span id="cb10-146"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># st_covered_by()---------------------------------------</span></span>
+<span id="cb10-147">sf_points <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-148">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_covered_by</span>(sf_poly1, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F)</span>
+<span id="cb10-149"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##       [,1]</span></span>
+<span id="cb10-150"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1,]  TRUE</span></span>
+<span id="cb10-151"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [2,]  TRUE</span></span>
+<span id="cb10-152"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [3,] FALSE</span></span></code></pre></div>
 </div>
 
 
