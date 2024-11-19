@@ -240,7 +240,7 @@ nz_height |>
 -   **Binary predicates** in **`sf`** package test spatial relationships between vector geometries. See [vignette("sf3")](https://r-spatial.github.io/sf/articles/sf3.html). The following binary predicates exist in `sf` : —
 
 | Function | Description | Symmetrical? |
-|-----------------|---------------------------------------|-----------------|
+|----|----|----|
 | `st_intersects` | Checks if geometries intersect. | Yes |
 | `st_disjoint` | Checks if geometries do not intersect (are disjoint). | Yes |
 | `st_touches` | Checks if geometries have at least one boundary point in common. | Yes |
@@ -513,8 +513,61 @@ st_distance(df1, df2) |>
     -   Custom functions using [`st_relate()`](https://r-spatial.github.io/sf/reference/st_relate.html):
 
 ``` r
-st_queen = function(x, y) st_relate(x, y, pattern = "F***T****")
-st_rook = function(x, y) st_relate(x, y, pattern = "F***1****")
+st_queen = function(x, y) 
+  st_relate(x, y, pattern = "F***T****")
+
+st_rook = function(x, y) 
+  st_relate(x, y, pattern = "F***1****")
 ```
 
 -   This identifies which geometries in a grid have queen or rook relations to the central geometry.
+
+```{r}
+
+set.seed(42)
+random_points <- tibble(
+  x = runif(
+    25, 
+    min = st_bbox(world)$xmin, 
+    max = st_bbox(world)$xmax
+  ),
+  y = runif(
+    25, 
+    min = st_bbox(world)$ymin, 
+    max = st_bbox(world)$ymax
+  ),
+  id = LETTERS[1:25]
+) |> 
+  st_as_sf(coords = c("x", "y")) |> 
+  st_set_crs(value = crs(world))
+
+
+# Easiest (but not tidyverse) way to subset
+# world[random_points, ]
+
+# Tidyverse way to filter
+intersecting_countries <- world |> 
+  st_filter(random_points) |> 
+  pull(name_long)
+
+# The power of spatial joins
+st_join(
+  random_points, 
+  world |> select(name_long)
+) |> 
+  drop_na()
+
+world |> 
+  ggplot() +
+  geom_sf() +
+  geom_sf(
+    data = random_points,
+    mapping = aes(
+      colour = id
+    ),
+    pch = 8
+  ) +
+  theme(
+    legend.position = "none"
+  )
+```

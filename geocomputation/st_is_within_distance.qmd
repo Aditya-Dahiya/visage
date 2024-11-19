@@ -1,0 +1,117 @@
+---
+title: "st_within_distance"
+author: "Aditya Dahiya"
+subtitle: "........................"
+date: "2024-11-19"
+bibliography: references.bib
+format:
+  html:
+    code-fold: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: false
+categories:
+  - "Background Map"
+  - "Open Street Maps"
+  - "{sf}"
+  - "Routes"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/geocomputation/st_is_within_distance.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+### 
+
+```{r}
+#| label: setup
+
+library(tidyverse)   # Data Wrangling
+library(sf)          # Handling Simple Features in R
+library(scales)      # Easy handling numbers and scales
+
+
+```
+
+### Step 1: Get driving directions 
+
+```{r}
+#| label: step1
+
+# The raw data to be entered
+drive_stops <- tibble(
+  station_name = c("Sydney Opera House", 
+                  "Melbourne Cricket Ground"),
+  city = c("Sydney", 
+           "Melbourne"),
+  lat = c(-33.85906634, -37.82358305),
+  lon = c(151.21353654, 144.98283670)
+) |> 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+route <- osrm::osrmRoute(
+  src = drive_stops$geometry[1],
+  dst = drive_stops$geometry[2]
+)
+```
+
+### Step 2: Get list of McDonalds locations in Australia
+
+Credits: <https://openaddresses.io/> and Source: <https://www.alltheplaces.xyz/>. Finding code for McDonald's from th [WikiData](https://www.alltheplaces.xyz/wikidata) page for the website. The data format is given [here](https://github.com/alltheplaces/alltheplaces/blob/master/DATA_FORMAT.md). Getting the actual data link for Australia from the [spiders page](https://www.alltheplaces.xyz/spiders). Courtesy [Data-Is-Plural](https://www.data-is-plural.com/), [24.04.2024](https://docs.google.com/spreadsheets/d/1wZhPLMCHKJvwOkP4juclhjFgqIY8fQFMemwKL2c64vk/edit?pli=1&gid=0#gid=0) edition.
+
+```{r}
+
+# Importing raw data: McDonalds in USA
+
+url1 <- "https://alltheplaces-data.openaddresses.io/runs/2024-11-16-13-32-12/output/mcdonalds_au.geojson"
+
+mcdonalds <- geojsonio::geojson_read(url1, what = "sp") |> 
+  st_as_sf(crs = 4326) |> 
+  janitor::clean_names()
+
+aus_map <- rnaturalearth::ne_countries(sovereignty = "Australia") 
+
+ggplot() +
+  geom_sf(data = mcdonalds, alpha = 0.15, colour = "red") +
+  geom_sf(data = aus_map, fill = NA) +
+  geom_sf(data = route, colour = "blue", lwd = 1)
+```
+
+### Step 3: Settle for a bounding box of 5:4 ratio (for nice twitter post)
+
+```{r}
+
+my_new_bbox <- st_polygon(
+  list(rbind(c(1, 5), 
+             c(2, 2), 
+             c(4, 1), 
+             c(4, 4), 
+             c(1, 5)))
+
+)
+```
+
+### Step 4: Filter the driving directions and McDonalds locations to within a bounding box
+
+### Step 5: Use `sf::st_is_within_distance()` to label Outlets near and far from the highway.
+
+### Step 6: Plot the driving directions and outlets (labelled by colours)
+
+### Step 7: Try icons in place of geom_point (geom_sf)
+
+### Step 8: Get a base map of raster images from stadia maps
+
+### Step 9: Decorate the final product
