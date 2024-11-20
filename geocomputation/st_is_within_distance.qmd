@@ -42,11 +42,9 @@ share:
 library(tidyverse)   # Data Wrangling
 library(sf)          # Handling Simple Features in R
 library(scales)      # Easy handling numbers and scales
-
-
 ```
 
-### Step 1: Get driving directions 
+### Step 1: Get driving directions
 
 ```{r}
 #| label: step1
@@ -94,17 +92,48 @@ ggplot() +
 
 ```{r}
 
-my_new_bbox <- st_polygon(
-  list(rbind(c(1, 5), 
-             c(2, 2), 
-             c(4, 1), 
-             c(4, 4), 
-             c(1, 5)))
+lonmin = 143.5
+lonmax <- 151.5
+latmin <- -40.5
+latmax <- latmin + ((lonmax-lonmin)*5/4)
 
-)
+
+my_new_bbox <- st_polygon(
+  list(rbind(c(lonmin, latmin), 
+             c(lonmin, latmax), 
+             c(lonmax, latmax), 
+             c(lonmax, latmin), 
+             c(lonmin, latmin)))
+
+) |> 
+  st_sfc() |> 
+  st_set_crs(4326)
+
+my_new_bbox
+
+ggplot() +
+  geom_sf(data = mcdonalds, alpha = 0.15, colour = "red") +
+  geom_sf(data = aus_map, fill = NA) +
+  geom_sf(data = route, colour = "blue", lwd = 1) +
+  geom_sf(data = my_new_bbox, fill = NA)
+
+
 ```
 
 ### Step 4: Filter the driving directions and McDonalds locations to within a bounding box
+
+```{r}
+
+aus_map <- rnaturalearth::ne_countries(
+  sovereignty = "Australia",
+  scale = "large"
+) 
+
+aus_map |> 
+  st_intersection(my_new_bbox) |> 
+  ggplot() +
+  geom_sf()
+```
 
 ### Step 5: Use `sf::st_is_within_distance()` to label Outlets near and far from the highway.
 
