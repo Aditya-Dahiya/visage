@@ -1,8 +1,8 @@
 ---
-title: "st_within_distance"
+title: "Using the power of {sf} to plot stores / outlets along a calculated route using sf::st_is_within_distance()"
 author: "Aditya Dahiya"
-subtitle: "........................"
-date: "2024-11-19"
+subtitle: "Harnessing the power of {osmr} for route directions, store locations from www.alltheplaces.xyz, and raster base maps from {ggmaps}"
+date: "2024-11-20"
 bibliography: references.bib
 format:
   html:
@@ -13,7 +13,7 @@ execute:
   error: false
   message: false
   warning: false
-  eval: false
+  eval: true
 categories:
   - "Background Map"
   - "Open Street Maps"
@@ -34,7 +34,27 @@ share:
   facebook: true
 ---
 
-### 
+### A tutorial
+
+This tutorial demonstrates how to combine geospatial data and tools in R to map store locations along a driving route. By leveraging the power of the `{sf}` package, we identify stores within a defined distance from a calculated route, enriched with data from **OpenAddresses** and **AllThePlaces**. The driving directions are fetched using `{osrm}`, and raster base maps are integrated via `{ggmap}` and Stadia Maps.
+
+### Data Preparation and Mapping
+
+First, the driving route between Sydney Opera House and Melbourne Cricket Ground is plotted using `{osrm}`'s `osrmRoute()`. Store data, in this case, McDonald’s locations in Australia, is sourced from **AllThePlaces** in GeoJSON format, converted into an `sf` object, and visualized on a map alongside the calculated route. Bounding boxes are created to focus the map and ensure a clean visual presentation, making it suitable for social media or reports.
+
+### Filtering and Analysis
+
+**Using `sf::st_is_within_distance()`, stores within 500 meters of the route are identified and labeled.** The route and stores are then plotted with customized aesthetics, distinguishing nearby stores with clear color coding. For enhanced visualization, logos or icons can replace points using `{ggimage}`. Additionally, raster base maps from Stadia Maps are overlaid, requiring a coordinate transformation to integrate smoothly with `geom_sf()` objects.
+
+### Links to Functions and Resources:
+
+-   Route Calculation: [`osrmRoute()`](https://cran.r-project.org/package=osrm)
+-   Spatial Data Handling: [`st_is_within_distance()`](https://r-spatial.github.io/sf/reference/st_is_within_distance.html)
+-   Store Locations: [AllThePlaces](https://www.alltheplaces.xyz)
+-   Base Maps: [`ggmap`](https://ggmap.tidyverse.org/) and [Stadia Maps](https://www.stadiamaps.com)
+-   Geospatial Visualization: [`ggplot2`](https://ggplot2.tidyverse.org/)
+
+The resulting map provides a comprehensive visual tool for understanding proximity-based store access, with applications in retail analysis, logistics, and marketing.
 
 ```{r}
 #| label: setup
@@ -95,7 +115,7 @@ ggplot() +
 lonmin = 143.5
 lonmax <- 151.5
 latmin <- -40.5
-latmax <- latmin + ((lonmax-lonmin)*5/4)
+latmax <- latmin + ((lonmax - lonmin) * 5/4)
 
 
 my_new_bbox <- st_polygon(
@@ -115,9 +135,11 @@ ggplot() +
   geom_sf(data = mcdonalds, alpha = 0.15, colour = "red") +
   geom_sf(data = aus_map, fill = NA) +
   geom_sf(data = route, colour = "blue", lwd = 1) +
-  geom_sf(data = my_new_bbox, fill = NA)
-
-
+  geom_sf(data = my_new_bbox, 
+          linewidth = 2,
+          lineend = "square",
+          fill = NA,
+          alpha = 0.5)
 ```
 
 ### Step 4: Filter the driving directions and McDonalds locations to within a bounding box
@@ -127,20 +149,372 @@ ggplot() +
 aus_map <- rnaturalearth::ne_countries(
   sovereignty = "Australia",
   scale = "large"
-) 
+  ) |> 
+  st_intersection(my_new_bbox)
 
-aus_map |> 
+mcdonalds_bbox <- mcdonalds |> 
   st_intersection(my_new_bbox) |> 
-  ggplot() +
-  geom_sf()
+  select(drive_through, addr_street_address, addr_city, geometry)
+
+ggplot() +
+  geom_sf(data = aus_map) +
+  geom_sf(data = mcdonalds_bbox, colour = "red", alpha = 0.2) +
+  geom_sf(data = route, colour = "blue")
 ```
 
 ### Step 5: Use `sf::st_is_within_distance()` to label Outlets near and far from the highway.
 
+```{r}
+
+# Within 500 metres of the driving route
+mcdonalds_bbox <- mcdonalds_bbox |> 
+  mutate(
+    near_route = as_vector(
+        mcdonalds_bbox |> 
+        st_is_within_distance(
+          y = route, 
+          dist = 500, 
+          sparse = F
+        )
+      )
+  )
+
+mcdonalds_bbox
+
+mcdonalds_bbox |> 
+  filter(near_route) |> 
+  relocate(near_route) |> 
+  st_drop_geometry() |> 
+  as_tibble() |> 
+  gt::gt() |> 
+  gt::cols_label_with(fn = snakecase::to_title_case) |> 
+  gtExtras::gt_theme_espn() |> 
+  gt::sub_missing(missing_text = "")
+```
+
 ### Step 6: Plot the driving directions and outlets (labelled by colours)
+
+```{r}
+ggplot() +
+  geom_sf(data = route, 
+          colour = "darkgrey", 
+          linewidth = 1.5,
+          alpha = 0.5) +
+  geom_sf(data = aus_map, fill = NA) +
+  geom_sf(
+    data = mcdonalds_bbox, 
+    mapping = aes(
+      colour = near_route,
+      alpha = near_route,
+      size = near_route
+    )
+  ) +
+  scale_alpha_manual(values = c(0.1, 0.9), name = "Within 500m of driving route?") +
+  scale_size_manual(values = c(1.5, 3), name = "Within 500m of driving route?") + 
+  scale_colour_manual(values = c("darkblue", "red"), name = "Within 500m of driving route?") +
+  ggthemes::theme_map() +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(1,0.1),
+    legend.justification = c(1, 0)
+  )
+```
 
 ### Step 7: Try icons in place of geom_point (geom_sf)
 
+```{r}
+library(magick)
+mcd_icon <- image_read("https://seeklogo.com/images/M/mcdonald-s-logo-2325D6C1EF-seeklogo.com.png") |>
+  image_resize("x50") |>
+  image_write(path = here::here("geocomputation", "images", "mcd_logo.png"))
+
+
+ggplot() +
+  # Base map of Australia within the bounding box
+  geom_sf(data = aus_map, fill = "white") +
+  
+  # The Driving Route
+  geom_sf(
+    data = route,
+    colour = "darkgrey",
+    linewidth = 1.5,
+    alpha = 0.5
+  ) +
+  
+  # All other McDonald's that are away from the drive
+  geom_sf(
+    data = mcdonalds_bbox |>
+      filter(!near_route),
+    colour = "darkblue",
+    alpha = 0.2,
+    pch = 16
+  ) +
+  
+  # McDonald's that lie on the route and are drive through
+  ggimage::geom_image(
+    data = mcdonalds_bbox |>
+      filter(near_route) |>
+      filter(!is.na(drive_through)) |> 
+      mutate(image_path = "geocomputation/images/mcd_logo.png"),
+    mapping = aes(
+      geometry = geometry,
+      image = mcd_icon
+    ),
+    stat = "sf_coordinates",
+    size = 0.02
+  ) +
+  
+  # Labelling the McDonald's that lie on the route and 
+  # are drive through using geom_text_repel()
+  ggrepel::geom_text_repel(
+    data = mcdonalds_bbox |>
+      filter(near_route) |> 
+      filter(!is.na(drive_through)),
+    mapping = aes(
+      label = addr_city,
+      geometry = geometry
+    ),
+    stat = "sf_coordinates"
+  ) +
+  
+  coord_sf(expand = FALSE) +
+  ggthemes::theme_map() +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(1, 0.1),
+    legend.justification = c(1, 0),
+    plot.background = element_rect(
+      fill = "lightblue"
+    )
+  )
+```
+
 ### Step 8: Get a base map of raster images from stadia maps
 
+```{r}
+#| eval: false
+
+# Get Stadia Maps key: Tutorial at
+# https://aditya-dahiya.github.io/visage/geocomputation/ggmap_rasters.html
+ggmap::register_stadiamaps(my_stadiamaps_key)
+
+base_map_bbox <- c(
+  latmin, latmax, lonmin, lonmax
+)
+names(base_map_bbox) <- c(
+  "bottom", "top", "left", "right"
+)
+
+base_map <- ggmap::get_stadiamap(
+  bbox = base_map_bbox,
+  zoom = 7,
+  maptype = "stamen_terrain"
+)
+
+# Credits: https://stackoverflow.com/questions/47749078/how-to-put-a-geom-sf-produced-map-on-top-of-a-ggmap-produced-raster by andyteucher on StackOverFlow (https://stackoverflow.com/users/1736291/andyteucher)
+
+# Define a function to fix the bbox to be in CRS EPSG:3857
+ggmap_bbox <- function(map) {
+  # Extract the bounding box (in lat/lon) from the ggmap
+  # to a numeric vector, and set the names to what
+  # sf::st_bbox expects:
+  map_bbox <- setNames(
+    unlist(attr(map, "bb")),
+    c("ymin", "xmin", "ymax", "xmax")
+  )
+
+  # Coonvert the bbox to an sf polygon, transform it to 3857,
+  # and convert back to a bbox (convoluted, but it works)
+  bbox_3857 <- st_bbox(
+    st_transform(
+      st_as_sfc(
+        st_bbox(map_bbox, crs = 4326)
+        ), 
+      3857
+    )
+  )
+
+  # Overwrite the bbox of the ggmap object with the transformed coordinates
+  attr(map, "bb")$ll.lat <- bbox_3857["ymin"]
+  attr(map, "bb")$ll.lon <- bbox_3857["xmin"]
+  attr(map, "bb")$ur.lat <- bbox_3857["ymax"]
+  attr(map, "bb")$ur.lon <- bbox_3857["xmax"]
+  map
+}
+
+# Use the function to convert our downloaded Raster Files into 
+# the new CRS and new bounding box CRS
+base_map2 <- ggmap_bbox(base_map)
+
+temp <- ggmap::ggmap(base_map2) +
+  coord_sf(
+    crs = st_crs(3857),
+    expand = F
+  ) +
+  ggthemes::theme_map()
+
+ggsave(
+  filename = here::here(
+    "geocomputation",
+    "images",
+    "base_map_st_is_within_distance.png"
+  ),
+  plot = temp,
+  width = 350,
+  height = 500,
+  units = "mm",
+  bg = "white"
+)
+```
+
+![](images/base_map_st_is_within_distance.png){width="600"}
+
 ### Step 9: Decorate the final product
+
+```{r}
+#| eval: false
+
+# Starting the process of Overlaying the geom_sf() data on this
+# Most important is to add the inherit.aes = FALSE argument.
+library(fontawesome)
+sysfonts::font_add_google("Saira Extra Condensed", "caption_font")
+# Caption stuff for the plot
+sysfonts::font_add(
+  family = "Font Awesome 6 Brands",
+  regular = here::here("docs", "Font Awesome 6 Brands-Regular-400.otf")
+)
+text_hil <- "grey20"
+text_col <- text_hil
+github <- "&#xf09b"
+github_username <- "aditya-dahiya"
+xtwitter <- "&#xe61b"
+xtwitter_username <- "@adityadahiyaias"
+social_caption_1 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{github};</span> <span style='color: {text_hil}'>{github_username}  </span>")
+social_caption_2 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{xtwitter};</span> <span style='color: {text_hil}'>{xtwitter_username}</span>")
+plot_caption <- paste0(
+  "**Data:** {ISOcodes} by Christian Buchta & Kurt Hornik", 
+  " |  **Code:** ", 
+  social_caption_1, 
+  " |  **Graphics:** ", 
+  social_caption_2
+  )
+rm(github, github_username, xtwitter, 
+   xtwitter_username, social_caption_1, 
+   social_caption_2)
+showtext::showtext_auto()
+bts <- 90
+
+g <- ggmap::ggmap(base_map2) +
+
+  # The Driving Route
+  geom_sf(
+    data = route,
+    colour = "black",
+    linewidth = 1.5,
+    alpha = 0.5,
+    inherit.aes = F
+  ) +
+  
+  
+  # All other McDonald's that are away from the drive
+  geom_sf(
+    data = mcdonalds_bbox |>
+      filter(!near_route),
+    colour = "red",
+    alpha = 0.4,
+    size = 3,
+    pch = 16,
+    inherit.aes = F
+  ) +
+  
+  # McDonald's that lie on the route and are drive through
+  ggimage::geom_image(
+    data = mcdonalds_bbox |>
+      filter(near_route) |>
+      filter(!is.na(drive_through)) |> 
+      mutate(image_path = "geocomputation/images/mcd_logo.png"),
+    mapping = aes(
+      geometry = geometry,
+      image = mcd_icon
+    ),
+    stat = "sf_coordinates",
+    size = 0.02,
+    inherit.aes = F
+  ) +
+  
+  # Labelling the McDonald's that lie on the route and 
+  # are drive through using geom_text_repel()
+  ggrepel::geom_text_repel(
+    data = mcdonalds_bbox |>
+      filter(near_route) |> 
+      filter(!is.na(drive_through)),
+    mapping = aes(
+      label = str_wrap(paste0(addr_street_address,
+                              ", ",
+                              addr_city),
+                       15),
+      geometry = geometry
+    ),
+    stat = "sf_coordinates",
+    inherit.aes = F,
+    size = bts / 4,
+    force = 15,
+    family = "caption_font",
+    colour = text_hil,
+    lineheight = 0.2,
+    fontface = "bold"
+  ) +
+  
+  # Forcing the ggplot2 map to be in CRS: 3857
+  coord_sf(
+    crs = st_crs(3857),
+    expand = F
+  ) +
+  labs(
+    title = "McDonald's Drive-Through\nlocations along a drive\nfrom Sydney to\nMelbourne",
+    subtitle = "Using sf::st_is_within_distance() from {sf}",
+    caption = plot_caption
+  ) +
+  ggthemes::theme_map(
+    base_family = "caption_font",
+    base_size = bts
+  ) +
+  theme(
+    plot.margin = margin(0,0,0,0, "mm"),
+    text = element_text(
+      colour = text_hil,
+      lineheight = 0.3
+    ),
+    plot.title = element_text(
+      margin = margin(20,0,-150,5, "mm"),
+      hjust = 0,
+      size = 3 * bts,
+      face = "bold"
+    ),
+    plot.subtitle = element_text(
+      margin = margin(150,0,-210,5, "mm"),
+      hjust = 0,
+      size = 1.5 * bts,
+      face = "bold"
+    ),
+    plot.caption = ggtext::element_textbox(
+      margin = margin(-50,0,20,0, "mm"),
+      hjust = 1
+    )
+  )
+
+ggsave(
+  filename = here::here(
+    "geocomputation",
+    "images",
+    "st_is_within_distance.png"
+  ),
+  plot = g,
+  width = 350,
+  height = 500,
+  units = "mm",
+  bg = "white"
+)
+```
+
+![](images/st_is_within_distance.png)
