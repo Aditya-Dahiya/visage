@@ -60,7 +60,7 @@ showtext::showtext_auto()
 
 ## 4.2 Spatial operations on vector data
 
-### 4.2.1 Spatial Subsetting
+### 4.2.1 Spatial Subsetting: use `st_filter()`
 
 -   Spatial subsetting extracts features from a spatial object (`x`) that relate spatially to another object (`y`).
 -   Syntax: Use the `[ ]` operator: `x[y, , op = st_intersects]`.
@@ -240,7 +240,7 @@ nz_height |>
 -   **Binary predicates** in **`sf`** package test spatial relationships between vector geometries. See [vignette("sf3")](https://r-spatial.github.io/sf/articles/sf3.html). The following binary predicates exist in `sf` : —
 
 | Function | Description | Symmetrical? |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | `st_intersects` | Checks if geometries intersect. | Yes |
 | `st_disjoint` | Checks if geometries do not intersect (are disjoint). | Yes |
 | `st_touches` | Checks if geometries have at least one boundary point in common. | Yes |
@@ -454,6 +454,7 @@ sf_points |>
     -   Computes a distance matrix between all combinations of features in objects (e.g., distances between multiple points and polygons).
 -   **Point-to-polygon distance**: Represents the shortest distance from a point to any part of the polygon.
 -   **Usage in distance-based joins**: [`st_distance()`](https://r-spatial.github.io/sf/reference/st_distance.html) is also used for performing joins based on distance criteria.
+-   An example code to find distance between central points of Auckland and Canterbury Regions, vs. Top three peaks in New Zealand, returned as a matrix,a nd shown below as a beautiful table using {gt}.
 
 ```{r}
 #| label: tbl-distance
@@ -522,19 +523,52 @@ st_rook = function(x, y)
 
 -   This identifies which geometries in a grid have queen or rook relations to the central geometry.
 
-```{r}
+### 4.2.5 Spatial Joining with `st_join()`
 
-set.seed(42)
+-   Spatial joins combine datasets based on spatial relationships instead of shared key variables (as in non-spatial joins). It adds columns from a source object (`y`) to a target object (`x`).
+
+-   **Join Details**:
+
+    -   Default behavior: A left join, which retains all rows from `x` and includes rows with no match from `y`.
+
+    -   Operators: Uses `st_intersects()` by default but can be modified via the `join` argument.
+
+    -   Handles all geometry types: Works for points, lines, and polygons, though joins involving polygons may create duplicate rows for multiple matches in `y`.
+
+-   **Flexibility**:
+
+    -   **Inner joins**: Set `left = FALSE` to include only matched rows.
+
+-   The `st_join()` function: The `join` argument defines the topological operator to determine these relationships, with the default being `st_intersects()`.
+
+    -   We can customize this behavior by choosing alternative functions such as `st_contains`, `st_within`, `st_overlaps`, `st_touches`, or `st_disjoint`, among others, each defining a different geometric predicate.
+
+    -   For example, `st_contains` selects features where geometries of `x` fully encompass those of `y`, while `st_within` does the reverse.
+
+    -   Additionally, advanced options like `st_is_within_distance` allow proximity-based joins, and `st_relate` supports customized spatial relationships using a pattern.
+
+-   Example: Getting 25 random points in the world, and seeing in which countries they fall in @fig-st-join.
+
+```{r}
+#| code-fold: true
+
+# Getting 25 random points on the world,a dn then seeing in which countries they fall
 random_points <- tibble(
-  x = runif(
+  x = round(
+    runif(
     25, 
     min = st_bbox(world)$xmin, 
     max = st_bbox(world)$xmax
+    ),
+    2
   ),
-  y = runif(
+  y = round(
+    runif(
     25, 
     min = st_bbox(world)$ymin, 
     max = st_bbox(world)$ymax
+    ),
+    2
   ),
   id = LETTERS[1:25]
 ) |> 
@@ -545,29 +579,150 @@ random_points <- tibble(
 # Easiest (but not tidyverse) way to subset
 # world[random_points, ]
 
-# Tidyverse way to filter
+# Tidyverse way to filter: Names of Countries in which they fall
 intersecting_countries <- world |> 
   st_filter(random_points) |> 
   pull(name_long)
 
-# The power of spatial joins
+# The power of spatial joins: A tibble of countries where each random
+# point falls. st_join() by default performs a left_join()
 st_join(
   random_points, 
   world |> select(name_long)
 ) |> 
-  drop_na()
+  drop_na() |> 
+  gt::gt() |> 
+  gtExtras::gt_theme_nytimes()
+```
+
+```{r}
+#| label: fig-st-join
+#| fig-cap: "Using st_join() to spatially join two data sets, based on the st_intersect() relation"
+#| code-fold: true
+
+
+set.seed(42)
 
 world |> 
+  mutate(highlight = name_long %in% intersecting_countries) |> 
   ggplot() +
-  geom_sf() +
+  geom_sf(
+    mapping = aes(
+      fill = highlight
+    ),
+    alpha = 0.5
+  ) +
+  scale_fill_manual(
+    values = c("transparent", "red")
+  ) +
   geom_sf(
     data = random_points,
-    mapping = aes(
-      colour = id
-    ),
-    pch = 8
+    pch = 20,
+    size = 4,
+    colour = "black",
+    alpha = 0.5
+  ) +
+  ggrepel::geom_text_repel(
+    data = random_points,
+    mapping = aes(label = id, geometry = geometry),
+    size = 4,
+    colour = "black",
+    nudge_x = 2,
+    nudge_y = -2,
+    stat = "sf_coordinates"
+  ) +
+  labs(
+    title = "25 random points on world map, and Countries in which they fall",
+    x = NULL, y = NULL
   ) +
   theme(
     legend.position = "none"
   )
+```
+
+### 4.2.6 Distance-based Joins
+
+-   Distance-based joins are used when geographic datasets are spatially proximate but do not intersect. The **sf** package enables such joins using spatial relationships like proximity.
+
+-   **Example Dataset used**:
+
+    -   `cycle_hire`: Official cycle hire points.
+    -   `cycle_hire_osm`: Cycle hire points from OpenStreetMap.
+    -   Relationship: These datasets are geographically close but do not overlap, as verified using [`st_intersects()`](https://r-spatial.github.io/sf/reference/st_intersects.html), which returns `FALSE` for all points.
+
+-   **Implementation**:
+
+    1.  **Check Proximity**:
+        -   Use [`st_is_within_distance()`](https://r-spatial.github.io/sf/reference/st_is_within_distance.html) to determine points within a threshold distance (e.g., 20 meters).
+    2.  **Perform Distance-based Join**:
+        -   Apply [`st_join()`](https://r-spatial.github.io/sf/reference/st_join.html) with the `st_is_within_distance` predicate and a `dist` argument.
+        -   The resulting dataset may contain duplicate rows if points in the target object (`cycle_hire`) match multiple points in the source (`cycle_hire_osm`).
+
+-   **Key Observations**:
+
+    -   Joins retain the geometry of features in the target dataset (`cycle_hire`).
+    -   Distance-based joins are effective for linking datasets that are close geographically but do not overlap.
+
+@fig-st_join2 visualizes the spatial relationship between two datasets, `cycle_hire` and `cycle_hire_osm`, using a proximity filter. The `st_filter()` function from the **sf** package identifies points in the `cycle_hire` dataset that are within 10 meters of points in `cycle_hire_osm`, leveraging the `st_is_within_distance` predicate. The result is a subset of `cycle_hire` points, which are plotted using **ggplot2**. The plot includes:
+
+-   Filtered `cycle_hire` points (dark blue, fully opaque).
+
+-   All `cycle_hire` points (dark blue, semi-transparent) for context.
+
+-   All `cycle_hire_osm` points (red, semi-transparent) to show the proximity relationship.
+
+```{r}
+#| code-fold: true
+
+
+data("cycle_hire")
+data("cycle_hire_osm")
+
+ggplot() +
+  geom_sf(
+    data = cycle_hire,
+    colour = "blue",
+    alpha = 0.5
+  ) +
+  geom_sf(
+    data = cycle_hire_osm,
+    colour = "red",
+    alpha = 0.5
+  )
+
+st_intersects(cycle_hire, cycle_hire_osm, sparse = F) |> any()
+
+# Official Cycle hire points with added info from OSM points within 10 metres
+# 
+# cycle_hire |> 
+#   st_join(
+#     cycle_hire_osm, 
+#     join = st_is_within_distance,
+#     dist = units::set_units(10, "m")
+#   )
+
+
+```
+
+```{r}
+#| label: fig-st_join2
+#| fig-cap: "Cycle Hire Points Within 10 Meters of OpenStreetMap Locations"
+#| code-fold: true
+
+# Plot only points which have a OSM point within 10 metres
+cycle_hire |> 
+  st_filter(
+    cycle_hire_osm,
+    .predicate = st_is_within_distance,
+    dist = units::set_units(10, "m")
+  ) |> 
+  ggplot() +
+  geom_sf(size = 2, alpha = 1, colour = "darkblue") +
+  geom_sf(
+    data = cycle_hire, alpha = 0.2, colour = "darkblue"
+  ) +
+  geom_sf(
+    data = cycle_hire_osm, alpha = 0.2, colour = "red"
+  )
+
 ```

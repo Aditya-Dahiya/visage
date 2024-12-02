@@ -212,10 +212,12 @@ div.csl-indent {
   <li><a href="#introduction-to-spatial-operations" id="toc-introduction-to-spatial-operations" class="nav-link active" data-scroll-target="#introduction-to-spatial-operations">4.1 Introduction to Spatial Operations</a></li>
   <li><a href="#spatial-operations-on-vector-data" id="toc-spatial-operations-on-vector-data" class="nav-link" data-scroll-target="#spatial-operations-on-vector-data">4.2 Spatial operations on vector data</a>
   <ul class="collapse">
-  <li><a href="#spatial-subsetting" id="toc-spatial-subsetting" class="nav-link" data-scroll-target="#spatial-subsetting">4.2.1 Spatial Subsetting</a></li>
+  <li><a href="#spatial-subsetting-use-st_filter" id="toc-spatial-subsetting-use-st_filter" class="nav-link" data-scroll-target="#spatial-subsetting-use-st_filter">4.2.1 Spatial Subsetting: use <code>st_filter()</code></a></li>
   <li><a href="#topological-relations" id="toc-topological-relations" class="nav-link" data-scroll-target="#topological-relations">4.2.2 Topological Relations</a></li>
   <li><a href="#distance-relations" id="toc-distance-relations" class="nav-link" data-scroll-target="#distance-relations">4.2.3 Distance Relations</a></li>
   <li><a href="#de-9im-strings" id="toc-de-9im-strings" class="nav-link" data-scroll-target="#de-9im-strings">4.2.4 DE-9IM Strings</a></li>
+  <li><a href="#spatial-joining-with-st_join" id="toc-spatial-joining-with-st_join" class="nav-link" data-scroll-target="#spatial-joining-with-st_join">4.2.5 Spatial Joining with <code>st_join()</code></a></li>
+  <li><a href="#distance-based-joins" id="toc-distance-based-joins" class="nav-link" data-scroll-target="#distance-based-joins">4.2.6 Distance-based Joins</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/chapter4.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
@@ -290,8 +292,8 @@ div.csl-indent {
 </section>
 <section id="spatial-operations-on-vector-data" class="level2">
 <h2 class="anchored" data-anchor-id="spatial-operations-on-vector-data">4.2 Spatial operations on vector data</h2>
-<section id="spatial-subsetting" class="level3">
-<h3 class="anchored" data-anchor-id="spatial-subsetting">4.2.1 Spatial Subsetting</h3>
+<section id="spatial-subsetting-use-st_filter" class="level3">
+<h3 class="anchored" data-anchor-id="spatial-subsetting-use-st_filter">4.2.1 Spatial Subsetting: use <code>st_filter()</code></h3>
 <ul>
 <li>Spatial subsetting extracts features from a spatial object (<code>x</code>) that relate spatially to another object (<code>y</code>).</li>
 <li>Syntax: Use the <code>[ ]</code> operator: <code>x[y, , op = st_intersects]</code>.
@@ -908,6 +910,7 @@ Figure&nbsp;2: Some example objects to demonstrate the topological relations
 </ul></li>
 <li><strong>Point-to-polygon distance</strong>: Represents the shortest distance from a point to any part of the polygon.</li>
 <li><strong>Usage in distance-based joins</strong>: <a href="https://r-spatial.github.io/sf/reference/st_distance.html"><code>st_distance()</code></a> is also used for performing joins based on distance criteria.</li>
+<li>An example code to find distance between central points of Auckland and Canterbury Regions, vs.&nbsp;Top three peaks in New Zealand, returned as a matrix,a nd shown below as a beautiful table using {gt}.</li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Central points of Auckland and Canterbury Regions</span></span>
@@ -1477,77 +1480,730 @@ tbody tr:last-child {
 <ul>
 <li>This identifies which geometries in a grid have queen or rook relations to the central geometry.</li>
 </ul>
+</section>
+<section id="spatial-joining-with-st_join" class="level3">
+<h3 class="anchored" data-anchor-id="spatial-joining-with-st_join">4.2.5 Spatial Joining with <code>st_join()</code></h3>
+<ul>
+<li><p>Spatial joins combine datasets based on spatial relationships instead of shared key variables (as in non-spatial joins). It adds columns from a source object (<code>y</code>) to a target object (<code>x</code>).</p></li>
+<li><p><strong>Join Details</strong>:</p>
+<ul>
+<li><p>Default behavior: A left join, which retains all rows from <code>x</code> and includes rows with no match from <code>y</code>.</p></li>
+<li><p>Operators: Uses <code>st_intersects()</code> by default but can be modified via the <code>join</code> argument.</p></li>
+<li><p>Handles all geometry types: Works for points, lines, and polygons, though joins involving polygons may create duplicate rows for multiple matches in <code>y</code>.</p></li>
+</ul></li>
+<li><p><strong>Flexibility</strong>:</p>
+<ul>
+<li><strong>Inner joins</strong>: Set <code>left = FALSE</code> to include only matched rows.</li>
+</ul></li>
+<li><p>The <code>st_join()</code> function: The <code>join</code> argument defines the topological operator to determine these relationships, with the default being <code>st_intersects()</code>.</p>
+<ul>
+<li><p>We can customize this behavior by choosing alternative functions such as <code>st_contains</code>, <code>st_within</code>, <code>st_overlaps</code>, <code>st_touches</code>, or <code>st_disjoint</code>, among others, each defining a different geometric predicate.</p></li>
+<li><p>For example, <code>st_contains</code> selects features where geometries of <code>x</code> fully encompass those of <code>y</code>, while <code>st_within</code> does the reverse.</p></li>
+<li><p>Additionally, advanced options like <code>st_is_within_distance</code> allow proximity-based joins, and <code>st_relate</code> supports customized spatial relationships using a pattern.</p></li>
+</ul></li>
+<li><p>Example: Getting 25 random points in the world, and seeing in which countries they fall in <a href="#fig-st-join" class="quarto-xref">Figure&nbsp;3</a>.</p></li>
+</ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Getting 25 random points on the world,a dn then seeing in which countries they fall</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>random_points <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="fu">runif</span>(</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="dv">25</span>, </span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">min =</span> <span class="fu">st_bbox</span>(world)<span class="sc">$</span>xmin, </span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">max =</span> <span class="fu">st_bbox</span>(world)<span class="sc">$</span>xmax</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> <span class="fu">runif</span>(</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="dv">25</span>, </span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">min =</span> <span class="fu">st_bbox</span>(world)<span class="sc">$</span>ymin, </span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">max =</span> <span class="fu">st_bbox</span>(world)<span class="sc">$</span>ymax</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> LETTERS[<span class="dv">1</span><span class="sc">:</span><span class="dv">25</span>]</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"x"</span>, <span class="st">"y"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_set_crs</span>(<span class="at">value =</span> <span class="fu">crs</span>(world))</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Easiest (but not tidyverse) way to subset</span></span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="co"># world[random_points, ]</span></span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Tidyverse way to filter</span></span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>intersecting_countries <span class="ot">&lt;-</span> world <span class="sc">|&gt;</span> </span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_filter</span>(random_points) <span class="sc">|&gt;</span> </span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(name_long)</span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a><span class="co"># The power of spatial joins</span></span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a><span class="fu">st_join</span>(</span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>  random_points, </span>
-<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>  world <span class="sc">|&gt;</span> <span class="fu">select</span>(name_long)</span>
-<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
-<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Simple feature collection with 11 features and 2 fields
-Geometry type: POINT
-Dimension:     XY
-Bounding box:  xmin: -137.7046 ymin: -89.21479 xmax: 85.17179 ymax: 67.43626
-Geodetic CRS:  WGS 84
-# A tibble: 11 × 3
-   id                 geometry name_long         
-   &lt;chr&gt;           &lt;POINT [°]&gt; &lt;chr&gt;             
- 1 C      (-76.98977 67.28644) Canada            
- 2 E       (51.02838 55.18447) Russian Federation
- 3 G       (85.17179 50.85467) Russian Federation
- 4 I       (56.51722 29.00787) Iran              
- 5 J      (73.82332 -89.21479) Antarctica        
- 6 L       (78.8804 -88.62719) Antarctica        
- 7 N      (-88.04563 67.43626) Canada            
- 8 O       (-13.57459 16.2712) Mauritania        
- 9 R     (-137.7046 -83.40403) Antarctica        
-10 T      (21.71978 -14.97167) Angola            
-11 V      (-130.0643 64.16554) Canada            </code></pre>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="fu">round</span>(</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">runif</span>(</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="dv">25</span>, </span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">min =</span> <span class="fu">st_bbox</span>(world)<span class="sc">$</span>xmin, </span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">max =</span> <span class="fu">st_bbox</span>(world)<span class="sc">$</span>xmax</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> <span class="fu">round</span>(</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">runif</span>(</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="dv">25</span>, </span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">min =</span> <span class="fu">st_bbox</span>(world)<span class="sc">$</span>ymin, </span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">max =</span> <span class="fu">st_bbox</span>(world)<span class="sc">$</span>ymax</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> LETTERS[<span class="dv">1</span><span class="sc">:</span><span class="dv">25</span>]</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"x"</span>, <span class="st">"y"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_set_crs</span>(<span class="at">value =</span> <span class="fu">crs</span>(world))</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Easiest (but not tidyverse) way to subset</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="co"># world[random_points, ]</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Tidyverse way to filter: Names of Countries in which they fall</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>intersecting_countries <span class="ot">&lt;-</span> world <span class="sc">|&gt;</span> </span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_filter</span>(random_points) <span class="sc">|&gt;</span> </span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(name_long)</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a><span class="co"># The power of spatial joins: A tibble of countries where each random</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a><span class="co"># point falls. st_join() by default performs a left_join()</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="fu">st_join</span>(</span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>  random_points, </span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>  world <span class="sc">|&gt;</span> <span class="fu">select</span>(name_long)</span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>  gtExtras<span class="sc">::</span><span class="fu">gt_theme_nytimes</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="pauikiqsuw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+#pauikiqsuw table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#pauikiqsuw thead, #pauikiqsuw tbody, #pauikiqsuw tfoot, #pauikiqsuw tr, #pauikiqsuw td, #pauikiqsuw th {
+  border-style: none;
+}
+
+#pauikiqsuw p {
+  margin: 0;
+  padding: 0;
+}
+
+#pauikiqsuw .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#pauikiqsuw .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#pauikiqsuw .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#pauikiqsuw .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#pauikiqsuw .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#pauikiqsuw .gt_bottom_border {
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#pauikiqsuw .gt_col_headings {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 1px;
+  border-bottom-color: #334422;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#pauikiqsuw .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 12px;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#pauikiqsuw .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 12px;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#pauikiqsuw .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#pauikiqsuw .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#pauikiqsuw .gt_column_spanner {
+  border-bottom-style: none;
+  border-bottom-width: 1px;
+  border-bottom-color: #334422;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#pauikiqsuw .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#pauikiqsuw .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#pauikiqsuw .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#pauikiqsuw .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#pauikiqsuw .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#pauikiqsuw .gt_row {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#pauikiqsuw .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pauikiqsuw .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#pauikiqsuw .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#pauikiqsuw .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#pauikiqsuw .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pauikiqsuw .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#pauikiqsuw .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#pauikiqsuw .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#pauikiqsuw .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pauikiqsuw .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#pauikiqsuw .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#pauikiqsuw .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#pauikiqsuw .gt_table_body {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #FFFFFF;
+}
+
+#pauikiqsuw .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#pauikiqsuw .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pauikiqsuw .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#pauikiqsuw .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pauikiqsuw .gt_left {
+  text-align: left;
+}
+
+#pauikiqsuw .gt_center {
+  text-align: center;
+}
+
+#pauikiqsuw .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#pauikiqsuw .gt_font_normal {
+  font-weight: normal;
+}
+
+#pauikiqsuw .gt_font_bold {
+  font-weight: bold;
+}
+
+#pauikiqsuw .gt_font_italic {
+  font-style: italic;
+}
+
+#pauikiqsuw .gt_super {
+  font-size: 65%;
+}
+
+#pauikiqsuw .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#pauikiqsuw .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#pauikiqsuw .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#pauikiqsuw .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#pauikiqsuw .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#pauikiqsuw .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#pauikiqsuw .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="header gt_col_headings">
+<th id="id" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase" scope="col">id</th>
+<th id="geometry" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase" scope="col">geometry</th>
+<th id="name_long" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase" scope="col">name_long</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">B</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(35.35, -11.46)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Mozambique</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">M</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(50.43, 49.82)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Kazakhstan</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">O</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-111.16, 47.38)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">United States</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">P</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-63.28, -29.58)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Argentina</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">Q</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(84.98, 46.32)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">China</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">T</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(111.56, 70.07)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Russian Federation</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">W</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-31.87, 80.32)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Greenland</td>
+</tr>
+</tbody>
+</table>
+
 </div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>world <span class="sc">|&gt;</span> </span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> random_points,</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">colour =</span> id</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">pch =</span> <span class="dv">8</span></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span></span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>world <span class="sc">|&gt;</span> </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">highlight =</span> name_long <span class="sc">%in%</span> intersecting_countries) <span class="sc">|&gt;</span> </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">fill =</span> highlight</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.5</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"transparent"</span>, <span class="st">"red"</span>)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> random_points,</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">pch =</span> <span class="dv">20</span>,</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">4</span>,</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"black"</span>,</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.5</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>  ggrepel<span class="sc">::</span><span class="fu">geom_text_repel</span>(</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> random_points,</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">label =</span> id, <span class="at">geometry =</span> geometry),</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">4</span>,</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"black"</span>,</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">nudge_x =</span> <span class="dv">2</span>,</span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">nudge_y =</span> <span class="sc">-</span><span class="dv">2</span>,</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">stat =</span> <span class="st">"sf_coordinates"</span></span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"25 random points on world map, and Countries in which they fall"</span>,</span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span></span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-st-join" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-st-join-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-st-join-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Figure&nbsp;3: Using st_join() to spatially join two data sets, based on the st_intersect() relation"><img src="chapter4_files/figure-html/fig-st-join-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-st-join-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Using st_join() to spatially join two data sets, based on the st_intersect() relation
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="distance-based-joins" class="level3">
+<h3 class="anchored" data-anchor-id="distance-based-joins">4.2.6 Distance-based Joins</h3>
+<ul>
+<li><p>Distance-based joins are used when geographic datasets are spatially proximate but do not intersect. The <strong>sf</strong> package enables such joins using spatial relationships like proximity.</p></li>
+<li><p><strong>Example Dataset used</strong>:</p>
+<ul>
+<li><code>cycle_hire</code>: Official cycle hire points.</li>
+<li><code>cycle_hire_osm</code>: Cycle hire points from OpenStreetMap.</li>
+<li>Relationship: These datasets are geographically close but do not overlap, as verified using <a href="https://r-spatial.github.io/sf/reference/st_intersects.html"><code>st_intersects()</code></a>, which returns <code>FALSE</code> for all points.</li>
+</ul></li>
+<li><p><strong>Implementation</strong>:</p>
+<ol type="1">
+<li><strong>Check Proximity</strong>:
+<ul>
+<li>Use <a href="https://r-spatial.github.io/sf/reference/st_is_within_distance.html"><code>st_is_within_distance()</code></a> to determine points within a threshold distance (e.g., 20 meters).</li>
+</ul></li>
+<li><strong>Perform Distance-based Join</strong>:
+<ul>
+<li>Apply <a href="https://r-spatial.github.io/sf/reference/st_join.html"><code>st_join()</code></a> with the <code>st_is_within_distance</code> predicate and a <code>dist</code> argument.</li>
+<li>The resulting dataset may contain duplicate rows if points in the target object (<code>cycle_hire</code>) match multiple points in the source (<code>cycle_hire_osm</code>).</li>
+</ul></li>
+</ol></li>
+<li><p><strong>Key Observations</strong>:</p>
+<ul>
+<li>Joins retain the geometry of features in the target dataset (<code>cycle_hire</code>).</li>
+<li>Distance-based joins are effective for linking datasets that are close geographically but do not overlap.</li>
+</ul></li>
+</ul>
+<p><a href="#fig-st_join2" class="quarto-xref">Figure&nbsp;4</a> visualizes the spatial relationship between two datasets, <code>cycle_hire</code> and <code>cycle_hire_osm</code>, using a proximity filter. The <code>st_filter()</code> function from the <strong>sf</strong> package identifies points in the <code>cycle_hire</code> dataset that are within 10 meters of points in <code>cycle_hire_osm</code>, leveraging the <code>st_is_within_distance</code> predicate. The result is a subset of <code>cycle_hire</code> points, which are plotted using <strong>ggplot2</strong>. The plot includes:</p>
+<ul>
+<li><p>Filtered <code>cycle_hire</code> points (dark blue, fully opaque).</p></li>
+<li><p>All <code>cycle_hire</code> points (dark blue, semi-transparent) for context.</p></li>
+<li><p>All <code>cycle_hire_osm</code> points (red, semi-transparent) to show the proximity relationship.</p></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"cycle_hire"</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"cycle_hire_osm"</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> cycle_hire,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"blue"</span>,</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.5</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> cycle_hire_osm,</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"red"</span>,</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.5</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="chapter4_files/figure-html/unnamed-chunk-7-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="chapter4_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></a></p>
+<p><a href="chapter4_files/figure-html/unnamed-chunk-9-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="chapter4_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">st_intersects</span>(cycle_hire, cycle_hire_osm, <span class="at">sparse =</span> F) <span class="sc">|&gt;</span> <span class="fu">any</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Official Cycle hire points with added info from OSM points within 10 metres</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co"># cycle_hire |&gt; </span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   st_join(</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="co">#     cycle_hire_osm, </span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co">#     join = st_is_within_distance,</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co">#     dist = units::set_units(10, "m")</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   )</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot only points which have a OSM point within 10 metres</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>cycle_hire <span class="sc">|&gt;</span> </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_filter</span>(</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    cycle_hire_osm,</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">.predicate =</span> st_is_within_distance,</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">dist =</span> units<span class="sc">::</span><span class="fu">set_units</span>(<span class="dv">10</span>, <span class="st">"m"</span>)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">size =</span> <span class="dv">2</span>, <span class="at">alpha =</span> <span class="dv">1</span>, <span class="at">colour =</span> <span class="st">"darkblue"</span>) <span class="sc">+</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> cycle_hire, <span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">colour =</span> <span class="st">"darkblue"</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> cycle_hire_osm, <span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">colour =</span> <span class="st">"red"</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-st_join2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-st_join2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-st_join2-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6" title="Figure&nbsp;4: Cycle Hire Points Within 10 Meters of OpenStreetMap Locations"><img src="chapter4_files/figure-html/fig-st_join2-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-st_join2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Cycle Hire Points Within 10 Meters of OpenStreetMap Locations
+</figcaption>
 </figure>
 </div>
 </div>
@@ -1989,7 +2645,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 <footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/chapter4.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><div class="page-columns page-rows-contents page-layout-article"><div class="social-share"><a href="https://twitter.com/share?url=https://aditya-dahiya.github.io/visage/geocomputation/chapter4.html&amp;text=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="twitter"><i class="fab fa-twitter fa-fw fa-lg"></i></a><a href="https://www.linkedin.com/shareArticle?url=https://aditya-dahiya.github.io/visage/geocomputation/chapter4.html&amp;title=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="linkedin"><i class="fa-brands fa-linkedin-in fa-fw fa-lg"></i></a>  <a href="mailto:?subject=Visualizing Information and Spatial Analysis with ggplot2 Extensions&amp;body=Check out this link:https://aditya-dahiya.github.io/visage/geocomputation/chapter4.html" target="_blank" class="email"><i class="fa-solid fa-envelope fa-fw fa-lg"></i></a><a href="https://www.facebook.com/sharer.php?u=https://aditya-dahiya.github.io/visage/geocomputation/chapter4.html" target="_blank" class="facebook"><i class="fab fa-facebook-f fa-fw fa-lg"></i></a><a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' &amp;&amp; mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=Visualizing Information and Spatial Analysis with ggplot2 Extensions https://aditya-dahiya.github.io/visage/geocomputation/chapter4.html'}else{return false;}" target="_blank" class="mastodon"><i class="fa-brands fa-mastodon fa-fw fa-lg"></i></a></div></div>
-<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","selector":".lightbox","loop":false,"openEffect":"zoom"});
+<script>var lightboxQuarto = GLightbox({"loop":false,"selector":".lightbox","closeEffect":"zoom","descPosition":"bottom","openEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {
