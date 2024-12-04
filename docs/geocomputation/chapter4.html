@@ -218,6 +218,8 @@ div.csl-indent {
   <li><a href="#de-9im-strings" id="toc-de-9im-strings" class="nav-link" data-scroll-target="#de-9im-strings">4.2.4 DE-9IM Strings</a></li>
   <li><a href="#spatial-joining-with-st_join" id="toc-spatial-joining-with-st_join" class="nav-link" data-scroll-target="#spatial-joining-with-st_join">4.2.5 Spatial Joining with <code>st_join()</code></a></li>
   <li><a href="#distance-based-joins" id="toc-distance-based-joins" class="nav-link" data-scroll-target="#distance-based-joins">4.2.6 Distance-based Joins</a></li>
+  <li><a href="#spatial-aggregation" id="toc-spatial-aggregation" class="nav-link" data-scroll-target="#spatial-aggregation">4.2.7 Spatial Aggregation</a></li>
+  <li><a href="#joining-in-congruent-layers" id="toc-joining-in-congruent-layers" class="nav-link" data-scroll-target="#joining-in-congruent-layers">4.2.8 Joining In-congruent Layers</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/chapter4.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
@@ -2159,23 +2161,24 @@ Figure&nbsp;3: Using st_join() to spatially join two data sets, based on the st_
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">st_intersects</span>(cycle_hire, cycle_hire_osm, <span class="at">sparse =</span> F) <span class="sc">|&gt;</span> <span class="fu">any</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Official Cycle hire points with added info from OSM points within 10 metres</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># cycle_hire |&gt; </span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   st_join(</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co">#     cycle_hire_osm, </span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co">#     join = st_is_within_distance,</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co">#     dist = units::set_units(10, "m")</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   )</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+</div>
+<p>Just checking, whether any of the two points in these two data sets exactly match. Well, they don’t!</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">st_intersects</span>(cycle_hire, cycle_hire_osm, <span class="at">sparse =</span> F) <span class="sc">|&gt;</span> <span class="fu">any</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE</code></pre>
 </div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Official Cycle hire points with added info from OSM points within 10 metres</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co"># cycle_hire |&gt; </span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   st_join(</span></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="co">#     cycle_hire_osm, </span></span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co">#     join = st_is_within_distance,</span></span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co">#     dist = units::set_units(10, "m")</span></span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   )</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
 </div>
+<p>Now, in <a href="#fig-st_join2" class="quarto-xref">Figure&nbsp;4</a>, we highlight only those points of bike hire in the official data, which are within 10 metres of the OSM data. The important function here is <code>st_filter()</code> along with the argument <code>.predicate = st_is_within_distance()</code> and the argument <code>dist = ...</code> .</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -2187,25 +2190,171 @@ Figure&nbsp;3: Using st_join() to spatially join two data sets, based on the st_
 <span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">dist =</span> units<span class="sc">::</span><span class="fu">set_units</span>(<span class="dv">10</span>, <span class="st">"m"</span>)</span>
 <span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
 <span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">size =</span> <span class="dv">2</span>, <span class="at">alpha =</span> <span class="dv">1</span>, <span class="at">colour =</span> <span class="st">"darkblue"</span>) <span class="sc">+</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">alpha =</span> <span class="fl">0.75</span>, <span class="at">colour =</span> <span class="st">"darkblue"</span>) <span class="sc">+</span></span>
 <span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> cycle_hire, <span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">colour =</span> <span class="st">"darkblue"</span></span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> cycle_hire_osm, <span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">colour =</span> <span class="st">"red"</span></span>
-<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> cycle_hire, </span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.2</span>, </span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"blue"</span>,</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> cycle_hire_osm, </span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.2</span>, </span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"red"</span>,</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-st_join2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-st_join2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<a href="chapter4_files/figure-html/fig-st_join2-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6" title="Figure&nbsp;4: Cycle Hire Points Within 10 Meters of OpenStreetMap Locations"><img src="chapter4_files/figure-html/fig-st_join2-1.png" class="img-fluid figure-img" width="672"></a>
+<a href="chapter4_files/figure-html/fig-st_join2-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6" title="Figure&nbsp;4: Official Cycle Hire Points Within 10 Meters of OpenStreetMap Locations"><img src="chapter4_files/figure-html/fig-st_join2-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-st_join2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4: Cycle Hire Points Within 10 Meters of OpenStreetMap Locations
+Figure&nbsp;4: Official Cycle Hire Points Within 10 Meters of OpenStreetMap Locations
 </figcaption>
 </figure>
 </div>
+</div>
+</div>
+</section>
+<section id="spatial-aggregation" class="level3">
+<h3 class="anchored" data-anchor-id="spatial-aggregation">4.2.7 Spatial Aggregation</h3>
+<ul>
+<li>Spatial data aggregation condenses data into fewer rows by summarizing multiple values of a variable into a single value per grouping variable, similar to attribute data aggregation. Following two approaches exist: —
+<ul>
+<li><strong>Base R’s <code>aggregate()</code></strong>: Groups values based on spatial relationships and summarizes them with a specified function (e.g., <code>mean</code>).</li>
+<li><strong>Tidyverse Approach (<code>group_by()</code> and <code>summarize()</code>)</strong>: Combines <code>st_join()</code> with grouping and summarizing to perform spatial aggregation while allowing flexibility in function application and column naming. <strong>(This approach is better, as shown in <a href="#fig-st-join-3" class="quarto-xref">Figure&nbsp;5</a>)</strong></li>
+</ul></li>
+<li><strong>Output Differences</strong>:
+<ul>
+<li><code>aggregate()</code> may result in <code>NA</code> for unmatched regions.</li>
+<li>Tidyverse methods preserve unmatched region names and allow for more flexible aggregation functions and output formatting.</li>
+</ul></li>
+<li>Functions like <code>median()</code>, <code>sd()</code>, or other statistical summarizers can replace <code>mean()</code> for different aggregation purposes.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"nz_height"</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"nz"</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="fu">st_join</span>(<span class="at">x =</span> nz, <span class="at">y =</span> nz_height) <span class="sc">|&gt;</span> </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Name) <span class="sc">|&gt;</span> </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">elevation =</span> <span class="fu">mean</span>(elevation, <span class="at">na.rm =</span> T)) <span class="sc">|&gt;</span> </span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">fill =</span> elevation)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  paletteer<span class="sc">::</span><span class="fu">scale_fill_paletteer_c</span>(</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"grDevices::Terrain 2"</span>,</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">na.value =</span> <span class="st">"white"</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="fig-st-join-3" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-st-join-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-st-join-3-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7" title="Figure&nbsp;5: Spatial data aggregation with st_join() from {sf} and summarise() from {tidyverse}"><img src="chapter4_files/figure-html/fig-st-join-3-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-st-join-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Spatial data aggregation with st_join() from {sf} and summarise() from {tidyverse}
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="joining-in-congruent-layers" class="level3">
+<h3 class="anchored" data-anchor-id="joining-in-congruent-layers">4.2.8 Joining In-congruent Layers</h3>
+<ul>
+<li><p>Spatial congruence occurs when two layers (aggregating object <code>y</code> and target object <code>x</code>) share borders, enabling accurate spatial aggregation. Incongruence arises when no shared borders exist, complicating spatial operations.</p></li>
+<li><p>Example of Congruence:</p>
+<ul>
+<li>Administrative boundaries, such as districts made of smaller units, typically exhibit spatial congruence.</li>
+</ul></li>
+<li><p>Issue with Incongruence:</p>
+<ul>
+<li>In-congruent layers, like sub-zones with differing borders from aggregating zones, result in inaccurate aggregations (e.g., centroids of sub-zones).</li>
+</ul></li>
+<li><p><strong>Solution: Areal Interpolation</strong>: Transfers values between areal units using:</p>
+<ul>
+<li><strong>Simple area-weighted methods</strong>: Proportionally assigns values based on area overlap. This is implemented using <strong><code>st_interpolate_aw()</code></strong>.</li>
+<li><strong>Advanced methods</strong>: Include algorithms like ‘pycnophylactic’ interpolation.</li>
+</ul></li>
+<li><p><strong>Example Dataset</strong>:</p>
+<ul>
+<li>The <strong>spData package</strong> includes <code>incongruent</code> (sub-zones) and <code>aggregating_zones</code> (larger zones). The <code>value</code> column in <code>incongruent</code> represents total regional income in million Euros, which must be aggregated into <code>aggregating_zones</code>.</li>
+</ul></li>
+<li><p><strong>Implementation: <code>st_interpolate_aw()</code></strong>:</p>
+<ul>
+<li>The <code>st_interpolate_aw()</code> function in the <strong>sf</strong> package performs areal-weighted interpolation of polygon data, allowing attributes from one spatial object (<code>x</code>) to be transferred to another (<code>to</code>) based on area overlap. The <code>extensive</code> argument determines whether attributes are <strong>spatially extensive</strong> (e.g., population, summed across areas) or <strong>spatially intensive</strong> (e.g., density, averaged). Additional options include <code>keep_NA</code> (to retain or exclude <code>NA</code> features) and <code>na.rm</code> (to remove features with <code>NA</code> attributes from <code>x</code>).</li>
+<li>Aggregated results depend on the variable type:
+<ul>
+<li><strong>Extensive variables</strong>: Values increase with area (e.g., total income).</li>
+<li><strong>Intensive variables</strong>: Values remain constant irrespective of area (e.g., averages).</li>
+</ul></li>
+<li><strong><code>st_interpolate_aw()</code></strong> handles <strong>spatially extensive variables</strong> (e.g., total income) by summing values across areas.</li>
+<li>In <strong><code>st_interpolate_aw()</code></strong>, for <strong>spatially intensive variables</strong> (e.g., averages, percentages), set <code>extensive = FALSE</code> to use averages instead of sums.</li>
+<li>Note: Warning messages indicate the assumption of uniform attribute distribution across areas.</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"aggregating_zones"</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"incongruent"</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># The two overall main zones for which the total income needs to be computed</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>aggregating_zones</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 2 features and 3 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 417686.2 ymin: 443703.6 xmax: 422959.3 ymax: 447036.8
+Projected CRS: OSGB 1936 / British National Grid
+      geo_code geo_label geo_labelw                       geometry
+5164 E02002332 Leeds 003       &lt;NA&gt; MULTIPOLYGON (((418731.9 44...
+6631 E02002333 Leeds 004       &lt;NA&gt; MULTIPOLYGON (((419196.4 44...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The 9 smaller counties or districts or sub-units which are not</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co"># congruent with the main zones</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>incongruent</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 9 features and 2 fields
+Attribute-geometry relationships: aggregate (1), NA's (1)
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 417686.8 ymin: 443703 xmax: 422963 ymax: 446978
+Projected CRS: OSGB 1936 / British National Grid
+        level    value                       geometry
+1 Incongruent 4.037919 MULTIPOLYGON (((420799.6 44...
+2 Incongruent 5.014419 MULTIPOLYGON (((418664 4464...
+3 Incongruent 4.933000 MULTIPOLYGON (((419964 4462...
+4 Incongruent 5.120139 MULTIPOLYGON (((420368 4441...
+5 Incongruent 6.548912 MULTIPOLYGON (((420419.8 44...
+6 Incongruent 3.749791 MULTIPOLYGON (((421779 4451...
+7 Incongruent 5.432837 MULTIPOLYGON (((419577 4464...
+8 Incongruent 4.618049 MULTIPOLYGON (((417687.6 44...
+9 Incongruent 5.956771 MULTIPOLYGON (((418859.3 44...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We are using extensive = TRUE, because our variable is </span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co"># total income, not average income</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>incongruent <span class="sc">|&gt;</span> </span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># We need to keep only the numeric variable (and of course,</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># the sticky geometry. Otherwise, R will not understand what</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># to do with non-numeric columns)</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(value) <span class="sc">|&gt;</span> </span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_interpolate_aw</span>(aggregating_zones, <span class="at">extensive =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in st_interpolate_aw.sf(select(incongruent, value), aggregating_zones,
+: st_interpolate_aw assumes attributes are constant or uniform over areas of x</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 2 features and 1 field
+Attribute-geometry relationship: aggregate (1)
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 417686.2 ymin: 443703.6 xmax: 422959.3 ymax: 447036.8
+Projected CRS: OSGB 1936 / British National Grid
+     value                       geometry
+1 19.61613 MULTIPOLYGON (((418731.9 44...
+2 25.66872 MULTIPOLYGON (((419196.4 44...</code></pre>
 </div>
 </div>
 
@@ -2645,7 +2794,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 <footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/chapter4.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><div class="page-columns page-rows-contents page-layout-article"><div class="social-share"><a href="https://twitter.com/share?url=https://aditya-dahiya.github.io/visage/geocomputation/chapter4.html&amp;text=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="twitter"><i class="fab fa-twitter fa-fw fa-lg"></i></a><a href="https://www.linkedin.com/shareArticle?url=https://aditya-dahiya.github.io/visage/geocomputation/chapter4.html&amp;title=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="linkedin"><i class="fa-brands fa-linkedin-in fa-fw fa-lg"></i></a>  <a href="mailto:?subject=Visualizing Information and Spatial Analysis with ggplot2 Extensions&amp;body=Check out this link:https://aditya-dahiya.github.io/visage/geocomputation/chapter4.html" target="_blank" class="email"><i class="fa-solid fa-envelope fa-fw fa-lg"></i></a><a href="https://www.facebook.com/sharer.php?u=https://aditya-dahiya.github.io/visage/geocomputation/chapter4.html" target="_blank" class="facebook"><i class="fab fa-facebook-f fa-fw fa-lg"></i></a><a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' &amp;&amp; mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=Visualizing Information and Spatial Analysis with ggplot2 Extensions https://aditya-dahiya.github.io/visage/geocomputation/chapter4.html'}else{return false;}" target="_blank" class="mastodon"><i class="fa-brands fa-mastodon fa-fw fa-lg"></i></a></div></div>
-<script>var lightboxQuarto = GLightbox({"loop":false,"selector":".lightbox","closeEffect":"zoom","descPosition":"bottom","openEffect":"zoom"});
+<script>var lightboxQuarto = GLightbox({"descPosition":"bottom","openEffect":"zoom","selector":".lightbox","loop":false,"closeEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

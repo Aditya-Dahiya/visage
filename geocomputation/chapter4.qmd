@@ -674,7 +674,6 @@ world |>
 ```{r}
 #| code-fold: true
 
-
 data("cycle_hire")
 data("cycle_hire_osm")
 
@@ -690,8 +689,6 @@ ggplot() +
     alpha = 0.5
   )
 
-st_intersects(cycle_hire, cycle_hire_osm, sparse = F) |> any()
-
 # Official Cycle hire points with added info from OSM points within 10 metres
 # 
 # cycle_hire |> 
@@ -700,13 +697,22 @@ st_intersects(cycle_hire, cycle_hire_osm, sparse = F) |> any()
 #     join = st_is_within_distance,
 #     dist = units::set_units(10, "m")
 #   )
+```
 
+Just checking, whether any of the two points in these two data sets exactly match. Well, they don't!
+
+```{r}
+#| code-fold: false
+#| echo: true
+st_intersects(cycle_hire, cycle_hire_osm, sparse = F) |> any()
 
 ```
 
+Now, in @fig-st_join2, we highlight only those points of bike hire in the official data, which are within 10 metres of the OSM data. The important function here is `st_filter()` along with the argument `.predicate = st_is_within_distance()` and the argument `dist = ...` .
+
 ```{r}
 #| label: fig-st_join2
-#| fig-cap: "Cycle Hire Points Within 10 Meters of OpenStreetMap Locations"
+#| fig-cap: "Official Cycle Hire Points Within 10 Meters of OpenStreetMap Locations"
 #| code-fold: true
 
 # Plot only points which have a OSM point within 10 metres
@@ -717,12 +723,105 @@ cycle_hire |>
     dist = units::set_units(10, "m")
   ) |> 
   ggplot() +
-  geom_sf(size = 2, alpha = 1, colour = "darkblue") +
+  geom_sf(size = 3, alpha = 0.75, colour = "darkblue") +
   geom_sf(
-    data = cycle_hire, alpha = 0.2, colour = "darkblue"
+    data = cycle_hire, 
+    alpha = 0.2, 
+    colour = "blue",
+    size = 1
   ) +
   geom_sf(
-    data = cycle_hire_osm, alpha = 0.2, colour = "red"
+    data = cycle_hire_osm, 
+    alpha = 0.2, 
+    colour = "red",
+    size = 1
   )
+```
+
+### 4.2.7 Spatial Aggregation
+
+-   Spatial data aggregation condenses data into fewer rows by summarizing multiple values of a variable into a single value per grouping variable, similar to attribute data aggregation. Following two approaches exist: —
+    -   **Base R’s `aggregate()`**: Groups values based on spatial relationships and summarizes them with a specified function (e.g., `mean`).
+    -   **Tidyverse Approach (`group_by()` and `summarize()`)**: Combines `st_join()` with grouping and summarizing to perform spatial aggregation while allowing flexibility in function application and column naming. **(This approach is better, as shown in @fig-st-join-3)**
+-   **Output Differences**:
+    -   `aggregate()` may result in `NA` for unmatched regions.
+    -   Tidyverse methods preserve unmatched region names and allow for more flexible aggregation functions and output formatting.
+-   Functions like `median()`, `sd()`, or other statistical summarizers can replace `mean()` for different aggregation purposes.
+
+```{r}
+#| fig-cap: "Spatial data aggregation with st_join() from {sf} and summarise() from {tidyverse}"
+#| label: fig-st-join-3
+#| code-fold: false
+
+data("nz_height")
+data("nz")
+
+st_join(x = nz, y = nz_height) |> 
+  group_by(Name) |> 
+  summarise(elevation = mean(elevation, na.rm = T)) |> 
+  ggplot(
+    mapping = aes(fill = elevation)
+  ) +
+  geom_sf() +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::Terrain 2",
+    na.value = "white"
+  )
+```
+
+### 4.2.8 Joining In-congruent Layers
+
+-   Spatial congruence occurs when two layers (aggregating object `y` and target object `x`) share borders, enabling accurate spatial aggregation. Incongruence arises when no shared borders exist, complicating spatial operations.
+
+-   Example of Congruence:
+
+    -   Administrative boundaries, such as districts made of smaller units, typically exhibit spatial congruence.
+
+-   Issue with Incongruence:
+
+    -   In-congruent layers, like sub-zones with differing borders from aggregating zones, result in inaccurate aggregations (e.g., centroids of sub-zones).
+
+-   **Solution: Areal Interpolation**: Transfers values between areal units using:
+
+    -   **Simple area-weighted methods**: Proportionally assigns values based on area overlap. This is implemented using **`st_interpolate_aw()`**.
+    -   **Advanced methods**: Include algorithms like ‘pycnophylactic’ interpolation.
+
+-   **Example Dataset**:
+
+    -   The **spData package** includes `incongruent` (sub-zones) and `aggregating_zones` (larger zones). The `value` column in `incongruent` represents total regional income in million Euros, which must be aggregated into `aggregating_zones`.
+
+-   **Implementation: `st_interpolate_aw()`**:
+
+    -   The `st_interpolate_aw()` function in the **sf** package performs areal-weighted interpolation of polygon data, allowing attributes from one spatial object (`x`) to be transferred to another (`to`) based on area overlap. The `extensive` argument determines whether attributes are **spatially extensive** (e.g., population, summed across areas) or **spatially intensive** (e.g., density, averaged). Additional options include `keep_NA` (to retain or exclude `NA` features) and `na.rm` (to remove features with `NA` attributes from `x`).
+    -   Aggregated results depend on the variable type:
+        -   **Extensive variables**: Values increase with area (e.g., total income).
+        -   **Intensive variables**: Values remain constant irrespective of area (e.g., averages).
+    -   **`st_interpolate_aw()`** handles **spatially extensive variables** (e.g., total income) by summing values across areas.
+    -   In **`st_interpolate_aw()`**, for **spatially intensive variables** (e.g., averages, percentages), set `extensive = FALSE` to use averages instead of sums.
+    -   Note: Warning messages indicate the assumption of uniform attribute distribution across areas.
+
+```{r}
+#| warning: true
+#| code-fold: false
+
+data("aggregating_zones")
+data("incongruent")
+
+# The two overall main zones for which the total income needs to be computed
+aggregating_zones
+
+# The 9 smaller counties or districts or sub-units which are not
+# congruent with the main zones
+incongruent
+
+# We are using extensive = TRUE, because our variable is 
+# total income, not average income
+incongruent |> 
+  # We need to keep only the numeric variable (and of course,
+  # the sticky geometry. Otherwise, R will not understand what
+  # to do with non-numeric columns)
+  select(value) |> 
+  st_interpolate_aw(aggregating_zones, extensive = TRUE)
+
 
 ```
