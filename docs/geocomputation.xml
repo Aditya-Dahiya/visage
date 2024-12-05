@@ -6413,6 +6413,394 @@ Projected CRS: OSGB 1936 / British National Grid
 2 25.66872 MULTIPOLYGON (((419196.4 44...</code></pre>
 </div>
 </div>
+</section>
+</section>
+<section id="spatial-operations-on-raster-data" class="level2">
+<h2 class="anchored" data-anchor-id="spatial-operations-on-raster-data">4.3 Spatial operations on raster data</h2>
+<ul>
+<li>Demonstrates <strong>advanced spatial raster operations</strong>.</li>
+<li>Provides an alternative to manually creating datasets by accessing them from the <strong><code>spData</code></strong> package:
+<ul>
+<li><code>elev</code>: Represents elevation data.</li>
+<li><code>grain</code>: Represents grain-related data.</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1">elev <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rast</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">system.file</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"raster/elev.tif"</span>, </span>
+<span id="cb28-2">                        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">package =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"spData"</span>))</span>
+<span id="cb28-3">grain <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rast</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">system.file</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"raster/grain.tif"</span>, </span>
+<span id="cb28-4">                         <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">package =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"spData"</span>))</span>
+<span id="cb28-5"></span>
+<span id="cb28-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(elev)</span>
+<span id="cb28-7"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(grain)</span></code></pre></div>
+<div id="fig-4-3" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-4-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="fig-4-3-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-4-3-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-4-3-1.png" class="lightbox" data-gallery="fig-4-3" title="Figure&nbsp;6&nbsp;(a): elev"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/chapter4_files/figure-html/fig-4-3-1.png" class="img-fluid figure-img" data-ref-parent="fig-4-3" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-4-3-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) elev
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-4-3-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-4-3-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-4-3-2.png" class="lightbox" data-gallery="fig-4-3" title="Figure&nbsp;6&nbsp;(b): grain"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/chapter4_files/figure-html/fig-4-3-2.png" class="img-fluid figure-img" data-ref-parent="fig-4-3" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-4-3-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) grain
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-4-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Section 4.3: Raster Datasets used
+</figcaption>
+</figure>
+</div>
+</div>
+<section id="spatial-subsetting" class="level3">
+<h3 class="anchored" data-anchor-id="spatial-subsetting">4.3.1 Spatial subsetting</h3>
+<ul>
+<li>Builds on Section 3.3, which covered retrieving raster values by cell IDs or row/column combinations.</li>
+<li>Spatial subsetting allows extraction of raster data by <strong>location (coordinates)</strong> or <strong>spatial objects</strong>:
+<ul>
+<li><strong><code>terra::extract()</code></strong>: Extracts raster values directly using coordinates. (Note: A function with the same name exists in the <strong>tidyverse</strong>).</li>
+</ul></li>
+<li><strong>Subsetting with another raster object</strong>:
+<ul>
+<li>Use a secondary raster as a spatial mask to subset the primary raster.</li>
+<li>Example: Subsetting <code>elev</code> using a smaller raster <code>clip_raster</code> (defining a specific extent).</li>
+</ul></li>
+<li><strong>Spatial outputs from subsetting</strong>:
+<ul>
+<li>Use the <strong><code>drop</code> argument</strong> with the <code>[ ]</code> operator to return subsetting results as raster objects.</li>
+<li>Example: Subsets the first two cells of <code>elev</code> with <code>elev[1:2, drop = FALSE]</code>, whereas <code>elev[1:2]</code> returns the cell values of first two cells only.</li>
+</ul></li>
+<li><strong>Masking raster data with logical values</strong>:
+<ul>
+<li>Creates a raster mask (<code>rmask</code>) with <strong>NA</strong> and <strong>TRUE</strong> values.</li>
+<li>Masks the primary raster (<code>elev</code>) to retain only values corresponding to <code>TRUE</code> in the mask using:
+<ul>
+<li><code>[ ]</code> operator - use <code>TRUE</code> and <code>FALSE</code>.</li>
+<li><code>mask()</code> function - use <code>TRUE</code> and <code>NA</code>.</li>
+</ul></li>
+</ul></li>
+<li>The <code>mask()</code> function in the <strong>terra</strong> package applies a mask to a SpatRaster or SpatVector. It replaces values in a raster (<code>x</code>) with <code>NA</code> (or another value) where another raster or vector (<code>mask</code>) has <code>NA</code> or specified mask values. It’s useful for filtering, clipping, or focusing on specific areas.</li>
+<li>The <code>extract()</code> function in the <strong>terra</strong> package retrieves values from a <code>SpatRaster</code> based on specified locations or geometries. Locations can be points (as a <code>SpatVector</code>, matrix, or data frame), cell numbers, or spatial objects like polygons. It supports methods for exact or weighted extraction, interpolation, and summary statistics for extracted data. Key arguments include:
+<ul>
+<li><p><strong><code>x</code></strong>: The <code>SpatRaster</code> to extract values from</p></li>
+<li><p><strong><code>y</code></strong>: Locations (e.g., points, polygons, or cell numbers) to extract values for.</p></li>
+<li><p><strong><code>fun</code></strong>: Summarizes extracted data for polygons (e.g., mean, sum).</p></li>
+<li><p><strong><code>method</code></strong>: Extraction type for points (“simple” or “bilinear”).</p></li>
+<li><p><strong><code>cells</code>/<code>xy</code></strong>: Optionally return cell numbers or coordinates.</p></li>
+<li><p><strong><code>weights</code>/<code>exact</code></strong>: Extract weighted or exact fractions for polygons.</p></li>
+<li><p><strong><code>bind</code></strong>: Combines extracted values with input geometries (<code>SpatVector</code>).</p></li>
+</ul></li>
+<li>The code below demonstrates these <strong>spatial operations on raster data</strong>. Initially, it showcases how to extract raster values using coordinates with <code>terra::extract()</code> by specifying a set of coordinate pairs. Next, it demonstrates how to create a new raster (<code>clip_raster</code>) to subset the <code>elev</code> raster, focusing on extracting values only within the extent defined by the clip raster using both the <code>[ ]</code> operator and <code>terra::extract()</code>. The example highlights the importance of the <code>drop = FALSE</code> argument in the <code>[ ]</code> operator, which ensures that spatial structure is preserved when subsetting raster objects. Finally, the code illustrates the use of masking with a logical raster (<code>temporary_mask</code>), where specific cells in the <code>elev</code> raster are retained based on <code>TRUE</code> values in the mask. This process is essential for filtering or replacing values (e.g., assigning <code>NA</code> to erroneous data).</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Let us extract some values from "elev" using coordinates</span></span>
+<span id="cb29-2"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># I want to extract coordiantes of </span></span>
+<span id="cb29-3">coords_extract <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(</span>
+<span id="cb29-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>,</span>
+<span id="cb29-5">    <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>),</span>
+<span id="cb29-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ncol =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,</span>
+<span id="cb29-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">byrow =</span> T</span>
+<span id="cb29-8">)</span>
+<span id="cb29-9"></span>
+<span id="cb29-10">coords_extract</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2]
+[1,] -1.2 -1.2
+[2,]  1.2  1.2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1">elev <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb31-2">  terra<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">extract</span>(</span>
+<span id="cb31-3">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> coords_extract</span>
+<span id="cb31-4">  )</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  elev
+1   31
+2    6</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Let us create a new raster to clip the central four blocks of the elev raster</span></span>
+<span id="cb33-2">clip_raster <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rast</span>(</span>
+<span id="cb33-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xmin =</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xmax =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, </span>
+<span id="cb33-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ymin =</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ymax =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>,</span>
+<span id="cb33-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">resolution =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>, </span>
+<span id="cb33-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">vals =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sample</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">25</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">25</span>)</span>
+<span id="cb33-7">  )</span>
+<span id="cb33-8"></span>
+<span id="cb33-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Extracting only the values</span></span>
+<span id="cb33-10">elev[clip_raster]</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  elev
+1   15
+2   16
+3   21
+4   22</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1">elev <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb35-2">  terra<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">extract</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ext</span>(clip_raster))</span>
+<span id="cb35-3"></span>
+<span id="cb35-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Explaining the meaning of argument drop = FALSE in the </span></span>
+<span id="cb35-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># base R subsetting operator "[]"</span></span>
+<span id="cb35-6">elev[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>]</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  elev
+1    1
+2    2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1">elev[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, drop <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>]    </span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>class       : SpatRaster 
+dimensions  : 1, 2, 1  (nrow, ncol, nlyr)
+resolution  : 0.5, 0.5  (x, y)
+extent      : -1.5, -0.5, 1, 1.5  (xmin, xmax, ymin, ymax)
+coord. ref. : lon/lat WGS 84 (EPSG:4326) 
+source(s)   : memory
+varname     : elev 
+name        : elev 
+min value   :    1 
+max value   :    2 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Creating a temporary_mask object</span></span>
+<span id="cb39-2">temporary_mask <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> elev</span>
+<span id="cb39-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">values</span>(temporary_mask) <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sample</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span>, <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">36</span>,</span>
+<span id="cb39-4">                                 <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">replace =</span> T)</span>
+<span id="cb39-5">elev <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb39-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mask</span>(temporary_mask)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>class       : SpatRaster 
+dimensions  : 6, 6, 1  (nrow, ncol, nlyr)
+resolution  : 0.5, 0.5  (x, y)
+extent      : -1.5, 1.5, -1.5, 1.5  (xmin, xmax, ymin, ymax)
+coord. ref. : lon/lat WGS 84 (EPSG:4326) 
+source(s)   : memory
+varname     : elev 
+name        : elev 
+min value   :    1 
+max value   :   36 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(clip_raster)</span>
+<span id="cb41-2">elev <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb41-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mask</span>(temporary_mask) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb41-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>()</span></code></pre></div>
+<div id="fig-4-3-1" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-4-3-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="fig-4-3-1-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-4-3-1-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-4-3-1-1.png" class="lightbox" data-gallery="fig-4-3-1" title="Figure&nbsp;7&nbsp;(a): clip_raster: a smaller raster"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/chapter4_files/figure-html/fig-4-3-1-1.png" class="img-fluid figure-img" data-ref-parent="fig-4-3-1" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-4-3-1-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) clip_raster: a smaller raster
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-4-3-1-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-4-3-1-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-4-3-1-2.png" class="lightbox" data-gallery="fig-4-3-1" title="Figure&nbsp;7&nbsp;(b): plotting the masked elev, based on a randomly generated temporary_mask"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/chapter4_files/figure-html/fig-4-3-1-2.png" class="img-fluid figure-img" data-ref-parent="fig-4-3-1" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-4-3-1-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) plotting the masked elev, based on a randomly generated <code>temporary_mask</code>
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-4-3-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Showing plots from the code of above Section 4.3.1
+</figcaption>
+</figure>
+</div>
+</div>
 
 
 

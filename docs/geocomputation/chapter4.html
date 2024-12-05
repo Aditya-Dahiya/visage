@@ -221,6 +221,10 @@ div.csl-indent {
   <li><a href="#spatial-aggregation" id="toc-spatial-aggregation" class="nav-link" data-scroll-target="#spatial-aggregation">4.2.7 Spatial Aggregation</a></li>
   <li><a href="#joining-in-congruent-layers" id="toc-joining-in-congruent-layers" class="nav-link" data-scroll-target="#joining-in-congruent-layers">4.2.8 Joining In-congruent Layers</a></li>
   </ul></li>
+  <li><a href="#spatial-operations-on-raster-data" id="toc-spatial-operations-on-raster-data" class="nav-link" data-scroll-target="#spatial-operations-on-raster-data">4.3 Spatial operations on raster data</a>
+  <ul class="collapse">
+  <li><a href="#spatial-subsetting" id="toc-spatial-subsetting" class="nav-link" data-scroll-target="#spatial-subsetting">4.3.1 Spatial subsetting</a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/chapter4.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -2357,6 +2361,224 @@ Projected CRS: OSGB 1936 / British National Grid
 2 25.66872 MULTIPOLYGON (((419196.4 44...</code></pre>
 </div>
 </div>
+</section>
+</section>
+<section id="spatial-operations-on-raster-data" class="level2">
+<h2 class="anchored" data-anchor-id="spatial-operations-on-raster-data">4.3 Spatial operations on raster data</h2>
+<ul>
+<li>Demonstrates <strong>advanced spatial raster operations</strong>.</li>
+<li>Provides an alternative to manually creating datasets by accessing them from the <strong><code>spData</code></strong> package:
+<ul>
+<li><code>elev</code>: Represents elevation data.</li>
+<li><code>grain</code>: Represents grain-related data.</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>elev <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="fu">system.file</span>(<span class="st">"raster/elev.tif"</span>, </span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">package =</span> <span class="st">"spData"</span>))</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>grain <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="fu">system.file</span>(<span class="st">"raster/grain.tif"</span>, </span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">package =</span> <span class="st">"spData"</span>))</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(elev)</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(grain)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="fig-4-3" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-4-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="fig-4-3-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-4-3-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-4-3-1.png" class="lightbox" data-gallery="fig-4-3" title="Figure&nbsp;6&nbsp;(a): elev"><img src="chapter4_files/figure-html/fig-4-3-1.png" class="img-fluid figure-img" data-ref-parent="fig-4-3" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-4-3-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) elev
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-4-3-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-4-3-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-4-3-2.png" class="lightbox" data-gallery="fig-4-3" title="Figure&nbsp;6&nbsp;(b): grain"><img src="chapter4_files/figure-html/fig-4-3-2.png" class="img-fluid figure-img" data-ref-parent="fig-4-3" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-4-3-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) grain
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-4-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Section 4.3: Raster Datasets used
+</figcaption>
+</figure>
+</div>
+</div>
+<section id="spatial-subsetting" class="level3">
+<h3 class="anchored" data-anchor-id="spatial-subsetting">4.3.1 Spatial subsetting</h3>
+<ul>
+<li>Builds on Section 3.3, which covered retrieving raster values by cell IDs or row/column combinations.</li>
+<li>Spatial subsetting allows extraction of raster data by <strong>location (coordinates)</strong> or <strong>spatial objects</strong>:
+<ul>
+<li><strong><code>terra::extract()</code></strong>: Extracts raster values directly using coordinates. (Note: A function with the same name exists in the <strong>tidyverse</strong>).</li>
+</ul></li>
+<li><strong>Subsetting with another raster object</strong>:
+<ul>
+<li>Use a secondary raster as a spatial mask to subset the primary raster.</li>
+<li>Example: Subsetting <code>elev</code> using a smaller raster <code>clip_raster</code> (defining a specific extent).</li>
+</ul></li>
+<li><strong>Spatial outputs from subsetting</strong>:
+<ul>
+<li>Use the <strong><code>drop</code> argument</strong> with the <code>[ ]</code> operator to return subsetting results as raster objects.</li>
+<li>Example: Subsets the first two cells of <code>elev</code> with <code>elev[1:2, drop = FALSE]</code>, whereas <code>elev[1:2]</code> returns the cell values of first two cells only.</li>
+</ul></li>
+<li><strong>Masking raster data with logical values</strong>:
+<ul>
+<li>Creates a raster mask (<code>rmask</code>) with <strong>NA</strong> and <strong>TRUE</strong> values.</li>
+<li>Masks the primary raster (<code>elev</code>) to retain only values corresponding to <code>TRUE</code> in the mask using:
+<ul>
+<li><code>[ ]</code> operator - use <code>TRUE</code> and <code>FALSE</code>.</li>
+<li><code>mask()</code> function - use <code>TRUE</code> and <code>NA</code>.</li>
+</ul></li>
+</ul></li>
+<li>The <code>mask()</code> function in the <strong>terra</strong> package applies a mask to a SpatRaster or SpatVector. It replaces values in a raster (<code>x</code>) with <code>NA</code> (or another value) where another raster or vector (<code>mask</code>) has <code>NA</code> or specified mask values. It’s useful for filtering, clipping, or focusing on specific areas.</li>
+<li>The <code>extract()</code> function in the <strong>terra</strong> package retrieves values from a <code>SpatRaster</code> based on specified locations or geometries. Locations can be points (as a <code>SpatVector</code>, matrix, or data frame), cell numbers, or spatial objects like polygons. It supports methods for exact or weighted extraction, interpolation, and summary statistics for extracted data. Key arguments include:
+<ul>
+<li><p><strong><code>x</code></strong>: The <code>SpatRaster</code> to extract values from</p></li>
+<li><p><strong><code>y</code></strong>: Locations (e.g., points, polygons, or cell numbers) to extract values for.</p></li>
+<li><p><strong><code>fun</code></strong>: Summarizes extracted data for polygons (e.g., mean, sum).</p></li>
+<li><p><strong><code>method</code></strong>: Extraction type for points (“simple” or “bilinear”).</p></li>
+<li><p><strong><code>cells</code>/<code>xy</code></strong>: Optionally return cell numbers or coordinates.</p></li>
+<li><p><strong><code>weights</code>/<code>exact</code></strong>: Extract weighted or exact fractions for polygons.</p></li>
+<li><p><strong><code>bind</code></strong>: Combines extracted values with input geometries (<code>SpatVector</code>).</p></li>
+</ul></li>
+<li>The code below demonstrates these <strong>spatial operations on raster data</strong>. Initially, it showcases how to extract raster values using coordinates with <code>terra::extract()</code> by specifying a set of coordinate pairs. Next, it demonstrates how to create a new raster (<code>clip_raster</code>) to subset the <code>elev</code> raster, focusing on extracting values only within the extent defined by the clip raster using both the <code>[ ]</code> operator and <code>terra::extract()</code>. The example highlights the importance of the <code>drop = FALSE</code> argument in the <code>[ ]</code> operator, which ensures that spatial structure is preserved when subsetting raster objects. Finally, the code illustrates the use of masking with a logical raster (<code>temporary_mask</code>), where specific cells in the <code>elev</code> raster are retained based on <code>TRUE</code> values in the mask. This process is essential for filtering or replacing values (e.g., assigning <code>NA</code> to erroneous data).</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Let us extract some values from "elev" using coordinates</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="co"># I want to extract coordiantes of </span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>coords_extract <span class="ot">&lt;-</span> <span class="fu">matrix</span>(</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.2</span>, <span class="sc">-</span><span class="fl">1.2</span>,</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="fl">1.2</span>, <span class="fl">1.2</span>),</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">ncol =</span> <span class="dv">2</span>,</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">byrow =</span> T</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>coords_extract</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2]
+[1,] -1.2 -1.2
+[2,]  1.2  1.2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>elev <span class="sc">|&gt;</span> </span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  terra<span class="sc">::</span><span class="fu">extract</span>(</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> coords_extract</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  elev
+1   31
+2    6</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Let us create a new raster to clip the central four blocks of the elev raster</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>clip_raster <span class="ot">&lt;-</span> <span class="fu">rast</span>(</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">xmin =</span> <span class="sc">-</span><span class="fl">0.5</span>, <span class="at">xmax =</span> <span class="fl">0.5</span>, </span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">ymin =</span> <span class="sc">-</span><span class="fl">0.5</span>, <span class="at">ymax =</span> <span class="fl">0.5</span>,</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">resolution =</span> <span class="fl">0.2</span>, </span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">vals =</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">25</span>, <span class="dv">25</span>)</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Extracting only the values</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>elev[clip_raster]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  elev
+1   15
+2   16
+3   21
+4   22</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>elev <span class="sc">|&gt;</span> </span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  terra<span class="sc">::</span><span class="fu">extract</span>(<span class="fu">ext</span>(clip_raster))</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Explaining the meaning of argument drop = FALSE in the </span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="co"># base R subsetting operator "[]"</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>elev[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  elev
+1    1
+2    2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>elev[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, drop <span class="ot">=</span> <span class="cn">FALSE</span>]    </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>class       : SpatRaster 
+dimensions  : 1, 2, 1  (nrow, ncol, nlyr)
+resolution  : 0.5, 0.5  (x, y)
+extent      : -1.5, -0.5, 1, 1.5  (xmin, xmax, ymin, ymax)
+coord. ref. : lon/lat WGS 84 (EPSG:4326) 
+source(s)   : memory
+varname     : elev 
+name        : elev 
+min value   :    1 
+max value   :    2 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a temporary_mask object</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>temporary_mask <span class="ot">&lt;-</span> elev</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="fu">values</span>(temporary_mask) <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="cn">NA</span>, <span class="cn">TRUE</span>), <span class="dv">36</span>,</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">replace =</span> T)</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>elev <span class="sc">|&gt;</span> </span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mask</span>(temporary_mask)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>class       : SpatRaster 
+dimensions  : 6, 6, 1  (nrow, ncol, nlyr)
+resolution  : 0.5, 0.5  (x, y)
+extent      : -1.5, 1.5, -1.5, 1.5  (xmin, xmax, ymin, ymax)
+coord. ref. : lon/lat WGS 84 (EPSG:4326) 
+source(s)   : memory
+varname     : elev 
+name        : elev 
+min value   :    1 
+max value   :   36 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(clip_raster)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>elev <span class="sc">|&gt;</span> </span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mask</span>(temporary_mask) <span class="sc">|&gt;</span> </span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="fig-4-3-1" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-4-3-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="fig-4-3-1-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-4-3-1-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-4-3-1-1.png" class="lightbox" data-gallery="fig-4-3-1" title="Figure&nbsp;7&nbsp;(a): clip_raster: a smaller raster"><img src="chapter4_files/figure-html/fig-4-3-1-1.png" class="img-fluid figure-img" data-ref-parent="fig-4-3-1" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-4-3-1-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) clip_raster: a smaller raster
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-4-3-1-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-4-3-1-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-4-3-1-2.png" class="lightbox" data-gallery="fig-4-3-1" title="Figure&nbsp;7&nbsp;(b): plotting the masked elev, based on a randomly generated temporary_mask"><img src="chapter4_files/figure-html/fig-4-3-1-2.png" class="img-fluid figure-img" data-ref-parent="fig-4-3-1" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-4-3-1-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) plotting the masked elev, based on a randomly generated <code>temporary_mask</code>
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-4-3-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Showing plots from the code of above Section 4.3.1
+</figcaption>
+</figure>
+</div>
+</div>
 
 
 
@@ -2794,7 +3016,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 <footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/chapter4.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><div class="page-columns page-rows-contents page-layout-article"><div class="social-share"><a href="https://twitter.com/share?url=https://aditya-dahiya.github.io/visage/geocomputation/chapter4.html&amp;text=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="twitter"><i class="fab fa-twitter fa-fw fa-lg"></i></a><a href="https://www.linkedin.com/shareArticle?url=https://aditya-dahiya.github.io/visage/geocomputation/chapter4.html&amp;title=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="linkedin"><i class="fa-brands fa-linkedin-in fa-fw fa-lg"></i></a>  <a href="mailto:?subject=Visualizing Information and Spatial Analysis with ggplot2 Extensions&amp;body=Check out this link:https://aditya-dahiya.github.io/visage/geocomputation/chapter4.html" target="_blank" class="email"><i class="fa-solid fa-envelope fa-fw fa-lg"></i></a><a href="https://www.facebook.com/sharer.php?u=https://aditya-dahiya.github.io/visage/geocomputation/chapter4.html" target="_blank" class="facebook"><i class="fab fa-facebook-f fa-fw fa-lg"></i></a><a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' &amp;&amp; mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=Visualizing Information and Spatial Analysis with ggplot2 Extensions https://aditya-dahiya.github.io/visage/geocomputation/chapter4.html'}else{return false;}" target="_blank" class="mastodon"><i class="fa-brands fa-mastodon fa-fw fa-lg"></i></a></div></div>
-<script>var lightboxQuarto = GLightbox({"descPosition":"bottom","openEffect":"zoom","selector":".lightbox","loop":false,"closeEffect":"zoom"});
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","loop":false,"descPosition":"bottom","openEffect":"zoom","selector":".lightbox"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {
