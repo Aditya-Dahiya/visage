@@ -39,10 +39,14 @@ share:
 
 library(sf)        # Simple Features in R
 library(terra)     # Handling rasters in R
+library(tidyterra) # For plotting rasters in ggplot2
 library(tidyverse) # All things tidy; Data Wrangling
 library(spData)    # Spatial Datasets
 
+
 sysfonts::font_add_google("Saira Extra Condensed", "caption_font")
+sysfonts::font_add_google("Saira", "body_font")
+theme_set(theme_minimal(base_family = "body_font"))
 showtext::showtext_auto()
 ```
 
@@ -240,7 +244,7 @@ nz_height |>
 -   **Binary predicates** in **`sf`** package test spatial relationships between vector geometries. See [vignette("sf3")](https://r-spatial.github.io/sf/articles/sf3.html). The following binary predicates exist in `sf` : —
 
 | Function | Description | Symmetrical? |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | `st_intersects` | Checks if geometries intersect. | Yes |
 | `st_disjoint` | Checks if geometries do not intersect (are disjoint). | Yes |
 | `st_touches` | Checks if geometries have at least one boundary point in common. | Yes |
@@ -835,7 +839,7 @@ incongruent |>
 
 ```{r}
 #| label: fig-4-3
-#| fig-cap: "Section 4.3: Raster Datasets used"
+#| fig-cap: "Section 4.3: Raster Datasets used: plotted using ggplot2 and {tidyterra}"
 #| fig-subcap: 
 #|    - "elev"
 #|    - "grain"
@@ -843,38 +847,46 @@ incongruent |>
 
 elev <- rast(system.file("raster/elev.tif", 
                         package = "spData"))
+
 grain <- rast(system.file("raster/grain.tif", 
                          package = "spData"))
 
-plot(elev)
-plot(grain)
+# plot(elev)
+# plot(grain)
+
+ggplot() +
+  geom_spatraster(data = elev) +
+  labs(title = "elev SpatRaster", caption = "data: {spData}")
+  
+
+ggplot() +
+  geom_spatraster(data = grain) +
+  labs(title = "grain SpatRaster", caption = "data: {spData}")
 ```
 
 ### 4.3.1 Spatial subsetting
 
 -   Builds on Section 3.3, which covered retrieving raster values by cell IDs or row/column combinations.
 -   Spatial subsetting allows extraction of raster data by **location (coordinates)** or **spatial objects**:
-    -   **`terra::extract()`**: Extracts raster values directly using coordinates. (Note: A function with the same name exists in the **tidyverse**).
+    -   **`terra::extract()`**: Extracts raster values directly using coordinates. *(Note: A function with the same name exists in the **tidyverse**, so be careful to add package name at start)*.
 -   **Subsetting with another raster object**:
-    -   Use a secondary raster as a spatial mask to subset the primary raster.
-    -   Example: Subsetting `elev` using a smaller raster `clip_raster` (defining a specific extent).
--   **Spatial outputs from subsetting**:
-    -   Use the **`drop` argument** with the `[ ]` operator to return subsetting results as raster objects.
-    -   Example: Subsets the first two cells of `elev` with `elev[1:2, drop = FALSE]`, whereas `elev[1:2]` returns the cell values of first two cells only.
+    -   Use a secondary raster as a spatial mask to subset the primary raster, using `terra::extract(ext(...))` .
+    -   Example shown below: Subsetting `elev` using a smaller raster `clip_raster` (defining a specific extent).
+    -   Two kinds of Spatial outputs from subsetting:
+        -   Use the **`drop` argument** with the `[ ]` operator to return subsetting results as raster objects.
+        -   Example: Subsets the first two cells of `elev` with `elev[1:2, drop = FALSE]`, whereas `elev[1:2]` returns the cell values of first two cells only.
 -   **Masking raster data with logical values**:
     -   Creates a raster mask (`rmask`) with **NA** and **TRUE** values.
     -   Masks the primary raster (`elev`) to retain only values corresponding to `TRUE` in the mask using:
         -   `[ ]` operator - use `TRUE` and `FALSE`.
         -   `mask()` function - use `TRUE` and `NA`.
--   The `mask()` function in the **terra** package applies a mask to a SpatRaster or SpatVector. It replaces values in a raster (`x`) with `NA` (or another value) where another raster or vector (`mask`) has `NA` or specified mask values. It’s useful for filtering, clipping, or focusing on specific areas.
--   The `extract()` function in the **terra** package retrieves values from a `SpatRaster` based on specified locations or geometries. Locations can be points (as a `SpatVector`, matrix, or data frame), cell numbers, or spatial objects like polygons. It supports methods for exact or weighted extraction, interpolation, and summary statistics for extracted data. Key arguments include:
+-   **The `mask()` function in the terra package** applies a mask to a SpatRaster or SpatVector. It replaces values in a raster (`x`) with `NA` (or another value) where another raster or vector (`mask`) has `NA` or specified mask values. It’s useful for filtering, clipping, or focusing on specific areas.
+-   **The `extract()` function in the terra package** retrieves values from a `SpatRaster` based on specified locations or geometries. Locations can be points (as a `SpatVector`, matrix, or data frame), cell numbers, or spatial objects like polygons. It supports methods for exact or weighted extraction, interpolation, and summary statistics for extracted data. Key arguments include:
     -   **`x`**: The `SpatRaster` to extract values from
 
     -   **`y`**: Locations (e.g., points, polygons, or cell numbers) to extract values for.
 
     -   **`fun`**: Summarizes extracted data for polygons (e.g., mean, sum).
-
-    -   **`method`**: Extraction type for points ("simple" or "bilinear").
 
     -   **`cells`/`xy`**: Optionally return cell numbers or coordinates.
 
@@ -885,6 +897,7 @@ plot(grain)
 
 ```{r}
 #| label: sec-4-3-1
+#| collapse: false
 
 # Let us extract some values from "elev" using coordinates
 # I want to extract coordiantes of 
@@ -906,14 +919,16 @@ elev |>
 clip_raster <- rast(
   xmin = -0.5, xmax = 0.5, 
   ymin = -0.5, ymax = 0.5,
-  resolution = 0.2, 
-  vals = sample(1:25, 25)
+  resolution = 0.5, 
+  vals = sample(1:25, 4)
   )
 
 # Extracting only the values
 elev[clip_raster]
-elev |> 
-  terra::extract(ext(clip_raster))
+
+# This code somehow doesn't work for me!
+# elev |> 
+#   terra::extract(ext(clip_raster))
 
 # Explaining the meaning of argument drop = FALSE in the 
 # base R subsetting operator "[]"
@@ -924,23 +939,28 @@ elev[1:2, drop = FALSE]
 temporary_mask <- elev
 values(temporary_mask) <- sample(c(NA, TRUE), 36,
                                  replace = T)
-elev |> 
-  mask(temporary_mask)
-
-
+# elev |> 
+#   mask(temporary_mask)
 ```
 
 ```{r}
-#| label: fig-4-3-1
-#| fig-cap: "Showing plots from the code of above Section 4.3.1"
+#| label: fig-4-3-masking
+#| fig-cap: "Showing plots from the code of above"
 #| fig-subcap: 
-#|   - "clip_raster: a smaller raster"
+#|   - "Plotting clip_raster: a smaller raster"
+#|   - "The `temporary_mask` raster"
 #|   - "plotting the masked elev, based on a randomly generated `temporary_mask`"
+#| layout-ncol: 3
 
-plot(clip_raster)
+ggplot() +
+  geom_spatraster(data = clip_raster)
 
-elev |> 
-  mask(temporary_mask) |> 
-  plot()
+ggplot() +
+  geom_spatraster(data = temporary_mask) +
+  scale_fill_discrete(na.value = "white")
+
+ggplot() +
+  geom_spatraster(data = elev |> mask(temporary_mask)) +
+  scale_fill_continuous(na.value = "white")
 
 ```
