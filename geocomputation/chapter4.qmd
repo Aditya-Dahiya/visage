@@ -14,7 +14,7 @@ execute:
   message: false
   warning: false
   eval: true
-  cache: true
+  cache: false
   collapse: true
 categories:
   - "Geocomputation with R"
@@ -963,4 +963,99 @@ ggplot() +
   geom_spatraster(data = elev |> mask(temporary_mask)) +
   scale_fill_continuous(na.value = "white")
 
+```
+
+### 4.3.3 Local operations
+
+-   Local operations are **cell-by-cell operations** performed on one or more raster layers. Includes operations like addition, subtraction, squaring, logical comparisons, and logarithmic transformations. Examples are shown in @fig-local-op-rasters
+-   **Reclassification**:
+    -   Numeric values can be grouped into intervals (e.g., low, middle, high elevations).
+    -   Use the **`classify()` function** with a reclassification matrix to assign new values to defined ranges.
+-   **Efficient alternatives for operations**:
+    -   **`app()`**: Applies a function to each cell across raster layers.
+    -   **`tapp()`**: Extends `app()` by allowing layer subsets for operations.
+    -   **`lapp()`**: Applies functions using multiple layers as arguments. An example of `lapp()` is the NDVI Calculation:
+        -   NDVI (Normalized Difference Vegetation Index) is a local operation to assess vegetation:
+            -   Formula: **(NIR - Red) / (NIR + Red)**.
+        -   Calculated from satellite data (e.g., Landsat 8) with red and NIR bands.
+            -   Positive NDVI values (\> 0.2) indicate vegetation.
+            -   Largest values correspond to dense forests, while lowest values are related to lakes and snowy areas.
+-   **Predictive mapping**:
+    -   Combines local raster operations with predictive modeling.
+    -   Predictive variables (e.g., elevation, temperature) are extracted from rasters to model responses like species richness or crop yield.
+    -   Models can include **`lm()`**, **`glm()`**, **`gam()`**, or machine-learning techniques.
+
+```{r}
+#| label: fig-local-op-rasters
+#| fig-cap: ""
+#| fig-subcap: 
+#|  - "elev"
+#|  - "elev^2"
+#|  - "log2(elev)"
+#|  - "elev > 10"
+
+
+ggplot() +
+  geom_spatraster(data = elev) +
+  ggtitle("`elev` - the original raster") +
+  paletteer::scale_fill_paletteer_c("grDevices::terrain.colors") +
+  theme(legend.position = "bottom")
+
+ggplot() +
+  geom_spatraster(data = elev^2) +
+  ggtitle("elev^2") +
+  paletteer::scale_fill_paletteer_c("grDevices::terrain.colors") +
+  theme(legend.position = "bottom",
+        legend.key.width = unit(30, "pt"))
+
+ggplot() +
+  geom_spatraster(data = log2(elev)) +
+  ggtitle("log2(elev)") +
+  paletteer::scale_fill_paletteer_c("grDevices::terrain.colors") +
+  theme(legend.position = "bottom",
+        legend.key.width = unit(30, "pt"))
+
+
+ggplot() +
+  geom_spatraster(data = elev > 10) +
+  ggtitle("elev > 10") +
+ paletteer::scale_fill_paletteer_d("ggsci::alternating_igv") +
+  theme(legend.position = "bottom",
+        legend.key.width = unit(30, "pt"))
+```
+
+```{r}
+multi_rast = system.file("raster/landsat.tif", package = "spDataLarge")
+multi_rast = rast(multi_rast)
+# Rescale values to actual values (stored integers to save disk space)
+multi_rast = (multi_rast * 0.0000275) - 0.2
+# Remove negative values due to clouds etc.
+multi_rast[multi_rast < 0] = 0
+object.size(multi_rast)
+
+ndvi_fun = function(nir, red){
+  (nir - red) / (nir + red)
+}
+ndvi_rast = lapp(multi_rast[[c(4, 3)]], fun = ndvi_fun)
+
+ggplot() +
+  geom_spatraster(
+    data = ndvi_rast,
+    mapping = aes(fill = lyr1)
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::Terrain 2",
+    direction = -1,
+    limits = c(0, 1),
+    oob = scales::squish
+  ) +
+  labs(
+    title = "Zion National Park - Satellite Photo Raster",
+    subtitle = "Using custom nvdi_fun() to find NVDI\nand plot vegetation areas in {ggplot2}",
+    fill = NULL
+  ) +
+  theme(
+    legend.position = "bottom",
+    legend.key.width = unit(40, "pt")
+  )
 ```
