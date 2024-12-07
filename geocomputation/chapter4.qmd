@@ -971,19 +971,6 @@ ggplot() +
 -   **Reclassification**:
     -   Numeric values can be grouped into intervals (e.g., low, middle, high elevations).
     -   Use the **`classify()` function** with a reclassification matrix to assign new values to defined ranges.
--   **Efficient alternatives for operations**:
-    -   **`app()`**: Applies a function to each cell across raster layers.
-    -   **`tapp()`**: Extends `app()` by allowing layer subsets for operations.
-    -   **`lapp()`**: Applies functions using multiple layers as arguments. An example of `lapp()` is the NDVI Calculation:
-        -   NDVI (Normalized Difference Vegetation Index) is a local operation to assess vegetation:
-            -   Formula: **(NIR - Red) / (NIR + Red)**.
-        -   Calculated from satellite data (e.g., Landsat 8) with red and NIR bands.
-            -   Positive NDVI values (\> 0.2) indicate vegetation.
-            -   Largest values correspond to dense forests, while lowest values are related to lakes and snowy areas.
--   **Predictive mapping**:
-    -   Combines local raster operations with predictive modeling.
-    -   Predictive variables (e.g., elevation, temperature) are extracted from rasters to model responses like species richness or crop yield.
-    -   Models can include **`lm()`**, **`glm()`**, **`gam()`**, or machine-learning techniques.
 
 ```{r}
 #| label: fig-local-op-rasters
@@ -1024,6 +1011,16 @@ ggplot() +
         legend.key.width = unit(30, "pt"))
 ```
 
+-   **Efficient alternatives for operations**:
+    -   **`app()`**: The `app()` function in the `{terra}` package applies a user-defined or pre-existing function to each cell's values of a `SpatRaster`, treating layers as columns in a matrix. Functions should return outputs divisible by the total cell count.
+    -   **`tapp()`**: The `tapp()` function in the `{terra}` package applies a function to subsets of layers in a `SpatRaster` grouped by an index. It allows for aggregation or summarization of layers based on grouping criteria such as indices, time periods (e.g., "years", "months"), or custom functions.
+    -   **`lapp()`**: The `lapp()` function in the `{terra}` package applies a user-defined function to the layers of a `SpatRaster` or `SpatRasterDataset`, treating each layer as an argument to the function. The function must accept a vector of layer values and return a vector or matrix of the same or compatible size. This is useful for combining or transforming layers, such as performing arithmetic operations between them. An example of `lapp()` is the NDVI Calculation:
+        -   NDVI (Normalized Difference Vegetation Index) is a local operation to assess vegetation:
+            -   Formula: **(NIR - Red) / (NIR + Red)**.
+        -   Calculated from satellite data (e.g., Landsat 8) with red and NIR bands.
+            -   Positive NDVI values (\> 0.2) indicate vegetation.
+            -   Largest values correspond to dense forests, while lowest values are related to lakes and snowy areas.
+
 ```{r}
 multi_rast = system.file("raster/landsat.tif", package = "spDataLarge")
 multi_rast = rast(multi_rast)
@@ -1036,6 +1033,7 @@ object.size(multi_rast)
 ndvi_fun = function(nir, red){
   (nir - red) / (nir + red)
 }
+
 ndvi_rast = lapp(multi_rast[[c(4, 3)]], fun = ndvi_fun)
 
 ggplot() +
@@ -1059,3 +1057,179 @@ ggplot() +
     legend.key.width = unit(40, "pt")
   )
 ```
+
+### 4.3.4 Focal operations
+
+-   Focal operations consider a central cell and its neighbours within a defined neighbourhood (kernel, filter, or moving window).
+    -   Common neighbourhood size: **3x3 cells** (central cell + 8 neighbours), but customizable sizes and shapes are supported.
+    -   The operation aggregates values within the neighbourhood and assigns the result to the central cell, iterating across all cells.
+-   **Implementation in R**:
+    -   Use the **`focal()` function** to perform spatial filtering @fig-focal-op. Parameters:
+        -   **`w`**: Defines the weights of the moving window using a matrix, example in @fig-focal-op-3.
+        -   **`fun`**: Specifies the aggregation function (e.g., `min`, `sum`, `mean`, `var`), as in @fig-focal-op-2
+-   **Applications**:
+    -   Spatial filtering or convolution for raster operations.
+    -   Low-pass filters:
+        -   Use the mean function to smooth and reduce extreme values.
+        -   For categorical data, replace the mean with the mode (most common value).
+    -   High-pass filters:
+        -   Enhance features using methods like Laplace or Sobel filters (e.g., line detection).
+    -   Terrain processing:
+        -   Compute topographic characteristics like slope, aspect, and flow directions using focal functions.
+
+```{r}
+#| label: fig-focal-op
+#| fig-cap: "Focal operations on Rasters using terra::focal()"
+#| fig-subcap: 
+#|   - "Original elev raster"
+#|   - "Focal operation with min() and a simple matrix of equal weights"
+#|   - "Focal operation with mean() and a sobel filter matrix for edge detection"
+
+ggplot() +
+  geom_spatraster(data = elev) +
+  labs(title = "elev SpatRaster", caption = "data: {spData}")
+
+ggplot() +
+  geom_spatraster(
+    data = elev |> 
+        terra::focal(
+        w = matrix(rep(1, 9), 3, 3),
+        fun = min
+      )
+  ) +
+  labs(title = "Focal operation min on a 3X3 matric",
+       subtitle = "Simple min() function with na.rm = FALSE")
+
+ggplot() +
+  geom_spatraster(
+    data = elev |> 
+        terra::focal(
+        # Sobel filters (for edge detection):
+        w = matrix(c(-1,-2,-1,0,0,0,1,2,1), nrow = 3),
+        fun = mean,
+        na.rm = TRUE
+      )
+  ) +
+  labs(
+    title = "Focal operation min on a 3X3 matric",
+    subtitle = "Sobel filter matrix for edge detection, with mean() function"
+  )
+
+
+
+
+```
+
+### 4.3.5 Zonal operations
+
+-   Zonal operations aggregate raster cell values based on zones defined by a second raster with categorical values. Unlike focal operations, zones in zonal operations do not require neighboring cells to be adjacent.
+-   **Key Characteristics**:
+    -   The `zonal()` function in the **terra** package computes zonal statistics by summarizing the values of a `SpatRaster` for each "zone" defined by another `SpatRaster`. It applies a specified function (`fun`, e.g., mean, sum) to aggregate the data for each zone.
+    -   The result is typically a **summary table**, grouped by zones. Zones are defined by a secondary raster.
+    -   **Optional Output**: A raster with calculated statistics for each zone can be generated by setting `as.raster = TRUE`.
+-   **Usage**:
+    -   Ideal for summarizing raster values based on irregularly spread categorical zones.
+    -   Commonly used in **land classification**, **soil analysis**, and other spatial analyses where zones are pre-defined.
+
+```{r}
+#| label: fig-zonal-op
+#| fig-cap: "The elev and grain rasters"
+#| fig-subcap: 
+#|   - "elev"
+#|   - "grain"
+#| layout-ncol: 2
+
+ggplot() +
+  geom_spatraster(data = elev) +
+  labs(title = "elev SpatRaster", caption = "data: {spData}")
+  
+
+ggplot() +
+  geom_spatraster(data = grain) +
+  labs(title = "grain SpatRaster", caption = "data: {spData}")
+```
+
+```{r}
+elev |> 
+  terra::zonal(
+    z = grain,
+    fun = mean
+  ) |> 
+  as_tibble()
+
+```
+
+### 4.3.6 Global operations and distances
+
+-   Global operations consider the entire raster dataset as a **single zone**.
+-   Common operations include:
+    -   **Descriptive statistics**: Minimum, maximum, etc.
+    -   **Distance calculations**: Compute distance from each cell to a target cell using **`terra::distance()`**. The `terra::distance()` function calculates the shortest distance from each cell in a raster to a set of target cells, which are identified based on a condition (e.g., where raster values are non-NA, equal to a specific value, or greater than a threshold). This is useful for spatial analysis, such as finding proximity to certain features or zones in a raster.
+    -   **Weighted distances**: Factor in additional variables, such as elevation, to modify distance calculations.
+    -   **Visibility and viewshed analysis**: Assess visible areas from a specific point.
+-   **Applications**:
+    -   Distance to coastlines or other target areas.
+    -   Topography-aware distance calculations.
+    -   Advanced spatial modeling like visibility analysis.
+
+```{r}
+# Create a sample SpatRaster
+r <- rast(ncols = 10, nrows = 10, 
+          xmin = 0, xmax = 10, 
+          ymin = 0, ymax = 10)
+values(r) <- NA
+values(r)[c(5, 15, 25)] <- 1  # Assign specific cells as targets
+
+# Compute the distance to the non-NA cells
+dist_raster <- distance(r)
+dist_raster <- dist_raster * 1e-5
+```
+
+```{r}
+#| label: fig-terra-distance
+#| fig-cap: "Using the terra::distance()"
+#| fig-subcap: 
+#|   - "Original raster"
+#|   - "Distance raster"
+#| layout-ncol: 2
+
+# View the raster
+ggplot() +
+  geom_spatraster(data = r) +
+  labs(title = "Original Raster (Targets in Blue)") +
+  theme(
+    legend.position = "bottom"
+  )
+
+# View the distance raster
+ggplot() +
+  geom_spatraster(data = dist_raster) +
+  labs(title = "Distance to Targets (in units)",
+       fill = "Distance in Degrees") +
+  paletteer::scale_fill_paletteer_c("ggthemes::Red-Gold") +
+  theme(legend.position = "bottom")
+```
+
+### 4.3.7 Map algebra counterparts in vector processing
+
+-   Equivalence between raster and vector operations:
+    -   Distance raster (global operation) ≈ Buffer operation (vector) (Section 5.2.5).
+    -   Raster reclassification ≈ Dissolving vector boundaries (Section 4.2.5).
+    -   Raster overlay with masks ≈ Vector clipping (Section 5.2.5).
+    -   Zonal operations ≈ Aggregating vector geometries by zone**s**.
+
+### 4.3.8 Merging rasters
+
+-   Combines multiple raster datasets into a single raster. Often required for datasets spanning multiple spatial scenes (e.g., satellite imagery, elevation data).
+
+-   Download datasets for regions of interest (e.g., Austria and Switzerland). Use the **`merge()` function** to combine them.
+
+-   **`merge()`**:
+
+    -   Places rasters side by side.
+    -   For overlapping areas, prioritizes values from the first raster.
+
+-   **`mosaic()`**:
+
+    -   Handles overlaps by applying a function (e.g., mean) to the overlapping area.
+    -   Helps smooth visible borders but may not eliminate them entirely.
