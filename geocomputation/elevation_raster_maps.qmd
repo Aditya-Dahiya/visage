@@ -1,0 +1,137 @@
+---
+title: "Using {geodata} to get elevation raster maps"
+author: "Aditya Dahiya"
+subtitle: "Exploring Global and Country-Specific Elevation Maps with {geodata}: high-resolution raster elevation data using functions like elevation_30s() and elevation_global(). Simplify geospatial analysis and visualization."
+date: "2024-12-10"
+bibliography: references.bib
+format:
+  html:
+    code-fold: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: true
+  cache: true
+categories:
+  - "Background Map"
+  - "{terra}"
+  - "Raster Map"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/geocomputation/elevation_raster_maps.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+## Package {geodata}
+
+The `geodata` R package [@geodata] provides functions to download elevation data for any country, primarily sourced from the Shuttle Radar Topography Mission ([SRTM](https://srtm.csi.cgiar.org/)). The `elevation_3s` function retrieves high-resolution elevation data (approximately 90 meters, i.e., 3 arc seconds) for specified coordinates, while `elevation_30s` offers coarser resolution data (about 1 kilometre, i.e., 30 arc seconds) for entire countries. For global coverage, `elevation_global` allows users to obtain elevation data at resolutions ranging from 0.5 to 10 arc-minutes. These datasets are essential for various geospatial analyses, including topographic assessments and environmental modelling.
+
+```{r}
+#| label: setup
+
+# Load spatial and environmental datasets.
+library(geodata)
+
+# Handle, analyze, and visualize raster and vector data.
+library(terra)
+
+# Tidy data workflows with 'terra' objects.
+library(tidyterra)
+
+# Data manipulation, visualization, and wrangling.
+library(tidyverse)
+```
+
+## Getting World Elevation Map
+
+This code downloads global elevation data at a 10-degree resolution using the `geodata` package, calculates its memory size in R, and visualizes it using `ggplot2`. The `geom_spatraster` function plots the raster data, applying a color scale with squished limits (0-6000 meters), and customizes the map's title, subtitle, and legend placement.
+
+```{r}
+#| label: world-elevation-map
+
+world <- geodata::elevation_global(10, path = tempdir())
+
+# With ggplot2
+ggplot() +
+  geom_spatraster(data = world) +
+  scale_fill_wiki_c(
+    limits = c(0, 6000),
+    oob = scales::squish
+  ) +
+  labs(
+    title = "World Elevation Map",
+    subtitle = "Resolution of 10 degrees",
+    fill = "Elevation (metres)"
+  ) +
+  theme(
+    legend.position = "bottom",
+    legend.key.width = unit(50, "pt")
+  )
+```
+
+## Countries in {geodata}
+
+This code retrieves country codes from the `geodata` package, converts them into a tibble, and displays them in a styled, interactive table using the `gt` package. Column labels are formatted with `snakecase` and `stringr`, missing values are replaced with blank text, and a custom theme with a header title is applied for presentation.
+
+```{r}
+#| label: tbl-list-countries
+
+geodata::country_codes() |> 
+  as_tibble() |> 
+  gt::gt() |>
+  gt::cols_label_with(fn = snakecase::to_title_case) |> 
+  gt::cols_label_with(fn = str_to_upper) |>
+  gt::sub_missing(missing_text = "") |> 
+  gt::opt_interactive() |> 
+  gtExtras::gt_theme_538() |> 
+  gt::tab_header(
+    title = "List of countries available in {geodata}"
+  )
+```
+
+## Country-specific raster elevation maps
+
+This code downloads 30-arc-second resolution elevation data for Switzerland using the `geodata` package and visualizes it with `ggplot2`. The elevation is displayed as a raster map with a colour scale capped at 6000 meters, custom titles, subtitles, and a bottom-positioned legend with an adjusted width.
+
+```{r}
+#| message: true
+
+# Taking a smaller country to save data download time
+switzerland <- geodata::elevation_30s(
+  country = "CHE", 
+  path = tempdir()
+  )
+
+# With ggplot2
+ggplot() +
+  geom_spatraster(data = switzerland) +
+  scale_fill_wiki_c(
+    limits = c(0, 6000),
+    oob = scales::squish
+  ) +
+  labs(
+    title = "Elevation Map of Switzerland",
+    subtitle = "Resolution of approx. 1 km (30 arc seconds)",
+    fill = "Elevation (metres)"
+  ) +
+  theme(
+    legend.position = "bottom",
+    legend.key.width = unit(50, "pt")
+  )
+```
+
+Next plan
+
+Study [this page](https://github.com/rspatial/geodata), and write more about other awesome functions in {geodata}.

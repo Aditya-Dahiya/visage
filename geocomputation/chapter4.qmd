@@ -244,7 +244,7 @@ nz_height |>
 -   **Binary predicates** in **`sf`** package test spatial relationships between vector geometries. See [vignette("sf3")](https://r-spatial.github.io/sf/articles/sf3.html). The following binary predicates exist in `sf` : —
 
 | Function | Description | Symmetrical? |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | `st_intersects` | Checks if geometries intersect. | Yes |
 | `st_disjoint` | Checks if geometries do not intersect (are disjoint). | Yes |
 | `st_touches` | Checks if geometries have at least one boundary point in common. | Yes |
@@ -1222,12 +1222,42 @@ ggplot() +
 
 -   Combines multiple raster datasets into a single raster. Often required for datasets spanning multiple spatial scenes (e.g., satellite imagery, elevation data).
 
--   Download datasets for regions of interest (e.g., Austria and Switzerland). Use the **`merge()` function** to combine them.
-
 -   **`merge()`**:
 
     -   Places rasters side by side.
     -   For overlapping areas, prioritizes values from the first raster.
+
+```{r}
+
+aut <- geodata::elevation_30s(country = "AUT", path = tempdir())
+ggplot() +
+  geom_spatraster(data = aut) +
+  scale_fill_wiki_c() +
+  ggtitle("Austria")
+
+cze <- geodata::elevation_30s(country = "CZE", path = tempdir())
+ggplot() +
+  geom_spatraster(data = cze) +
+  scale_fill_wiki_c() +
+  ggtitle("Czechia")
+
+svk <- geodata::elevation_30s(country = "SVK", path = tempdir())
+ggplot() +
+  geom_spatraster(data = svk) +
+  scale_fill_wiki_c() +
+  ggtitle("Slovakia")
+
+aut_cze_svk <- aut |> 
+  merge(svk) |> 
+  merge(cze)
+
+ggplot() +
+  geom_spatraster(data = aut_cze_svk) +
+  scale_fill_wiki_c() +
+  ggtitle("Austria, Czechia and Slovakia")
+
+
+```
 
 -   **`mosaic()`**:
 
