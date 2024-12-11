@@ -107,16 +107,18 @@ This code downloads 30-arc-second resolution elevation data for Switzerland usin
 
 ```{r}
 #| message: true
+#| label: fig-raster-che-base
+#| fig-cap: "Base raster map of Switzerland from {geodata}"
 
 # Taking a smaller country to save data download time
-switzerland <- geodata::elevation_30s(
+switzerland_raster <- geodata::elevation_30s(
   country = "CHE", 
   path = tempdir()
   )
 
 # With ggplot2
 ggplot() +
-  geom_spatraster(data = switzerland) +
+  geom_spatraster(data = switzerland_raster) +
   scale_fill_wiki_c(
     limits = c(0, 6000),
     oob = scales::squish
@@ -132,6 +134,149 @@ ggplot() +
   )
 ```
 
-Next plan
+## Getting outline map of Switzerland {sf}
+
+This code creates two visualizations of Switzerland using `ggplot2`. The first plot is a vector map generated from the `{rnaturalearth}` package, displaying Switzerland's boundaries at a large scale (1:10 million). The second plot combines this vector boundary with a high-resolution raster elevation map from `switzerland_raster`, highlighting elevation levels up to 6000 meters. The raster data is overlaid with a transparent outline of Switzerland and utilizes a squished colour scale for elevation visualization.
+
+```{r}
+switzerland_vector <- rnaturalearth::ne_countries(
+  country = "Switzerland",
+  returnclass = "sf",
+  scale = "large"
+)
+
+ggplot() +
+  geom_sf(data = switzerland_vector) +
+  labs(
+    title = "Vector Map of Switzerland from {rnaturalearth}",
+    subtitle = "Scale of 1:10 million",
+    fill = "Elevation (metres)"
+  )
+
+ggplot() +
+  geom_spatraster(data = switzerland_raster) +
+  geom_sf(
+    data = switzerland_vector,
+    linewidth = 1, 
+    fill = NA,
+    colour = "black",
+    alpha = 0.8
+  ) +
+  coord_sf(
+    crs = 4326
+  ) +
+  scale_fill_wiki_c(
+    limits = c(0, 6000),
+    oob = scales::squish
+  ) +
+  labs(
+    title = "Elevation Map of Switzerland",
+    subtitle = "Resolution of approx. 1 km (30 arc seconds)",
+    fill = "Elevation (metres)"
+  ) +
+  theme(
+    legend.position = "bottom",
+    legend.key.width = unit(40, "pt")
+  )
+```
+
+## Raster Operations: Spatial Subsetting
+
+This code calculates the mean elevation of Switzerland using a raster dataset and filters the raster to show only areas above 2000 meters. It then visualizes these high-altitude regions as a raster map overlaid with Switzerland's vector boundaries using `ggplot2`. The map employs a custom color palette, minimal theme, and detailed labels, emphasizing Switzerland's mountain ranges above 2000 meters elevation.
+
+```{r}
+
+# Mean elevation above Sea Level in Switzerland
+switzerland_raster |> 
+  values() |> 
+  as_tibble() |> 
+  summarise(mean = mean(CHE_elv_msk, na.rm = T))
+
+# Plotting only those portions of Switzerland that are above 2000 metres above sea level
+swit_mountains <- switzerland_raster > 2000
+swit_mountains <- switzerland_raster[swit_mountains, drop = FALSE]
+
+ggplot() +
+  geom_spatraster(data = swit_mountains) +
+  geom_sf(
+    data = switzerland_vector,
+    linewidth = 1, 
+    fill = NA,
+    colour = "black",
+    alpha = 0.8
+  ) +
+  coord_sf(
+    crs = 4326
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "ggthemes::Brown",
+    na.value = "transparent"
+    ) +
+  labs(
+    title = "Switzerland mountain ranges",
+    subtitle = "Only showing areas above 2000 metres elevation",
+    fill = "Elevation (metres)"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    legend.key.width = unit(40, "pt")
+  )
+```
+
+## Computing distance from highest point in Switzerland
+
+This code identifies Switzerland's highest elevation point at 4442 meters and filters for all three raster points above 4200 meters. It calculates distances from these points *(and removes non-Switzerland areas: this is work-in-progress)*. Finally, it visualizes these extreme elevations on a map using `ggplot2`, overlaying the filtered raster data with Switzerland's vector boundaries. The plot employs a custom brown color palette and highlights the topographic peaks within Switzerland exceeding 4200 meters.
+
+```{r}
+#| label: fig-dis
+#| fig-cap: "Distance from the three highest points"
+
+
+# Highest Point in Switzerland
+switzerland_raster |> 
+  values() |> 
+  max(na.rm = TRUE)
+
+# It is 4442 metres above sea level.
+
+# Let us select all points above 4200 metres
+swit_4200 <- switzerland_raster > 4200
+swit_4200 <- switzerland_raster[swit_4000, drop = FALSE]
+swit_4200 <- terra::distance(swit_4200)
+swit_4200 <- swit_4200 / 1000
+# Remove non-Switzerland area
+
+
+# Plotting the three points in Switzerland above 4200 m
+ggplot() +
+  geom_spatraster(data = swit_4200) +
+  geom_sf(
+    data = switzerland_vector,
+    linewidth = 1, 
+    fill = NA,
+    colour = "black",
+    alpha = 0.8
+  ) +
+  coord_sf(
+    crs = 4326
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::Inferno",
+    direction = -1
+  ) +
+  labs(
+    title = "Distance to Switzerland's highest points",
+    subtitle = "Distance from the highest points (>4200 m elevation)",
+    fill = "Distance (km)"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    legend.key.width = unit(40, "pt")
+  )
+```
+
+## Next plan
 
 Study [this page](https://github.com/rspatial/geodata), and write more about other awesome functions in {geodata}.
