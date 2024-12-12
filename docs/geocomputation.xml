@@ -58,7 +58,7 @@ font-style: inherit;">library</span>(tidyverse)</span></code></pre></div>
 </section>
 <section id="getting-world-elevation-map" class="level2">
 <h2 class="anchored" data-anchor-id="getting-world-elevation-map">Getting World Elevation Map</h2>
-<p>This code downloads global elevation data at a 10-degree resolution using the <code>geodata</code> package, calculates its memory size in R, and visualizes it using <code>ggplot2</code>. The <code>geom_spatraster</code> function plots the raster data, applying a color scale with squished limits (0-6000 meters), and customizes the map’s title, subtitle, and legend placement.</p>
+<p>This code downloads global elevation data at a 10-degree resolution using the <code>geodata</code> package, calculates its memory size in R, and visualizes it using <code>ggplot2</code>. The <code>geom_spatraster</code> function plots the raster data, applying a colour scale with squished limits (0-6000 meters), and customizes the map’s title, subtitle, and legend placement.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -79,7 +79,9 @@ font-style: inherit;">tempdir</span>())</span>
 <span id="cb2-3"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># With ggplot2</span></span>
-<span id="cb2-4"><span class="fu" style="color: #4758AB;
+<span id="cb2-4">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -149,15 +151,56 @@ background-color: null;
 font-style: inherit;">50</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"pt"</span>)</span>
-<span id="cb2-18">  )</span></code></pre></div>
+<span id="cb2-18">  )</span>
+<span id="cb2-19"></span>
+<span id="cb2-20"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb2-21">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb2-22">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>,</span>
+<span id="cb2-23">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb2-24">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"elevation_raster_maps_1.png"</span>),</span>
+<span id="cb2-25">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1400</span>,</span>
+<span id="cb2-26">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2000</span>,</span>
+<span id="cb2-27">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span></span>
+<span id="cb2-28">)</span></code></pre></div>
 </details>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><a href="elevation_raster_maps_files/figure-html/world-elevation-map-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/elevation_raster_maps_files/figure-html/world-elevation-map-1.png" class="img-fluid figure-img" width="672"></a></p>
+</div>
+<div id="fig-world1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-world1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/elevation_raster_maps_1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;1: A simple elevation map of the world using data from {geodata} and geom_spatraster() from {terra}"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/elevation_raster_maps_1.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-world1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: A simple elevation map of the world using data from {geodata} and geom_spatraster() from {terra}
+</figcaption>
 </figure>
-</div>
-</div>
 </div>
 </section>
 <section id="countries-in-geodata" class="level2">
@@ -249,27 +292,27 @@ Table&nbsp;1
 </figcaption>
 <div aria-describedby="tbl-list-countries-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="glnehwgudi" class=".gt_table" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="orxcffvezp" class=".gt_table" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Cairo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#glnehwgudi table {
+#orxcffvezp table {
   font-family: Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#glnehwgudi thead, #glnehwgudi tbody, #glnehwgudi tfoot, #glnehwgudi tr, #glnehwgudi td, #glnehwgudi th {
+#orxcffvezp thead, #orxcffvezp tbody, #orxcffvezp tfoot, #orxcffvezp tr, #orxcffvezp td, #orxcffvezp th {
   border-style: none;
 }
 
-#glnehwgudi p {
+#orxcffvezp p {
   margin: 0;
   padding: 0;
 }
 
-#glnehwgudi .gt_table {
+#orxcffvezp .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -295,12 +338,12 @@ Table&nbsp;1
   border-left-color: #D3D3D3;
 }
 
-#glnehwgudi .gt_caption {
+#orxcffvezp .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#glnehwgudi .gt_title {
+#orxcffvezp .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -312,7 +355,7 @@ Table&nbsp;1
   border-bottom-width: 0;
 }
 
-#glnehwgudi .gt_subtitle {
+#orxcffvezp .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -324,7 +367,7 @@ Table&nbsp;1
   border-top-width: 0;
 }
 
-#glnehwgudi .gt_heading {
+#orxcffvezp .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -336,13 +379,13 @@ Table&nbsp;1
   border-right-color: #D3D3D3;
 }
 
-#glnehwgudi .gt_bottom_border {
+#orxcffvezp .gt_bottom_border {
   border-bottom-style: none;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#glnehwgudi .gt_col_headings {
+#orxcffvezp .gt_col_headings {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -357,7 +400,7 @@ Table&nbsp;1
   border-right-color: #D3D3D3;
 }
 
-#glnehwgudi .gt_col_heading {
+#orxcffvezp .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -377,7 +420,7 @@ Table&nbsp;1
   overflow-x: hidden;
 }
 
-#glnehwgudi .gt_column_spanner_outer {
+#orxcffvezp .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -389,15 +432,15 @@ Table&nbsp;1
   padding-right: 4px;
 }
 
-#glnehwgudi .gt_column_spanner_outer:first-child {
+#orxcffvezp .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#glnehwgudi .gt_column_spanner_outer:last-child {
+#orxcffvezp .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#glnehwgudi .gt_column_spanner {
+#orxcffvezp .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #000000;
@@ -409,11 +452,11 @@ Table&nbsp;1
   width: 100%;
 }
 
-#glnehwgudi .gt_spanner_row {
+#orxcffvezp .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#glnehwgudi .gt_group_heading {
+#orxcffvezp .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -439,7 +482,7 @@ Table&nbsp;1
   text-align: left;
 }
 
-#glnehwgudi .gt_empty_group_heading {
+#orxcffvezp .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -454,15 +497,15 @@ Table&nbsp;1
   vertical-align: middle;
 }
 
-#glnehwgudi .gt_from_md > :first-child {
+#orxcffvezp .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#glnehwgudi .gt_from_md > :last-child {
+#orxcffvezp .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#glnehwgudi .gt_row {
+#orxcffvezp .gt_row {
   padding-top: 3px;
   padding-bottom: 3px;
   padding-left: 5px;
@@ -481,7 +524,7 @@ Table&nbsp;1
   overflow-x: hidden;
 }
 
-#glnehwgudi .gt_stub {
+#orxcffvezp .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -494,7 +537,7 @@ Table&nbsp;1
   padding-right: 5px;
 }
 
-#glnehwgudi .gt_stub_row_group {
+#orxcffvezp .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -508,15 +551,15 @@ Table&nbsp;1
   vertical-align: top;
 }
 
-#glnehwgudi .gt_row_group_first td {
+#orxcffvezp .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#glnehwgudi .gt_row_group_first th {
+#orxcffvezp .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#glnehwgudi .gt_summary_row {
+#orxcffvezp .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -526,16 +569,16 @@ Table&nbsp;1
   padding-right: 5px;
 }
 
-#glnehwgudi .gt_first_summary_row {
+#orxcffvezp .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#glnehwgudi .gt_first_summary_row.thick {
+#orxcffvezp .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#glnehwgudi .gt_last_summary_row {
+#orxcffvezp .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -545,7 +588,7 @@ Table&nbsp;1
   border-bottom-color: #D3D3D3;
 }
 
-#glnehwgudi .gt_grand_summary_row {
+#orxcffvezp .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -555,7 +598,7 @@ Table&nbsp;1
   padding-right: 5px;
 }
 
-#glnehwgudi .gt_first_grand_summary_row {
+#orxcffvezp .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -565,7 +608,7 @@ Table&nbsp;1
   border-top-color: #D3D3D3;
 }
 
-#glnehwgudi .gt_last_grand_summary_row_top {
+#orxcffvezp .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -575,11 +618,11 @@ Table&nbsp;1
   border-bottom-color: #D3D3D3;
 }
 
-#glnehwgudi .gt_striped {
+#orxcffvezp .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#glnehwgudi .gt_table_body {
+#orxcffvezp .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -588,7 +631,7 @@ Table&nbsp;1
   border-bottom-color: #D3D3D3;
 }
 
-#glnehwgudi .gt_footnotes {
+#orxcffvezp .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -602,7 +645,7 @@ Table&nbsp;1
   border-right-color: #D3D3D3;
 }
 
-#glnehwgudi .gt_footnote {
+#orxcffvezp .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -611,7 +654,7 @@ Table&nbsp;1
   padding-right: 5px;
 }
 
-#glnehwgudi .gt_sourcenotes {
+#orxcffvezp .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -625,7 +668,7 @@ Table&nbsp;1
   border-right-color: #D3D3D3;
 }
 
-#glnehwgudi .gt_sourcenote {
+#orxcffvezp .gt_sourcenote {
   font-size: 12px;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -633,72 +676,72 @@ Table&nbsp;1
   padding-right: 5px;
 }
 
-#glnehwgudi .gt_left {
+#orxcffvezp .gt_left {
   text-align: left;
 }
 
-#glnehwgudi .gt_center {
+#orxcffvezp .gt_center {
   text-align: center;
 }
 
-#glnehwgudi .gt_right {
+#orxcffvezp .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#glnehwgudi .gt_font_normal {
+#orxcffvezp .gt_font_normal {
   font-weight: normal;
 }
 
-#glnehwgudi .gt_font_bold {
+#orxcffvezp .gt_font_bold {
   font-weight: bold;
 }
 
-#glnehwgudi .gt_font_italic {
+#orxcffvezp .gt_font_italic {
   font-style: italic;
 }
 
-#glnehwgudi .gt_super {
+#orxcffvezp .gt_super {
   font-size: 65%;
 }
 
-#glnehwgudi .gt_footnote_marks {
+#orxcffvezp .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#glnehwgudi .gt_asterisk {
+#orxcffvezp .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#glnehwgudi .gt_indent_1 {
+#orxcffvezp .gt_indent_1 {
   text-indent: 5px;
 }
 
-#glnehwgudi .gt_indent_2 {
+#orxcffvezp .gt_indent_2 {
   text-indent: 10px;
 }
 
-#glnehwgudi .gt_indent_3 {
+#orxcffvezp .gt_indent_3 {
   text-indent: 15px;
 }
 
-#glnehwgudi .gt_indent_4 {
+#orxcffvezp .gt_indent_4 {
   text-indent: 20px;
 }
 
-#glnehwgudi .gt_indent_5 {
+#orxcffvezp .gt_indent_5 {
   text-indent: 25px;
 }
 
-#glnehwgudi .katex-display {
+#orxcffvezp .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#glnehwgudi div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#orxcffvezp div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 
@@ -710,8 +753,8 @@ tbody tr:last-child {
 <div class="gt_heading gt_title gt_font_normal" style="text-size:bigger;">List of countries available in {geodata}</div>
 <div class="gt_heading gt_subtitle "></div>
 </div>
-<div id="glnehwgudi" class="reactable html-widget" style="width:auto;height:auto;"></div>
-<script type="application/json" data-for="glnehwgudi">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"NAME":["Afghanistan","Akrotiri and Dhekelia","Åland","Albania","Algeria","American Samoa","Andorra","Angola","Anguilla","Antarctica","Antigua and Barbuda","Argentina","Armenia","Aruba","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bermuda","Bhutan","Bolivia","Bonaire, Saint Eustatius and Saba","Bosnia and Herzegovina","Botswana","Bouvet Island","Brazil","British Indian Ocean Territory","British Virgin Islands","Brunei","Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroon","Canada","Cabo Verde","Caspian Sea","Cayman Islands","Central African Republic","Chad","Chile","China","Christmas Island","Clipperton Island","Cocos Islands","Colombia","Comoros","Cook Islands","Costa Rica","Côte d'Ivoire","Croatia","Cuba","Curaçao","Cyprus","Czech Republic","Democratic Republic of the Congo","Denmark","Djibouti","Dominican Republic","Dominica","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Ethiopia","Falkland Islands","Faroe Islands","Fiji","Finland","France","French Guiana","French Polynesia","French Southern Territories","Gabon","Gambia","Georgia","Germany","Ghana","Gibraltar","Greece","Greenland","Grenada","Guadeloupe","Guam","Guatemala","Guernsey","Guinea-Bissau","Guinea","Guyana","Haiti","Heard Island and McDonald Islands","Honduras","Hong Kong","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Isle of Man","Israel","Italy","Jamaica","Japan","Jersey","Jordan","Kazakhstan","Kenya","Kiribati","Kosovo","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Macao","Macedonia","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Martinique","Mauritania","Mauritius","Mayotte","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Montserrat","Morocco","Mozambique","Myanmar","Namibia","Nauru","Nepal","Netherlands","New Caledonia","New Zealand","Nicaragua","Niger","Nigeria","Niue","Norfolk Island","North Korea","Northern Cyprus","Northern Mariana Islands","Norway","Oman","Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paracel Islands","Paraguay","Peru","Philippines","Pitcairn Islands","Poland","Portugal","Puerto Rico","Qatar","Congo","Réunion","Romania","Russia","Rwanda","Saint-Barthélemy","Saint-Martin","Saint Helena","Saint Kitts and Nevis","Saint Lucia","Saint Pierre and Miquelon","Saint Vincent and the Grenadines","Samoa","San Marino","São Tomé and Príncipe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Sint Maarten","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Georgia and the South Sandwich Islands","South Korea","South Sudan","Spain","Spratly Islands","Sri Lanka","Sudan","Suriname","Svalbard and Jan Mayen","Eswatini","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","East Timor","Togo","Tokelau","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Turks and Caicos Islands","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States Minor Outlying Islands","United States","Uruguay","Uzbekistan","Vanuatu","Vatican City","Venezuela","Vietnam","Virgin Islands, U.S.","Wallis and Futuna","Western Sahara","Yemen","Zambia","Zimbabwe"],"ISO3":["AFG","XAD","ALA","ALB","DZA","ASM","AND","AGO","AIA","ATA","ATG","ARG","ARM","ABW","AUS","AUT","AZE","BHS","BHR","BGD","BRB","BLR","BEL","BLZ","BEN","BMU","BTN","BOL","BES","BIH","BWA","BVT","BRA","IOT","VGB","BRN","BGR","BFA","BDI","KHM","CMR","CAN","CPV","XCA","CYM","CAF","TCD","CHL","CHN","CXR","XCL","CCK","COL","COM","COK","CRI","CIV","HRV","CUB","CUW","CYP","CZE","COD","DNK","DJI","DOM","DMA","ECU","EGY","SLV","GNQ","ERI","EST","ETH","FLK","FRO","FJI","FIN","FRA","GUF","PYF","ATF","GAB","GMB","GEO","DEU","GHA","GIB","GRC","GRL","GRD","GLP","GUM","GTM","GGY","GNB","GIN","GUY","HTI","HMD","HND","HKG","HUN","ISL","IND","IDN","IRN","IRQ","IRL","IMN","ISR","ITA","JAM","JPN","JEY","JOR","KAZ","KEN","KIR","XKO","KWT","KGZ","LAO","LVA","LBN","LSO","LBR","LBY","LIE","LTU","LUX","MAC","MKD","MDG","MWI","MYS","MDV","MLI","MLT","MHL","MTQ","MRT","MUS","MYT","MEX","FSM","MDA","MCO","MNG","MNE","MSR","MAR","MOZ","MMR","NAM","NRU","NPL","NLD","NCL","NZL","NIC","NER","NGA","NIU","NFK","PRK","XNC","MNP","NOR","OMN","PAK","PLW","PSE","PAN","PNG","XPI","PRY","PER","PHL","PCN","POL","PRT","PRI","QAT","COG","REU","ROU","RUS","RWA","BLM","MAF","SHN","KNA","LCA","SPM","VCT","WSM","SMR","STP","SAU","SEN","SRB","SYC","SLE","SGP","SXM","SVK","SVN","SLB","SOM","ZAF","SGS","KOR","SSD","ESP","XSP","LKA","SDN","SUR","SJM","SWZ","SWE","CHE","SYR","TWN","TJK","TZA","THA","TLS","TGO","TKL","TON","TTO","TUN","TUR","TKM","TCA","TUV","UGA","UKR","ARE","GBR","UMI","USA","URY","UZB","VUT","VAT","VEN","VNM","VIR","WLF","ESH","YEM","ZMB","ZWE"],"ISO2":["AF",null,"AX","AL","DZ","AS","AD","AO","AI","AQ","AG","AR","AM","AW","AU","AT","AZ","BS","BH","BD","BB","BY","BE","BZ","BJ","BM","BT","BO","AN","BA","BW","BV","BR","IO","VG","BN","BG","BF","BI","KH","CM","CA","CV",null,"KY","CF","TD","CL","CN","CX",null,"CC","CO","KM","CK","CR","CI","HR","CU","CW","CY","CZ","CD","DK","DJ","DO","DM","EC","EG","SV","GQ","ER","EE","ET","FK","FO","FJ","FI","FR","GF","PF","TF","GA","GM","GE","DE","GH","GI","GR","GL","GD","GP","GU","GT","GG","GW","GN","GY","HT","HM","HN","HK","HU","IS","IN","ID","IR","IQ","IE","IM","IL","IT","JM","JP","JE","JO","KZ","KE","KI","XK","KW","KG","LA","LV","LB","LS","LR","LY","LI","LT","LU","MO","MK","MG","MW","MY","MV","ML","MT","MH","MQ","MR","MU","YT","MX","FM","MD","MC","MN","ME","MS","MA","MZ","MM","NA","NR","NP","NL","NC","NZ","NI","NE","NG","NU","NF","KP",null,"MP","NO","OM","PK","PW","PS","PA","PG",null,"PY","PE","PH","PN","PL","PT","PR","QA","CG","RE","RO","RU","RW","BL","MF","SH","KN","LC","PM","VC","WS","SM","ST","SA","SN","RS","SC","SL","SG","SX","SK","SI","SB","SO","ZA","GS","KR","SS","ES",null,"LK","SD","SR","SJ","SZ","SE","CH","SY","TW","TJ","TZ","TH","TL","TG","TK","TO","TT","TN","TR","TM","TC","TV","UG","UA","AE","GB","UM","US","UY","UZ","VU","VA","VE","VN","VI","WF","EH","YE","ZM","ZW"],"NAME_ISO":["AFGHANISTAN",null,"ÅLAND ISLANDS","ALBANIA","ALGERIA","AMERICAN SAMOA","ANDORRA","ANGOLA","ANGUILLA","ANTARCTICA","ANTIGUA AND BARBUDA","ARGENTINA","ARMENIA","ARUBA","AUSTRALIA","AUSTRIA","AZERBAIJAN","BAHAMAS","BAHRAIN","BANGLADESH","BARBADOS","BELARUS","BELGIUM","BELIZE","BENIN","BERMUDA","BHUTAN","BOLIVIA","BONAIRE, SAINT EUSTATIUS AND SABA","BOSNIA AND HERZEGOVINA","BOTSWANA","BOUVET ISLAND","BRAZIL","BRITISH INDIAN OCEAN TERRITORY","VIRGIN ISLANDS, BRITISH","BRUNEI DARUSSALAM","BULGARIA","BURKINA FASO","BURUNDI","CAMBODIA","CAMEROON","CANADA","CAPE VERDE",null,"CAYMAN ISLANDS","CENTRAL AFRICAN REPUBLIC","CHAD","CHILE","CHINA","CHRISTMAS ISLAND",null,"COCOS (KEELING) ISLANDS","COLOMBIA","COMOROS","COOK ISLANDS","COSTA RICA","COTE D'IVOIRE","CROATIA","CUBA","CURACAO","CYPRUS","CZECH REPUBLIC","CONGO, THE DEMOCRATIC REPUBLIC OF THE","DENMARK","DJIBOUTI","DOMINICAN REPUBLIC","DOMINICA","ECUADOR","EGYPT","EL SALVADOR","EQUATORIAL GUINEA","ERITREA","ESTONIA","ETHIOPIA","FALKLAND ISLANDS (MALVINAS)","FAROE ISLANDS","FIJI","FINLAND","FRANCE","FRENCH GUIANA","FRENCH POLYNESIA","FRENCH SOUTHERN TERRITORIES","GABON","GAMBIA","GEORGIA","GERMANY","GHANA","GIBRALTAR","GREECE","GREENLAND","GRENADA","GUADELOUPE","GUAM","GUATEMALA","GUERNSEY","GUINEA-BISSAU","GUINEA","GUYANA","HAITI","HEARD ISLAND AND MCDONALD ISLANDS","HONDURAS","HONG KONG","HUNGARY","ICELAND","INDIA","INDONESIA","IRAN, ISLAMIC REPUBLIC OF","IRAQ","IRELAND","ISLE OF MAN","ISRAEL","ITALY","JAMAICA","JAPAN","JERSEY","JORDAN","KAZAKHSTAN","KENYA","KIRIBATI",null,"KUWAIT","KYRGYZSTAN","LAO PEOPLE'S DEMOCRATIC REPUBLIC","LATVIA","LEBANON","LESOTHO","LIBERIA","LIBYAN ARAB JAMAHIRIYA","LIECHTENSTEIN","LITHUANIA","LUXEMBOURG","MACAO","NORTH MACEDONIA","MADAGASCAR","MALAWI","MALAYSIA","MALDIVES","MALI","MALTA","MARSHALL ISLANDS","MARTINIQUE","MAURITANIA","MAURITIUS","MAYOTTE","MEXICO","MICRONESIA, FEDERATED STATES OF","MOLDOVA, REPUBLIC OF","MONACO","MONGOLIA","MONTENEGRO","MONTSERRAT","MOROCCO","MOZAMBIQUE","MYANMAR","NAMIBIA","NAURU","NEPAL","NETHERLANDS","NEW CALEDONIA","NEW ZEALAND","NICARAGUA","NIGER","NIGERIA","NIUE","NORFOLK ISLAND","KOREA, DEMOCRATIC PEOPLE'S REPUBLIC OF",null,"NORTHERN MARIANA ISLANDS","NORWAY","OMAN","PAKISTAN","PALAU","PALESTINIAN TERRITORY, OCCUPIED","PANAMA","PAPUA NEW GUINEA",null,"PARAGUAY","PERU","PHILIPPINES","PITCAIRN","POLAND","PORTUGAL","PUERTO RICO","QATAR","CONGO","REUNION","ROMANIA","RUSSIAN FEDERATION","RWANDA","SAINT BARTHELEMY","SAINT MARTIN","SAINT HELENA","SAINT KITTS AND NEVIS","SAINT LUCIA","SAINT PIERRE AND MIQUELON","SAINT VINCENT AND THE GRENADINES","SAMOA","SAN MARINO","SAO TOME AND PRINCIPE","SAUDI ARABIA","SENEGAL","SERBIA","SEYCHELLES","SIERRA LEONE","SINGAPORE","SINT MAARTEN","SLOVAKIA","SLOVENIA","SOLOMON ISLANDS","SOMALIA","SOUTH AFRICA","SOUTH GEORGIA AND THE SOUTH SANDWICH ISLANDS","KOREA, REPUBLIC OF","SOUTH SUDAN","SPAIN",null,"SRI LANKA","SUDAN","SURINAME","SVALBARD AND JAN MAYEN","SWAZILAND","SWEDEN","SWITZERLAND","SYRIAN ARAB REPUBLIC","TAIWAN, PROVINCE OF CHINA","TAJIKISTAN","TANZANIA, UNITED REPUBLIC OF","THAILAND","TIMOR-LESTE","TOGO","TOKELAU","TONGA","TRINIDAD AND TOBAGO","TUNISIA","TURKEY","TURKMENISTAN","TURKS AND CAICOS ISLANDS","TUVALU","UGANDA","UKRAINE","UNITED ARAB EMIRATES","UNITED KINGDOM","UNITED STATES MINOR OUTLYING ISLANDS","UNITED STATES","URUGUAY","UZBEKISTAN","VANUATU","HOLY SEE (VATICAN CITY STATE)","VENEZUELA","VIET NAM","VIRGIN ISLANDS, U.S.","WALLIS AND FUTUNA","WESTERN SAHARA","YEMEN","ZAMBIA","ZIMBABWE"],"NAME_FAO":["Afghanistan",null,null,"Albania","Algeria","American Samoa","Andorra","Angola",null,null,"Antigua and Barbuda","Argentina","Armenia","Aruba","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bermuda","Bhutan","Bolivia (Plurinational State of)",null,"Bosnia and Herzegovina","Botswana",null,"Brazil",null,"British Virgin Islands","Brunei Darussalam","Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroon","Canada","Cabo Verde",null,"Cayman Islands","Central African Republic","Chad","Chile","China, mainland",null,null,null,"Colombia","Comoros","Cook Islands","Costa Rica","Côte d'Ivoire","Croatia","Cuba",null,"Cyprus","Czechia","Democratic Republic of the Congo","Denmark","Djibouti","Dominican Republic","Dominica","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Ethiopia",null,"Faroe Islands","Fiji","Finland","France","French Guyana","French Polynesia",null,"Gabon","Gambia","Georgia","Germany","Ghana",null,"Greece",null,"Grenada","Guadeloupe","Guam","Guatemala",null,"Guinea-Bissau","Guinea","Guyana","Haiti",null,"Honduras","China, Hong Kong SAR","Hungary","Iceland","India","Indonesia","Iran (Islamic Republic of)","Iraq","Ireland","Isle of Man","Israel","Italy","Jamaica","Japan","Jersey","Jordan","Kazakhstan","Kenya","Kiribati",null,"Kuwait","Kyrgyzstan","Lao People's Democratic Republic","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","China, Macao SAR","North Macedonia","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Martinique","Mauritania","Mauritius","Mayotte","Mexico","Micronesia","Republic of Moldova",null,"Mongolia","Montenegro","Montserrat","Morocco","Mozambique","Myanmar","Namibia",null,"Nepal","Netherlands","New Caledonia","New Zealand","Nicaragua","Niger","Nigeria","Niue",null,"Democratic People's Republic of Korea",null,"Northern Mariana Is","Norway","Oman","Pakistan","Palau","Palestine","Panama","Papua New Guinea",null,"Paraguay","Peru","Philippines",null,"Poland","Portugal","Puerto Rico","Qatar","Congo","Réunion","Romania","Russian Federation","Rwanda",null,null,"Saint Helena","Saint Kitts and Nevis","Saint Lucia","Saint Pierre & Miquelon","Saint Vincent and the Grenadines","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore",null,"Slovakia","Slovenia","Solomon Islands","Somalia","South Africa",null,"Republic of Korea","South Sudan","Spain",null,"Sri Lanka","Sudan","Suriname",null,"Eswatini","Sweden","Switzerland","Syrian Arab Republic","China, Taiwan Province of","Tajikistan","United Republic of Tanzania","Thailand","Timor-Leste","Togo",null,"Tonga","Trinidad and Tobago","Tunisia","Türkiye","Turkmenistan","Turks and Caicos Islands","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom of Great Britain and Northern Ireland",null,"United States of America","Uruguay","Uzbekistan","Vanuatu",null,"Venezuela (Bolivarian Republic of)","Viet Nam","United States Virgin Islands","Wallis and Futuna","Western Sahara","Yemen","Zambia","Zimbabwe"],"NAME_LOCAL":["Afghanestan","Akrotiri and Dhekelia","Åland","Shqiperia","Al Jaza'ir","American Samoa","Andorra","Angola","Anguilla","Antarctica","Antigua and Barbuda","Argentina","Hayastan","Aruba","Australia","Österreich","Azarbaycan","Bahamas","Al Bahrayn","Bangladesh","Barbados","Byelarus|Byelorussia","Belgique|Belgie|Belgien","Belize","Benin","Bermuda","Bhutan","Bolivia","Bonaire, Saint Eustatius and Saba","Bosna i Hercegovina","Botswana","Bouvet Island","Brasil","British Indian Ocean Territory","British Virgin Islands","Negara Brunei Darussalam","Bulgaria","Burkina Faso","Burundi","Kampuchea","Cameroon","Canada","Cabo Verde","Caspian Sea","Cayman Islands","Republique Centrafricaine","Tchad","Chile","Zhong Guo","Christmas Island","Clipperton Island","Cocos (Keeling) Islands","Colombia","Comores","Cook Islands","Costa Rica","Côte d'Ivoire","Hrvatska","Cuba","Curaçao","Kibris, Kypros","Česká republika","République Démocratique du Congo|Zaire","Danmark","Djibouti","República Dominicana","Dominica","Ecuador","Misr","El Salvador","Guinea Ecuatorial","Hagere Ertra","Eesti Vabariik","Ityop'iya","Islas Malvinas","Føroyar","Fiji","Suomi|Suomen Tasavalta","France","Guyane","Polynésie Française","Terres Australes et Antarctiques Françaises","Gabon","The Gambia","Sak'art'velo","Deutschland","Ghana","Gibraltar","Ellas or Ellada","Kalaallit Nunaat","Grenada","Guadeloupe","Guam","Guatemala","Guernsey","Guiné-Bissau","Guinee","Guyana","Haiti","Heard and Mc Donald","Honduras","Hong Kong","Magyarorszag","Lyoveldio Island","Bharat","Indonesia","Iran","Iraq","Éire","Isle of Man","Yisra'el","Italia","Jamaica","Nippon","Jersey","Al Urdun","Qazaqstan","Kenya","Kiribati|Kiribas","Kosova","Al Kuwayt","Kyrgyz Respublikasy","Lao","Latvija","Lubnan","Lesotho","Liberia","Libiyah","Liechtenstein","Lietuva","Luxembourg|Letzebuerg","Aomen","Makedonija","Madagascar","Malawi","Malaysia","Dhivehi Raajje","Mali","Malta","Marshall Islands","Martinique","Muritaniyah","Mauritius","Mayotte","México|Estados Unidos Mexicanos","Micronesia","Moldova","Monaco","Mongol Uls","Crna Gora","Montserrat","Al Maghrib","Mocambique","Myanma Naingngandaw","Namibia","Nauru","Nepal","Nederland","Nouvelle-Calédonie","Aotearoa","Nicaragua","Niger","Nigeria","Niue","Norfolk Island","Choson",null,"Northern Mariana Islands","Norge","Saltanat Uman","Pakistan","Belau","Filastin","Panamá","Papua Niu Gini","Paracel Islands","Paraguay","Perú","Pilipinas","Pitcairn Island","Polska","Portugal","Puerto Rico","Dawlat Qatar","République du Congo","Réunion|Ile de la Réunion","Romania","Rossiya","Rwanda","Saint-Barthélemy","Saint-Martin","Saint Helena","Saint Kitts and Nevis","Saint Lucia","Saint-Pierre et Miquelon","Saint Vincent and the Grenadines","Samoa","San Marino","São Tomé and Príncipe","Al Arabiyah as Suudiyah","Senegal","Srbija","Seychelles","Sierra Leone","Singapore","Sint Maarten","Slovensko","Slovenija|Republika Slovenija","Solomon Islands","Somalia","South Africa","South Georgia and the South Sandwich Islands","Han-guk",null,"España","Spratly Islands","Sri Lanka","As-Sudan","Suriname","Svalbard and Jan Mayen","Eswatini","Sverige","Schweiz|Suisse|Svizzera","Suriyah","T'ai-wan","Jumhurii Tojikiston","Tanzania","Prathet Thai","Timor-Leste","Togo|Republique Togolaise","Tokelau","Tonga","Trinidad and Tobago","Tunis","Turkiye","Turkmenistan","Turks and Caicos Islands","Tuvalu","Uganda","Ukrayina","Al Imarat al Arabiyah al Muttahidah","United Kingdom","United States Minor Outlying Island","United States","Uruguay|República Oriental del Uruguay","Uzbekiston Respublikasi","Vanuatu","Status Civitatis Vaticanæ","Venezuela","Viet Nam","Virgin Islands","Wallis et Futuna","Western Sahara","Al Yaman","Zambia","Zimbabwe"],"SOVEREIGN":["Afghanistan","United Kingdom","Finland","Albania","Algeria","United States","Andorra","Angola","United Kingdom",null,"Antigua and Barbuda","Argentina","Armenia","Nederland","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgie","Belize","Benin","United Kingdom","Bhutan","Bolivia","Nederland","Bosnia and Herzegovina","Botswana","Norway","Brazil","United Kingdom","United Kingdom","Brunei Darussalam","Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroun","Canada","Cabo Verde",null,"United Kingdom","Central African Republic","Chad","Chile","China","Australia","France","Australia","Colombia","Comoros","New Zealand","Costa Rica","Côte d'Ivoire","Croatia","Cuba","Netherlands","Cyprus","Czech Republic","The Democratic Republic of the Congo","Denmark","Djibouti","República Dominicana","Dominica","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Ethiopia","United Kingdom","Denmark","Fiji","Finland","France","France","France","France","Gabon","Gambia","Georgia","Germany","Ghana","United Kingdom","Hellas","Denmark","Grenada","France","United States","Guatemala","United Kingdom","Guinea-Bissau","Guinea","Guyana","Haiti","Australia","Honduras","China","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","United Kingdom","Israel","Italy","Jamaica","Japan","United Kingdom","Jordan","Kazakhstan","Kenya","Kiribati","Kosova","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","China","Macedonia","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","France","Mauritania","Mauritius","France","México","Micronesia","Moldova","Monaco","Mongolia","Montenegro","United Kingdom","Morocco","Mozambique","Myanmar","Namibia","Nauru","Nepal","Nederland","France","New Zealand","Nicaragua","Niger","Nigeria","New Zealand","Australia","North Korea","Northern Cyprus (Disputed)","United States","Norway","Oman","Pakistan","United States","Palestina","Panamá","Papua New Guinea",null,"Paraguay","Perú","Pilipinas","United Kingdom","Poland","Portugal","United States","Qatar","Republic of Congo","France","Romania","Russia","Rwanda","France","France","United Kingdom","Saint Kitts and Nevis","Saint Lucia","France","Saint Vincent and the Grenadines","Samoa","San Marino","São Tomé and Príncipe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Netherlands","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","United Kingdom","South Korea","South Sudan","España","Disputed (Pilipinas, China, Vietnam)","Sri Lanka","Sudan","Suriname","Norway","Eswatini","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","New Zealand","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","United Kingdom","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","United States","Uruguay","Uzbekistan","Vanuatu","Vatican","Venezuela","Vietnam","United States","France","Western Sahara","Yemen","Zambia","Zimbabwe"],"UNREGION1":["Southern Asia","Western Asia","Northern Europe","Southern Europe","Northern Africa","Polynesia","Southern Europe","Middle Africa","Caribbean","Antartica","Caribbean","South America","Western Asia","Caribbean","Australia and New Zealand","Western Europe","Western Asia","Caribbean","Western Asia","Southern Asia","Caribbean","Eastern Europe","Western Europe","Central America","Western Africa","Northern America","Southern Asia","South America","Caribbean","Southern Europe","Southern Africa","Antartica","South America","Southern Asia","Caribbean","South-Eastern Asia","Eastern Europe","Western Africa","Eastern Africa","South-Eastern Asia","Middle Africa","Northern America","Western Africa",null,"Caribbean","Middle Africa","Middle Africa","South America","Eastern Asia","South-Eastern Asia","Central America","South-Eastern Asia","South America","Eastern Africa","Polynesia","Central America","Western Africa","Southern Europe","Caribbean","Caribbean","Western Asia","Eastern Europe","Middle Africa","Northern Europe","Eastern Africa","Caribbean","Caribbean","South America","Northern Africa","Central America","Middle Africa","Eastern Africa","Northern Europe","Eastern Africa","South America","Northern Europe","Melanesia","Northern Europe","Western Europe","South America","Polynesia",null,"Middle Africa","Western Africa","Western Asia","Western Europe","Western Africa","Southern Europe","Southern Europe","Northern America","Caribbean","Caribbean","Micronesia","Central America","Western Europe","Western Africa","Western Africa","South America","Caribbean","Antartica","Central America","Eastern Asia","Eastern Europe","Northern Europe","Southern Asia","South-Eastern Asia","Southern Asia","Western Asia","Northern Europe","Western Europe","Western Asia","Southern Europe","Caribbean","Eastern Asia","Western Europe","Western Asia","Central Asia","Eastern Africa","Micronesia","Southern Europe","Western Asia","Central Asia","South-Eastern Asia","Northern Europe","Western Asia","Southern Africa","Western Africa","Northern Africa","Western Europe","Northern Europe","Western Europe","Eastern Asia","Southern Europe","Eastern Africa","Eastern Africa","South-Eastern Asia","Southern Asia","Western Africa","Southern Europe","Micronesia","Caribbean","Western Africa","Eastern Africa","Eastern Africa","Central America","Micronesia","Eastern Europe","Western Europe","Eastern Asia","Southern Europe","Caribbean","Northern Africa","Eastern Africa","South-Eastern Asia","Southern Africa","Micronesia","Southern Asia","Western Europe","Melanesia","Australia and New Zealand","Central America","Western Africa","Western Africa","Polynesia","Australia and New Zealand","Eastern Asia","Western Asia","Micronesia","Northern Europe","Western Asia","Southern Asia","Micronesia","Western Asia","Central America","Melanesia","South-Eastern Asia","South America","South America","South-Eastern Asia","Polynesia","Eastern Europe","Southern Europe","Caribbean","Western Asia","Middle Africa","Eastern Africa","Eastern Europe","Eastern Europe","Eastern Africa","Caribbean","Caribbean","Western Africa","Caribbean","Caribbean","Northern America","Caribbean","Polynesia","Southern Europe","Middle Africa","Western Asia","Western Africa","Southern Europe","Eastern Africa","Western Africa","South-Eastern Asia","Caribbean","Eastern Europe","Southern Europe","Melanesia","Eastern Africa","Southern Africa","Antartica","Eastern Asia","Middle Africa","Southern Europe","South-Eastern Asia","Southern Asia","Northern Africa","South America","Northern Europe","Southern Africa","Northern Europe","Western Europe","Western Asia","Eastern Asia","Central Asia","Eastern Africa","South-Eastern Asia","South-Eastern Asia","Western Africa","Polynesia","Polynesia","Caribbean","Northern Africa","Western Asia","Central Asia","Caribbean","Polynesia","Eastern Africa","Eastern Europe","Western Asia","Northern Europe",null,"Northern America","South America","Central Asia","Melanesia","Southern Europe","South America","South-Eastern Asia","Caribbean","Polynesia","Northern Africa","Western Asia","Eastern Africa","Eastern Africa"],"UNREGION2":["Asia","Asia","Europe","Europe","Africa","Oceania","Europe","Africa","Americas","Antartica","Americas","Americas","Asia","Americas","Oceania","Europe","Asia","Americas","Asia","Asia","Americas","Europe","Europe","Americas","Africa","Americas","Asia","Americas","Americas","Europe","Africa","Antartica","Americas","Asia","Americas","Asia","Europe","Africa","Africa","Asia","Africa","Americas","Africa",null,"Americas","Africa","Africa","Americas","Asia","Asia","Americas","Asia","Americas","Africa","Oceania","Americas","Africa","Europe","Americas","Americas","Asia","Europe","Africa","Europe","Africa","Americas","Americas","Americas","Africa","Americas","Africa","Africa","Europe","Africa","Americas","Europe","Oceania","Europe","Europe","Americas","Oceania",null,"Africa","Africa","Asia","Europe","Africa","Europe","Europe","Americas","Americas","Americas","Oceania","Americas","Europe","Africa","Africa","Americas","Americas","Antartica","Americas","Asia","Europe","Europe","Asia","Asia","Asia","Asia","Europe","Europe","Asia","Europe","Americas","Asia","Europe","Asia","Asia","Africa","Oceania","Europe","Asia","Asia","Asia","Europe","Asia","Africa","Africa","Africa","Europe","Europe","Europe","Asia","Europe","Africa","Africa","Asia","Asia","Africa","Europe","Oceania","Americas","Africa","Africa","Africa","Americas","Oceania","Europe","Europe","Asia","Europe","Americas","Africa","Africa","Asia","Africa","Oceania","Asia","Europe","Oceania","Oceania","Americas","Africa","Africa","Oceania","Oceania","Asia","Asia","Oceania","Europe","Asia","Asia","Oceania","Asia","Americas","Oceania","Asia","Americas","Americas","Asia","Oceania","Europe","Europe","Americas","Asia","Africa","Africa","Europe","Europe","Africa","Americas","Americas","Africa","Americas","Americas","Americas","Americas","Oceania","Europe","Africa","Asia","Africa","Europe","Africa","Africa","Asia","Americas","Europe","Europe","Oceania","Africa","Africa","Antartica","Asia","Africa","Europe","Asia","Asia","Africa","Americas","Europe","Africa","Europe","Europe","Asia","Asia","Asia","Africa","Asia","Asia","Africa","Oceania","Oceania","Americas","Africa","Asia","Asia","Americas","Oceania","Africa","Europe","Asia","Europe",null,"Americas","Americas","Asia","Oceania","Europe","Americas","Asia","Americas","Oceania","Africa","Asia","Africa","Africa"],"continent":["Asia","Asia","Europe","Europe","Africa","Oceania","Europe","Africa","North America","Antarctica","North America","South America","Asia","South America","Oceania","Europe","Asia","North America","Asia","Asia","North America","Europe","Europe","North America","Africa","North America","Asia","South America","South America","Europe","Africa","Antarctica","South America","Asia","North America","Asia","Europe","Africa","Africa","Asia","Africa","North America","Africa","Asia","North America","Africa","Africa","South America","Asia","Asia","North America","Asia","South America","Africa","Oceania","North America","Africa","Europe","North America","South America","Asia","Europe","Africa","Europe","Africa","North America","North America","South America","Africa","North America","Africa","Africa","Europe","Africa","South America","Europe","Oceania","Europe","Europe","South America","Oceania","Africa","Africa","Africa","Asia","Europe","Africa","Europe","Europe","North America","North America","North America","Asia","North America","Europe","Africa","Africa","South America","North America","Antarctica","North America","Asia","Europe","Europe","Asia","Asia","Asia","Asia","Europe","Europe","Asia","Europe","North America","Asia","Europe","Asia","Asia","Africa","Oceania","Europe","Asia","Asia","Asia","Europe","Asia","Africa","Africa","Africa","Europe","Europe","Europe","Asia","Europe","Africa","Africa","Asia","Asia","Africa","Europe","Oceania","North America","Africa","Africa","Africa","North America","Oceania","Europe","Europe","Asia","Europe","North America","Africa","Africa","Asia","Africa","Oceania","Asia","Europe","Oceania","Oceania","North America","Africa","Africa","Oceania","Oceania","Asia","Asia","Asia","Europe","Asia","Asia","Asia","Asia","North America","Oceania","Asia","South America","South America","Asia","Oceania","Europe","Europe","North America","Asia","Africa","Africa","Europe","Europe","Africa","North America","North America","Africa","North America","North America","North America","North America","Oceania","Europe","Africa","Asia","Africa","Europe","Africa","Africa","Asia","North America","Europe","Europe","Oceania","Africa","Africa","Antarctica","Asia","Africa","Europe","Asia","Asia","Africa","South America","Europe","Africa","Europe","Europe","Asia","Asia","Asia","Africa","Asia","Asia","Africa","Oceania","Oceania","South America","Africa","Asia","Asia","North America","Oceania","Africa","Europe","Asia","Europe","Oceania","North America","South America","Asia","Oceania","Europe","South America","Asia","North America","Oceania","Africa","Asia","Africa","Africa"]},"columns":[{"id":"NAME","name":"NAME","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"ISO3","name":"ISO 3","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"ISO2","name":"ISO 2","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"NAME_ISO","name":"NAME ISO","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"NAME_FAO","name":"NAME FAO","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"NAME_LOCAL","name":"NAME LOCAL","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"SOVEREIGN","name":"SOVEREIGN","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"UNREGION1","name":"UNREGION 1","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"UNREGION2","name":"UNREGION 2","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"continent","name":"CONTINENT","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}}],"defaultPageSize":10,"showPageSizeOptions":false,"pageSizeOptions":[10,25,50,100],"paginationType":"numbers","showPagination":true,"showPageInfo":true,"minRows":1,"height":"auto","theme":{"color":"#333333","backgroundColor":"#FFFFFF","stripedColor":"rgba(128,128,128,0.05)","style":{"fontFamily":"Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"},"tableStyle":{"borderTopStyle":"none","borderTopWidth":"2px","borderTopColor":"#D3D3D3"},"headerStyle":{"borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"black"}},"elementId":"glnehwgudi","dataKey":"0c6a2c8272919c97cb44b1a14eaaed3b"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.style","tag.attribs.columns.1.style","tag.attribs.columns.2.style","tag.attribs.columns.3.style","tag.attribs.columns.4.style","tag.attribs.columns.5.style","tag.attribs.columns.6.style","tag.attribs.columns.7.style","tag.attribs.columns.8.style","tag.attribs.columns.9.style"],"jsHooks":[]}</script>
+<div id="orxcffvezp" class="reactable html-widget" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="orxcffvezp">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"NAME":["Afghanistan","Akrotiri and Dhekelia","Åland","Albania","Algeria","American Samoa","Andorra","Angola","Anguilla","Antarctica","Antigua and Barbuda","Argentina","Armenia","Aruba","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bermuda","Bhutan","Bolivia","Bonaire, Saint Eustatius and Saba","Bosnia and Herzegovina","Botswana","Bouvet Island","Brazil","British Indian Ocean Territory","British Virgin Islands","Brunei","Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroon","Canada","Cabo Verde","Caspian Sea","Cayman Islands","Central African Republic","Chad","Chile","China","Christmas Island","Clipperton Island","Cocos Islands","Colombia","Comoros","Cook Islands","Costa Rica","Côte d'Ivoire","Croatia","Cuba","Curaçao","Cyprus","Czech Republic","Democratic Republic of the Congo","Denmark","Djibouti","Dominican Republic","Dominica","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Ethiopia","Falkland Islands","Faroe Islands","Fiji","Finland","France","French Guiana","French Polynesia","French Southern Territories","Gabon","Gambia","Georgia","Germany","Ghana","Gibraltar","Greece","Greenland","Grenada","Guadeloupe","Guam","Guatemala","Guernsey","Guinea-Bissau","Guinea","Guyana","Haiti","Heard Island and McDonald Islands","Honduras","Hong Kong","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Isle of Man","Israel","Italy","Jamaica","Japan","Jersey","Jordan","Kazakhstan","Kenya","Kiribati","Kosovo","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Macao","Macedonia","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Martinique","Mauritania","Mauritius","Mayotte","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Montserrat","Morocco","Mozambique","Myanmar","Namibia","Nauru","Nepal","Netherlands","New Caledonia","New Zealand","Nicaragua","Niger","Nigeria","Niue","Norfolk Island","North Korea","Northern Cyprus","Northern Mariana Islands","Norway","Oman","Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paracel Islands","Paraguay","Peru","Philippines","Pitcairn Islands","Poland","Portugal","Puerto Rico","Qatar","Congo","Réunion","Romania","Russia","Rwanda","Saint-Barthélemy","Saint-Martin","Saint Helena","Saint Kitts and Nevis","Saint Lucia","Saint Pierre and Miquelon","Saint Vincent and the Grenadines","Samoa","San Marino","São Tomé and Príncipe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Sint Maarten","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Georgia and the South Sandwich Islands","South Korea","South Sudan","Spain","Spratly Islands","Sri Lanka","Sudan","Suriname","Svalbard and Jan Mayen","Eswatini","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","East Timor","Togo","Tokelau","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Turks and Caicos Islands","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States Minor Outlying Islands","United States","Uruguay","Uzbekistan","Vanuatu","Vatican City","Venezuela","Vietnam","Virgin Islands, U.S.","Wallis and Futuna","Western Sahara","Yemen","Zambia","Zimbabwe"],"ISO3":["AFG","XAD","ALA","ALB","DZA","ASM","AND","AGO","AIA","ATA","ATG","ARG","ARM","ABW","AUS","AUT","AZE","BHS","BHR","BGD","BRB","BLR","BEL","BLZ","BEN","BMU","BTN","BOL","BES","BIH","BWA","BVT","BRA","IOT","VGB","BRN","BGR","BFA","BDI","KHM","CMR","CAN","CPV","XCA","CYM","CAF","TCD","CHL","CHN","CXR","XCL","CCK","COL","COM","COK","CRI","CIV","HRV","CUB","CUW","CYP","CZE","COD","DNK","DJI","DOM","DMA","ECU","EGY","SLV","GNQ","ERI","EST","ETH","FLK","FRO","FJI","FIN","FRA","GUF","PYF","ATF","GAB","GMB","GEO","DEU","GHA","GIB","GRC","GRL","GRD","GLP","GUM","GTM","GGY","GNB","GIN","GUY","HTI","HMD","HND","HKG","HUN","ISL","IND","IDN","IRN","IRQ","IRL","IMN","ISR","ITA","JAM","JPN","JEY","JOR","KAZ","KEN","KIR","XKO","KWT","KGZ","LAO","LVA","LBN","LSO","LBR","LBY","LIE","LTU","LUX","MAC","MKD","MDG","MWI","MYS","MDV","MLI","MLT","MHL","MTQ","MRT","MUS","MYT","MEX","FSM","MDA","MCO","MNG","MNE","MSR","MAR","MOZ","MMR","NAM","NRU","NPL","NLD","NCL","NZL","NIC","NER","NGA","NIU","NFK","PRK","XNC","MNP","NOR","OMN","PAK","PLW","PSE","PAN","PNG","XPI","PRY","PER","PHL","PCN","POL","PRT","PRI","QAT","COG","REU","ROU","RUS","RWA","BLM","MAF","SHN","KNA","LCA","SPM","VCT","WSM","SMR","STP","SAU","SEN","SRB","SYC","SLE","SGP","SXM","SVK","SVN","SLB","SOM","ZAF","SGS","KOR","SSD","ESP","XSP","LKA","SDN","SUR","SJM","SWZ","SWE","CHE","SYR","TWN","TJK","TZA","THA","TLS","TGO","TKL","TON","TTO","TUN","TUR","TKM","TCA","TUV","UGA","UKR","ARE","GBR","UMI","USA","URY","UZB","VUT","VAT","VEN","VNM","VIR","WLF","ESH","YEM","ZMB","ZWE"],"ISO2":["AF",null,"AX","AL","DZ","AS","AD","AO","AI","AQ","AG","AR","AM","AW","AU","AT","AZ","BS","BH","BD","BB","BY","BE","BZ","BJ","BM","BT","BO","AN","BA","BW","BV","BR","IO","VG","BN","BG","BF","BI","KH","CM","CA","CV",null,"KY","CF","TD","CL","CN","CX",null,"CC","CO","KM","CK","CR","CI","HR","CU","CW","CY","CZ","CD","DK","DJ","DO","DM","EC","EG","SV","GQ","ER","EE","ET","FK","FO","FJ","FI","FR","GF","PF","TF","GA","GM","GE","DE","GH","GI","GR","GL","GD","GP","GU","GT","GG","GW","GN","GY","HT","HM","HN","HK","HU","IS","IN","ID","IR","IQ","IE","IM","IL","IT","JM","JP","JE","JO","KZ","KE","KI","XK","KW","KG","LA","LV","LB","LS","LR","LY","LI","LT","LU","MO","MK","MG","MW","MY","MV","ML","MT","MH","MQ","MR","MU","YT","MX","FM","MD","MC","MN","ME","MS","MA","MZ","MM","NA","NR","NP","NL","NC","NZ","NI","NE","NG","NU","NF","KP",null,"MP","NO","OM","PK","PW","PS","PA","PG",null,"PY","PE","PH","PN","PL","PT","PR","QA","CG","RE","RO","RU","RW","BL","MF","SH","KN","LC","PM","VC","WS","SM","ST","SA","SN","RS","SC","SL","SG","SX","SK","SI","SB","SO","ZA","GS","KR","SS","ES",null,"LK","SD","SR","SJ","SZ","SE","CH","SY","TW","TJ","TZ","TH","TL","TG","TK","TO","TT","TN","TR","TM","TC","TV","UG","UA","AE","GB","UM","US","UY","UZ","VU","VA","VE","VN","VI","WF","EH","YE","ZM","ZW"],"NAME_ISO":["AFGHANISTAN",null,"ÅLAND ISLANDS","ALBANIA","ALGERIA","AMERICAN SAMOA","ANDORRA","ANGOLA","ANGUILLA","ANTARCTICA","ANTIGUA AND BARBUDA","ARGENTINA","ARMENIA","ARUBA","AUSTRALIA","AUSTRIA","AZERBAIJAN","BAHAMAS","BAHRAIN","BANGLADESH","BARBADOS","BELARUS","BELGIUM","BELIZE","BENIN","BERMUDA","BHUTAN","BOLIVIA","BONAIRE, SAINT EUSTATIUS AND SABA","BOSNIA AND HERZEGOVINA","BOTSWANA","BOUVET ISLAND","BRAZIL","BRITISH INDIAN OCEAN TERRITORY","VIRGIN ISLANDS, BRITISH","BRUNEI DARUSSALAM","BULGARIA","BURKINA FASO","BURUNDI","CAMBODIA","CAMEROON","CANADA","CAPE VERDE",null,"CAYMAN ISLANDS","CENTRAL AFRICAN REPUBLIC","CHAD","CHILE","CHINA","CHRISTMAS ISLAND",null,"COCOS (KEELING) ISLANDS","COLOMBIA","COMOROS","COOK ISLANDS","COSTA RICA","COTE D'IVOIRE","CROATIA","CUBA","CURACAO","CYPRUS","CZECH REPUBLIC","CONGO, THE DEMOCRATIC REPUBLIC OF THE","DENMARK","DJIBOUTI","DOMINICAN REPUBLIC","DOMINICA","ECUADOR","EGYPT","EL SALVADOR","EQUATORIAL GUINEA","ERITREA","ESTONIA","ETHIOPIA","FALKLAND ISLANDS (MALVINAS)","FAROE ISLANDS","FIJI","FINLAND","FRANCE","FRENCH GUIANA","FRENCH POLYNESIA","FRENCH SOUTHERN TERRITORIES","GABON","GAMBIA","GEORGIA","GERMANY","GHANA","GIBRALTAR","GREECE","GREENLAND","GRENADA","GUADELOUPE","GUAM","GUATEMALA","GUERNSEY","GUINEA-BISSAU","GUINEA","GUYANA","HAITI","HEARD ISLAND AND MCDONALD ISLANDS","HONDURAS","HONG KONG","HUNGARY","ICELAND","INDIA","INDONESIA","IRAN, ISLAMIC REPUBLIC OF","IRAQ","IRELAND","ISLE OF MAN","ISRAEL","ITALY","JAMAICA","JAPAN","JERSEY","JORDAN","KAZAKHSTAN","KENYA","KIRIBATI",null,"KUWAIT","KYRGYZSTAN","LAO PEOPLE'S DEMOCRATIC REPUBLIC","LATVIA","LEBANON","LESOTHO","LIBERIA","LIBYAN ARAB JAMAHIRIYA","LIECHTENSTEIN","LITHUANIA","LUXEMBOURG","MACAO","NORTH MACEDONIA","MADAGASCAR","MALAWI","MALAYSIA","MALDIVES","MALI","MALTA","MARSHALL ISLANDS","MARTINIQUE","MAURITANIA","MAURITIUS","MAYOTTE","MEXICO","MICRONESIA, FEDERATED STATES OF","MOLDOVA, REPUBLIC OF","MONACO","MONGOLIA","MONTENEGRO","MONTSERRAT","MOROCCO","MOZAMBIQUE","MYANMAR","NAMIBIA","NAURU","NEPAL","NETHERLANDS","NEW CALEDONIA","NEW ZEALAND","NICARAGUA","NIGER","NIGERIA","NIUE","NORFOLK ISLAND","KOREA, DEMOCRATIC PEOPLE'S REPUBLIC OF",null,"NORTHERN MARIANA ISLANDS","NORWAY","OMAN","PAKISTAN","PALAU","PALESTINIAN TERRITORY, OCCUPIED","PANAMA","PAPUA NEW GUINEA",null,"PARAGUAY","PERU","PHILIPPINES","PITCAIRN","POLAND","PORTUGAL","PUERTO RICO","QATAR","CONGO","REUNION","ROMANIA","RUSSIAN FEDERATION","RWANDA","SAINT BARTHELEMY","SAINT MARTIN","SAINT HELENA","SAINT KITTS AND NEVIS","SAINT LUCIA","SAINT PIERRE AND MIQUELON","SAINT VINCENT AND THE GRENADINES","SAMOA","SAN MARINO","SAO TOME AND PRINCIPE","SAUDI ARABIA","SENEGAL","SERBIA","SEYCHELLES","SIERRA LEONE","SINGAPORE","SINT MAARTEN","SLOVAKIA","SLOVENIA","SOLOMON ISLANDS","SOMALIA","SOUTH AFRICA","SOUTH GEORGIA AND THE SOUTH SANDWICH ISLANDS","KOREA, REPUBLIC OF","SOUTH SUDAN","SPAIN",null,"SRI LANKA","SUDAN","SURINAME","SVALBARD AND JAN MAYEN","SWAZILAND","SWEDEN","SWITZERLAND","SYRIAN ARAB REPUBLIC","TAIWAN, PROVINCE OF CHINA","TAJIKISTAN","TANZANIA, UNITED REPUBLIC OF","THAILAND","TIMOR-LESTE","TOGO","TOKELAU","TONGA","TRINIDAD AND TOBAGO","TUNISIA","TURKEY","TURKMENISTAN","TURKS AND CAICOS ISLANDS","TUVALU","UGANDA","UKRAINE","UNITED ARAB EMIRATES","UNITED KINGDOM","UNITED STATES MINOR OUTLYING ISLANDS","UNITED STATES","URUGUAY","UZBEKISTAN","VANUATU","HOLY SEE (VATICAN CITY STATE)","VENEZUELA","VIET NAM","VIRGIN ISLANDS, U.S.","WALLIS AND FUTUNA","WESTERN SAHARA","YEMEN","ZAMBIA","ZIMBABWE"],"NAME_FAO":["Afghanistan",null,null,"Albania","Algeria","American Samoa","Andorra","Angola",null,null,"Antigua and Barbuda","Argentina","Armenia","Aruba","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bermuda","Bhutan","Bolivia (Plurinational State of)",null,"Bosnia and Herzegovina","Botswana",null,"Brazil",null,"British Virgin Islands","Brunei Darussalam","Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroon","Canada","Cabo Verde",null,"Cayman Islands","Central African Republic","Chad","Chile","China, mainland",null,null,null,"Colombia","Comoros","Cook Islands","Costa Rica","Côte d'Ivoire","Croatia","Cuba",null,"Cyprus","Czechia","Democratic Republic of the Congo","Denmark","Djibouti","Dominican Republic","Dominica","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Ethiopia",null,"Faroe Islands","Fiji","Finland","France","French Guyana","French Polynesia",null,"Gabon","Gambia","Georgia","Germany","Ghana",null,"Greece",null,"Grenada","Guadeloupe","Guam","Guatemala",null,"Guinea-Bissau","Guinea","Guyana","Haiti",null,"Honduras","China, Hong Kong SAR","Hungary","Iceland","India","Indonesia","Iran (Islamic Republic of)","Iraq","Ireland","Isle of Man","Israel","Italy","Jamaica","Japan","Jersey","Jordan","Kazakhstan","Kenya","Kiribati",null,"Kuwait","Kyrgyzstan","Lao People's Democratic Republic","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","China, Macao SAR","North Macedonia","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Martinique","Mauritania","Mauritius","Mayotte","Mexico","Micronesia","Republic of Moldova",null,"Mongolia","Montenegro","Montserrat","Morocco","Mozambique","Myanmar","Namibia",null,"Nepal","Netherlands","New Caledonia","New Zealand","Nicaragua","Niger","Nigeria","Niue",null,"Democratic People's Republic of Korea",null,"Northern Mariana Is","Norway","Oman","Pakistan","Palau","Palestine","Panama","Papua New Guinea",null,"Paraguay","Peru","Philippines",null,"Poland","Portugal","Puerto Rico","Qatar","Congo","Réunion","Romania","Russian Federation","Rwanda",null,null,"Saint Helena","Saint Kitts and Nevis","Saint Lucia","Saint Pierre & Miquelon","Saint Vincent and the Grenadines","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore",null,"Slovakia","Slovenia","Solomon Islands","Somalia","South Africa",null,"Republic of Korea","South Sudan","Spain",null,"Sri Lanka","Sudan","Suriname",null,"Eswatini","Sweden","Switzerland","Syrian Arab Republic","China, Taiwan Province of","Tajikistan","United Republic of Tanzania","Thailand","Timor-Leste","Togo",null,"Tonga","Trinidad and Tobago","Tunisia","Türkiye","Turkmenistan","Turks and Caicos Islands","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom of Great Britain and Northern Ireland",null,"United States of America","Uruguay","Uzbekistan","Vanuatu",null,"Venezuela (Bolivarian Republic of)","Viet Nam","United States Virgin Islands","Wallis and Futuna","Western Sahara","Yemen","Zambia","Zimbabwe"],"NAME_LOCAL":["Afghanestan","Akrotiri and Dhekelia","Åland","Shqiperia","Al Jaza'ir","American Samoa","Andorra","Angola","Anguilla","Antarctica","Antigua and Barbuda","Argentina","Hayastan","Aruba","Australia","Österreich","Azarbaycan","Bahamas","Al Bahrayn","Bangladesh","Barbados","Byelarus|Byelorussia","Belgique|Belgie|Belgien","Belize","Benin","Bermuda","Bhutan","Bolivia","Bonaire, Saint Eustatius and Saba","Bosna i Hercegovina","Botswana","Bouvet Island","Brasil","British Indian Ocean Territory","British Virgin Islands","Negara Brunei Darussalam","Bulgaria","Burkina Faso","Burundi","Kampuchea","Cameroon","Canada","Cabo Verde","Caspian Sea","Cayman Islands","Republique Centrafricaine","Tchad","Chile","Zhong Guo","Christmas Island","Clipperton Island","Cocos (Keeling) Islands","Colombia","Comores","Cook Islands","Costa Rica","Côte d'Ivoire","Hrvatska","Cuba","Curaçao","Kibris, Kypros","Česká republika","République Démocratique du Congo|Zaire","Danmark","Djibouti","República Dominicana","Dominica","Ecuador","Misr","El Salvador","Guinea Ecuatorial","Hagere Ertra","Eesti Vabariik","Ityop'iya","Islas Malvinas","Føroyar","Fiji","Suomi|Suomen Tasavalta","France","Guyane","Polynésie Française","Terres Australes et Antarctiques Françaises","Gabon","The Gambia","Sak'art'velo","Deutschland","Ghana","Gibraltar","Ellas or Ellada","Kalaallit Nunaat","Grenada","Guadeloupe","Guam","Guatemala","Guernsey","Guiné-Bissau","Guinee","Guyana","Haiti","Heard and Mc Donald","Honduras","Hong Kong","Magyarorszag","Lyoveldio Island","Bharat","Indonesia","Iran","Iraq","Éire","Isle of Man","Yisra'el","Italia","Jamaica","Nippon","Jersey","Al Urdun","Qazaqstan","Kenya","Kiribati|Kiribas","Kosova","Al Kuwayt","Kyrgyz Respublikasy","Lao","Latvija","Lubnan","Lesotho","Liberia","Libiyah","Liechtenstein","Lietuva","Luxembourg|Letzebuerg","Aomen","Makedonija","Madagascar","Malawi","Malaysia","Dhivehi Raajje","Mali","Malta","Marshall Islands","Martinique","Muritaniyah","Mauritius","Mayotte","México|Estados Unidos Mexicanos","Micronesia","Moldova","Monaco","Mongol Uls","Crna Gora","Montserrat","Al Maghrib","Mocambique","Myanma Naingngandaw","Namibia","Nauru","Nepal","Nederland","Nouvelle-Calédonie","Aotearoa","Nicaragua","Niger","Nigeria","Niue","Norfolk Island","Choson",null,"Northern Mariana Islands","Norge","Saltanat Uman","Pakistan","Belau","Filastin","Panamá","Papua Niu Gini","Paracel Islands","Paraguay","Perú","Pilipinas","Pitcairn Island","Polska","Portugal","Puerto Rico","Dawlat Qatar","République du Congo","Réunion|Ile de la Réunion","Romania","Rossiya","Rwanda","Saint-Barthélemy","Saint-Martin","Saint Helena","Saint Kitts and Nevis","Saint Lucia","Saint-Pierre et Miquelon","Saint Vincent and the Grenadines","Samoa","San Marino","São Tomé and Príncipe","Al Arabiyah as Suudiyah","Senegal","Srbija","Seychelles","Sierra Leone","Singapore","Sint Maarten","Slovensko","Slovenija|Republika Slovenija","Solomon Islands","Somalia","South Africa","South Georgia and the South Sandwich Islands","Han-guk",null,"España","Spratly Islands","Sri Lanka","As-Sudan","Suriname","Svalbard and Jan Mayen","Eswatini","Sverige","Schweiz|Suisse|Svizzera","Suriyah","T'ai-wan","Jumhurii Tojikiston","Tanzania","Prathet Thai","Timor-Leste","Togo|Republique Togolaise","Tokelau","Tonga","Trinidad and Tobago","Tunis","Turkiye","Turkmenistan","Turks and Caicos Islands","Tuvalu","Uganda","Ukrayina","Al Imarat al Arabiyah al Muttahidah","United Kingdom","United States Minor Outlying Island","United States","Uruguay|República Oriental del Uruguay","Uzbekiston Respublikasi","Vanuatu","Status Civitatis Vaticanæ","Venezuela","Viet Nam","Virgin Islands","Wallis et Futuna","Western Sahara","Al Yaman","Zambia","Zimbabwe"],"SOVEREIGN":["Afghanistan","United Kingdom","Finland","Albania","Algeria","United States","Andorra","Angola","United Kingdom",null,"Antigua and Barbuda","Argentina","Armenia","Nederland","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgie","Belize","Benin","United Kingdom","Bhutan","Bolivia","Nederland","Bosnia and Herzegovina","Botswana","Norway","Brazil","United Kingdom","United Kingdom","Brunei Darussalam","Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroun","Canada","Cabo Verde",null,"United Kingdom","Central African Republic","Chad","Chile","China","Australia","France","Australia","Colombia","Comoros","New Zealand","Costa Rica","Côte d'Ivoire","Croatia","Cuba","Netherlands","Cyprus","Czech Republic","The Democratic Republic of the Congo","Denmark","Djibouti","República Dominicana","Dominica","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Ethiopia","United Kingdom","Denmark","Fiji","Finland","France","France","France","France","Gabon","Gambia","Georgia","Germany","Ghana","United Kingdom","Hellas","Denmark","Grenada","France","United States","Guatemala","United Kingdom","Guinea-Bissau","Guinea","Guyana","Haiti","Australia","Honduras","China","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","United Kingdom","Israel","Italy","Jamaica","Japan","United Kingdom","Jordan","Kazakhstan","Kenya","Kiribati","Kosova","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","China","Macedonia","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","France","Mauritania","Mauritius","France","México","Micronesia","Moldova","Monaco","Mongolia","Montenegro","United Kingdom","Morocco","Mozambique","Myanmar","Namibia","Nauru","Nepal","Nederland","France","New Zealand","Nicaragua","Niger","Nigeria","New Zealand","Australia","North Korea","Northern Cyprus (Disputed)","United States","Norway","Oman","Pakistan","United States","Palestina","Panamá","Papua New Guinea",null,"Paraguay","Perú","Pilipinas","United Kingdom","Poland","Portugal","United States","Qatar","Republic of Congo","France","Romania","Russia","Rwanda","France","France","United Kingdom","Saint Kitts and Nevis","Saint Lucia","France","Saint Vincent and the Grenadines","Samoa","San Marino","São Tomé and Príncipe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Netherlands","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","United Kingdom","South Korea","South Sudan","España","Disputed (Pilipinas, China, Vietnam)","Sri Lanka","Sudan","Suriname","Norway","Eswatini","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","New Zealand","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","United Kingdom","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","United States","Uruguay","Uzbekistan","Vanuatu","Vatican","Venezuela","Vietnam","United States","France","Western Sahara","Yemen","Zambia","Zimbabwe"],"UNREGION1":["Southern Asia","Western Asia","Northern Europe","Southern Europe","Northern Africa","Polynesia","Southern Europe","Middle Africa","Caribbean","Antartica","Caribbean","South America","Western Asia","Caribbean","Australia and New Zealand","Western Europe","Western Asia","Caribbean","Western Asia","Southern Asia","Caribbean","Eastern Europe","Western Europe","Central America","Western Africa","Northern America","Southern Asia","South America","Caribbean","Southern Europe","Southern Africa","Antartica","South America","Southern Asia","Caribbean","South-Eastern Asia","Eastern Europe","Western Africa","Eastern Africa","South-Eastern Asia","Middle Africa","Northern America","Western Africa",null,"Caribbean","Middle Africa","Middle Africa","South America","Eastern Asia","South-Eastern Asia","Central America","South-Eastern Asia","South America","Eastern Africa","Polynesia","Central America","Western Africa","Southern Europe","Caribbean","Caribbean","Western Asia","Eastern Europe","Middle Africa","Northern Europe","Eastern Africa","Caribbean","Caribbean","South America","Northern Africa","Central America","Middle Africa","Eastern Africa","Northern Europe","Eastern Africa","South America","Northern Europe","Melanesia","Northern Europe","Western Europe","South America","Polynesia",null,"Middle Africa","Western Africa","Western Asia","Western Europe","Western Africa","Southern Europe","Southern Europe","Northern America","Caribbean","Caribbean","Micronesia","Central America","Western Europe","Western Africa","Western Africa","South America","Caribbean","Antartica","Central America","Eastern Asia","Eastern Europe","Northern Europe","Southern Asia","South-Eastern Asia","Southern Asia","Western Asia","Northern Europe","Western Europe","Western Asia","Southern Europe","Caribbean","Eastern Asia","Western Europe","Western Asia","Central Asia","Eastern Africa","Micronesia","Southern Europe","Western Asia","Central Asia","South-Eastern Asia","Northern Europe","Western Asia","Southern Africa","Western Africa","Northern Africa","Western Europe","Northern Europe","Western Europe","Eastern Asia","Southern Europe","Eastern Africa","Eastern Africa","South-Eastern Asia","Southern Asia","Western Africa","Southern Europe","Micronesia","Caribbean","Western Africa","Eastern Africa","Eastern Africa","Central America","Micronesia","Eastern Europe","Western Europe","Eastern Asia","Southern Europe","Caribbean","Northern Africa","Eastern Africa","South-Eastern Asia","Southern Africa","Micronesia","Southern Asia","Western Europe","Melanesia","Australia and New Zealand","Central America","Western Africa","Western Africa","Polynesia","Australia and New Zealand","Eastern Asia","Western Asia","Micronesia","Northern Europe","Western Asia","Southern Asia","Micronesia","Western Asia","Central America","Melanesia","South-Eastern Asia","South America","South America","South-Eastern Asia","Polynesia","Eastern Europe","Southern Europe","Caribbean","Western Asia","Middle Africa","Eastern Africa","Eastern Europe","Eastern Europe","Eastern Africa","Caribbean","Caribbean","Western Africa","Caribbean","Caribbean","Northern America","Caribbean","Polynesia","Southern Europe","Middle Africa","Western Asia","Western Africa","Southern Europe","Eastern Africa","Western Africa","South-Eastern Asia","Caribbean","Eastern Europe","Southern Europe","Melanesia","Eastern Africa","Southern Africa","Antartica","Eastern Asia","Middle Africa","Southern Europe","South-Eastern Asia","Southern Asia","Northern Africa","South America","Northern Europe","Southern Africa","Northern Europe","Western Europe","Western Asia","Eastern Asia","Central Asia","Eastern Africa","South-Eastern Asia","South-Eastern Asia","Western Africa","Polynesia","Polynesia","Caribbean","Northern Africa","Western Asia","Central Asia","Caribbean","Polynesia","Eastern Africa","Eastern Europe","Western Asia","Northern Europe",null,"Northern America","South America","Central Asia","Melanesia","Southern Europe","South America","South-Eastern Asia","Caribbean","Polynesia","Northern Africa","Western Asia","Eastern Africa","Eastern Africa"],"UNREGION2":["Asia","Asia","Europe","Europe","Africa","Oceania","Europe","Africa","Americas","Antartica","Americas","Americas","Asia","Americas","Oceania","Europe","Asia","Americas","Asia","Asia","Americas","Europe","Europe","Americas","Africa","Americas","Asia","Americas","Americas","Europe","Africa","Antartica","Americas","Asia","Americas","Asia","Europe","Africa","Africa","Asia","Africa","Americas","Africa",null,"Americas","Africa","Africa","Americas","Asia","Asia","Americas","Asia","Americas","Africa","Oceania","Americas","Africa","Europe","Americas","Americas","Asia","Europe","Africa","Europe","Africa","Americas","Americas","Americas","Africa","Americas","Africa","Africa","Europe","Africa","Americas","Europe","Oceania","Europe","Europe","Americas","Oceania",null,"Africa","Africa","Asia","Europe","Africa","Europe","Europe","Americas","Americas","Americas","Oceania","Americas","Europe","Africa","Africa","Americas","Americas","Antartica","Americas","Asia","Europe","Europe","Asia","Asia","Asia","Asia","Europe","Europe","Asia","Europe","Americas","Asia","Europe","Asia","Asia","Africa","Oceania","Europe","Asia","Asia","Asia","Europe","Asia","Africa","Africa","Africa","Europe","Europe","Europe","Asia","Europe","Africa","Africa","Asia","Asia","Africa","Europe","Oceania","Americas","Africa","Africa","Africa","Americas","Oceania","Europe","Europe","Asia","Europe","Americas","Africa","Africa","Asia","Africa","Oceania","Asia","Europe","Oceania","Oceania","Americas","Africa","Africa","Oceania","Oceania","Asia","Asia","Oceania","Europe","Asia","Asia","Oceania","Asia","Americas","Oceania","Asia","Americas","Americas","Asia","Oceania","Europe","Europe","Americas","Asia","Africa","Africa","Europe","Europe","Africa","Americas","Americas","Africa","Americas","Americas","Americas","Americas","Oceania","Europe","Africa","Asia","Africa","Europe","Africa","Africa","Asia","Americas","Europe","Europe","Oceania","Africa","Africa","Antartica","Asia","Africa","Europe","Asia","Asia","Africa","Americas","Europe","Africa","Europe","Europe","Asia","Asia","Asia","Africa","Asia","Asia","Africa","Oceania","Oceania","Americas","Africa","Asia","Asia","Americas","Oceania","Africa","Europe","Asia","Europe",null,"Americas","Americas","Asia","Oceania","Europe","Americas","Asia","Americas","Oceania","Africa","Asia","Africa","Africa"],"continent":["Asia","Asia","Europe","Europe","Africa","Oceania","Europe","Africa","North America","Antarctica","North America","South America","Asia","South America","Oceania","Europe","Asia","North America","Asia","Asia","North America","Europe","Europe","North America","Africa","North America","Asia","South America","South America","Europe","Africa","Antarctica","South America","Asia","North America","Asia","Europe","Africa","Africa","Asia","Africa","North America","Africa","Asia","North America","Africa","Africa","South America","Asia","Asia","North America","Asia","South America","Africa","Oceania","North America","Africa","Europe","North America","South America","Asia","Europe","Africa","Europe","Africa","North America","North America","South America","Africa","North America","Africa","Africa","Europe","Africa","South America","Europe","Oceania","Europe","Europe","South America","Oceania","Africa","Africa","Africa","Asia","Europe","Africa","Europe","Europe","North America","North America","North America","Asia","North America","Europe","Africa","Africa","South America","North America","Antarctica","North America","Asia","Europe","Europe","Asia","Asia","Asia","Asia","Europe","Europe","Asia","Europe","North America","Asia","Europe","Asia","Asia","Africa","Oceania","Europe","Asia","Asia","Asia","Europe","Asia","Africa","Africa","Africa","Europe","Europe","Europe","Asia","Europe","Africa","Africa","Asia","Asia","Africa","Europe","Oceania","North America","Africa","Africa","Africa","North America","Oceania","Europe","Europe","Asia","Europe","North America","Africa","Africa","Asia","Africa","Oceania","Asia","Europe","Oceania","Oceania","North America","Africa","Africa","Oceania","Oceania","Asia","Asia","Asia","Europe","Asia","Asia","Asia","Asia","North America","Oceania","Asia","South America","South America","Asia","Oceania","Europe","Europe","North America","Asia","Africa","Africa","Europe","Europe","Africa","North America","North America","Africa","North America","North America","North America","North America","Oceania","Europe","Africa","Asia","Africa","Europe","Africa","Africa","Asia","North America","Europe","Europe","Oceania","Africa","Africa","Antarctica","Asia","Africa","Europe","Asia","Asia","Africa","South America","Europe","Africa","Europe","Europe","Asia","Asia","Asia","Africa","Asia","Asia","Africa","Oceania","Oceania","South America","Africa","Asia","Asia","North America","Oceania","Africa","Europe","Asia","Europe","Oceania","North America","South America","Asia","Oceania","Europe","South America","Asia","North America","Oceania","Africa","Asia","Africa","Africa"]},"columns":[{"id":"NAME","name":"NAME","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"ISO3","name":"ISO 3","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"ISO2","name":"ISO 2","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"NAME_ISO","name":"NAME ISO","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"NAME_FAO","name":"NAME FAO","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"NAME_LOCAL","name":"NAME LOCAL","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"SOVEREIGN","name":"SOVEREIGN","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"UNREGION1","name":"UNREGION 1","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"UNREGION2","name":"UNREGION 2","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"continent","name":"CONTINENT","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}}],"defaultPageSize":10,"showPageSizeOptions":false,"pageSizeOptions":[10,25,50,100],"paginationType":"numbers","showPagination":true,"showPageInfo":true,"minRows":1,"height":"auto","theme":{"color":"#333333","backgroundColor":"#FFFFFF","stripedColor":"rgba(128,128,128,0.05)","style":{"fontFamily":"Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"},"tableStyle":{"borderTopStyle":"none","borderTopWidth":"2px","borderTopColor":"#D3D3D3"},"headerStyle":{"borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"black"}},"elementId":"orxcffvezp","dataKey":"0c6a2c8272919c97cb44b1a14eaaed3b"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.style","tag.attribs.columns.1.style","tag.attribs.columns.2.style","tag.attribs.columns.3.style","tag.attribs.columns.4.style","tag.attribs.columns.5.style","tag.attribs.columns.6.style","tag.attribs.columns.7.style","tag.attribs.columns.8.style","tag.attribs.columns.9.style"],"jsHooks":[]}</script>
 </div>
 </div>
 </div>
@@ -728,7 +771,7 @@ tbody tr:last-child {
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Taking a smaller country to save data download time</span></span>
-<span id="cb4-2">switzerland <span class="ot" style="color: #003B4F;
+<span id="cb4-2">switzerland_raster <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> geodata<span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -750,7 +793,9 @@ font-style: inherit;">tempdir</span>()</span>
 <span id="cb4-7"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># With ggplot2</span></span>
-<span id="cb4-8"><span class="fu" style="color: #4758AB;
+<span id="cb4-8">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -759,7 +804,7 @@ font-style: inherit;">+</span></span>
 background-color: null;
 font-style: inherit;">geom_spatraster</span>(<span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">data =</span> switzerland) <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">data =</span> switzerland_raster) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
 <span id="cb4-10">  <span class="fu" style="color: #4758AB;
@@ -820,18 +865,833 @@ background-color: null;
 font-style: inherit;">50</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"pt"</span>)</span>
-<span id="cb4-22">  )</span></code></pre></div>
+<span id="cb4-22">  )</span>
+<span id="cb4-23"></span>
+<span id="cb4-24"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb4-25">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb4-26">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>,</span>
+<span id="cb4-27">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb4-28">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"elevation_raster_maps_2.png"</span>),</span>
+<span id="cb4-29">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1400</span>,</span>
+<span id="cb4-30">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2000</span>,</span>
+<span id="cb4-31">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span></span>
+<span id="cb4-32">)</span></code></pre></div>
 </details>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><a href="elevation_raster_maps_files/figure-html/unnamed-chunk-4-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/elevation_raster_maps_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></a></p>
+</div>
+<div id="fig-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/elevation_raster_maps_2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;2: Base raster map of Switzerland from {geodata}"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/elevation_raster_maps_2.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Base raster map of Switzerland from {geodata}
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="getting-outline-map-of-switzerland-sf" class="level2">
+<h2 class="anchored" data-anchor-id="getting-outline-map-of-switzerland-sf">Getting outline map of Switzerland {sf}</h2>
+<p>This code creates two visualizations of Switzerland using <code>ggplot2</code>. The first plot is a vector map generated from the <code>{rnaturalearth}</code> package, displaying Switzerland’s boundaries at a large scale (1:10 million). The second plot combines this vector boundary with a high-resolution raster elevation map from <code>switzerland_raster</code>, highlighting elevation levels up to 6000 meters. The raster data is overlaid with a transparent outline of Switzerland and utilizes a squished colour scale for elevation visualization.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">switzerland_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> rnaturalearth<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ne_countries</span>(</span>
+<span id="cb5-2">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">country =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Switzerland"</span>,</span>
+<span id="cb5-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">returnclass =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sf"</span>,</span>
+<span id="cb5-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">scale =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"large"</span></span>
+<span id="cb5-5">)</span>
+<span id="cb5-6"></span>
+<span id="cb5-7">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> switzerland_vector) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb5-10">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Vector Map of Switzerland from {rnaturalearth}"</span>,</span>
+<span id="cb5-11">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Scale of 1:10 million"</span>,</span>
+<span id="cb5-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Elevation (metres)"</span></span>
+<span id="cb5-13">  )</span>
+<span id="cb5-14"></span>
+<span id="cb5-15"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb5-16">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb5-17">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>,</span>
+<span id="cb5-18">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb5-19">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"elevation_raster_maps_3.png"</span>),</span>
+<span id="cb5-20">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1400</span>,</span>
+<span id="cb5-21">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2000</span>,</span>
+<span id="cb5-22">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span></span>
+<span id="cb5-23">)</span>
+<span id="cb5-24"></span>
+<span id="cb5-25">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-26">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> switzerland_raster) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-27">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb5-28">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> switzerland_vector,</span>
+<span id="cb5-29">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, </span>
+<span id="cb5-30">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span>,</span>
+<span id="cb5-31">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"black"</span>,</span>
+<span id="cb5-32">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8</span></span>
+<span id="cb5-33">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-34">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb5-35">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span></span>
+<span id="cb5-36">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-37">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_wiki_c</span>(</span>
+<span id="cb5-38">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">limits =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6000</span>),</span>
+<span id="cb5-39">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">oob =</span> scales<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span>squish</span>
+<span id="cb5-40">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-41">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb5-42">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Elevation Map of Switzerland"</span>,</span>
+<span id="cb5-43">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Overlaid with a vector map with geom_sf()"</span>,</span>
+<span id="cb5-44">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Elevation (metres)"</span></span>
+<span id="cb5-45">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-46">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb5-47">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bottom"</span>,</span>
+<span id="cb5-48">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.key.width =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pt"</span>)</span>
+<span id="cb5-49">  )</span>
+<span id="cb5-50"></span>
+<span id="cb5-51"></span>
+<span id="cb5-52"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb5-53">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb5-54">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>,</span>
+<span id="cb5-55">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb5-56">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"elevation_raster_maps_4.png"</span>),</span>
+<span id="cb5-57">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1400</span>,</span>
+<span id="cb5-58">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2000</span>,</span>
+<span id="cb5-59">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span></span>
+<span id="cb5-60">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-swiz" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-swiz-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-swiz" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-che-vector" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-che-vector-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/elevation_raster_maps_3.png" class="lightbox" data-gallery="fig-swiz" title="Figure&nbsp;3&nbsp;(a): Switzerland: Vector map using geom_sf{}"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/elevation_raster_maps_3.png" class="img-fluid figure-img" data-ref-parent="fig-swiz"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-che-vector-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Switzerland: Vector map using geom_sf{}
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-swiz" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-che-hybrid" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-che-hybrid-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/elevation_raster_maps_4.png" class="lightbox" data-gallery="fig-swiz" title="Figure&nbsp;3&nbsp;(b): Vector map of Switzerland, plotted using {sf}, overlaid with a raster map, plotted using {terra}"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/elevation_raster_maps_4.png" class="img-fluid figure-img" data-ref-parent="fig-swiz"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-che-hybrid-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) Vector map of Switzerland, plotted using {sf}, overlaid with a raster map, plotted using {terra}
+</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>Next plan</p>
-<p>Study <a href="https://github.com/rspatial/geodata">this page</a>, and write more about other awesome functions in {geodata}.</p>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-swiz-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="raster-operations-spatial-subsetting" class="level2">
+<h2 class="anchored" data-anchor-id="raster-operations-spatial-subsetting">Raster Operations: Spatial Subsetting</h2>
+<p>This code calculates the mean elevation of Switzerland using a raster dataset and filters the raster to show only areas above 2000 meters. It then visualizes these high-altitude regions as a raster map overlaid with Switzerland’s vector boundaries using <code>ggplot2</code>. The map employs a custom color palette, minimal theme, and detailed labels, emphasizing Switzerland’s mountain ranges above 2000 meters elevation.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Mean elevation above Sea Level in Switzerland</span></span>
+<span id="cb6-2">switzerland_raster <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">values</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_tibble</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summarise</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mean =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(CHE_elv_msk, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> T)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull</span>(mean)</span>
+<span id="cb6-7"></span>
+<span id="cb6-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#&gt; [1] 1289.186</span></span></code></pre></div>
+</div>
+<p>The mean elevation of Switzerland is 1,289.19 metres.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Plotting only those portions of Switzerland that are above 2000 metres above sea level</span></span>
+<span id="cb7-2">swit_mountains <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> switzerland_raster <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2000</span></span>
+<span id="cb7-3">swit_mountains <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> switzerland_raster[swit_mountains, drop <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>]</span>
+<span id="cb7-4"></span>
+<span id="cb7-5">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> swit_mountains) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb7-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> switzerland_vector,</span>
+<span id="cb7-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, </span>
+<span id="cb7-10">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span>,</span>
+<span id="cb7-11">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"black"</span>,</span>
+<span id="cb7-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8</span></span>
+<span id="cb7-13">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb7-15">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span></span>
+<span id="cb7-16">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-17">  paletteer<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_paletteer_c</span>(</span>
+<span id="cb7-18">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ggthemes::Brown"</span>,</span>
+<span id="cb7-19">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.value =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span></span>
+<span id="cb7-20">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-21">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb7-22">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Switzerland mountain ranges"</span>,</span>
+<span id="cb7-23">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Only showing areas above 2000 metres elevation"</span>,</span>
+<span id="cb7-24">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Elevation (metres)"</span></span>
+<span id="cb7-25">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-26">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-27">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb7-28">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bottom"</span>,</span>
+<span id="cb7-29">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.key.width =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pt"</span>)</span>
+<span id="cb7-30">  )</span>
+<span id="cb7-31"></span>
+<span id="cb7-32"></span>
+<span id="cb7-33"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb7-34">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb7-35">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>,</span>
+<span id="cb7-36">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb7-37">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"elevation_raster_maps_5.png"</span>),</span>
+<span id="cb7-38">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1400</span>,</span>
+<span id="cb7-39">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2000</span>,</span>
+<span id="cb7-40">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span></span>
+<span id="cb7-41">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-alt-che-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-alt-che-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/elevation_raster_maps_5.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5" title="Figure&nbsp;4: Subsetting rasters: Displaying areas in Switzerland with altitude over 2000 metres"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/elevation_raster_maps_5.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-alt-che-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Subsetting rasters: Displaying areas in Switzerland with altitude over 2000 metres
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="computing-distance-from-highest-point-in-switzerland" class="level2">
+<h2 class="anchored" data-anchor-id="computing-distance-from-highest-point-in-switzerland">Computing distance from highest point in Switzerland</h2>
+<p>This code identifies Switzerland’s highest elevation point at 4442 meters and filters for all three raster points above 4200 meters. It calculates distances from these points <em>(and removes non-Switzerland areas: this is work-in-progress)</em>. Finally, it visualizes these extreme elevations on a map using <code>ggplot2</code>, overlaying the filtered raster data with Switzerland’s vector boundaries. The plot employs a custom brown color palette and highlights the topographic peaks within Switzerland exceeding 4200 meters.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Highest Point in Switzerland</span></span>
+<span id="cb8-2">switzerland_raster <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb8-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">values</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb8-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">max</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb8-5"></span>
+<span id="cb8-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># It is 4442 metres above sea level.</span></span>
+<span id="cb8-7"></span>
+<span id="cb8-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Let us select all points above 4200 metres</span></span>
+<span id="cb8-9">swit_4200 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> switzerland_raster <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4442</span></span>
+<span id="cb8-10">swit_4200 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> switzerland_raster[swit_4200, drop <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>]</span>
+<span id="cb8-11">swit_4200 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> terra<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">distance</span>(swit_4200)</span>
+<span id="cb8-12">swit_4200 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> swit_4200 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span></span>
+<span id="cb8-13"></span>
+<span id="cb8-14"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Remove non-Switzerland area</span></span>
+<span id="cb8-15"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">values</span>(swit_4200) <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tibble</span>(</span>
+<span id="cb8-16">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dist =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">values</span>(swit_4200),</span>
+<span id="cb8-17">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">actual =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">values</span>(switzerland_raster)</span>
+<span id="cb8-18">) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb8-19">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb8-20">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">masked =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">if_else</span>(</span>
+<span id="cb8-21">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.nan</span>(actual),</span>
+<span id="cb8-22">      <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span>,</span>
+<span id="cb8-23">      dist</span>
+<span id="cb8-24">    )</span>
+<span id="cb8-25">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb8-26">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull</span>(masked)</span>
+<span id="cb8-27"></span>
+<span id="cb8-28"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Plotting the three points in Switzerland above 4200 m</span></span>
+<span id="cb8-29">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-30">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> swit_4200) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-31">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb8-32">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span></span>
+<span id="cb8-33">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-34">  paletteer<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_paletteer_c</span>(</span>
+<span id="cb8-35">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"grDevices::Inferno"</span>,</span>
+<span id="cb8-36">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">direction =</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb8-37">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.value =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span></span>
+<span id="cb8-38">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-39">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb8-40">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Distance to Switzerland's highest points"</span>,</span>
+<span id="cb8-41">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Distance from the highest points (&gt;4200 m elevation)"</span>,</span>
+<span id="cb8-42">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Distance (km)"</span></span>
+<span id="cb8-43">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-44">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-45">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb8-46">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bottom"</span>,</span>
+<span id="cb8-47">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.key.width =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pt"</span>)</span>
+<span id="cb8-48">  )</span>
+<span id="cb8-49"></span>
+<span id="cb8-50"></span>
+<span id="cb8-51"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb8-52">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb8-53">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>,</span>
+<span id="cb8-54">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb8-55">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"elevation_raster_maps_6.png"</span>),</span>
+<span id="cb8-56">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1400</span>,</span>
+<span id="cb8-57">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2000</span>,</span>
+<span id="cb8-58">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span></span>
+<span id="cb8-59">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-dis-che" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-dis-che-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/elevation_raster_maps_6.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6" title="Figure&nbsp;5: Distance from the highest point in Switzerland"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/elevation_raster_maps_6.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-dis-che-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Distance from the highest point in Switzerland
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="section" class="level2">
+
 
 
 
@@ -5379,27 +6239,27 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
 </figcaption>
 <div aria-describedby="tbl-distance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="hlkroapqqw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="itiniczkff" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Cairo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#hlkroapqqw table {
+#itiniczkff table {
   font-family: Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#hlkroapqqw thead, #hlkroapqqw tbody, #hlkroapqqw tfoot, #hlkroapqqw tr, #hlkroapqqw td, #hlkroapqqw th {
+#itiniczkff thead, #itiniczkff tbody, #itiniczkff tfoot, #itiniczkff tr, #itiniczkff td, #itiniczkff th {
   border-style: none;
 }
 
-#hlkroapqqw p {
+#itiniczkff p {
   margin: 0;
   padding: 0;
 }
 
-#hlkroapqqw .gt_table {
+#itiniczkff .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -5425,12 +6285,12 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-left-color: #D3D3D3;
 }
 
-#hlkroapqqw .gt_caption {
+#itiniczkff .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#hlkroapqqw .gt_title {
+#itiniczkff .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -5442,7 +6302,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-bottom-width: 0;
 }
 
-#hlkroapqqw .gt_subtitle {
+#itiniczkff .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -5454,7 +6314,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-top-width: 0;
 }
 
-#hlkroapqqw .gt_heading {
+#itiniczkff .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -5466,13 +6326,13 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-right-color: #D3D3D3;
 }
 
-#hlkroapqqw .gt_bottom_border {
+#itiniczkff .gt_bottom_border {
   border-bottom-style: none;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#hlkroapqqw .gt_col_headings {
+#itiniczkff .gt_col_headings {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -5487,7 +6347,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-right-color: #D3D3D3;
 }
 
-#hlkroapqqw .gt_col_heading {
+#itiniczkff .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -5507,7 +6367,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   overflow-x: hidden;
 }
 
-#hlkroapqqw .gt_column_spanner_outer {
+#itiniczkff .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -5519,15 +6379,15 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   padding-right: 4px;
 }
 
-#hlkroapqqw .gt_column_spanner_outer:first-child {
+#itiniczkff .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#hlkroapqqw .gt_column_spanner_outer:last-child {
+#itiniczkff .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#hlkroapqqw .gt_column_spanner {
+#itiniczkff .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #000000;
@@ -5539,11 +6399,11 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   width: 100%;
 }
 
-#hlkroapqqw .gt_spanner_row {
+#itiniczkff .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#hlkroapqqw .gt_group_heading {
+#itiniczkff .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5569,7 +6429,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   text-align: left;
 }
 
-#hlkroapqqw .gt_empty_group_heading {
+#itiniczkff .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -5584,15 +6444,15 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   vertical-align: middle;
 }
 
-#hlkroapqqw .gt_from_md > :first-child {
+#itiniczkff .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#hlkroapqqw .gt_from_md > :last-child {
+#itiniczkff .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#hlkroapqqw .gt_row {
+#itiniczkff .gt_row {
   padding-top: 3px;
   padding-bottom: 3px;
   padding-left: 5px;
@@ -5611,7 +6471,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   overflow-x: hidden;
 }
 
-#hlkroapqqw .gt_stub {
+#itiniczkff .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -5624,7 +6484,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   padding-right: 5px;
 }
 
-#hlkroapqqw .gt_stub_row_group {
+#itiniczkff .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -5638,15 +6498,15 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   vertical-align: top;
 }
 
-#hlkroapqqw .gt_row_group_first td {
+#itiniczkff .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#hlkroapqqw .gt_row_group_first th {
+#itiniczkff .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#hlkroapqqw .gt_summary_row {
+#itiniczkff .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -5656,16 +6516,16 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   padding-right: 5px;
 }
 
-#hlkroapqqw .gt_first_summary_row {
+#itiniczkff .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#hlkroapqqw .gt_first_summary_row.thick {
+#itiniczkff .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#hlkroapqqw .gt_last_summary_row {
+#itiniczkff .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5675,7 +6535,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-bottom-color: #D3D3D3;
 }
 
-#hlkroapqqw .gt_grand_summary_row {
+#itiniczkff .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -5685,7 +6545,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   padding-right: 5px;
 }
 
-#hlkroapqqw .gt_first_grand_summary_row {
+#itiniczkff .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5695,7 +6555,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-top-color: #D3D3D3;
 }
 
-#hlkroapqqw .gt_last_grand_summary_row_top {
+#itiniczkff .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5705,11 +6565,11 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-bottom-color: #D3D3D3;
 }
 
-#hlkroapqqw .gt_striped {
+#itiniczkff .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#hlkroapqqw .gt_table_body {
+#itiniczkff .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -5718,7 +6578,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-bottom-color: #D3D3D3;
 }
 
-#hlkroapqqw .gt_footnotes {
+#itiniczkff .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -5732,7 +6592,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-right-color: #D3D3D3;
 }
 
-#hlkroapqqw .gt_footnote {
+#itiniczkff .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -5741,7 +6601,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   padding-right: 5px;
 }
 
-#hlkroapqqw .gt_sourcenotes {
+#itiniczkff .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -5755,7 +6615,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-right-color: #D3D3D3;
 }
 
-#hlkroapqqw .gt_sourcenote {
+#itiniczkff .gt_sourcenote {
   font-size: 12px;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -5763,72 +6623,72 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   padding-right: 5px;
 }
 
-#hlkroapqqw .gt_left {
+#itiniczkff .gt_left {
   text-align: left;
 }
 
-#hlkroapqqw .gt_center {
+#itiniczkff .gt_center {
   text-align: center;
 }
 
-#hlkroapqqw .gt_right {
+#itiniczkff .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#hlkroapqqw .gt_font_normal {
+#itiniczkff .gt_font_normal {
   font-weight: normal;
 }
 
-#hlkroapqqw .gt_font_bold {
+#itiniczkff .gt_font_bold {
   font-weight: bold;
 }
 
-#hlkroapqqw .gt_font_italic {
+#itiniczkff .gt_font_italic {
   font-style: italic;
 }
 
-#hlkroapqqw .gt_super {
+#itiniczkff .gt_super {
   font-size: 65%;
 }
 
-#hlkroapqqw .gt_footnote_marks {
+#itiniczkff .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#hlkroapqqw .gt_asterisk {
+#itiniczkff .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#hlkroapqqw .gt_indent_1 {
+#itiniczkff .gt_indent_1 {
   text-indent: 5px;
 }
 
-#hlkroapqqw .gt_indent_2 {
+#itiniczkff .gt_indent_2 {
   text-indent: 10px;
 }
 
-#hlkroapqqw .gt_indent_3 {
+#itiniczkff .gt_indent_3 {
   text-indent: 15px;
 }
 
-#hlkroapqqw .gt_indent_4 {
+#itiniczkff .gt_indent_4 {
   text-indent: 20px;
 }
 
-#hlkroapqqw .gt_indent_5 {
+#itiniczkff .gt_indent_5 {
   text-indent: 25px;
 }
 
-#hlkroapqqw .katex-display {
+#itiniczkff .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#hlkroapqqw div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#itiniczkff div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 
@@ -6116,26 +6976,26 @@ background-color: null;
 font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="wrujajkctk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="vsbthhloji" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#wrujajkctk table {
+#vsbthhloji table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#wrujajkctk thead, #wrujajkctk tbody, #wrujajkctk tfoot, #wrujajkctk tr, #wrujajkctk td, #wrujajkctk th {
+#vsbthhloji thead, #vsbthhloji tbody, #vsbthhloji tfoot, #vsbthhloji tr, #vsbthhloji td, #vsbthhloji th {
   border-style: none;
 }
 
-#wrujajkctk p {
+#vsbthhloji p {
   margin: 0;
   padding: 0;
 }
 
-#wrujajkctk .gt_table {
+#vsbthhloji .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -6161,12 +7021,12 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-left-color: #D3D3D3;
 }
 
-#wrujajkctk .gt_caption {
+#vsbthhloji .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#wrujajkctk .gt_title {
+#vsbthhloji .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -6178,7 +7038,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-bottom-width: 0;
 }
 
-#wrujajkctk .gt_subtitle {
+#vsbthhloji .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -6190,7 +7050,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-top-width: 0;
 }
 
-#wrujajkctk .gt_heading {
+#vsbthhloji .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -6202,13 +7062,13 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-right-color: #D3D3D3;
 }
 
-#wrujajkctk .gt_bottom_border {
+#vsbthhloji .gt_bottom_border {
   border-bottom-style: none;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#wrujajkctk .gt_col_headings {
+#vsbthhloji .gt_col_headings {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -6223,7 +7083,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-right-color: #D3D3D3;
 }
 
-#wrujajkctk .gt_col_heading {
+#vsbthhloji .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 12px;
@@ -6243,7 +7103,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   overflow-x: hidden;
 }
 
-#wrujajkctk .gt_column_spanner_outer {
+#vsbthhloji .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 12px;
@@ -6255,15 +7115,15 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   padding-right: 4px;
 }
 
-#wrujajkctk .gt_column_spanner_outer:first-child {
+#vsbthhloji .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#wrujajkctk .gt_column_spanner_outer:last-child {
+#vsbthhloji .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#wrujajkctk .gt_column_spanner {
+#vsbthhloji .gt_column_spanner {
   border-bottom-style: none;
   border-bottom-width: 1px;
   border-bottom-color: #334422;
@@ -6275,11 +7135,11 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   width: 100%;
 }
 
-#wrujajkctk .gt_spanner_row {
+#vsbthhloji .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#wrujajkctk .gt_group_heading {
+#vsbthhloji .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -6305,7 +7165,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   text-align: left;
 }
 
-#wrujajkctk .gt_empty_group_heading {
+#vsbthhloji .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -6320,15 +7180,15 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   vertical-align: middle;
 }
 
-#wrujajkctk .gt_from_md > :first-child {
+#vsbthhloji .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#wrujajkctk .gt_from_md > :last-child {
+#vsbthhloji .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#wrujajkctk .gt_row {
+#vsbthhloji .gt_row {
   padding-top: 7px;
   padding-bottom: 7px;
   padding-left: 5px;
@@ -6347,7 +7207,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   overflow-x: hidden;
 }
 
-#wrujajkctk .gt_stub {
+#vsbthhloji .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -6360,7 +7220,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   padding-right: 5px;
 }
 
-#wrujajkctk .gt_stub_row_group {
+#vsbthhloji .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -6374,15 +7234,15 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   vertical-align: top;
 }
 
-#wrujajkctk .gt_row_group_first td {
+#vsbthhloji .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#wrujajkctk .gt_row_group_first th {
+#vsbthhloji .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#wrujajkctk .gt_summary_row {
+#vsbthhloji .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -6392,16 +7252,16 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   padding-right: 5px;
 }
 
-#wrujajkctk .gt_first_summary_row {
+#vsbthhloji .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#wrujajkctk .gt_first_summary_row.thick {
+#vsbthhloji .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#wrujajkctk .gt_last_summary_row {
+#vsbthhloji .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -6411,7 +7271,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-bottom-color: #D3D3D3;
 }
 
-#wrujajkctk .gt_grand_summary_row {
+#vsbthhloji .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -6421,7 +7281,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   padding-right: 5px;
 }
 
-#wrujajkctk .gt_first_grand_summary_row {
+#vsbthhloji .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -6431,7 +7291,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-top-color: #D3D3D3;
 }
 
-#wrujajkctk .gt_last_grand_summary_row_top {
+#vsbthhloji .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -6441,11 +7301,11 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-bottom-color: #D3D3D3;
 }
 
-#wrujajkctk .gt_striped {
+#vsbthhloji .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#wrujajkctk .gt_table_body {
+#vsbthhloji .gt_table_body {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -6454,7 +7314,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-bottom-color: #FFFFFF;
 }
 
-#wrujajkctk .gt_footnotes {
+#vsbthhloji .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -6468,7 +7328,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-right-color: #D3D3D3;
 }
 
-#wrujajkctk .gt_footnote {
+#vsbthhloji .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -6477,7 +7337,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   padding-right: 5px;
 }
 
-#wrujajkctk .gt_sourcenotes {
+#vsbthhloji .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -6491,7 +7351,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-right-color: #D3D3D3;
 }
 
-#wrujajkctk .gt_sourcenote {
+#vsbthhloji .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -6499,72 +7359,72 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   padding-right: 5px;
 }
 
-#wrujajkctk .gt_left {
+#vsbthhloji .gt_left {
   text-align: left;
 }
 
-#wrujajkctk .gt_center {
+#vsbthhloji .gt_center {
   text-align: center;
 }
 
-#wrujajkctk .gt_right {
+#vsbthhloji .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#wrujajkctk .gt_font_normal {
+#vsbthhloji .gt_font_normal {
   font-weight: normal;
 }
 
-#wrujajkctk .gt_font_bold {
+#vsbthhloji .gt_font_bold {
   font-weight: bold;
 }
 
-#wrujajkctk .gt_font_italic {
+#vsbthhloji .gt_font_italic {
   font-style: italic;
 }
 
-#wrujajkctk .gt_super {
+#vsbthhloji .gt_super {
   font-size: 65%;
 }
 
-#wrujajkctk .gt_footnote_marks {
+#vsbthhloji .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#wrujajkctk .gt_asterisk {
+#vsbthhloji .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#wrujajkctk .gt_indent_1 {
+#vsbthhloji .gt_indent_1 {
   text-indent: 5px;
 }
 
-#wrujajkctk .gt_indent_2 {
+#vsbthhloji .gt_indent_2 {
   text-indent: 10px;
 }
 
-#wrujajkctk .gt_indent_3 {
+#vsbthhloji .gt_indent_3 {
   text-indent: 15px;
 }
 
-#wrujajkctk .gt_indent_4 {
+#vsbthhloji .gt_indent_4 {
   text-indent: 20px;
 }
 
-#wrujajkctk .gt_indent_5 {
+#vsbthhloji .gt_indent_5 {
   text-indent: 25px;
 }
 
-#wrujajkctk .katex-display {
+#vsbthhloji .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#wrujajkctk div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#vsbthhloji div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -6580,52 +7440,57 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
 <tbody class="gt_table_body">
 <tr class="odd">
 <td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">B</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-134.74, 59.2)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Canada</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(82.17, 26.24)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">India</td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">D</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-107.6, 50.23)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Canada</td>
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">I</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(88.46, -80.33)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Antarctica</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">F</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-59.52, 8.1)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Guyana</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">G</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-62.78, -22.45)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Argentina</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">K</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-119.57, 44.86)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">United States</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">N</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(105.56, 22.07)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Vietnam</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">O</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(68.94, 58.35)</td>
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">L</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(128.86, 66.14)</td>
 <td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Russian Federation</td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">P</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(66.6, 25.73)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Pakistan</td>
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">M</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(35.82, 57.98)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Russian Federation</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">R</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-103.96, -79.51)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Antarctica</td>
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">N</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-74.43, -52.34)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Chile</td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">Y</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-81, 48.89)</td>
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">O</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(59.16, 25.62)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Iran</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">P</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(136.49, 69.65)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Russian Federation</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">R</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-52.2, -10.44)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Brazil</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">S</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(13.36, -20.19)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Namibia</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">U</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-153.1, -81.91)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Antarctica</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">W</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-108.05, 49.17)</td>
 <td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Canada</td>
 </tr>
 </tbody>
@@ -9019,6 +9884,880 @@ font-style: inherit;">"Austria, Czechia and Slovakia"</span>)</span></code></pre
 <li>Helps smooth visible borders but may not eliminate them entirely.</li>
 </ul></li>
 </ul>
+</section>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises">4.4 Exercises</h2>
+<section id="e1." class="level3">
+<h3 class="anchored" data-anchor-id="e1.">E1.</h3>
+<p><strong>It was established in Section <a href="https://r.geocompx.org/spatial-operations#spatial-vec">4.2</a> that Canterbury was the region of New Zealand containing most of the 101 highest points in the country. How many of these high points does the Canterbury region contain?</strong></p>
+<p>Canterbury contains 70 of these high points.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"nz"</span>)</span>
+<span id="cb57-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"nz_height"</span>)</span>
+<span id="cb57-3"></span>
+<span id="cb57-4">nz_height <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb57-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersection</span>(</span>
+<span id="cb57-6">    nz <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(Name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Canterbury"</span>)</span>
+<span id="cb57-7">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb57-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nrow</span>()</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 70</code></pre>
+</div>
+</div>
+<p><strong>Bonus: plot the result using the <a href="https://rspatial.github.io/terra/reference/plot.html"><code>plot()</code></a> function to show all of New Zealand, <code>canterbury</code> region highlighted in yellow, high points in Canterbury represented by red crosses (hint: <code>pch = 7</code>) and high points in other parts of New Zealand represented by blue circles. See the help page <a href="https://rspatial.github.io/terra/reference/lines.html"><code>?points</code></a> for details with an illustration of different <code>pch</code> values.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1">nz_height <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb59-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb59-3">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">in_canterbury =</span> nz_height <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb59-4">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersects</span>(</span>
+<span id="cb59-5">        nz <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(Name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Canterbury"</span>),</span>
+<span id="cb59-6">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span></span>
+<span id="cb59-7">      )</span>
+<span id="cb59-8">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb59-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb59-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb59-11">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> nz <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill_var =</span> Name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Canterbury"</span>),</span>
+<span id="cb59-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> fill_var)</span>
+<span id="cb59-13">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb59-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb59-15">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">shape =</span> in_canterbury, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> in_canterbury)</span>
+<span id="cb59-16">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb59-17">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_shape_manual</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">16</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb59-18">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_colour_manual</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"blue"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb59-19">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_manual</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"yellow"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb59-20">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb59-21">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Is the region Canterbury?"</span>,</span>
+<span id="cb59-22">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Peaks are in Canterbury?"</span>,</span>
+<span id="cb59-23">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">shape =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Peaks are in Canterbury?"</span></span>
+<span id="cb59-24">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb59-25">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bottom"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="chapter4_files/figure-html/unnamed-chunk-26-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-29"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/chapter4_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="e2." class="level3">
+<h3 class="anchored" data-anchor-id="e2.">E2.</h3>
+<p><strong>Which region has the second highest number of <code>nz_height</code> points, and how many does it have?</strong></p>
+<p>The region with second highest number of <code>nz_height</code> points is <strong>West Coast</strong>. It has 22 such points.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1">nz_height <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb60-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_join</span>(nz) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb60-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_drop_geometry</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb60-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">group_by</span>(Name) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb60-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">count</span>()</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 7 × 2
+# Groups:   Name [7]
+  Name                  n
+  &lt;chr&gt;             &lt;int&gt;
+1 Canterbury           70
+2 Manawatu-Wanganui     2
+3 Marlborough           1
+4 Otago                 2
+5 Southland             1
+6 Waikato               3
+7 West Coast           22</code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="e3." class="level3">
+<h3 class="anchored" data-anchor-id="e3.">E3.</h3>
+<p><strong>Generalizing the question to all regions: how many of New Zealand’s 16 regions contain points which belong to the top 101 highest points in the country? Which regions?</strong></p>
+<ul>
+<li><strong>Bonus: create a table listing these regions in order of the number of points and their name.</strong></li>
+</ul>
+<p>Seven (7) regions of New Zealand contain points which belong to top 101 highest points in the country. The table is shown below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1">nz_height <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb62-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_join</span>(nz) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb62-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_drop_geometry</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb62-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">group_by</span>(Name) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb62-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">count</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">name =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Number of points"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sort =</span> T) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb62-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ungroup</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb62-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">S.No.</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">row_number</span>()) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb62-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">relocate</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">S.No.</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb62-9">  gt<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">gt</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb62-10">  gtExtras<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">gt_theme_538</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb62-11">  gt<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tab_header</span>(</span>
+<span id="cb62-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Number of highest points in each region of New Zealand"</span></span>
+<span id="cb62-13">  )</span></code></pre></div>
+<div id="tbl-e3" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-e3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Table listing the regions
+</figcaption>
+<div aria-describedby="tbl-e3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="ddvrmedbxr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cairo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+#ddvrmedbxr table {
+  font-family: Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#ddvrmedbxr thead, #ddvrmedbxr tbody, #ddvrmedbxr tfoot, #ddvrmedbxr tr, #ddvrmedbxr td, #ddvrmedbxr th {
+  border-style: none;
+}
+
+#ddvrmedbxr p {
+  margin: 0;
+  padding: 0;
+}
+
+#ddvrmedbxr .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: 400;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: none;
+  border-top-width: 3px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#ddvrmedbxr .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#ddvrmedbxr .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#ddvrmedbxr .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#ddvrmedbxr .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ddvrmedbxr .gt_bottom_border {
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ddvrmedbxr .gt_col_headings {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #000000;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ddvrmedbxr .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#ddvrmedbxr .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#ddvrmedbxr .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#ddvrmedbxr .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#ddvrmedbxr .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #000000;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#ddvrmedbxr .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#ddvrmedbxr .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #000000;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#ddvrmedbxr .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #000000;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #FFFFFF;
+  vertical-align: middle;
+}
+
+#ddvrmedbxr .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#ddvrmedbxr .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#ddvrmedbxr .gt_row {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#ddvrmedbxr .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 0px;
+  border-right-color: #FFFFFF;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ddvrmedbxr .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#ddvrmedbxr .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#ddvrmedbxr .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#ddvrmedbxr .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ddvrmedbxr .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#ddvrmedbxr .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#ddvrmedbxr .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ddvrmedbxr .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ddvrmedbxr .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#ddvrmedbxr .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ddvrmedbxr .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#ddvrmedbxr .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ddvrmedbxr .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ddvrmedbxr .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ddvrmedbxr .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ddvrmedbxr .gt_sourcenote {
+  font-size: 12px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ddvrmedbxr .gt_left {
+  text-align: left;
+}
+
+#ddvrmedbxr .gt_center {
+  text-align: center;
+}
+
+#ddvrmedbxr .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#ddvrmedbxr .gt_font_normal {
+  font-weight: normal;
+}
+
+#ddvrmedbxr .gt_font_bold {
+  font-weight: bold;
+}
+
+#ddvrmedbxr .gt_font_italic {
+  font-style: italic;
+}
+
+#ddvrmedbxr .gt_super {
+  font-size: 65%;
+}
+
+#ddvrmedbxr .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#ddvrmedbxr .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#ddvrmedbxr .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#ddvrmedbxr .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#ddvrmedbxr .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#ddvrmedbxr .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#ddvrmedbxr .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#ddvrmedbxr .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#ddvrmedbxr div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+
+tbody tr:last-child {
+  border-bottom: 2px solid #ffffff00;
+}
+</style>
+
+<table class="gt_table do-not-create-environment cell caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="header gt_heading">
+<th colspan="3" class="gt_heading gt_title gt_font_normal gt_bottom_border" style="font-family: Chivo; font-weight: 700">Number of highest points in each region of New Zealand</th>
+</tr>
+<tr class="odd gt_col_headings">
+<th id="S.No." class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase" scope="col">S.No.</th>
+<th id="Name" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase" scope="col">Name</th>
+<th id="Number of points" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase" scope="col">Number of points</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_right" headers="S.No.">1</td>
+<td class="gt_row gt_left" headers="Name">Canterbury</td>
+<td class="gt_row gt_right" headers="Number of points">70</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="S.No.">2</td>
+<td class="gt_row gt_left" headers="Name">West Coast</td>
+<td class="gt_row gt_right" headers="Number of points">22</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="S.No.">3</td>
+<td class="gt_row gt_left" headers="Name">Waikato</td>
+<td class="gt_row gt_right" headers="Number of points">3</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="S.No.">4</td>
+<td class="gt_row gt_left" headers="Name">Manawatu-Wanganui</td>
+<td class="gt_row gt_right" headers="Number of points">2</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="S.No.">5</td>
+<td class="gt_row gt_left" headers="Name">Otago</td>
+<td class="gt_row gt_right" headers="Number of points">2</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="S.No.">6</td>
+<td class="gt_row gt_left" headers="Name">Marlborough</td>
+<td class="gt_row gt_right" headers="Number of points">1</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="S.No.">7</td>
+<td class="gt_row gt_left" headers="Name">Southland</td>
+<td class="gt_row gt_right" headers="Number of points">1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<hr>
+<p><strong>Test your knowledge of spatial predicates by finding out and plotting how US states relate to each other and other spatial objects.</strong></p>
+</section>
+<section id="e4." class="level3">
+<h3 class="anchored" data-anchor-id="e4.">E4.</h3>
+<p><strong>The starting point of this exercise is to create an object representing Colorado state in the USA. Do this with the command <code>colorado = us_states[us_states$NAME == "Colorado",]</code> (base R) or with the <a href="https://dplyr.tidyverse.org/reference/filter.html"><code>filter()</code></a> function (tidyverse) and plot the resulting object in the context of US states.</strong></p>
+<ul>
+<li><p>Create a new object representing all the states that geographically intersect with Colorado and plot the result (hint: the most concise way to do this is with the subsetting method <code>[</code>).</p></li>
+<li><p>Create another object representing all the objects that touch (have a shared boundary with) Colorado and plot the result (hint: remember you can use the argument <code>op = st_intersects</code> and other spatial relations during spatial subsetting operations in base R).</p></li>
+<li><p>Bonus: create a straight line from the centroid of the District of Columbia near the East coast to the centroid of California near the West coast of the USA (hint: functions <a href="https://r-spatial.github.io/sf/reference/geos_unary.html"><code>st_centroid()</code></a>, <a href="https://r-spatial.github.io/sf/reference/geos_combine.html"><code>st_union()</code></a> and <a href="https://r-spatial.github.io/sf/reference/st_cast.html"><code>st_cast()</code></a> described in Chapter 5 may help) and identify which states this long East-West line crosses.</p></li>
+</ul>
+<p>E5. Use <code>dem = rast(system.file("raster/dem.tif", package = "spDataLarge"))</code>, and reclassify the elevation in three classes: low (&lt;300), medium and high (&gt;500). Secondly, read the NDVI raster (<code>ndvi = rast(system.file("raster/ndvi.tif", package = "spDataLarge"))</code>) and compute the mean NDVI and the mean elevation for each altitudinal class.</p>
+<p>E6. Apply a line detection filter to <code>rast(system.file("ex/logo.tif", package = "terra"))</code>. Plot the result. Hint: Read <code>?terra::focal()</code>.</p>
+<p>E7. Calculate the Normalized Difference Water Index (NDWI; <code>(green - nir)/(green + nir)</code>) of a Landsat image. Use the Landsat image provided by the <strong>spDataLarge</strong> package (<code>system.file("raster/landsat.tif", package = "spDataLarge")</code>). Also, calculate a correlation between NDVI and NDWI for this area (hint: you can use the <a href="https://rspatial.github.io/terra/reference/layerCor.html"><code>layerCor()</code></a> function).</p>
+<p>E8. A StackOverflow <a href="https://stackoverflow.com/questions/35555709/global-raster-of-geographic-distances">post (stackoverflow.com/questions/35555709)</a> shows how to compute distances to the nearest coastline using <a href="https://rspatial.github.io/terra/reference/distance.html"><code>raster::distance()</code></a>. Try to do something similar but with <a href="https://rspatial.github.io/terra/reference/distance.html"><code>terra::distance()</code></a>: retrieve a digital elevation model of Spain, and compute a raster which represents distances to the coast across the country (hint: use <a href="https://rdrr.io/pkg/geodata/man/elevation.html"><code>geodata::elevation_30s()</code></a>). Convert the resulting distances from meters to kilometers. Note: it may be wise to increase the cell size of the input raster to reduce compute time during this operation (<a href="https://rspatial.github.io/terra/reference/aggregate.html"><code>aggregate()</code></a>).</p>
+<p>E9. Try to modify the approach used in the above exercise by weighting the distance raster with the elevation raster; every 100 altitudinal meters should increase the distance to the coast by 10 km. Next, compute and visualize the difference between the raster created using the Euclidean distance (E7) and the raster weighted by elevation.</p>
 
 
 
