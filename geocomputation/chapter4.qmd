@@ -1266,7 +1266,7 @@ ggplot() +
 
 ## 4.4 Exercises
 
-### E1. 
+### E1.
 
 **It was established in Section [4.2](https://r.geocompx.org/spatial-operations#spatial-vec) that Canterbury was the region of New Zealand containing most of the 101 highest points in the country. How many of these high points does the Canterbury region contain?**
 
@@ -1372,18 +1372,191 @@ nz_height |>
 
 **The starting point of this exercise is to create an object representing Colorado state in the USA. Do this with the command `colorado = us_states[us_states$NAME == "Colorado",]` (base R) or with the [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) function (tidyverse) and plot the resulting object in the context of US states.**
 
--   Create a new object representing all the states that geographically intersect with Colorado and plot the result (hint: the most concise way to do this is with the subsetting method `[`).
+```{r}
+#| label: fig-col-1
+#| fig-cap: "Map of Colorado State"
 
--   Create another object representing all the objects that touch (have a shared boundary with) Colorado and plot the result (hint: remember you can use the argument `op = st_intersects` and other spatial relations during spatial subsetting operations in base R).
+data("us_states")
 
--   Bonus: create a straight line from the centroid of the District of Columbia near the East coast to the centroid of California near the West coast of the USA (hint: functions [`st_centroid()`](https://r-spatial.github.io/sf/reference/geos_unary.html), [`st_union()`](https://r-spatial.github.io/sf/reference/geos_combine.html) and [`st_cast()`](https://r-spatial.github.io/sf/reference/st_cast.html) described in Chapter 5 may help) and identify which states this long East-West line crosses.
+colorado <- us_states |> 
+  filter(NAME == "Colorado")
 
-E5. Use `dem = rast(system.file("raster/dem.tif", package = "spDataLarge"))`, and reclassify the elevation in three classes: low (\<300), medium and high (\>500). Secondly, read the NDVI raster (`ndvi = rast(system.file("raster/ndvi.tif", package = "spDataLarge"))`) and compute the mean NDVI and the mean elevation for each altitudinal class.
+ggplot() +
+  geom_sf(data = colorado) +
+  ggtitle("Map of Colorado State")
+```
 
-E6. Apply a line detection filter to `rast(system.file("ex/logo.tif", package = "terra"))`. Plot the result. Hint: Read `?terra::focal()`.
+-   **Create a new object representing all the states that geographically intersect with Colorado and plot the result (hint: the most concise way to do this is with the subsetting method `[`)**.
 
-E7. Calculate the Normalized Difference Water Index (NDWI; `(green - nir)/(green + nir)`) of a Landsat image. Use the Landsat image provided by the **spDataLarge** package (`system.file("raster/landsat.tif", package = "spDataLarge")`). Also, calculate a correlation between NDVI and NDWI for this area (hint: you can use the [`layerCor()`](https://rspatial.github.io/terra/reference/layerCor.html) function).
+```{r}
+#| label: fig-col-usa
+#| fig-cap: "Colorado, within USA's states; with projection changed to Albers Equal Area	Projection"
 
-E8. A StackOverflow [post (stackoverflow.com/questions/35555709)](https://stackoverflow.com/questions/35555709/global-raster-of-geographic-distances) shows how to compute distances to the nearest coastline using [`raster::distance()`](https://rspatial.github.io/terra/reference/distance.html). Try to do something similar but with [`terra::distance()`](https://rspatial.github.io/terra/reference/distance.html): retrieve a digital elevation model of Spain, and compute a raster which represents distances to the coast across the country (hint: use [`geodata::elevation_30s()`](https://rdrr.io/pkg/geodata/man/elevation.html)). Convert the resulting distances from meters to kilometers. Note: it may be wise to increase the cell size of the input raster to reduce compute time during this operation ([`aggregate()`](https://rspatial.github.io/terra/reference/aggregate.html)).
+ggplot() +
+  geom_sf(
+    data = us_states,
+    fill = "transparent"
+  ) +
+  geom_sf(
+    data = colorado,
+    fill = "yellow"
+  ) +
+  geom_sf_text(
+    data = colorado,
+    mapping = aes(
+      label = NAME
+    ),
+    family = "caption_font",
+    fontface = "bold"
+  ) +
+  coord_sf(
+    crs = "EPSG:5070"
+  ) +
+  labs(
+    x = NULL, y = NULL,
+    title = "Map of USA states, with Colorado highlighted"
+  )
+```
+
+-   **Create another object representing all the objects that touch (have a shared boundary with) Colorado and plot the result (hint: remember you can use the argument `op = st_intersects` and other spatial relations during spatial subsetting operations in base R).**
+
+```{r}
+
+bordering <- us_states |> 
+  mutate(
+    border_colorado = as_vector(
+      us_states |> 
+      st_intersects(colorado, sparse = FALSE)
+    )
+  )
+
+ggplot() +
+  geom_sf(
+    data = bordering,
+    mapping = aes(
+      fill = border_colorado
+    )
+  ) +
+  scale_fill_manual(
+    values = c("transparent", "orange")
+  ) +
+  geom_sf_text(
+    data = filter(bordering, border_colorado),
+    mapping = aes(
+      label = NAME
+    ),
+    family = "caption_font"
+  ) +
+  geom_sf(
+    data = colorado,
+    fill = "red"
+  ) +
+  geom_sf_text(
+    data = colorado,
+    mapping = aes(
+      label = NAME
+    ),
+    family = "caption_font",
+    fontface = "bold"
+  ) +
+  coord_sf(
+    crs = "EPSG:5070"
+  ) +
+  labs(
+    x = NULL, y = NULL,
+    title = "Map of USA states, with states bordering Colorado highlighted in orange"
+  ) +
+  theme(
+    legend.position = "none"
+  )
+```
+
+-   **Bonus: create a straight line from the centroid of the District of Columbia near the East coast to the centroid of California near the West coast of the USA (hint: functions [`st_centroid()`](https://r-spatial.github.io/sf/reference/geos_unary.html), [`st_union()`](https://r-spatial.github.io/sf/reference/geos_combine.html) and [`st_cast()`](https://r-spatial.github.io/sf/reference/st_cast.html) described in Chapter 5 may help) and identify which states this long East-West line crosses**.
+
+```{r}
+
+wdc_centre <- st_centroid(
+  us_states |> filter(NAME == "District of Columbia")
+) |> 
+  pull(geometry)
+
+cal_centre <- st_centroid(
+  us_states |> filter(NAME == "California")
+) |> 
+  pull(geometry)
+
+straight_line <- st_union(
+  wdc_centre,
+  cal_centre
+) |> 
+  st_cast(
+    "LINESTRING"
+  )
+
+us_states |> 
+  mutate(
+    on_the_way = as_vector(
+      st_intersects(
+        us_states, 
+        straight_line, 
+        sparse = FALSE
+      )
+    )
+  ) |> 
+  ggplot() +
+  geom_sf(
+    mapping = aes(
+      fill = on_the_way
+    )
+  ) +
+  scale_fill_manual(
+    values = c("transparent", "orange")
+  ) +
+  geom_sf(
+    data = straight_line,
+    linewidth = 0.5
+  ) +
+  geom_sf(
+    data = cal_centre,
+    size = 2
+  ) +
+  geom_sf(
+    data = wdc_centre,
+    size = 2
+  ) +
+  coord_sf(
+    crs = "EPSG:5070"
+  ) +
+  labs(
+    subtitle = "Line from Centroids of District of Columbia and California;\nand highlighting the states that it crosses through"
+  ) +
+  theme(
+    legend.position = "none"
+  )
+```
+
+------------------------------------------------------------------------
+
+### E5. 
+
+**Use `dem = rast(system.file("raster/dem.tif", package = "spDataLarge"))`, and reclassify the elevation in three classes: low (\<300), medium and high (\>500). Secondly, read the NDVI raster (`ndvi = rast(system.file("raster/ndvi.tif", package = "spDataLarge"))`) and compute the mean NDVI and the mean elevation for each altitudinal class.**
+
+------------------------------------------------------------------------
+
+### E6. 
+
+**Apply a line detection filter to `rast(system.file("ex/logo.tif", package = "terra"))`. Plot the result. Hint: Read `?terra::focal()`.**
+
+------------------------------------------------------------------------
+
+### E7.
+
+Calculate the Normalized Difference Water Index (NDWI; `(green - nir)/(green + nir)`) of a Landsat image. Use the Landsat image provided by the **spDataLarge** package (`system.file("raster/landsat.tif", package = "spDataLarge")`). Also, calculate a correlation between NDVI and NDWI for this area (hint: you can use the [`layerCor()`](https://rspatial.github.io/terra/reference/layerCor.html) function).
+
+------------------------------------------------------------------------
+
+### E8.
+
+A StackOverflow [post (stackoverflow.com/questions/35555709)](https://stackoverflow.com/questions/35555709/global-raster-of-geographic-distances) shows how to compute distances to the nearest coastline using [`raster::distance()`](https://rspatial.github.io/terra/reference/distance.html). Try to do something similar but with [`terra::distance()`](https://rspatial.github.io/terra/reference/distance.html): retrieve a digital elevation model of Spain, and compute a raster which represents distances to the coast across the country (hint: use [`geodata::elevation_30s()`](https://rdrr.io/pkg/geodata/man/elevation.html)). Convert the resulting distances from meters to kilometers. Note: it may be wise to increase the cell size of the input raster to reduce compute time during this operation ([`aggregate()`](https://rspatial.github.io/terra/reference/aggregate.html)).
 
 E9. Try to modify the approach used in the above exercise by weighting the distance raster with the elevation raster; every 100 altitudinal meters should increase the distance to the coast by 10 km. Next, compute and visualize the difference between the raster created using the Euclidean distance (E7) and the raster weighted by elevation.

@@ -1,0 +1,69 @@
+---
+title: "Various CRS projections for use with {sf} plots in {ggplot2}"
+author: "Aditya Dahiya"
+subtitle: "............................"
+date: "2024-12-12"
+bibliography: references.bib
+format:
+  html:
+    code-fold: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: false
+categories:
+  - "Background Map"
+  - "{terra}"
+  - "Raster Map"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/geocomputation/crs_projections.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+Here is a more comprehensive table with additional projection types and an extra column showing the **EPSG code** in the format `"EPSG:..."`:
+
+| **Projection Name** | **EPSG Code** | **EPSG Text** | **Description** | **Use Case** |
+|---------------|--------|------------|--------------------|------------------|
+| **WGS 84 (Geographic)** | 4326 | `EPSG:4326` | Default geographic coordinate system using latitude and longitude. | Working with raw geographic coordinates. |
+| **Web Mercator** | 3857 | `EPSG:3857` | Used by most web mapping services like [Google Maps](https://maps.google.com/), [OpenStreetMap](https://www.openstreetmap.org/). | Visualizing data on interactive maps or raster tiles. |
+| **UTM Zone 33N** | 32633 | `EPSG:32633` | Universal Transverse Mercator for Zone 33 North (WGS 84). | Detailed mapping with minimal distortion for Zone 33N. |
+| **UTM Zone 33S** | 32733 | `EPSG:32733` | Universal Transverse Mercator for Zone 33 South (WGS 84). | Detailed mapping with minimal distortion for Zone 33S. |
+| **NAD83** | 4269 | `EPSG:4269` | North American Datum 1983. | Standard for North American datasets. |
+| **ETRS89 / LAEA Europe** | 3035 | `EPSG:3035` | Lambert Azimuthal Equal Area projection for Europe. | Mapping datasets across Europe with minimal area distortion. |
+| **WGS 84 / Pseudo-Mercator** | 3857 | `EPSG:3857` | Similar to Web Mercator but suited for global-scale applications. | Quick global visualizations and compatibility with tile layers. |
+| **Albers Equal Area** | 5070 | `EPSG:5070` | Albers Equal Area for continental-scale datasets in the US. | US-focused analysis with equal-area properties. |
+| **Lambert Conformal Conic** | 102004 | `EPSG:102004` | Projection widely used for mapping in the US. | Regional analysis and thematic mapping in North America. |
+| **Mollweide** | 54009 | `EPSG:54009` | Equal-area pseudocylindrical projection for global maps. | Global-scale thematic maps with equal area representation. |
+| **Robinson** | 54030 | `EPSG:54030` | A compromise projection for visually pleasing world maps. | World maps for general use, emphasizing aesthetics. |
+| **Sinusoidal** | 54008 | `EPSG:54008` | Pseudocylindrical equal-area projection. | Global-scale analysis with equal-area properties. |
+| **Bonne** | 54024 | `EPSG:54024` | Equal-area projection, often used for continents. | Regional mapping with minimized distortion. |
+| **World Van der Grinten I** | 54029 | `EPSG:54029` | Projection displaying the entire world in a circular format. | Aesthetic and general-purpose world maps. |
+| **Plate Carrée** | 32662 | `EPSG:32662` | Simple projection with equally spaced latitudes and longitudes. | Basic visualization of geographic data. |
+| **Transverse Mercator** | 4326 | `EPSG:4326` | Cylindrical projection ideal for mapping narrow regions. | Regional and local-scale mapping (often used with UTM zones). |
+| **North Pole Stereographic** | 3413 | `EPSG:3413` | Stereographic projection for mapping the Arctic region. | Mapping polar data in the Arctic with minimal distortion. |
+| **South Pole Stereographic** | 3031 | `EPSG:3031` | Stereographic projection for mapping the Antarctic region. | Mapping polar data in the Antarctic with minimal distortion. |
+| **Interrupted Goode Homolosine** | 54052 | `EPSG:54052` | Composite projection for minimal distortion of landmasses. | Global mapping that emphasizes land area accuracy. |
+| **Krovak** | 5514 | `EPSG:5514` | Projection widely used in the Czech Republic and Slovakia. | Mapping datasets specific to these regions. |
+| **Asia North Lambert Conformal** | 102026 | `EPSG:102026` | Lambert Conformal projection for northern Asia. | Mapping datasets across northern Asia. |
+| **Australia Albers** | 3577 | `EPSG:3577` | Equal-area projection for Australia. | Regional mapping of Australia with minimized area distortion. |
+
+### How to Use in `coord_sf`
+
+``` r
+coord_sf(crs = "EPSG:<EPSG_CODE>")
+```
+
+This expanded list provides projections for various use cases, regions, and scales. Let me know if you'd like to add more specialized projections!
