@@ -10,7 +10,1903 @@
 <atom:link href="https://aditya-dahiya.github.io/visage/index.html/geocomputation.xml" rel="self" type="application/rss+xml"/>
 <description>Visualizing Information and Spatial Analysis with ggplot2 Extensions</description>
 <generator>quarto-1.5.57</generator>
-<lastBuildDate>Mon, 09 Dec 2024 18:30:00 GMT</lastBuildDate>
+<lastBuildDate>Wed, 11 Dec 2024 18:30:00 GMT</lastBuildDate>
+<item>
+  <title>Various CRS projections for use with {sf} plots in {ggplot2}</title>
+  <dc:creator>Aditya Dahiya</dc:creator>
+  <link>https://aditya-dahiya.github.io/visage/index.html/geocomputation/crs_projections.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>No.</th>
+<th><strong>Projection Name</strong></th>
+<th><strong>EPSG Code</strong></th>
+<th><code>coord_sf()</code> code</th>
+<th><strong>Description</strong></th>
+<th><strong>Use Case</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td><strong>WGS 84 (Geographic)</strong></td>
+<td>4326</td>
+<td><code>EPSG:4326</code></td>
+<td>Default geographic coordinate system using latitude and longitude.</td>
+<td>Working with raw geographic coordinates.</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td><strong>Web Mercator</strong></td>
+<td>3857</td>
+<td><code>EPSG:3857</code></td>
+<td>Used by most web mapping services like <a href="https://maps.google.com/">Google Maps</a>, <a href="https://www.openstreetmap.org/">OpenStreetMap</a>.</td>
+<td>Visualizing data on interactive maps or raster tiles.</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td><strong>UTM Zone 33N</strong></td>
+<td>32633</td>
+<td><code>EPSG:32633</code></td>
+<td>Universal Transverse Mercator for Zone 33 North (WGS 84).</td>
+<td>Detailed mapping with minimal distortion for Zone 33N.</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td><strong>UTM Zone 33S</strong></td>
+<td>32733</td>
+<td><code>EPSG:32733</code></td>
+<td>Universal Transverse Mercator for Zone 33 South (WGS 84).</td>
+<td>Detailed mapping with minimal distortion for Zone 33S.</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td><strong>NAD83</strong></td>
+<td>4269</td>
+<td><code>EPSG:4269</code></td>
+<td>North American Datum 1983.</td>
+<td>Standard for North American datasets.</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td><strong>ETRS89 / LAEA Europe</strong></td>
+<td>3035</td>
+<td><code>EPSG:3035</code></td>
+<td>Lambert Azimuthal Equal Area projection for Europe.</td>
+<td>Mapping datasets across Europe with minimal area distortion.</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td><strong>WGS 84 / Pseudo-Mercator</strong></td>
+<td>3857</td>
+<td><code>EPSG:3857</code></td>
+<td>Similar to Web Mercator but suited for global-scale applications.</td>
+<td>Quick global visualizations and compatibility with tile layers.</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td><strong>Albers Equal Area</strong></td>
+<td>5070</td>
+<td><code>EPSG:5070</code></td>
+<td>Albers Equal Area for continental-scale datasets in the US.</td>
+<td>US-focused analysis with equal-area properties.</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td><strong>Lambert Conformal Conic</strong></td>
+<td>102004</td>
+<td><code>EPSG:102004</code></td>
+<td>Projection widely used for mapping in the US.</td>
+<td>Regional analysis and thematic mapping in North America.</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td><strong>Mollweide</strong></td>
+<td>54009</td>
+<td><code>EPSG:54009</code></td>
+<td>Equal-area pseudocylindrical projection for global maps.</td>
+<td>Global-scale thematic maps with equal area representation.</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td><strong>Robinson</strong></td>
+<td>54030</td>
+<td><code>EPSG:54030</code></td>
+<td>A compromise projection for visually pleasing world maps.</td>
+<td>World maps for general use, emphasizing aesthetics.</td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td><strong>Sinusoidal</strong></td>
+<td>54008</td>
+<td><code>EPSG:54008</code></td>
+<td>Pseudocylindrical equal-area projection.</td>
+<td>Global-scale analysis with equal-area properties.</td>
+</tr>
+<tr class="odd">
+<td>13</td>
+<td><strong>Bonne</strong></td>
+<td>54024</td>
+<td><code>EPSG:54024</code></td>
+<td>Equal-area projection, often used for continents.</td>
+<td>Regional mapping with minimized distortion.</td>
+</tr>
+<tr class="even">
+<td>14</td>
+<td><strong>World Van der Grinten I</strong></td>
+<td>54029</td>
+<td><code>EPSG:54029</code></td>
+<td>Projection displaying the entire world in a circular format.</td>
+<td>Aesthetic and general-purpose world maps.</td>
+</tr>
+<tr class="odd">
+<td>15</td>
+<td><strong>Plate Carrée</strong></td>
+<td>32662</td>
+<td><code>EPSG:32662</code></td>
+<td>Simple projection with equally spaced latitudes and longitudes.</td>
+<td>Basic visualization of geographic data.</td>
+</tr>
+<tr class="even">
+<td>16</td>
+<td><strong>Transverse Mercator</strong></td>
+<td>4326</td>
+<td><code>EPSG:4326</code></td>
+<td>Cylindrical projection ideal for mapping narrow regions.</td>
+<td>Regional and local-scale mapping (often used with UTM zones).</td>
+</tr>
+<tr class="odd">
+<td>17</td>
+<td><strong>North Pole Stereographic</strong></td>
+<td>3413</td>
+<td><code>EPSG:3413</code></td>
+<td>Stereographic projection for mapping the Arctic region.</td>
+<td>Mapping polar data in the Arctic with minimal distortion.</td>
+</tr>
+<tr class="even">
+<td>18</td>
+<td><strong>South Pole Stereographic</strong></td>
+<td>3031</td>
+<td><code>EPSG:3031</code></td>
+<td>Stereographic projection for mapping the Antarctic region.</td>
+<td>Mapping polar data in the Antarctic with minimal distortion.</td>
+</tr>
+<tr class="odd">
+<td>19</td>
+<td><strong>Interrupted Goode Homolosine</strong></td>
+<td>54052</td>
+<td><code>EPSG:54052</code></td>
+<td>Composite projection for minimal distortion of landmasses.</td>
+<td>Global mapping that emphasizes land area accuracy.</td>
+</tr>
+<tr class="even">
+<td>20</td>
+<td><strong>Krovak</strong></td>
+<td>5514</td>
+<td><code>EPSG:5514</code></td>
+<td>Projection widely used in the Czech Republic and Slovakia.</td>
+<td>Mapping datasets specific to these regions.</td>
+</tr>
+<tr class="odd">
+<td>21</td>
+<td><strong>Asia North Lambert Conformal</strong></td>
+<td>102026</td>
+<td><code>EPSG:102026</code></td>
+<td>Lambert Conformal projection for northern Asia.</td>
+<td>Mapping datasets across northern Asia.</td>
+</tr>
+<tr class="even">
+<td>22</td>
+<td><strong>Australia Albers</strong></td>
+<td>3577</td>
+<td><code>EPSG:3577</code></td>
+<td>Equal-area projection for Australia.</td>
+<td>Regional mapping of Australia with minimized area distortion.</td>
+</tr>
+</tbody>
+</table>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)          <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Data wrangling</span></span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(sf)                 <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Simple Features in R</span></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(rnaturalearth)      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Map data</span></span>
+<span id="cb1-4"></span>
+<span id="cb1-5">world <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ne_countries</span>(</span>
+<span id="cb1-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">scale =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"small"</span>,</span>
+<span id="cb1-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">returnclass =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sf"</span></span>
+<span id="cb1-8">) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb1-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(name, name_long, </span>
+<span id="cb1-10">         iso_a2, iso_a3, </span>
+<span id="cb1-11">         geometry, continent)</span></code></pre></div>
+</details>
+</div>
+<section id="wgs-84-geographic" class="level3">
+<h3 class="anchored" data-anchor-id="wgs-84-geographic">1. <strong>WGS 84 (Geographic)</strong></h3>
+<p>The WGS 84 projection, identified by <strong>EPSG:4326</strong>, is the default geographic coordinate system used for latitude and longitude. It is the most common system for raw geographic data and is widely used in GPS devices and mapping applications. This projection is excellent for datasets that involve global coverage but does not preserve area, shape, or distance due to its geographic nature.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> world) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb2-4">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:4326"</span></span>
+<span id="cb2-5">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb2-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"WGS 84 (Geographic) Projection"</span>,</span>
+<span id="cb2-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:4326. Default geographic coordinate system using latitude and longitude."</span></span>
+<span id="cb2-10">  )</span>
+<span id="cb2-11"></span>
+<span id="cb2-12"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb2-13">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb2-14">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb2-15">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"crs_projections_1.png"</span>),</span>
+<span id="cb2-16">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1200</span>,</span>
+<span id="cb2-17">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1800</span>,</span>
+<span id="cb2-18">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span></span>
+<span id="cb2-19">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;1: WGS 84 (Geographic) Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_1.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: WGS 84 (Geographic) Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="web-mercator" class="level3">
+<h3 class="anchored" data-anchor-id="web-mercator">2. <strong>Web Mercator</strong></h3>
+<p>The Web Mercator projection, represented by <strong>EPSG:3857</strong>, is widely used by web mapping platforms like Google Maps and OpenStreetMap. It is a conformal projection, meaning it preserves angles but distorts area, especially near the poles. It is best suited for interactive maps or raster tiles for visualizing data at various zoom levels.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Antarctica cannot be plotted with Web Mercator projection, as it become hugely elongated. Must remove Antarctica before plotting in Web Mercator.</p>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb3-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb3-3">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> world <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb3-4">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Antarctica"</span>)</span>
+<span id="cb3-5">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb3-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb3-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:3857"</span></span>
+<span id="cb3-8">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb3-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb3-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb3-11">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Web Mercator Projection"</span>,</span>
+<span id="cb3-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:3857. Best for interactive Maps; preserves angles."</span></span>
+<span id="cb3-13">  )</span>
+<span id="cb3-14"></span>
+<span id="cb3-15"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb3-16">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb3-17">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb3-18">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"crs_projections_2.png"</span>),</span>
+<span id="cb3-19">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1200</span>,</span>
+<span id="cb3-20">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1800</span>,</span>
+<span id="cb3-21">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span></span>
+<span id="cb3-22">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;2: Web Mercator Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_2.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Web Mercator Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="utm-zone-33n" class="level3">
+<h3 class="anchored" data-anchor-id="utm-zone-33n">3. <strong>UTM Zone 33N</strong></h3>
+<p>The Universal Transverse Mercator (UTM) Zone 33N, identified by <strong>EPSG:32633</strong>, is a projection system designed for mapping specific regions with minimal distortion. UTM divides the world into 6° longitudinal zones, and Zone 33N is suited for areas within its coverage, typically in Europe. It is ideal for regional-scale analysis and detailed mapping.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In order to be able to use <code>xlim = c(-20, 45)</code>, and <code>ylim = c(33, 70)</code> within the <code>coord_sf()</code>, to focus on Europe, we must use <code>default_crs = sf::st_crs(4326)</code>. The <code>deafult_crs</code> argument tells the <em>ggplot2</em> that the limits’ numbers are mentioned in which CRS system. And, the <code>4326</code> CRS is the default longitude-latitude CRS system.</p>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb4-3">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> world <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb4-4">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(continent <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Europe"</span>)</span>
+<span id="cb4-5">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb4-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:32633"</span></span>
+<span id="cb4-8">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb4-11">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"UTM Zone 33N Projection: For Europe"</span>,</span>
+<span id="cb4-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Minimal distortion for European Region."</span></span>
+<span id="cb4-13">  )</span>
+<span id="cb4-14"></span>
+<span id="cb4-15"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb4-16">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb4-17">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb4-18">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"crs_projections_3_1.png"</span>),</span>
+<span id="cb4-19">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1200</span>,</span>
+<span id="cb4-20">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1800</span>,</span>
+<span id="cb4-21">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span></span>
+<span id="cb4-22">)</span>
+<span id="cb4-23"></span>
+<span id="cb4-24">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> world <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb4-25">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(continent <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Europe"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb4-26">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span>(name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%in%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Russia"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Iceland"</span>))) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb4-27">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-28">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-29">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf_text</span>(</span>
+<span id="cb4-30">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> name),</span>
+<span id="cb4-31">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">check_overlap =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>,</span>
+<span id="cb4-32">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span></span>
+<span id="cb4-33">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-34">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb4-35">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:32633"</span>,</span>
+<span id="cb4-36">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xlim =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">45</span>),</span>
+<span id="cb4-37">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ylim =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">33</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">70</span>),</span>
+<span id="cb4-38">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">default_crs =</span> sf<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span>)</span>
+<span id="cb4-39">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-40">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-41">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb4-42">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>,</span>
+<span id="cb4-43">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"UTM Zone 33N Projection: For Europe"</span>,</span>
+<span id="cb4-44">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Minimal distortion for European Region."</span></span>
+<span id="cb4-45">  )</span>
+<span id="cb4-46"></span>
+<span id="cb4-47"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb4-48">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb4-49">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb4-50">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"crs_projections_3.png"</span>),</span>
+<span id="cb4-51">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1200</span>,</span>
+<span id="cb4-52">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1800</span>,</span>
+<span id="cb4-53">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span></span>
+<span id="cb4-54">)</span></code></pre></div>
+</details>
+</div>
+<p><a href="images/crs_projections_3_1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_3_1.png" class="img-fluid"></a></p>
+<div id="fig-3" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_3.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Figure&nbsp;3: UTM Zone 33N Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_3.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: UTM Zone 33N Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="utm-zone-33s" class="level3">
+<h3 class="anchored" data-anchor-id="utm-zone-33s">4. <strong>UTM Zone 33S</strong></h3>
+<p>The UTM Zone 33S, associated with <strong>EPSG:32733</strong>, is similar to Zone 33N but designed for the southern hemisphere. It minimizes distortion within its zone and is widely used for detailed mapping in areas south of the equator within its longitudinal range. It is particularly useful for engineering and cadastral surveys. <strong>Area of use:</strong> Between 12°E and 18°E, southern hemisphere between 80°S and equator, onshore and offshore. Angola. Congo. Democratic Republic of the Congo (Zaire).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> world <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb5-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%in%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Angola"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Congo"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Dem. Rep. Congo"</span>,</span>
+<span id="cb5-3">                     <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Namibia"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb5-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf_text</span>(</span>
+<span id="cb5-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> name),</span>
+<span id="cb5-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">check_overlap =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>,</span>
+<span id="cb5-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span></span>
+<span id="cb5-10">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb5-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:32733"</span>,</span>
+<span id="cb5-13">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">clip =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"off"</span></span>
+<span id="cb5-14">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-15">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-16">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb5-17">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>,</span>
+<span id="cb5-18">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"UTM Zone 33S Projection"</span>,</span>
+<span id="cb5-19">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"For Southern Hemisphere: Africa"</span></span>
+<span id="cb5-20">  )</span>
+<span id="cb5-21"></span>
+<span id="cb5-22"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb5-23">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb5-24">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb5-25">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"crs_projections_4.png"</span>),</span>
+<span id="cb5-26">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1200</span>,</span>
+<span id="cb5-27">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1800</span>,</span>
+<span id="cb5-28">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span></span>
+<span id="cb5-29">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-4" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_4.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5" title="Figure&nbsp;4: UTM Zone 33S Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_4.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: UTM Zone 33S Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="nad83" class="level3">
+<h3 class="anchored" data-anchor-id="nad83">5. <strong>NAD83</strong></h3>
+<p>The North American Datum 1983 (NAD83), identified by <strong>EPSG:4269</strong>, is a standard reference system used across North America. It serves as the foundation for many regional and national mapping projects in the US and Canada. This projection ensures compatibility with datasets collected in the region.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> world <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(continent <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"North America"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf_text</span>(</span>
+<span id="cb6-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> name),</span>
+<span id="cb6-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">check_overlap =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>,</span>
+<span id="cb6-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span></span>
+<span id="cb6-9">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb6-11">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:4269"</span>,</span>
+<span id="cb6-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">clip =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"off"</span></span>
+<span id="cb6-13">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-15">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb6-16">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>,</span>
+<span id="cb6-17">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"North American Datum 1983 (NAD83) Projection"</span>,</span>
+<span id="cb6-18">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"For Canada and USA"</span></span>
+<span id="cb6-19">  )</span>
+<span id="cb6-20"></span>
+<span id="cb6-21"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb6-22">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb6-23">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb6-24">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"crs_projections_5.png"</span>),</span>
+<span id="cb6-25">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1200</span>,</span>
+<span id="cb6-26">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1800</span>,</span>
+<span id="cb6-27">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span></span>
+<span id="cb6-28">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-5" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_5.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6" title="Figure&nbsp;5: NAD83 Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_5.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: NAD83 Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="etrs89-laea-europe" class="level3">
+<h3 class="anchored" data-anchor-id="etrs89-laea-europe">6. <strong>ETRS89 / LAEA Europe</strong></h3>
+<p>The ETRS89 Lambert Azimuthal Equal Area projection, represented by <strong>EPSG:3035</strong>, is optimized for mapping datasets across Europe. It preserves area relationships, making it suitable for thematic maps like population density or land use. This projection is commonly used in European Union projects and cross-country analyses.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> world <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb7-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(continent <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Europe"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb7-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf_text</span>(</span>
+<span id="cb7-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> name),</span>
+<span id="cb7-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">check_overlap =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>,</span>
+<span id="cb7-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span></span>
+<span id="cb7-9">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb7-11">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:3035"</span>,</span>
+<span id="cb7-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xlim =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">45</span>),</span>
+<span id="cb7-13">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ylim =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">33</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">70</span>),</span>
+<span id="cb7-14">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">default_crs =</span> sf<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span>)</span>
+<span id="cb7-15">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-16">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-17">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb7-18">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>,</span>
+<span id="cb7-19">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ETRS89 / LAEA Europe Projection"</span>,</span>
+<span id="cb7-20">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"European Union projects"</span></span>
+<span id="cb7-21">  )</span>
+<span id="cb7-22"></span>
+<span id="cb7-23"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb7-24">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb7-25">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb7-26">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"crs_projections_6.png"</span>),</span>
+<span id="cb7-27">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1200</span>,</span>
+<span id="cb7-28">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1800</span>,</span>
+<span id="cb7-29">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span></span>
+<span id="cb7-30">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-6" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_6.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7" title="Figure&nbsp;6: ETRS89 / LAEA Europe Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_6.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: ETRS89 / LAEA Europe Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="wgs-84-pseudo-mercator" class="level3">
+<h3 class="anchored" data-anchor-id="wgs-84-pseudo-mercator">7. <strong>WGS 84 / Pseudo-Mercator</strong></h3>
+<p>The WGS 84 / Pseudo-Mercator projection, also known as <strong>EPSG:3857</strong>, is closely related to the Web Mercator projection. It is designed for global-scale applications and is widely used for compatibility with web mapping platforms. This projection simplifies visualization but does not preserve distances or areas accurately.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Antarctica cannot be plotted with Web Mercator projection, as it become hugely elongated. Must remove Antarctica before plotting in Web Mercator.</p>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> world <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb8-3">            <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Antarctica"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb8-5">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:3857"</span></span>
+<span id="cb8-6">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb8-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"WGS 84 / Pseudo-Mercator Projection (EPSG:3857)"</span>,</span>
+<span id="cb8-10">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Simplifies visualization but does not preserve distances or areas accurately."</span></span>
+<span id="cb8-11">  )</span>
+<span id="cb8-12"></span>
+<span id="cb8-13"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb8-14">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb8-15">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb8-16">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"crs_projections_7.png"</span>),</span>
+<span id="cb8-17">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1200</span>,</span>
+<span id="cb8-18">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1800</span>,</span>
+<span id="cb8-19">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span></span>
+<span id="cb8-20">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-7" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-7-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_7.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8" title="Figure&nbsp;7: WGS 84 / Pseudo-Mercator Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_7.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-7-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: WGS 84 / Pseudo-Mercator Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="albers-equal-area" class="level3">
+<h3 class="anchored" data-anchor-id="albers-equal-area">8. <strong>Albers Equal Area</strong></h3>
+<p>The Albers Equal Area projection, identified by <strong>EPSG:5070</strong>, is particularly useful for mapping datasets across the United States. This projection preserves area relationships, making it suitable for applications like land-use planning or resource management. It is often used in environmental studies and thematic mapping.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> world <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-2">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># filter(name == "United States of America") |&gt; </span></span>
+<span id="cb9-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb9-5">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span></span>
+<span id="cb9-6">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf_text</span>(</span>
+<span id="cb9-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> name),</span>
+<span id="cb9-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">check_overlap =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>,</span>
+<span id="cb9-10">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span></span>
+<span id="cb9-11">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb9-13">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:5070"</span>,</span>
+<span id="cb9-14">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># xlim = c(-15, 45),</span></span>
+<span id="cb9-15">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># ylim = c(33, 70),</span></span>
+<span id="cb9-16">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># default_crs = sf::st_crs(4326)</span></span>
+<span id="cb9-17">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-18">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-19">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb9-20">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>,</span>
+<span id="cb9-21">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Albers Equal Area Projection"</span>,</span>
+<span id="cb9-22">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"For mainland USA"</span></span>
+<span id="cb9-23">  )</span>
+<span id="cb9-24"></span>
+<span id="cb9-25"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb9-26">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb9-27">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb9-28">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"crs_projections_8.png"</span>),</span>
+<span id="cb9-29">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1200</span>,</span>
+<span id="cb9-30">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1800</span>,</span>
+<span id="cb9-31">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span></span>
+<span id="cb9-32">)</span>
+<span id="cb9-33"></span>
+<span id="cb9-34">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> world <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-35">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"United States of America"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-36">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-37">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-38">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf_text</span>(</span>
+<span id="cb9-39">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> name),</span>
+<span id="cb9-40">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">check_overlap =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>,</span>
+<span id="cb9-41">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span></span>
+<span id="cb9-42">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-43">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb9-44">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:5070"</span>,</span>
+<span id="cb9-45">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xlim =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">125</span>, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">67</span>),</span>
+<span id="cb9-46">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ylim =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">25</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">53</span>),</span>
+<span id="cb9-47">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">default_crs =</span> sf<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span>)</span>
+<span id="cb9-48">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-49">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-50">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb9-51">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>,</span>
+<span id="cb9-52">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Albers Equal Area Projection"</span>,</span>
+<span id="cb9-53">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Focussing on mainland USA"</span></span>
+<span id="cb9-54">  )</span>
+<span id="cb9-55"></span>
+<span id="cb9-56"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb9-57">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb9-58">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"geocomputation"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb9-59">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"crs_projections_8_2.png"</span>),</span>
+<span id="cb9-60">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1200</span>,</span>
+<span id="cb9-61">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1800</span>,</span>
+<span id="cb9-62">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span></span>
+<span id="cb9-63">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-8" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-8-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_8.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9" title="Figure&nbsp;8: Albers Equal Area Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_8.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-8-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8: Albers Equal Area Projection
+</figcaption>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/crs_projections_8_2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10" title="Albers Equal Area Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_8_2.png" class="img-fluid figure-img" alt="Albers Equal Area Projection"></a></p>
+<figcaption>Albers Equal Area Projection</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="lambert-conformal-conic" class="level3">
+<h3 class="anchored" data-anchor-id="lambert-conformal-conic">9. <strong>Lambert Conformal Conic</strong></h3>
+<p>The Lambert Conformal Conic projection, represented by <strong>EPSG:102004</strong>, is a conformal projection widely used for mapping in North America. It minimizes distortion for regions with east-west orientation. This projection is often employed for regional-scale thematic mapping and analysis.</p>
+<div id="fig-9" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-9-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_9.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11" title="Figure&nbsp;9: Lambert Conformal Conic Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_9.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-9-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9: Lambert Conformal Conic Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="mollweide" class="level3">
+<h3 class="anchored" data-anchor-id="mollweide">10. <strong>Mollweide</strong></h3>
+<p>The Mollweide projection, identified by <strong>EPSG:54009</strong>, is an equal-area pseudocylindrical projection. It is ideal for global-scale thematic maps, such as climate or population density maps, where preserving area relationships is important. Its elliptical shape makes it visually distinct and effective for representing the entire world.</p>
+<div id="fig-10" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-10-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_10.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12" title="Figure&nbsp;10: Mollweide Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_10.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-10-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10: Mollweide Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="robinson" class="level3">
+<h3 class="anchored" data-anchor-id="robinson">11. <strong>Robinson</strong></h3>
+<p>The Robinson projection, represented by <strong>EPSG:54030</strong>, is a compromise projection designed to create visually appealing world maps. It strikes a balance between distortion of shape, area, and distance, making it suitable for general-purpose global mapping. It is widely used in atlases and educational materials.</p>
+<div id="fig-11" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-11-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_11.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13" title="Figure&nbsp;11: Robinson Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_11.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-11-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11: Robinson Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="sinusoidal" class="level3">
+<h3 class="anchored" data-anchor-id="sinusoidal">12. <strong>Sinusoidal</strong></h3>
+<p>The Sinusoidal projection, identified by <strong>EPSG:54008</strong>, is an equal-area projection that is widely used for global-scale analysis. It is particularly effective for thematic maps showing area distribution, such as land cover or climate zones. Its straightforward representation of meridians makes it easy to interpret.</p>
+<div id="fig-12" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-12-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_12.png" class="lightbox" data-gallery="quarto-lightbox-gallery-14" title="Figure&nbsp;12: Sinusoidal Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_12.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-12-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12: Sinusoidal Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="bonne" class="level3">
+<h3 class="anchored" data-anchor-id="bonne">13. <strong>Bonne</strong></h3>
+<p>The Bonne projection, represented by <strong>EPSG:54024</strong>, is an equal-area projection often used for mapping continents. It minimizes area distortion while maintaining a pleasing, compact layout. It is suitable for thematic maps where regional relationships are critical.</p>
+<div id="fig-13" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-13-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_13.png" class="lightbox" data-gallery="quarto-lightbox-gallery-15" title="Figure&nbsp;13: Bonne Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_13.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-13-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;13: Bonne Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="world-van-der-grinten-i" class="level3">
+<h3 class="anchored" data-anchor-id="world-van-der-grinten-i">14. <strong>World Van der Grinten I</strong></h3>
+<p>The World Van der Grinten I projection, identified by <strong>EPSG:54029</strong>, displays the entire world in a circular format. It offers an aesthetically pleasing view of global datasets, though it sacrifices accuracy in terms of area and shape. It is often used for decorative or general-purpose maps.</p>
+<div id="fig-14" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-14-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_14.png" class="lightbox" data-gallery="quarto-lightbox-gallery-16" title="Figure&nbsp;14: World Van der Grinten I Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_14.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-14-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14: World Van der Grinten I Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="plate-carrée" class="level3">
+<h3 class="anchored" data-anchor-id="plate-carrée">15. <strong>Plate Carrée</strong></h3>
+<p>The Plate Carrée projection, represented by <strong>EPSG:32662</strong>, is one of the simplest projections with equally spaced latitudes and longitudes. It is easy to work with but distorts area and shape significantly away from the equator. It is suitable for visualizing raw geographic data.</p>
+<div id="fig-15" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-15-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_15.png" class="lightbox" data-gallery="quarto-lightbox-gallery-17" title="Figure&nbsp;15: Plate Carrée Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_15.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-15-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;15: Plate Carrée Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="transverse-mercator" class="level3">
+<h3 class="anchored" data-anchor-id="transverse-mercator">16. <strong>Transverse Mercator</strong></h3>
+<p>The Transverse Mercator projection, associated with <strong>EPSG:4326</strong>, is a cylindrical projection ideal for narrow regions. It minimizes distortion along the central meridian, making it widely used for mapping zones like UTM. It is often employed in engineering and cadastral surveys.</p>
+<div id="fig-16" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-16-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_16.png" class="lightbox" data-gallery="quarto-lightbox-gallery-18" title="Figure&nbsp;16: Transverse Mercator Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_16.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-16-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;16: Transverse Mercator Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="north-pole-stereographic" class="level3">
+<h3 class="anchored" data-anchor-id="north-pole-stereographic">17. <strong>North Pole Stereographic</strong></h3>
+<p>The North Pole Stereographic projection, identified by <strong>EPSG:3413</strong>, is designed for mapping the Arctic region. It minimizes distortion near the pole, making it suitable for polar datasets, including sea ice and Arctic biodiversity.</p>
+<div id="fig-17" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-17-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_17.png" class="lightbox" data-gallery="quarto-lightbox-gallery-19" title="Figure&nbsp;17: North Pole Stereographic Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_17.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-17-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;17: North Pole Stereographic Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="south-pole-stereographic" class="level3">
+<h3 class="anchored" data-anchor-id="south-pole-stereographic">18. <strong>South Pole Stereographic</strong></h3>
+<p>The South Pole Stereographic projection, represented by <strong>EPSG:3031</strong>, is specifically designed for mapping the Antarctic region. It preserves the geometric properties near the pole and is commonly used for research on Antarctic ice sheets and ecosystems.</p>
+<div id="fig-18" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-18-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_18.png" class="lightbox" data-gallery="quarto-lightbox-gallery-20" title="Figure&nbsp;18: South Pole Stereographic Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_18.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-18-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;18: South Pole Stereographic Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="interrupted-goode-homolosine" class="level3">
+<h3 class="anchored" data-anchor-id="interrupted-goode-homolosine">19. <strong>Interrupted Goode Homolosine</strong></h3>
+<p>The Interrupted Goode Homolosine projection, identified by <strong>EPSG:54052</strong>, is a composite projection designed to minimize distortion of landmasses. It is particularly effective for global mapping that emphasizes land area accuracy and is often used in environmental studies.</p>
+<div id="fig-19" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-19-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_19.png" class="lightbox" data-gallery="quarto-lightbox-gallery-21" title="Figure&nbsp;19: Interrupted Goode Homolosine Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_19.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-19-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;19: Interrupted Goode Homolosine Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="krovak" class="level3">
+<h3 class="anchored" data-anchor-id="krovak">20. <strong>Krovak</strong></h3>
+<p>The Krovak projection, associated with <strong>EPSG:5514</strong>, is widely used in the Czech Republic and Slovakia. It is tailored to their geographic extents, ensuring minimal distortion for regional applications. It is ideal for cadastral and engineering projects in these areas.</p>
+<div id="fig-20" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-20-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_20.png" class="lightbox" data-gallery="quarto-lightbox-gallery-22" title="Figure&nbsp;20: Krovak Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_20.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-20-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;20: Krovak Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="asia-north-lambert-conformal" class="level3">
+<h3 class="anchored" data-anchor-id="asia-north-lambert-conformal">21. <strong>Asia North Lambert Conformal</strong></h3>
+<p>The Asia North Lambert Conformal Conic projection, identified by <strong>EPSG:102026</strong>, is designed for northern Asia. It is suitable for mapping datasets across this vast region with minimal distortion. It is commonly used in regional studies and thematic mapping.</p>
+<div id="fig-21" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-21-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_21.png" class="lightbox" data-gallery="quarto-lightbox-gallery-23" title="Figure&nbsp;21: Asia North Lambert Conformal Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_21.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-21-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;21: Asia North Lambert Conformal Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="australia-albers" class="level3">
+<h3 class="anchored" data-anchor-id="australia-albers">22. <strong>Australia Albers</strong></h3>
+<p>The Australia Albers projection, represented by <strong>EPSG:3577</strong>, is an equal-area projection optimized for Australia. It minimizes area distortion and is commonly used for environmental studies and resource management across the continent.</p>
+<div id="fig-22" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-22-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/crs_projections_22.png" class="lightbox" data-gallery="quarto-lightbox-gallery-24" title="Figure&nbsp;22: Australia Albers Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/images/crs_projections_22.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-22-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;22: Australia Albers Projection
+</figcaption>
+</figure>
+</div>
+<hr>
+
+
+</section>
+
+ ]]></description>
+  <category>Background Map</category>
+  <category>{terra}</category>
+  <category>Raster Map</category>
+  <guid>https://aditya-dahiya.github.io/visage/index.html/geocomputation/crs_projections.html</guid>
+  <pubDate>Wed, 11 Dec 2024 18:30:00 GMT</pubDate>
+</item>
 <item>
   <title>Using {geodata} to get elevation raster maps</title>
   <dc:creator>Aditya Dahiya</dc:creator>
@@ -6239,27 +8135,27 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
 </figcaption>
 <div aria-describedby="tbl-distance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="itiniczkff" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="xpobdpspjm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Cairo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#itiniczkff table {
+#xpobdpspjm table {
   font-family: Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#itiniczkff thead, #itiniczkff tbody, #itiniczkff tfoot, #itiniczkff tr, #itiniczkff td, #itiniczkff th {
+#xpobdpspjm thead, #xpobdpspjm tbody, #xpobdpspjm tfoot, #xpobdpspjm tr, #xpobdpspjm td, #xpobdpspjm th {
   border-style: none;
 }
 
-#itiniczkff p {
+#xpobdpspjm p {
   margin: 0;
   padding: 0;
 }
 
-#itiniczkff .gt_table {
+#xpobdpspjm .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -6285,12 +8181,12 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-left-color: #D3D3D3;
 }
 
-#itiniczkff .gt_caption {
+#xpobdpspjm .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#itiniczkff .gt_title {
+#xpobdpspjm .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -6302,7 +8198,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-bottom-width: 0;
 }
 
-#itiniczkff .gt_subtitle {
+#xpobdpspjm .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -6314,7 +8210,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-top-width: 0;
 }
 
-#itiniczkff .gt_heading {
+#xpobdpspjm .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -6326,13 +8222,13 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-right-color: #D3D3D3;
 }
 
-#itiniczkff .gt_bottom_border {
+#xpobdpspjm .gt_bottom_border {
   border-bottom-style: none;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#itiniczkff .gt_col_headings {
+#xpobdpspjm .gt_col_headings {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -6347,7 +8243,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-right-color: #D3D3D3;
 }
 
-#itiniczkff .gt_col_heading {
+#xpobdpspjm .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -6367,7 +8263,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   overflow-x: hidden;
 }
 
-#itiniczkff .gt_column_spanner_outer {
+#xpobdpspjm .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -6379,15 +8275,15 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   padding-right: 4px;
 }
 
-#itiniczkff .gt_column_spanner_outer:first-child {
+#xpobdpspjm .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#itiniczkff .gt_column_spanner_outer:last-child {
+#xpobdpspjm .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#itiniczkff .gt_column_spanner {
+#xpobdpspjm .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #000000;
@@ -6399,11 +8295,11 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   width: 100%;
 }
 
-#itiniczkff .gt_spanner_row {
+#xpobdpspjm .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#itiniczkff .gt_group_heading {
+#xpobdpspjm .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -6429,7 +8325,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   text-align: left;
 }
 
-#itiniczkff .gt_empty_group_heading {
+#xpobdpspjm .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -6444,15 +8340,15 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   vertical-align: middle;
 }
 
-#itiniczkff .gt_from_md > :first-child {
+#xpobdpspjm .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#itiniczkff .gt_from_md > :last-child {
+#xpobdpspjm .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#itiniczkff .gt_row {
+#xpobdpspjm .gt_row {
   padding-top: 3px;
   padding-bottom: 3px;
   padding-left: 5px;
@@ -6471,7 +8367,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   overflow-x: hidden;
 }
 
-#itiniczkff .gt_stub {
+#xpobdpspjm .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -6484,7 +8380,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   padding-right: 5px;
 }
 
-#itiniczkff .gt_stub_row_group {
+#xpobdpspjm .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -6498,15 +8394,15 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   vertical-align: top;
 }
 
-#itiniczkff .gt_row_group_first td {
+#xpobdpspjm .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#itiniczkff .gt_row_group_first th {
+#xpobdpspjm .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#itiniczkff .gt_summary_row {
+#xpobdpspjm .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -6516,16 +8412,16 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   padding-right: 5px;
 }
 
-#itiniczkff .gt_first_summary_row {
+#xpobdpspjm .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#itiniczkff .gt_first_summary_row.thick {
+#xpobdpspjm .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#itiniczkff .gt_last_summary_row {
+#xpobdpspjm .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -6535,7 +8431,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-bottom-color: #D3D3D3;
 }
 
-#itiniczkff .gt_grand_summary_row {
+#xpobdpspjm .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -6545,7 +8441,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   padding-right: 5px;
 }
 
-#itiniczkff .gt_first_grand_summary_row {
+#xpobdpspjm .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -6555,7 +8451,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-top-color: #D3D3D3;
 }
 
-#itiniczkff .gt_last_grand_summary_row_top {
+#xpobdpspjm .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -6565,11 +8461,11 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-bottom-color: #D3D3D3;
 }
 
-#itiniczkff .gt_striped {
+#xpobdpspjm .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#itiniczkff .gt_table_body {
+#xpobdpspjm .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -6578,7 +8474,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-bottom-color: #D3D3D3;
 }
 
-#itiniczkff .gt_footnotes {
+#xpobdpspjm .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -6592,7 +8488,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-right-color: #D3D3D3;
 }
 
-#itiniczkff .gt_footnote {
+#xpobdpspjm .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -6601,7 +8497,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   padding-right: 5px;
 }
 
-#itiniczkff .gt_sourcenotes {
+#xpobdpspjm .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -6615,7 +8511,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-right-color: #D3D3D3;
 }
 
-#itiniczkff .gt_sourcenote {
+#xpobdpspjm .gt_sourcenote {
   font-size: 12px;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -6623,72 +8519,72 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   padding-right: 5px;
 }
 
-#itiniczkff .gt_left {
+#xpobdpspjm .gt_left {
   text-align: left;
 }
 
-#itiniczkff .gt_center {
+#xpobdpspjm .gt_center {
   text-align: center;
 }
 
-#itiniczkff .gt_right {
+#xpobdpspjm .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#itiniczkff .gt_font_normal {
+#xpobdpspjm .gt_font_normal {
   font-weight: normal;
 }
 
-#itiniczkff .gt_font_bold {
+#xpobdpspjm .gt_font_bold {
   font-weight: bold;
 }
 
-#itiniczkff .gt_font_italic {
+#xpobdpspjm .gt_font_italic {
   font-style: italic;
 }
 
-#itiniczkff .gt_super {
+#xpobdpspjm .gt_super {
   font-size: 65%;
 }
 
-#itiniczkff .gt_footnote_marks {
+#xpobdpspjm .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#itiniczkff .gt_asterisk {
+#xpobdpspjm .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#itiniczkff .gt_indent_1 {
+#xpobdpspjm .gt_indent_1 {
   text-indent: 5px;
 }
 
-#itiniczkff .gt_indent_2 {
+#xpobdpspjm .gt_indent_2 {
   text-indent: 10px;
 }
 
-#itiniczkff .gt_indent_3 {
+#xpobdpspjm .gt_indent_3 {
   text-indent: 15px;
 }
 
-#itiniczkff .gt_indent_4 {
+#xpobdpspjm .gt_indent_4 {
   text-indent: 20px;
 }
 
-#itiniczkff .gt_indent_5 {
+#xpobdpspjm .gt_indent_5 {
   text-indent: 25px;
 }
 
-#itiniczkff .katex-display {
+#xpobdpspjm .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#itiniczkff div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#xpobdpspjm div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 
@@ -6976,26 +8872,26 @@ background-color: null;
 font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="vsbthhloji" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="bdvazleqoz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#vsbthhloji table {
+#bdvazleqoz table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#vsbthhloji thead, #vsbthhloji tbody, #vsbthhloji tfoot, #vsbthhloji tr, #vsbthhloji td, #vsbthhloji th {
+#bdvazleqoz thead, #bdvazleqoz tbody, #bdvazleqoz tfoot, #bdvazleqoz tr, #bdvazleqoz td, #bdvazleqoz th {
   border-style: none;
 }
 
-#vsbthhloji p {
+#bdvazleqoz p {
   margin: 0;
   padding: 0;
 }
 
-#vsbthhloji .gt_table {
+#bdvazleqoz .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -7021,12 +8917,12 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-left-color: #D3D3D3;
 }
 
-#vsbthhloji .gt_caption {
+#bdvazleqoz .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#vsbthhloji .gt_title {
+#bdvazleqoz .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -7038,7 +8934,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-bottom-width: 0;
 }
 
-#vsbthhloji .gt_subtitle {
+#bdvazleqoz .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -7050,7 +8946,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-top-width: 0;
 }
 
-#vsbthhloji .gt_heading {
+#bdvazleqoz .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -7062,13 +8958,13 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-right-color: #D3D3D3;
 }
 
-#vsbthhloji .gt_bottom_border {
+#bdvazleqoz .gt_bottom_border {
   border-bottom-style: none;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#vsbthhloji .gt_col_headings {
+#bdvazleqoz .gt_col_headings {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -7083,7 +8979,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-right-color: #D3D3D3;
 }
 
-#vsbthhloji .gt_col_heading {
+#bdvazleqoz .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 12px;
@@ -7103,7 +8999,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   overflow-x: hidden;
 }
 
-#vsbthhloji .gt_column_spanner_outer {
+#bdvazleqoz .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 12px;
@@ -7115,15 +9011,15 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   padding-right: 4px;
 }
 
-#vsbthhloji .gt_column_spanner_outer:first-child {
+#bdvazleqoz .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#vsbthhloji .gt_column_spanner_outer:last-child {
+#bdvazleqoz .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#vsbthhloji .gt_column_spanner {
+#bdvazleqoz .gt_column_spanner {
   border-bottom-style: none;
   border-bottom-width: 1px;
   border-bottom-color: #334422;
@@ -7135,11 +9031,11 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   width: 100%;
 }
 
-#vsbthhloji .gt_spanner_row {
+#bdvazleqoz .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#vsbthhloji .gt_group_heading {
+#bdvazleqoz .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -7165,7 +9061,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   text-align: left;
 }
 
-#vsbthhloji .gt_empty_group_heading {
+#bdvazleqoz .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -7180,15 +9076,15 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   vertical-align: middle;
 }
 
-#vsbthhloji .gt_from_md > :first-child {
+#bdvazleqoz .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#vsbthhloji .gt_from_md > :last-child {
+#bdvazleqoz .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#vsbthhloji .gt_row {
+#bdvazleqoz .gt_row {
   padding-top: 7px;
   padding-bottom: 7px;
   padding-left: 5px;
@@ -7207,7 +9103,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   overflow-x: hidden;
 }
 
-#vsbthhloji .gt_stub {
+#bdvazleqoz .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -7220,7 +9116,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   padding-right: 5px;
 }
 
-#vsbthhloji .gt_stub_row_group {
+#bdvazleqoz .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -7234,15 +9130,15 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   vertical-align: top;
 }
 
-#vsbthhloji .gt_row_group_first td {
+#bdvazleqoz .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#vsbthhloji .gt_row_group_first th {
+#bdvazleqoz .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#vsbthhloji .gt_summary_row {
+#bdvazleqoz .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -7252,16 +9148,16 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   padding-right: 5px;
 }
 
-#vsbthhloji .gt_first_summary_row {
+#bdvazleqoz .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#vsbthhloji .gt_first_summary_row.thick {
+#bdvazleqoz .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#vsbthhloji .gt_last_summary_row {
+#bdvazleqoz .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -7271,7 +9167,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-bottom-color: #D3D3D3;
 }
 
-#vsbthhloji .gt_grand_summary_row {
+#bdvazleqoz .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -7281,7 +9177,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   padding-right: 5px;
 }
 
-#vsbthhloji .gt_first_grand_summary_row {
+#bdvazleqoz .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -7291,7 +9187,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-top-color: #D3D3D3;
 }
 
-#vsbthhloji .gt_last_grand_summary_row_top {
+#bdvazleqoz .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -7301,11 +9197,11 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-bottom-color: #D3D3D3;
 }
 
-#vsbthhloji .gt_striped {
+#bdvazleqoz .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#vsbthhloji .gt_table_body {
+#bdvazleqoz .gt_table_body {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -7314,7 +9210,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-bottom-color: #FFFFFF;
 }
 
-#vsbthhloji .gt_footnotes {
+#bdvazleqoz .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -7328,7 +9224,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-right-color: #D3D3D3;
 }
 
-#vsbthhloji .gt_footnote {
+#bdvazleqoz .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -7337,7 +9233,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   padding-right: 5px;
 }
 
-#vsbthhloji .gt_sourcenotes {
+#bdvazleqoz .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -7351,7 +9247,7 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   border-right-color: #D3D3D3;
 }
 
-#vsbthhloji .gt_sourcenote {
+#bdvazleqoz .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -7359,72 +9255,72 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
   padding-right: 5px;
 }
 
-#vsbthhloji .gt_left {
+#bdvazleqoz .gt_left {
   text-align: left;
 }
 
-#vsbthhloji .gt_center {
+#bdvazleqoz .gt_center {
   text-align: center;
 }
 
-#vsbthhloji .gt_right {
+#bdvazleqoz .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#vsbthhloji .gt_font_normal {
+#bdvazleqoz .gt_font_normal {
   font-weight: normal;
 }
 
-#vsbthhloji .gt_font_bold {
+#bdvazleqoz .gt_font_bold {
   font-weight: bold;
 }
 
-#vsbthhloji .gt_font_italic {
+#bdvazleqoz .gt_font_italic {
   font-style: italic;
 }
 
-#vsbthhloji .gt_super {
+#bdvazleqoz .gt_super {
   font-size: 65%;
 }
 
-#vsbthhloji .gt_footnote_marks {
+#bdvazleqoz .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#vsbthhloji .gt_asterisk {
+#bdvazleqoz .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#vsbthhloji .gt_indent_1 {
+#bdvazleqoz .gt_indent_1 {
   text-indent: 5px;
 }
 
-#vsbthhloji .gt_indent_2 {
+#bdvazleqoz .gt_indent_2 {
   text-indent: 10px;
 }
 
-#vsbthhloji .gt_indent_3 {
+#bdvazleqoz .gt_indent_3 {
   text-indent: 15px;
 }
 
-#vsbthhloji .gt_indent_4 {
+#bdvazleqoz .gt_indent_4 {
   text-indent: 20px;
 }
 
-#vsbthhloji .gt_indent_5 {
+#bdvazleqoz .gt_indent_5 {
   text-indent: 25px;
 }
 
-#vsbthhloji .katex-display {
+#bdvazleqoz .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#vsbthhloji div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#bdvazleqoz div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -7439,59 +9335,49 @@ font-style: inherit;">gt_theme_nytimes</span>()</span></code></pre></div>
 </thead>
 <tbody class="gt_table_body">
 <tr class="odd">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">B</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(82.17, 26.24)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">India</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">I</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(88.46, -80.33)</td>
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">A</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(144.5, -84.79)</td>
 <td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Antarctica</td>
 </tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">L</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(128.86, 66.14)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Russian Federation</td>
-</tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">M</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(35.82, 57.98)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Russian Federation</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">N</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-74.43, -52.34)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Chile</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">O</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(59.16, 25.62)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Iran</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">P</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(136.49, 69.65)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Russian Federation</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">R</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-52.2, -10.44)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Brazil</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">S</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(13.36, -20.19)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Namibia</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">U</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-153.1, -81.91)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Antarctica</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">W</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-108.05, 49.17)</td>
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">C</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-88.34, 54.48)</td>
 <td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Canada</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">E</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-75.3, 60.22)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Canada</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">F</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(135.09, 66.74)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Russian Federation</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">I</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(105.49, 15.32)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Thailand</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">N</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(19.08, 29.12)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Libya</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">O</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(113.88, 48.71)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Mongolia</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">Q</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(21.99, -33.51)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">South Africa</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">U</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(140.47, 59.39)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Russian Federation</td>
 </tr>
 </tbody>
 </table>
@@ -10748,15 +12634,633 @@ tbody tr:last-child {
 <section id="e4." class="level3">
 <h3 class="anchored" data-anchor-id="e4.">E4.</h3>
 <p><strong>The starting point of this exercise is to create an object representing Colorado state in the USA. Do this with the command <code>colorado = us_states[us_states$NAME == "Colorado",]</code> (base R) or with the <a href="https://dplyr.tidyverse.org/reference/filter.html"><code>filter()</code></a> function (tidyverse) and plot the resulting object in the context of US states.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"us_states"</span>)</span>
+<span id="cb63-2"></span>
+<span id="cb63-3">colorado <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> us_states <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb63-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(NAME <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Colorado"</span>)</span>
+<span id="cb63-5"></span>
+<span id="cb63-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb63-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> colorado) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb63-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggtitle</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Map of Colorado State"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb63-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb63-10">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:5070"</span></span>
+<span id="cb63-11">  )</span></code></pre></div>
+<div class="cell-output-display">
+<div id="fig-col-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-col-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-col-1-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-30" title="Figure&nbsp;12: Map of Colorado State"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/chapter4_files/figure-html/fig-col-1-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-col-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12: Map of Colorado State
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 <ul>
-<li><p>Create a new object representing all the states that geographically intersect with Colorado and plot the result (hint: the most concise way to do this is with the subsetting method <code>[</code>).</p></li>
-<li><p>Create another object representing all the objects that touch (have a shared boundary with) Colorado and plot the result (hint: remember you can use the argument <code>op = st_intersects</code> and other spatial relations during spatial subsetting operations in base R).</p></li>
-<li><p>Bonus: create a straight line from the centroid of the District of Columbia near the East coast to the centroid of California near the West coast of the USA (hint: functions <a href="https://r-spatial.github.io/sf/reference/geos_unary.html"><code>st_centroid()</code></a>, <a href="https://r-spatial.github.io/sf/reference/geos_combine.html"><code>st_union()</code></a> and <a href="https://r-spatial.github.io/sf/reference/st_cast.html"><code>st_cast()</code></a> described in Chapter 5 may help) and identify which states this long East-West line crosses.</p></li>
+<li><strong>Create a new object representing all the states that geographically intersect with Colorado and plot the result (hint: the most concise way to do this is with the subsetting method <code>[</code>)</strong>.</li>
 </ul>
-<p>E5. Use <code>dem = rast(system.file("raster/dem.tif", package = "spDataLarge"))</code>, and reclassify the elevation in three classes: low (&lt;300), medium and high (&gt;500). Secondly, read the NDVI raster (<code>ndvi = rast(system.file("raster/ndvi.tif", package = "spDataLarge"))</code>) and compute the mean NDVI and the mean elevation for each altitudinal class.</p>
-<p>E6. Apply a line detection filter to <code>rast(system.file("ex/logo.tif", package = "terra"))</code>. Plot the result. Hint: Read <code>?terra::focal()</code>.</p>
-<p>E7. Calculate the Normalized Difference Water Index (NDWI; <code>(green - nir)/(green + nir)</code>) of a Landsat image. Use the Landsat image provided by the <strong>spDataLarge</strong> package (<code>system.file("raster/landsat.tif", package = "spDataLarge")</code>). Also, calculate a correlation between NDVI and NDWI for this area (hint: you can use the <a href="https://rspatial.github.io/terra/reference/layerCor.html"><code>layerCor()</code></a> function).</p>
-<p>E8. A StackOverflow <a href="https://stackoverflow.com/questions/35555709/global-raster-of-geographic-distances">post (stackoverflow.com/questions/35555709)</a> shows how to compute distances to the nearest coastline using <a href="https://rspatial.github.io/terra/reference/distance.html"><code>raster::distance()</code></a>. Try to do something similar but with <a href="https://rspatial.github.io/terra/reference/distance.html"><code>terra::distance()</code></a>: retrieve a digital elevation model of Spain, and compute a raster which represents distances to the coast across the country (hint: use <a href="https://rdrr.io/pkg/geodata/man/elevation.html"><code>geodata::elevation_30s()</code></a>). Convert the resulting distances from meters to kilometers. Note: it may be wise to increase the cell size of the input raster to reduce compute time during this operation (<a href="https://rspatial.github.io/terra/reference/aggregate.html"><code>aggregate()</code></a>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb64-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb64-3">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> us_states,</span>
+<span id="cb64-4">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span></span>
+<span id="cb64-5">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb64-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb64-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> colorado,</span>
+<span id="cb64-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"yellow"</span></span>
+<span id="cb64-9">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb64-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf_text</span>(</span>
+<span id="cb64-11">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> colorado,</span>
+<span id="cb64-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb64-13">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> NAME</span>
+<span id="cb64-14">    ),</span>
+<span id="cb64-15">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"caption_font"</span>,</span>
+<span id="cb64-16">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fontface =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span></span>
+<span id="cb64-17">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb64-18">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb64-19">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:5070"</span></span>
+<span id="cb64-20">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb64-21">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb64-22">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>,</span>
+<span id="cb64-23">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Map of USA states, with Colorado highlighted"</span></span>
+<span id="cb64-24">  )</span></code></pre></div>
+<div class="cell-output-display">
+<div id="fig-col-usa" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-col-usa-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-col-usa-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-31" title="Figure&nbsp;13: Colorado, within USA’s states; with projection changed to Albers Equal Area Projection"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/chapter4_files/figure-html/fig-col-usa-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-col-usa-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;13: Colorado, within USA’s states; with projection changed to Albers Equal Area Projection
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Create another object representing all the objects that touch (have a shared boundary with) Colorado and plot the result (hint: remember you can use the argument <code>op = st_intersects</code> and other spatial relations during spatial subsetting operations in base R).</strong></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1">bordering <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> us_states <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb65-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb65-3">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">border_colorado =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_vector</span>(</span>
+<span id="cb65-4">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_vector</span>(</span>
+<span id="cb65-5">        us_states <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb65-6">        <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersects</span>(colorado, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span>
+<span id="cb65-7">      )</span>
+<span id="cb65-8">    )</span>
+<span id="cb65-9">  )</span>
+<span id="cb65-10"></span>
+<span id="cb65-11"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb65-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb65-13">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> bordering,</span>
+<span id="cb65-14">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb65-15">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> border_colorado</span>
+<span id="cb65-16">    )</span>
+<span id="cb65-17">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb65-18">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_manual</span>(</span>
+<span id="cb65-19">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"orange"</span>)</span>
+<span id="cb65-20">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb65-21">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf_text</span>(</span>
+<span id="cb65-22">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(bordering, border_colorado),</span>
+<span id="cb65-23">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb65-24">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> NAME</span>
+<span id="cb65-25">    ),</span>
+<span id="cb65-26">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"caption_font"</span></span>
+<span id="cb65-27">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb65-28">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb65-29">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> colorado,</span>
+<span id="cb65-30">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span></span>
+<span id="cb65-31">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb65-32">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf_text</span>(</span>
+<span id="cb65-33">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> colorado,</span>
+<span id="cb65-34">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb65-35">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> NAME</span>
+<span id="cb65-36">    ),</span>
+<span id="cb65-37">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"caption_font"</span>,</span>
+<span id="cb65-38">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fontface =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span></span>
+<span id="cb65-39">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb65-40">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb65-41">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:5070"</span></span>
+<span id="cb65-42">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb65-43">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb65-44">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>,</span>
+<span id="cb65-45">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Map of USA states, with states bordering Colorado highlighted in orange"</span></span>
+<span id="cb65-46">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb65-47">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb65-48">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"none"</span></span>
+<span id="cb65-49">  )</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="chapter4_files/figure-html/unnamed-chunk-31-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-32"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/chapter4_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Bonus: create a straight line from the centroid of the District of Columbia near the East coast to the centroid of California near the West coast of the USA (hint: functions <a href="https://r-spatial.github.io/sf/reference/geos_unary.html"><code>st_centroid()</code></a>, <a href="https://r-spatial.github.io/sf/reference/geos_combine.html"><code>st_union()</code></a> and <a href="https://r-spatial.github.io/sf/reference/st_cast.html"><code>st_cast()</code></a> described in Chapter 5 may help) and identify which states this long East-West line crosses</strong>.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1">wdc_centre <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_centroid</span>(</span>
+<span id="cb66-2">  us_states <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(NAME <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"District of Columbia"</span>)</span>
+<span id="cb66-3">) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb66-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull</span>(geometry)</span>
+<span id="cb66-5"></span>
+<span id="cb66-6">cal_centre <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_centroid</span>(</span>
+<span id="cb66-7">  us_states <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(NAME <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"California"</span>)</span>
+<span id="cb66-8">) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb66-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull</span>(geometry)</span>
+<span id="cb66-10"></span>
+<span id="cb66-11">straight_line <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_union</span>(</span>
+<span id="cb66-12">  wdc_centre,</span>
+<span id="cb66-13">  cal_centre</span>
+<span id="cb66-14">) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb66-15">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_cast</span>(</span>
+<span id="cb66-16">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"LINESTRING"</span></span>
+<span id="cb66-17">  )</span>
+<span id="cb66-18"></span>
+<span id="cb66-19">us_states <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb66-20">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb66-21">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">on_the_way =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_vector</span>(</span>
+<span id="cb66-22">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersects</span>(</span>
+<span id="cb66-23">        us_states, </span>
+<span id="cb66-24">        straight_line, </span>
+<span id="cb66-25">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span></span>
+<span id="cb66-26">      )</span>
+<span id="cb66-27">    )</span>
+<span id="cb66-28">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb66-29">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb66-30">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb66-31">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb66-32">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> on_the_way</span>
+<span id="cb66-33">    )</span>
+<span id="cb66-34">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb66-35">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_manual</span>(</span>
+<span id="cb66-36">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"orange"</span>)</span>
+<span id="cb66-37">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb66-38">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb66-39">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> straight_line,</span>
+<span id="cb66-40">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span></span>
+<span id="cb66-41">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb66-42">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb66-43">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> cal_centre,</span>
+<span id="cb66-44">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span></span>
+<span id="cb66-45">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb66-46">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb66-47">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> wdc_centre,</span>
+<span id="cb66-48">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span></span>
+<span id="cb66-49">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb66-50">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb66-51">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:5070"</span></span>
+<span id="cb66-52">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb66-53">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb66-54">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Line from Centroids of District of Columbia and California;</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">and highlighting the states that it crosses through"</span></span>
+<span id="cb66-55">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb66-56">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb66-57">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"none"</span></span>
+<span id="cb66-58">  )</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="chapter4_files/figure-html/unnamed-chunk-32-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-33"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/chapter4_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="e5." class="level3">
+<h3 class="anchored" data-anchor-id="e5.">E5.</h3>
+<p><strong>Use <code>dem = rast(system.file("raster/dem.tif", package = "spDataLarge"))</code>, and reclassify the elevation in three classes: low (&lt;300), medium and high (&gt;500). Secondly, read the NDVI raster (<code>ndvi = rast(system.file("raster/ndvi.tif", package = "spDataLarge"))</code>) and compute the mean NDVI and the mean elevation for each altitudinal class.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1">dem <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rast</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">system.file</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"raster/dem.tif"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">package =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"spDataLarge"</span>))</span>
+<span id="cb67-2"></span>
+<span id="cb67-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb67-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> dem) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb67-5">  paletteer<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_paletteer_c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"grDevices::Terrain 2"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="chapter4_files/figure-html/unnamed-chunk-33-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-34"><img src="https://aditya-dahiya.github.io/visage/index.html/geocomputation/chapter4_files/figure-html/unnamed-chunk-33-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="e6." class="level3">
+<h3 class="anchored" data-anchor-id="e6.">E6.</h3>
+<p><strong>Apply a line detection filter to <code>rast(system.file("ex/logo.tif", package = "terra"))</code>. Plot the result. Hint: Read <code>?terra::focal()</code>.</strong></p>
+<hr>
+</section>
+<section id="e7." class="level3">
+<h3 class="anchored" data-anchor-id="e7.">E7.</h3>
+<p>Calculate the Normalized Difference Water Index (NDWI; <code>(green - nir)/(green + nir)</code>) of a Landsat image. Use the Landsat image provided by the <strong>spDataLarge</strong> package (<code>system.file("raster/landsat.tif", package = "spDataLarge")</code>). Also, calculate a correlation between NDVI and NDWI for this area (hint: you can use the <a href="https://rspatial.github.io/terra/reference/layerCor.html"><code>layerCor()</code></a> function).</p>
+<hr>
+</section>
+<section id="e8." class="level3">
+<h3 class="anchored" data-anchor-id="e8.">E8.</h3>
+<p>A StackOverflow <a href="https://stackoverflow.com/questions/35555709/global-raster-of-geographic-distances">post (stackoverflow.com/questions/35555709)</a> shows how to compute distances to the nearest coastline using <a href="https://rspatial.github.io/terra/reference/distance.html"><code>raster::distance()</code></a>. Try to do something similar but with <a href="https://rspatial.github.io/terra/reference/distance.html"><code>terra::distance()</code></a>: retrieve a digital elevation model of Spain, and compute a raster which represents distances to the coast across the country (hint: use <a href="https://rdrr.io/pkg/geodata/man/elevation.html"><code>geodata::elevation_30s()</code></a>). Convert the resulting distances from meters to kilometers. Note: it may be wise to increase the cell size of the input raster to reduce compute time during this operation (<a href="https://rspatial.github.io/terra/reference/aggregate.html"><code>aggregate()</code></a>).</p>
 <p>E9. Try to modify the approach used in the above exercise by weighting the distance raster with the elevation raster; every 100 altitudinal meters should increase the distance to the coast by 10 km. Next, compute and visualize the difference between the raster created using the Euclidean distance (E7) and the raster weighted by elevation.</p>
 
 
