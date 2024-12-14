@@ -1,0 +1,2651 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Aditya Dahiya">
+<meta name="dcterms.date" content="2024-11-03">
+
+<title>Chapter 2: Geographic data in R – visage</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../visage_logo.png" rel="icon" type="image/png">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/quarto-contrib/social-share-0.1.0/social-share.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/social-share-0.1.0/all.css" rel="stylesheet">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="../site_libs/core-js-2.5.3/shim.min.js"></script>
+
+<script src="../site_libs/react-18.2.0/react.min.js"></script>
+
+<script src="../site_libs/react-18.2.0/react-dom.min.js"></script>
+
+<script src="../site_libs/reactwidget-2.0.0/react-tools.umd.cjs"></script>
+
+<script src="../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+
+<link href="../site_libs/reactable-0.4.4/reactable.css" rel="stylesheet">
+
+<script src="../site_libs/reactable-binding-0.4.4/reactable.js"></script>
+
+
+
+<link rel="stylesheet" href="../styles.css">
+<meta name="twitter:title" content="Chapter 2: Geographic data in R – visage">
+<meta name="twitter:description" content="Key Learnings from, and Solutions to the exercises in Chapter 2 of the book Geocomputation with R by Robin Lovelace, Jakub Nowosad and Jannes Muenchow.">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../visage_logo.png" alt="visage" class="navbar-logo">
+    </a>
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">visage</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../geocomputation.html"> 
+<span class="menu-text">Geocomputation</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../book_solutions.html"> 
+<span class="menu-text">Book Solutions</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../ggplot2_ext.html"> 
+<span class="menu-text">ggplot2 Extensions</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools tools-wide">
+    <a href="../index.xml" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-rss"></i></a>
+    <div class="dropdown">
+      <a href="" title="" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label=""><i class="bi bi-github"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/Aditya-Dahiya/visage">
+            Source Code
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/Aditya-Dahiya/visage/issues">
+            Suggestions / Feedback
+            </a>
+          </li>
+      </ul>
+    </div>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">2.1 Introduction</a></li>
+  <li><a href="#vector-data" id="toc-vector-data" class="nav-link" data-scroll-target="#vector-data">2.2 Vector Data</a>
+  <ul class="collapse">
+  <li><a href="#introduction-to-simple-features" id="toc-introduction-to-simple-features" class="nav-link" data-scroll-target="#introduction-to-simple-features">2.2.1 Introduction to Simple Features</a></li>
+  <li><a href="#why-simple-features" id="toc-why-simple-features" class="nav-link" data-scroll-target="#why-simple-features">2.2.2 Why Simple Features?</a></li>
+  <li><a href="#basic-maps" id="toc-basic-maps" class="nav-link" data-scroll-target="#basic-maps">2.2.3 Basic Maps</a></li>
+  <li><a href="#geometry-types" id="toc-geometry-types" class="nav-link" data-scroll-target="#geometry-types">2.2.4 Geometry Types</a></li>
+  <li><a href="#the-sf-class" id="toc-the-sf-class" class="nav-link" data-scroll-target="#the-sf-class">2.2.5 The sf Class</a></li>
+  <li><a href="#simple-feature-geometries-sfg" id="toc-simple-feature-geometries-sfg" class="nav-link" data-scroll-target="#simple-feature-geometries-sfg">2.2.6 Simple Feature Geometries (<code>sfg</code>)</a></li>
+  <li><a href="#the-sfheaders-package" id="toc-the-sfheaders-package" class="nav-link" data-scroll-target="#the-sfheaders-package">2.2.8 The <code>sfheaders</code> Package</a></li>
+  <li><a href="#spherical-geometry-operations-with-s2" id="toc-spherical-geometry-operations-with-s2" class="nav-link" data-scroll-target="#spherical-geometry-operations-with-s2">2.2.9 Spherical Geometry Operations with S2</a></li>
+  </ul></li>
+  <li><a href="#raster-data" id="toc-raster-data" class="nav-link" data-scroll-target="#raster-data">2.3 Raster Data</a>
+  <ul class="collapse">
+  <li><a href="#r-packages-for-working-with-raster-data" id="toc-r-packages-for-working-with-raster-data" class="nav-link" data-scroll-target="#r-packages-for-working-with-raster-data">2.3.1 <code>R</code> Packages for Working with Raster Data</a></li>
+  <li><a href="#introduction-to-terra" id="toc-introduction-to-terra" class="nav-link" data-scroll-target="#introduction-to-terra">2.3.2 Introduction to <strong><code>terra</code></strong></a></li>
+  <li><a href="#basic-map-making" id="toc-basic-map-making" class="nav-link" data-scroll-target="#basic-map-making">2.3.3 Basic Map-Making</a></li>
+  <li><a href="#raster-classes" id="toc-raster-classes" class="nav-link" data-scroll-target="#raster-classes">2.3.4 Raster Classes</a></li>
+  </ul></li>
+  <li><a href="#coordinate-reference-systems" id="toc-coordinate-reference-systems" class="nav-link" data-scroll-target="#coordinate-reference-systems">2.4 Coordinate Reference Systems</a>
+  <ul class="collapse">
+  <li><a href="#geographic-coordinate-reference-systems" id="toc-geographic-coordinate-reference-systems" class="nav-link" data-scroll-target="#geographic-coordinate-reference-systems">2.4.1 Geographic Coordinate Reference Systems</a></li>
+  <li><a href="#projected-coordinate-reference-systems" id="toc-projected-coordinate-reference-systems" class="nav-link" data-scroll-target="#projected-coordinate-reference-systems">2.4.2 Projected Coordinate Reference Systems</a></li>
+  <li><a href="#types-of-projections-and-their-characteristics" id="toc-types-of-projections-and-their-characteristics" class="nav-link" data-scroll-target="#types-of-projections-and-their-characteristics">Types of Projections and Their Characteristics</a></li>
+  <li><a href="#deformations-by-projection-type" id="toc-deformations-by-projection-type" class="nav-link" data-scroll-target="#deformations-by-projection-type">Deformations by Projection Type</a></li>
+  </ul></li>
+  <li><a href="#units" id="toc-units" class="nav-link" data-scroll-target="#units">2.5 Units</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><strong>2.6 Exercises</strong></a>
+  <ul class="collapse">
+  <li><a href="#e1" id="toc-e1" class="nav-link" data-scroll-target="#e1">E1</a></li>
+  <li><a href="#e2" id="toc-e2" class="nav-link" data-scroll-target="#e2">E2</a></li>
+  <li><a href="#e3" id="toc-e3" class="nav-link" data-scroll-target="#e3">E3</a></li>
+  <li><a href="#e4" id="toc-e4" class="nav-link" data-scroll-target="#e4">E4</a></li>
+  <li><a href="#e5" id="toc-e5" class="nav-link" data-scroll-target="#e5">E5</a></li>
+  <li><a href="#e6" id="toc-e6" class="nav-link" data-scroll-target="#e6">E6</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/book_solutions/chapter2.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Chapter 2: Geographic data in R</h1>
+<p class="subtitle lead">Key Learnings from, and Solutions to the exercises in Chapter 2 of the book Geocomputation with R by Robin Lovelace, Jakub Nowosad and Jannes Muenchow.</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">Geocomputation with R</div>
+    <div class="quarto-category">Textbook Solutions</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Aditya Dahiya </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 3, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">2.1 Introduction</h2>
+<ul>
+<li><strong>Geographic Data Models</strong>: Vector and raster models are foundational.
+<ul>
+<li><strong>Vector Model</strong>: Represents geographic data as points, lines, and polygons with precise boundaries; commonly used in social sciences for features like human settlements.</li>
+<li><strong>Raster Model</strong>: Divides surfaces into cells; useful in environmental sciences, often based on remote sensing and aerial data. Scalable and consistent over large areas.</li>
+</ul></li>
+<li><strong>Choosing a Model</strong>:
+<ul>
+<li>Vector is often used in social sciences.</li>
+<li>Raster is prevalent in environmental studies.</li>
+</ul></li>
+<li><strong>R Implementation</strong>:
+<ul>
+<li>Use <a href="https://r-spatial.github.io/sf/"><strong><code>sf</code></strong></a> for vector data.</li>
+<li>Use <a href="https://rspatial.org/terra/"><strong><code>terra</code></strong></a> for raster data.</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)           <span class="co"># Simple Features in R</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(terra)        <span class="co"># Raster Data in R</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spData)       <span class="co"># Spatial Datasets</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spDataLarge)  <span class="co"># Large Spatial Datasets</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)    <span class="co"># Data Wrangling and Visualization</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="vector-data" class="level2">
+<h2 class="anchored" data-anchor-id="vector-data">2.2 Vector Data</h2>
+<ul>
+<li><strong>Vector Data</strong>: Represents geographic features using points, lines, and polygons based on coordinate reference systems (CRS).
+<ul>
+<li>Example: London’s coordinates <code>c(-0.1, 51.5)</code> in geographic CRS or <code>c(530000, 180000)</code> in projected CRS (<a href="https://en.wikipedia.org/wiki/Ordnance_Survey_National_Grid#:~:text=The%20Ordnance%20Survey%20National%20Grid,to%20the%20west%20of%20the">British National Grid</a>).</li>
+</ul></li>
+<li><strong>CRS Overview</strong>:
+<ul>
+<li>Geographic CRS uses <code>lon/lat</code> (0° longitude and latitude origin).</li>
+<li>Projected CRS, like the British National Grid, is based on <code>Easting/Northing</code> coordinates with positive values.</li>
+</ul></li>
+<li><strong>Key dependencies / libraries used by the <code>sf</code> Package</strong>:
+<ul>
+<li><a href="https://gdal.org/"><strong><code>GDAL</code></strong></a>: Handles geographic data formats</li>
+<li><a href="https://proj.org/"><strong><code>PROJ</code></strong></a>: For CRS transformations</li>
+<li><a href="https://cran.r-project.org/package=geos"><strong><code>GEOS</code></strong></a>: Supports planar geometry for projected data</li>
+<li><a href="https://s2geometry.io/"><strong><code>S2</code></strong></a>: Manages spherical geometry for unprojected data (e.g., <code>lon/lat</code>), toggleable with <code>sf::sf_use_s2(FALSE)</code>.</li>
+</ul></li>
+<li><strong>Geometry Engines</strong>:
+<ul>
+<li><strong>Planar (GEOS)</strong>: For 2D projected data.</li>
+<li><strong>Spherical (S2)</strong>: For 3D unprojected data.</li>
+</ul></li>
+</ul>
+<section id="introduction-to-simple-features" class="level3">
+<h3 class="anchored" data-anchor-id="introduction-to-simple-features">2.2.1 Introduction to Simple Features</h3>
+<ul>
+<li><strong>Simple Features (SF)</strong>: Hierarchical model by <a href="https://www.ogc.org/">OGC</a> (Open Geospatial Consortium); supports multiple geometry types.</li>
+<li><strong>Core Types</strong>: <code>sf</code> package in R supports 7 core geometry types (points, lines, polygons, and their “multi” versions).</li>
+<li><strong>Library Integration</strong>: <code>sf</code> replaces <code>sp</code>, <code>rgdal</code>, <code>rgeos</code>; unified interface for GEOS (geometry), GDAL (data I/O), PROJ (CRS).</li>
+<li><strong>Non-Planar Support</strong>: Integrates <code>s2</code> for geographic (lon/lat) operations, used by default for accuracy on spherical geometries.</li>
+<li><strong>Data Storage</strong>: SF objects are data frames with a spatial column (<code>geometry</code> or <code>geom</code>).</li>
+<li><strong>Vignettes</strong>: Documentation accessible with <code>vignette(package = "sf")</code> for practical use and examples.</li>
+<li><strong>Plotting</strong>: <code>plot(sf_object)</code> maps all variables, unlike single-map GIS tools.</li>
+<li><strong>Summary</strong>: <code>summary()</code> gives spatial and attribute data insights.</li>
+<li><strong>Subset</strong>: SF objects subsettable like data frames, retaining spatial metadata.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>world</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 177 features and 10 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: -180 ymin: -89.9 xmax: 180 ymax: 83.64513
+Geodetic CRS:  WGS 84
+# A tibble: 177 × 11
+   iso_a2 name_long continent region_un subregion type  area_km2     pop lifeExp
+ * &lt;chr&gt;  &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+ 1 FJ     Fiji      Oceania   Oceania   Melanesia Sove…   1.93e4  8.86e5    70.0
+ 2 TZ     Tanzania  Africa    Africa    Eastern … Sove…   9.33e5  5.22e7    64.2
+ 3 EH     Western … Africa    Africa    Northern… Inde…   9.63e4 NA         NA  
+ 4 CA     Canada    North Am… Americas  Northern… Sove…   1.00e7  3.55e7    82.0
+ 5 US     United S… North Am… Americas  Northern… Coun…   9.51e6  3.19e8    78.8
+ 6 KZ     Kazakhst… Asia      Asia      Central … Sove…   2.73e6  1.73e7    71.6
+ 7 UZ     Uzbekist… Asia      Asia      Central … Sove…   4.61e5  3.08e7    71.0
+ 8 PG     Papua Ne… Oceania   Oceania   Melanesia Sove…   4.65e5  7.76e6    65.2
+ 9 ID     Indonesia Asia      Asia      South-Ea… Sove…   1.82e6  2.55e8    68.9
+10 AR     Argentina South Am… Americas  South Am… Sove…   2.78e6  4.30e7    76.3
+# ℹ 167 more rows
+# ℹ 2 more variables: gdpPercap &lt;dbl&gt;, geom &lt;MULTIPOLYGON [°]&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(world)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "iso_a2"    "name_long" "continent" "region_un" "subregion" "type"     
+ [7] "area_km2"  "pop"       "lifeExp"   "gdpPercap" "geom"     </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(world)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "sf"         "tbl_df"     "tbl"        "data.frame"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="do">########### THE GEOMETRY COLUMN IS STICKY ################</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(world[<span class="st">"lifeExp"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    lifeExp                 geom    
+ Min.   :50.62   MULTIPOLYGON :177  
+ 1st Qu.:64.96   epsg:4326    :  0  
+ Median :72.87   +proj=long...:  0  
+ Mean   :70.85                      
+ 3rd Qu.:76.78                      
+ Max.   :83.59                      
+ NA's   :10                         </code></pre>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(world)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-basic-plot-on-sf" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-basic-plot-on-sf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter2_files/figure-html/fig-basic-plot-on-sf-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;1: The basic plot() function on a sf object produced multiple plots, one for each of the non-geometry variables (columns) in the plotted dataset."><img src="chapter2_files/figure-html/fig-basic-plot-on-sf-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-basic-plot-on-sf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: The basic plot() function on a sf object produced multiple plots, one for each of the non-geometry variables (columns) in the plotted dataset.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="why-simple-features" class="level3">
+<h3 class="anchored" data-anchor-id="why-simple-features">2.2.2 Why Simple Features?</h3>
+<ul>
+<li><strong>Cross-Compatibility</strong>: SF model is compatible with many GIS tools (e.g., <a href="https://www.qgis.org/">QGIS</a>, <a href="https://postgis.net/">PostGIS</a>), enabling easy data transfer.</li>
+<li><strong>Advantages of <code>sf</code> in <code>R</code></strong>:
+<ul>
+<li>Data Handling: Fast reading/writing of spatial data.</li>
+<li>Plotting: Improved plotting speed and performance.</li>
+<li>Data Frame-Like: <code>sf</code> objects behave like data frames.</li>
+<li>Consistent Naming: <code>sf</code> functions are intuitive, starting with <code>st_</code>.</li>
+<li>Tidyverse-Friendly: Works well with <code>|&gt;</code> and integrates with tidyverse packages.</li>
+</ul></li>
+<li><strong>Data Import Options</strong>:
+<ul>
+<li><code>read_sf()</code>: Imports data as a tidy tibble (quietly).</li>
+<li><code>st_read()</code>: Imports data as a base R data frame (verbose).</li>
+</ul></li>
+<li><strong>Popularity</strong>: <code>sf</code> is the primary package for spatial vector data in R, preferred over alternatives like <code>spatstat</code> and <code>terra</code>.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>world_dfr <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="fu">system.file</span>(<span class="st">"shapes/world.shp"</span>, <span class="at">package =</span> <span class="st">"spData"</span>))</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="do">## Reading layer `world' from data source </span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="do">##   `C:\Users\dradi\AppData\Local\R\win-library\4.3\spData\shapes\world.shp' </span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="do">##   using driver `ESRI Shapefile'</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="do">## Simple feature collection with 177 features and 10 fields</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="do">## Geometry type: MULTIPOLYGON</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="do">## Dimension:     XY</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="do">## Bounding box:  xmin: -180 ymin: -89.9 xmax: 180 ymax: 83.64513</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="do">## Geodetic CRS:  WGS 84</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>world_dfr <span class="ot">&lt;-</span> <span class="fu">read_sf</span>(<span class="fu">system.file</span>(<span class="st">"shapes/world.shp"</span>, <span class="at">package =</span> <span class="st">"spData"</span>))</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(world_dfr)</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "sf"         "tbl_df"     "tbl"        "data.frame"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="basic-maps" class="level3">
+<h3 class="anchored" data-anchor-id="basic-maps">2.2.3 Basic Maps</h3>
+<ul>
+<li><strong>Plotting in <code>sf</code></strong>:
+<ul>
+<li><code>plot()</code> creates multi-panel plots for multiple variables or a single-panel plot for one variable.</li>
+<li>Supports fixed color customization using <code>col</code> and <code>border</code> arguments.</li>
+</ul></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(world)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-base-plot-fn" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-base-plot-fn-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter2_files/figure-html/fig-base-plot-fn-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;2: The base plot() function creates a faceted output with a map for each variable other than geometry"><img src="chapter2_files/figure-html/fig-base-plot-fn-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-base-plot-fn-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: The base plot() function creates a faceted output with a map for each variable other than geometry
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Layering Plots</strong>: Add layers to existing plots with <code>add = TRUE</code>. Use <code>reset = FALSE</code> for plots with a key.</li>
+<li><strong>Overlaying Data</strong>: Circles representing population size can be plotted using <code>cex</code> and <code>st_centroid()</code>.</li>
+<li><strong>Bounding Box Expansion</strong>: <code>expandBB</code> adjusts the plot boundaries (bottom, left, top, right).</li>
+<li><strong>Limitations</strong>: Base <code>plot()</code> is simple but limited in functionality; use <code>tmap</code> for advanced maps.</li>
+</ul>
+</section>
+<section id="geometry-types" class="level3">
+<h3 class="anchored" data-anchor-id="geometry-types">2.2.4 Geometry Types</h3>
+<ul>
+<li><strong>Geometry Basics:</strong>
+<ul>
+<li>Core components of simple features; <code>sf</code> supports 18 types.</li>
+<li>Focus on 7 common types: POINT, LINESTRING, POLYGON, MULTIPOINT, MULTILINESTRING, MULTIPOLYGON, GEOMETRYCOLLECTION.</li>
+</ul></li>
+<li><strong>Encoding Standards:</strong>
+<ul>
+<li>WKB (Well-known binary): Hexadecimal, computer-friendly format.</li>
+<li>WKT (Well-known text): Human-readable format, often shown for explanation.</li>
+</ul></li>
+<li><strong>Common Geometries:</strong>
+<ul>
+<li>POINT: Single coordinate (e.g., <code>POINT (5 2)</code>).</li>
+<li>LINESTRING: Connected sequence of points (e.g., <code>LINESTRING (1 5, 4 4, 4 1, 2 2, 3 2)</code>).</li>
+<li>POLYGON: Closed ring of points (e.g., <code>POLYGON ((1 5, 2 2, 4 1, 4 4, 1 5))</code>).</li>
+</ul></li>
+<li><strong>Multi-Geometries:</strong>
+<ul>
+<li>MULTIPOINT: Multiple points (e.g., <code>MULTIPOINT (5 2, 1 3, 3 4, 3 2)</code>).</li>
+<li>MULTILINESTRING: Multiple linestrings (e.g., <code>MULTILINESTRING ((1 5, 4 4, 4 1, 2 2, 3 2), (1 2, 2 4))</code>).</li>
+<li>MULTIPOLYGON: Multiple polygons (e.g., <code>MULTIPOLYGON (((1 5, 2 2, 4 1, 4 4, 1 5), (0 2, 1 2, 1 3, 0 3, 0 2)))</code>).</li>
+</ul></li>
+<li><strong>Geometry Collection:</strong>
+<ul>
+<li>Mix of geometry types (e.g., <code>GEOMETRYCOLLECTION (MULTIPOINT (5 2, 1 3, 3 4, 3 2), LINESTRING (1 5, 4 4, 4 1, 2 2, 3 2))</code>).</li>
+</ul></li>
+</ul>
+</section>
+<section id="the-sf-class" class="level3">
+<h3 class="anchored" data-anchor-id="the-sf-class">2.2.5 The sf Class</h3>
+<ul>
+<li><p><strong>Structure of sf Objects</strong>: Composed of geometries (<code>sfc</code> object) and non-geographic attributes (<code>data.frame</code> or <code>tibble</code>).</p></li>
+<li><p><strong>Creation of sf Objects</strong>: Steps:</p>
+<ol type="1">
+<li><p>Create geometry (<code>sfg</code>) with functions like <code>st_point()</code></p></li>
+<li><p>Convert to geometry column (<code>sfc</code>) with CRS using function <code>st_sfc(..., crs = "...")</code></p></li>
+<li><p>Combine attributes (<code>data.frame</code>) with <code>sfc</code> using function <code>st_sf(..., geometry = ...)</code></p></li>
+</ol></li>
+</ul>
+<!-- -->
+<ul>
+<li><p><strong>Characteristics</strong>:</p>
+<ul>
+<li><code>sf</code> objects have dual class: <code>sf</code> and <code>data.frame</code>.</li>
+<li>Spatial attributes stored in a <code>geometry</code> column.</li>
+<li><code>sf</code> behaves like a <code>data.frame</code> but with spatial extension.</li>
+</ul></li>
+</ul>
+</section>
+<section id="simple-feature-geometries-sfg" class="level3">
+<h3 class="anchored" data-anchor-id="simple-feature-geometries-sfg">2.2.6 Simple Feature Geometries (<code>sfg</code>)</h3>
+<p>An <em>sfg</em> object represents a single simple feature geometry. A simple feature geometry column (<em>sfc</em>) is a collection of <em>sfg</em> objects and can also include information about the coordinate reference system (CRS) being used.</p>
+<p>Geometries can be created using <code>st_</code> functions or imported from existing spatial files.</p>
+<ul>
+<li><strong>sfg Creation Functions</strong>:
+<ul>
+<li><code>st_point()</code>: Create a single point.</li>
+<li><code>st_linestring()</code>: Create a linestring.</li>
+<li><code>st_polygon()</code>: Create a polygon.</li>
+<li><code>st_multipoint()</code>: Create a multipoint.</li>
+<li><code>st_multilinestring()</code>: Create a multilinestring.</li>
+<li><code>st_multipolygon()</code>: Create a multipolygon.</li>
+<li><code>st_geometrycollection()</code>: Create a geometry collection.</li>
+</ul></li>
+<li><strong>Input Data Types</strong>:
+<ul>
+<li><strong>Numeric Vector</strong>: Single points.</li>
+<li><strong>Matrix</strong>: Sets of points for multipoint or linestring.</li>
+<li><strong>List</strong>: Complex structures for multilinestrings, (multi)polygons, or geometry collections.</li>
+</ul></li>
+<li><strong>Examples</strong>:</li>
+</ul>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a point</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>point <span class="ot">&lt;-</span> <span class="fu">st_point</span>(<span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">3</span>))  <span class="co"># POINT (8 3)</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(point)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(point) <span class="sc">+</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>()</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a multipoint</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>multipoint_matrix <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">3</span>), <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">5</span>), <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">7</span>), <span class="fu">c</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>multipoint <span class="ot">&lt;-</span> <span class="fu">st_multipoint</span>(multipoint_matrix)  <span class="co"># MULTIPOINT ((8 3), (2 5), (5 7), (7 3))</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(multipoint)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(multipoint) <span class="sc">+</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>()</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a linestring</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>linestring_matrix <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">8</span>), <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">6</span>), <span class="fu">c</span>(<span class="dv">7</span>, <span class="dv">2</span>), <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">3</span>), <span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">4</span>))</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>linestring <span class="ot">&lt;-</span> <span class="fu">st_linestring</span>(linestring_matrix)  <span class="co"># LINESTRING (2 8, 6 6, 7 2, 5 3, 8 4)</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(linestring)</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(linestring) <span class="sc">+</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>()</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a polygon</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>polygon_list <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">8</span>), <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">3</span>), <span class="fu">c</span>(<span class="dv">7</span>, <span class="dv">2</span>), <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">7</span>), <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">8</span>)))</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>polygon <span class="ot">&lt;-</span> <span class="fu">st_polygon</span>(polygon_list)  <span class="co"># POLYGON ((2 8, 4 3, 7 2, 6 7, 2 8))</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(polygon)</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(polygon) <span class="sc">+</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>()</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Polygon with a hole</span></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>polygon_border <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">8</span>), <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">3</span>), <span class="fu">c</span>(<span class="dv">7</span>, <span class="dv">2</span>), <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">7</span>), <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">8</span>))</span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>polygon_hole <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">6</span>), <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">6</span>), <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">5</span>), <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">5</span>), <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">6</span>))</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>polygon_with_hole_list <span class="ot">&lt;-</span> <span class="fu">list</span>(polygon_border, polygon_hole)</span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>polygon_with_hole <span class="ot">&lt;-</span> <span class="fu">st_polygon</span>(polygon_with_hole_list)  <span class="co"># POLYGON with a hole</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(polygon_with_hole)</span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(polygon_with_hole) <span class="sc">+</span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>()</span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a multilinestring</span></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>multilinestring_list <span class="ot">=</span> <span class="fu">list</span>(</span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">8</span>), <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">6</span>), <span class="fu">c</span>(<span class="dv">7</span>, <span class="dv">2</span>), <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">3</span>), <span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">4</span>)),</span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">2</span>), <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">8</span>))</span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>multilinestring <span class="ot">=</span> <span class="fu">st_multilinestring</span>(multilinestring_list)  <span class="co"># MULTILINESTRING</span></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(multilinestring)</span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(multilinestring) <span class="sc">+</span></span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>()</span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a multipolygon</span></span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a>multipolygon_list <span class="ot">=</span> <span class="fu">list</span>(</span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">8</span>), <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">3</span>), <span class="fu">c</span>(<span class="dv">7</span>, <span class="dv">2</span>), <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">7</span>), <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">8</span>))),</span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">3</span>), <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>), <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">4</span>), <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">4</span>), <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">3</span>)))</span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>multipolygon <span class="ot">=</span> <span class="fu">st_multipolygon</span>(multipolygon_list)  <span class="co"># MULTIPOLYGON</span></span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(multipolygon)</span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(multipolygon) <span class="sc">+</span></span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>()</span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a geometry collection</span></span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a>geometrycollection_list <span class="ot">=</span> <span class="fu">list</span>(<span class="fu">st_multipoint</span>(multipoint_matrix), <span class="fu">st_linestring</span>(linestring_matrix))</span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a>geometry_collection <span class="ot">=</span> <span class="fu">st_geometrycollection</span>(geometrycollection_list)  <span class="co"># GEOMETRYCOLLECTION</span></span>
+<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(geometry_collection)</span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(geometry_collection) <span class="sc">+</span></span>
+<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div id="fig-geometries" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-geometries-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-geometries" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-geometries-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-geometries-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter2_files/figure-html/fig-geometries-1.png" class="lightbox" data-gallery="fig-geometries" title="Figure&nbsp;3&nbsp;(a): A point"><img src="chapter2_files/figure-html/fig-geometries-1.png" class="img-fluid figure-img" data-ref-parent="fig-geometries" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-geometries-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) A point
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-geometries" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-geometries-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-geometries-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter2_files/figure-html/fig-geometries-2.png" class="lightbox" data-gallery="fig-geometries" title="Figure&nbsp;3&nbsp;(b): A multipoint"><img src="chapter2_files/figure-html/fig-geometries-2.png" class="img-fluid figure-img" data-ref-parent="fig-geometries" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-geometries-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) A multipoint
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-geometries" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-geometries-3" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-geometries-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter2_files/figure-html/fig-geometries-3.png" class="lightbox" data-gallery="fig-geometries" title="Figure&nbsp;3&nbsp;(c): A linestring"><img src="chapter2_files/figure-html/fig-geometries-3.png" class="img-fluid figure-img" data-ref-parent="fig-geometries" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-geometries-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(c) A linestring
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-geometries" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-geometries-4" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-geometries-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter2_files/figure-html/fig-geometries-4.png" class="lightbox" data-gallery="fig-geometries" title="Figure&nbsp;3&nbsp;(d): A polygon"><img src="chapter2_files/figure-html/fig-geometries-4.png" class="img-fluid figure-img" data-ref-parent="fig-geometries" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-geometries-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(d) A polygon
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-geometries" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-geometries-5" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-geometries-5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter2_files/figure-html/fig-geometries-5.png" class="lightbox" data-gallery="fig-geometries" title="Figure&nbsp;3&nbsp;(e): Polygon with a hole"><img src="chapter2_files/figure-html/fig-geometries-5.png" class="img-fluid figure-img" data-ref-parent="fig-geometries" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-geometries-5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(e) Polygon with a hole
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-geometries" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-geometries-6" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-geometries-6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter2_files/figure-html/fig-geometries-6.png" class="lightbox" data-gallery="fig-geometries" title="Figure&nbsp;3&nbsp;(f): Multilinestring"><img src="chapter2_files/figure-html/fig-geometries-6.png" class="img-fluid figure-img" data-ref-parent="fig-geometries" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-geometries-6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(f) Multilinestring
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-geometries" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-geometries-7" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-geometries-7-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter2_files/figure-html/fig-geometries-7.png" class="lightbox" data-gallery="fig-geometries" title="Figure&nbsp;3&nbsp;(g): Multipolygon"><img src="chapter2_files/figure-html/fig-geometries-7.png" class="img-fluid figure-img" data-ref-parent="fig-geometries" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-geometries-7-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(g) Multipolygon
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-geometries" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-geometries-8" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-geometries-8-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter2_files/figure-html/fig-geometries-8.png" class="lightbox" data-gallery="fig-geometries" title="Figure&nbsp;3&nbsp;(h): Geometry Collection"><img src="chapter2_files/figure-html/fig-geometries-8.png" class="img-fluid figure-img" data-ref-parent="fig-geometries" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-geometries-8-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(h) Geometry Collection
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-geometries-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Creating different sample geometry objects in R with {sf}
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="the-sfheaders-package" class="level3">
+<h3 class="anchored" data-anchor-id="the-sfheaders-package">2.2.8 The <code>sfheaders</code> Package</h3>
+<ul>
+<li><strong>Overview</strong>:
+<ul>
+<li><code>sfheaders</code> <span class="citation" data-cites="sfheaders">(<a href="#ref-sfheaders" role="doc-biblioref">Cooley 2024</a>)</span> is an R package designed to efficiently create and manipulate <code>sf</code> objects from vectors, matrices, and data frames.</li>
+<li>It does not rely on the <code>sf</code> library and instead uses underlying C++ code, enabling faster operations and the potential for further development with compiled code.</li>
+</ul></li>
+<li><strong>Compatibility</strong>:
+<ul>
+<li>Although separate from <code>sf</code>, it is fully compatible, producing valid <code>sf</code> objects like <code>sfg</code>, <code>sfc</code>, and <code>sf</code>.</li>
+</ul></li>
+<li><strong>Key Functionality</strong>:
+<ul>
+<li>Converts:
+<ul>
+<li><strong>Vector</strong> → <code>sfg_POINT</code></li>
+<li><strong>Matrix</strong> → <code>sfg_LINESTRING</code></li>
+<li><strong>Data Frame</strong> → <code>sfg_POLYGON</code></li>
+</ul></li>
+<li>Creates <code>sfc</code> and <code>sf</code> objects using similar syntax.</li>
+</ul></li>
+<li><strong>Advantages</strong>:
+<ul>
+<li><code>sfheaders</code> is optimized for high-speed ‘deconstruction’ and ‘reconstruction’ of <code>sf</code> objects and casting between geometry types, offering faster performance than <code>sf</code> in many cases.</li>
+</ul></li>
+</ul>
+</section>
+<section id="spherical-geometry-operations-with-s2" class="level3">
+<h3 class="anchored" data-anchor-id="spherical-geometry-operations-with-s2">2.2.9 Spherical Geometry Operations with S2</h3>
+<ul>
+<li><strong>Concept</strong>:
+<ul>
+<li>Spherical geometry operations acknowledge Earth’s roundness, as opposed to planar operations that assume flat surfaces.</li>
+<li>Since <code>sf</code> version 1.0.0, R integrates with Google’s S2 spherical geometry engine, enabling accurate global spatial operations.</li>
+<li>S2 supports operations like distance, buffer, and area calculations, allowing accurate geocomputation on a spherical Earth model.</li>
+<li>Known as a Discrete Global Grid System (DGGS), S2 is similar to other systems like H3, which is a global hexagonal index.</li>
+</ul></li>
+<li><strong>S2 Mode</strong>:
+<ul>
+<li><p>By default, S2 is enabled in <code>sf</code>. Verify with:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sf_use_s2</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Turning Off S2</strong>:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sf_use_s2</span>(<span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ul></li>
+<li><strong>S2 Limitations and Edge Cases</strong>:
+<ul>
+<li>Some operations may fail due to S2’s stricter definitions, potentially affecting legacy code. Error messages such as <code>Error in s2_geography_from_wkb ...</code> might require turning off S2.</li>
+</ul></li>
+<li><strong>Recommendation</strong>:
+<ul>
+<li>Keep S2 enabled for accurate global calculations unless specific operations necessitate its deactivation.</li>
+</ul></li>
+</ul>
+</section>
+</section>
+<section id="raster-data" class="level2">
+<h2 class="anchored" data-anchor-id="raster-data">2.3 Raster Data</h2>
+<ul>
+<li>The raster data model represents the world as a continuous grid of cells (pixels). Focuses on <strong>regular grids</strong>, where each cell is of constant size, though other grid types (e.g., rotated, sheared) exist.</li>
+<li><strong>Structure</strong>:
+<ul>
+<li>Comprises a raster header and a matrix of equally spaced cells.</li>
+<li>The raster header includes:
+<ul>
+<li>CRS (Coordinate Reference System)</li>
+<li>Extent (geographical area covered)</li>
+<li>Origin (starting point, often the lower left corner; the <code>terra</code> package defaults to the upper left).</li>
+</ul></li>
+<li>Extent is defined by:
+<ul>
+<li>Number of columns (ncol)</li>
+<li>Number of rows (nrow)</li>
+<li>Cell size resolution</li>
+</ul></li>
+</ul></li>
+<li><strong>Cell Access and Modification</strong>:
+<ul>
+<li>Cells can be accessed and modified by:
+<ul>
+<li>Cell ID</li>
+<li>Explicitly specifying row and column indices.</li>
+</ul></li>
+<li>This matrix representation is efficient as it avoids storing corner coordinates (unlike vector polygons).</li>
+</ul></li>
+<li><strong>Data Characteristics</strong>:
+<ul>
+<li>Each cell can hold a single value, which can be either:
+<ul>
+<li>Continuous (e.g., elevation, temperature)</li>
+<li>Categorical (e.g., land cover classes).</li>
+</ul></li>
+</ul></li>
+<li><strong>Applications</strong>:
+<ul>
+<li>Raster maps are useful for continuous phenomena (e.g., temperature, population density) and can also represent discrete features (e.g., soil classes).</li>
+</ul></li>
+</ul>
+<section id="r-packages-for-working-with-raster-data" class="level3">
+<h3 class="anchored" data-anchor-id="r-packages-for-working-with-raster-data">2.3.1 <code>R</code> Packages for Working with Raster Data</h3>
+<ul>
+<li>Several R packages for reading and processing raster datasets have emerged over the last two decades. The <strong><code>raster</code></strong> package was the first significant advancement in R’s raster capabilities when launched in 2010. It was the premier package until the development of <strong><code>terra</code></strong> and <strong><code>stars</code></strong>, both offering powerful functions for raster data.</li>
+<li>This book emphasizes <strong><code>terra</code></strong>, which replaces the older, slower raster package.</li>
+<li><strong>Comparison of <code>terra</code> and <code>stars</code></strong>:</li>
+</ul>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 31%">
+<col style="width: 43%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Feature</strong></th>
+<th><strong><code>terra</code></strong></th>
+<th><strong><code>stars</code></strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Primary Focus</strong></td>
+<td>Regular grids</td>
+<td>Supports regular, rotated, sheared, rectilinear, and curvilinear grids</td>
+</tr>
+<tr class="even">
+<td><strong>Data Structure</strong></td>
+<td>One or multi-layered rasters</td>
+<td>Raster data cubes with multiple layers, time steps, and attributes</td>
+</tr>
+<tr class="odd">
+<td><strong>Memory Management</strong></td>
+<td>Uses C++ code and pointers for data storage</td>
+<td>Uses lists of arrays for smaller rasters; file paths for larger ones</td>
+</tr>
+<tr class="even">
+<td><strong>Vector Data Integration</strong></td>
+<td>Uses its own class <code>SpatVector</code> but supports <code>sf</code> objects</td>
+<td>Closely related to vector objects/functions in <code>sf</code></td>
+</tr>
+<tr class="odd">
+<td><strong>Functions &amp; Methods</strong></td>
+<td>Large number of built-in, purpose-specific functions (e.g., re-sampling, cropping)</td>
+<td>Mix of built-in functions (<code>st_</code> prefix), existing <code>dplyr</code> functions, and custom methods for <code>R</code> functions</td>
+</tr>
+<tr class="even">
+<td><strong>Conversion Between Packages</strong></td>
+<td>Conversion to <code>stars</code> with <code>st_as_stars()</code></td>
+<td>Conversion to <code>terra</code> with <code>rast()</code></td>
+</tr>
+<tr class="odd">
+<td><strong>Performance</strong></td>
+<td>Generally optimized for speed and memory efficiency</td>
+<td>Flexible, but performance varies based on data type and structure</td>
+</tr>
+<tr class="even">
+<td><strong>Best Use Cases</strong></td>
+<td>Single or multi-layer rasters; fast processing</td>
+<td>Complex data cubes with layers over time and multiple attributes</td>
+</tr>
+<tr class="odd">
+<td><strong>Programming Language Basis</strong></td>
+<td>Primarily C++</td>
+<td><code>R</code> with some C++ integration</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="introduction-to-terra" class="level3">
+<h3 class="anchored" data-anchor-id="introduction-to-terra">2.3.2 Introduction to <strong><code>terra</code></strong></h3>
+<ul>
+<li>The <strong><code>terra</code></strong> package is designed for handling raster objects in R, supporting a range of functions to create, read, export, manipulate, and process raster datasets.
+<ul>
+<li>While its functionality is similar to the older <strong><code>raster</code></strong> package, <strong><code>terra</code></strong> offers improved computational efficiency.</li>
+<li>Despite <strong><code>terra</code></strong>’s advantages, the <strong><code>raster</code></strong> class system remains popular due to its widespread use in other R packages.</li>
+<li><strong><code>terra</code></strong> provides seamless translation between the two object types using functions like <strong><code>raster()</code></strong>, <strong><code>stack()</code></strong>, and <strong><code>brick()</code></strong> for backward compatibility.</li>
+</ul></li>
+<li><strong>Key Features</strong>:
+<ul>
+<li>Low-Level Functionality: Includes functions that help in building new tools for raster data processing.</li>
+<li>Memory Management: Supports processing of large raster datasets by dividing them into smaller chunks for iterative processing, allowing operations beyond available RAM capacity.</li>
+</ul></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>raster_filepath <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">"raster/srtm.tif"</span>, </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>                              <span class="at">package =</span> <span class="st">"spDataLarge"</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>my_rast <span class="ot">&lt;-</span> <span class="fu">rast</span>(raster_filepath)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(my_rast)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "SpatRaster"</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="do">## attr(,"package")</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "terra"</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ext</span>(my_rast)</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="do">## SpatExtent : -113.239583212784, -112.85208321281, 37.1320834298579, 37.5129167631658 (xmin, xmax, ymin, ymax)</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(my_rast)</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="do">## class       : SpatRaster </span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="do">## dimensions  : 457, 465, 1  (nrow, ncol, nlyr)</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="do">## resolution  : 0.0008333333, 0.0008333333  (x, y)</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="do">## extent      : -113.2396, -112.8521, 37.13208, 37.51292  (xmin, xmax, ymin, ymax)</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="do">## coord. ref. : lon/lat WGS 84 (EPSG:4326) </span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="do">## source      : srtm.tif </span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="do">## name        : srtm </span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="do">## min value   : 1024 </span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a><span class="do">## max value   : 2892</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<ul>
+<li><strong>Dedicated Reporting Functions</strong>:
+<ul>
+<li><strong><code>dim()</code></strong>: Number of rows, columns, and layers.</li>
+<li><strong><code>ncell()</code></strong>: Total number of cells (pixels).</li>
+<li><strong><code>res()</code></strong>: Spatial resolution.</li>
+<li><strong><code>ext()</code></strong>: Spatial extent.</li>
+<li><strong><code>crs()</code></strong>: Coordinate reference system (CRS).</li>
+<li><strong><code>inMemory()</code></strong>: Checks if data is stored in memory or on disk.</li>
+<li><strong><code>sources</code></strong>: Shows file location.</li>
+</ul></li>
+<li><strong>Accessing Full Function List</strong>:
+<ul>
+<li>Run <code>help("terra-package")</code> to see all available <strong><code>terra</code></strong> functions.</li>
+</ul></li>
+</ul>
+</section>
+<section id="basic-map-making" class="level3">
+<h3 class="anchored" data-anchor-id="basic-map-making">2.3.3 Basic Map-Making</h3>
+<ul>
+<li><strong>Plotting with</strong> <code>terra</code>:
+<ul>
+<li>The <strong>terra</strong> package offers a simple way to create basic visualizations using the <strong>plot()</strong> function, specifically designed for <strong>SpatRaster</strong> objects.</li>
+</ul></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(my_rast)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-terra-examples2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-terra-examples2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter2_files/figure-html/fig-terra-examples2-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11" title="Figure&nbsp;4: An example raster data displayed with {terra} using plot()"><img src="chapter2_files/figure-html/fig-terra-examples2-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-terra-examples2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: An example raster data displayed with {terra} using plot()
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Advanced Plotting Options</strong>:
+<ul>
+<li><strong><code>plotRGB()</code></strong>: A specialized function in <strong>terra</strong> for creating color composite plots using three layers (e.g., red, green, blue bands) from a <strong>SpatRaster</strong> object.</li>
+<li><strong><code>tmap</code> Package</strong> <span class="citation" data-cites="tmap">(<a href="#ref-tmap" role="doc-biblioref">Tennekes 2018</a>)</span>: Useful for creating both static and interactive maps for raster and vector data.</li>
+<li><strong><code>rasterVis</code> Package</strong> <span class="citation" data-cites="rasterVis">(<a href="#ref-rasterVis" role="doc-biblioref">2023</a>)</span>: Includes functions such as <strong><code>levelplot()</code></strong> to create advanced visualizations, including faceted plots for displaying changes over time.</li>
+</ul></li>
+</ul>
+</section>
+<section id="raster-classes" class="level3">
+<h3 class="anchored" data-anchor-id="raster-classes">2.3.4 Raster Classes</h3>
+<ul>
+<li>The SpatRaster class in <code>terra</code> represents raster objects. Rasters are commonly created by reading a file using <code>rast()</code>
+<ul>
+<li><code>terra</code> supports reading various formats via GDAL, only loading the header and a file pointer into RAM.</li>
+</ul></li>
+<li><strong>Creating Rasters from Scratch</strong>: Use <strong>rast()</strong> to make new raster objects:
+<ul>
+<li>Fills values row-wise from the top left corner.</li>
+<li>Resolution depends on rows, columns, and extent; defaults to degrees (WGS84 CRS).</li>
+</ul></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a new SpatRaster object: a checkerboard design</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>new_raster <span class="ot">=</span> <span class="fu">rast</span>(<span class="at">nrows =</span> <span class="dv">50</span>, <span class="at">ncols =</span> <span class="dv">50</span>, </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">xmin =</span> <span class="dv">0</span>, <span class="at">xmax =</span> <span class="dv">50</span>, </span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">ymin =</span> <span class="dv">0</span>, <span class="at">ymax =</span> <span class="dv">50</span>,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">vals =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="fl">0.25</span>, <span class="fl">0.75</span>, <span class="fl">0.5</span>), </span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>                             <span class="at">times =</span> <span class="dv">12</span>)) </span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the new raster</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(new_raster, </span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>     <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"darkblue"</span>, </span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>             <span class="st">"white"</span>,</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>             <span class="st">"blue"</span>,</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>             <span class="st">"lightblue"</span>), <span class="co"># Use blue and white for the design</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>     <span class="at">axes =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>     <span class="at">box =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-new-raster" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-new-raster-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter2_files/figure-html/fig-new-raster-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12" title="Figure&nbsp;5: Creating a new raster from scratch"><img src="chapter2_files/figure-html/fig-new-raster-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-new-raster-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Creating a new raster from scratch
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Handling Multi-Layer Rasters</strong>:
+<ul>
+<li><p><strong>SpatRaster</strong> supports multi-layer rasters, such as satellite or time-series data:</p>
+<ul>
+<li><p>Use <strong><code>nlyr()</code></strong> to get the number of layers:</p></li>
+<li><p>Access layers with <strong><code>[[</code></strong> or <strong><code>$</code></strong>.</p></li>
+<li><p>Use <strong><code>subset()</code></strong> for layer extraction:</p></li>
+</ul></li>
+</ul></li>
+<li><strong>Combining Raster Layers</strong>:
+<ul>
+<li>Merge <strong>SpatRaster</strong> layers using <strong>c()</strong>:</li>
+</ul></li>
+<li><strong>Saving SpatRaster Objects</strong>:
+<ul>
+<li>Since they often point to files, direct saving to <strong>.rds</strong> or <strong>.rda</strong> isn’t feasible.</li>
+<li>Solutions:
+<ol type="1">
+<li><strong><code>wrap()</code></strong>: Creates a temporary object for saving or cluster use.</li>
+<li><strong><code>writeRaster()</code></strong>: Saves as a regular raster file.</li>
+</ol></li>
+</ul></li>
+</ul>
+</section>
+</section>
+<section id="coordinate-reference-systems" class="level2">
+<h2 class="anchored" data-anchor-id="coordinate-reference-systems">2.4 Coordinate Reference Systems</h2>
+<ul>
+<li>CRSs (Coordinate Reference Systems) are essential for spatial data, defining how spatial elements correspond to the Earth’s surface (or other celestial bodies).</li>
+<li><strong>Types of CRSs</strong>:
+<ul>
+<li><strong>Geographic CRSs</strong>:
+<ul>
+<li>Represent data on a three-dimensional surface (e.g., latitude and longitude).</li>
+<li>Coordinate units are typically degrees.</li>
+</ul></li>
+<li><strong>Projected CRSs</strong>:
+<ul>
+<li>Represent data on a two-dimensional, flat plane.</li>
+<li>Transform spherical Earth data into a flat map.</li>
+<li>Coordinate units can be in meters, feet, etc.</li>
+</ul></li>
+</ul></li>
+</ul>
+<section id="geographic-coordinate-reference-systems" class="level3">
+<h3 class="anchored" data-anchor-id="geographic-coordinate-reference-systems">2.4.1 Geographic Coordinate Reference Systems</h3>
+<ul>
+<li>Geographic CRSs use longitude and latitude to identify locations on Earth.
+<ul>
+<li>Longitude: Measures East-West position relative to the Prime Meridian.</li>
+<li>Latitude: Measures North-South position relative to the equatorial plane.</li>
+<li>Distances are measured in <strong>angular units (degrees)</strong>, not meters, impacting spatial measurements (explored further in Section 7).</li>
+</ul></li>
+<li>The Earth can be modeled as spherical or ellipsoidal.
+<ul>
+<li><strong>Spherical models</strong>: Simplify calculations by assuming Earth is a perfect sphere.</li>
+<li><strong>Ellipsoidal models</strong>: More accurately represent Earth with distinct equatorial and polar radii. The equatorial radius is about 11.5 km longer than the polar radius due to Earth’s compression.</li>
+</ul></li>
+<li><strong>Datum</strong> refers to the model describing the relationship between coordinate values and actual locations on Earth. A datum consists of:
+<ol type="1">
+<li><p><strong>Ellipsoid</strong>: An idealized mathematical model of the Earth’s shape, which helps to approximate the Earth’s surface.</p></li>
+<li><p><strong>Origin Point</strong>: A fixed starting point for the coordinate system, where the ellipsoid is anchored to Earth.</p></li>
+<li><p><strong>Offset and Orientation</strong>: How the ellipsoid is aligned with respect to the actual shape of the Earth.</p></li>
+</ol></li>
+</ul>
+<!-- -->
+<ul>
+<li>The two types of Datums are: —
+<ul>
+<li><strong>Geocentric datum</strong> (e.g., WGS84): Centered at Earth’s center of gravity, providing global consistency but less local accuracy.</li>
+<li><strong>Local datum</strong> (e.g., NAD83): Adjusted for specific regions to better align with the Earth’s surface, accounting for local geographic variations (e.g., mountain ranges).</li>
+</ul></li>
+</ul>
+</section>
+<section id="projected-coordinate-reference-systems" class="level3">
+<h3 class="anchored" data-anchor-id="projected-coordinate-reference-systems">2.4.2 Projected Coordinate Reference Systems</h3>
+<ul>
+<li>Projected CRSs are based on geographic CRSs and use map projections to represent Earth’s three-dimensional surface in <strong>Easting</strong> and <strong>Northing</strong> (x and y) values. These CRSs rely on Cartesian coordinates on a flat surface, with an origin and linear units (<em>e.g.,</em> meters).</li>
+<li><strong>Deformations</strong>:
+<ul>
+<li>The conversion from 3D to 2D inherently introduces distortions. Projected CRSs can only preserve one or two of the following properties:
+<ul>
+<li><strong>Area</strong>: Preserved in <strong>equal-area</strong> projections.</li>
+<li><strong>Direction</strong>: Preserved in <strong>azimuthal</strong> projections.</li>
+<li><strong>Distance</strong>: Preserved in <strong>equidistant</strong> projections.</li>
+<li><strong>Shape</strong>: Preserved in <strong>conformal</strong> projections.</li>
+</ul></li>
+</ul></li>
+</ul>
+</section>
+<section id="types-of-projections-and-their-characteristics" class="level3">
+<h3 class="anchored" data-anchor-id="types-of-projections-and-their-characteristics">Types of Projections and Their Characteristics</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 30%">
+<col style="width: 23%">
+<col style="width: 23%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Type of Projection</strong></th>
+<th><strong>Description</strong></th>
+<th><strong>Common Properties Preserved</strong></th>
+<th><strong>Best Used For</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Conic</strong></td>
+<td>Projects Earth’s surface onto a cone.</td>
+<td>Area, shape</td>
+<td>Maps of mid-latitude regions</td>
+</tr>
+<tr class="even">
+<td><strong>Cylindrical</strong></td>
+<td>Projects Earth’s surface onto a cylinder.</td>
+<td>Direction, shape</td>
+<td>World maps</td>
+</tr>
+<tr class="odd">
+<td><strong>Planar (Azimuthal)</strong></td>
+<td>Projects onto a flat surface at a point or line.</td>
+<td>Distance, direction</td>
+<td>Polar region maps</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="deformations-by-projection-type" class="level3">
+<h3 class="anchored" data-anchor-id="deformations-by-projection-type">Deformations by Projection Type</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 47%">
+<col style="width: 27%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Property</strong></th>
+<th><strong>Definition</strong></th>
+<th><strong>Projection Type That Preserves It</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Area</strong></td>
+<td>The relative size of regions is maintained.</td>
+<td>Equal-area projections (e.g., Albers)</td>
+</tr>
+<tr class="even">
+<td><strong>Direction</strong></td>
+<td>Bearings from the center are accurate.</td>
+<td>Azimuthal projections (e.g., Lambert)</td>
+</tr>
+<tr class="odd">
+<td><strong>Distance</strong></td>
+<td>Correct distances are preserved along specific lines or from specific points.</td>
+<td>Equidistant projections (e.g., Equirectangular)</td>
+</tr>
+<tr class="even">
+<td><strong>Shape</strong></td>
+<td>Local angles and shapes are maintained, though areas are distorted.</td>
+<td>Conformal projections (e.g., Mercator)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Use the <a href="https://www.geo-projections.com/">Map Projection Explorer</a> for details.</li>
+<li>Use <code>st_crs()</code> for querying CRSs in <strong>sf objects</strong> and <code>crs()</code> for <strong>terra objects</strong>.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sf_proj_info</span>(<span class="at">type =</span> <span class="st">"proj"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">cols_label_with</span>(<span class="at">fn =</span> snakecase<span class="sc">::</span>to_title_case) <span class="sc">|&gt;</span> </span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  gtExtras<span class="sc">::</span><span class="fu">gt_theme_espn</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">opt_interactive</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div id="tbl-projection-types" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-projection-types-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: A list of the available projections supported by the PROJ library
+</figcaption>
+<div aria-describedby="tbl-projection-types-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="qrmhsgtppx" class=".gt_table" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+#qrmhsgtppx table {
+  font-family: Lato, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#qrmhsgtppx thead, #qrmhsgtppx tbody, #qrmhsgtppx tfoot, #qrmhsgtppx tr, #qrmhsgtppx td, #qrmhsgtppx th {
+  border-style: none;
+}
+
+#qrmhsgtppx p {
+  margin: 0;
+  padding: 0;
+}
+
+#qrmhsgtppx .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 3px;
+  border-top-color: #FFFFFF;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#qrmhsgtppx .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#qrmhsgtppx .gt_title {
+  color: #333333;
+  font-size: 24px;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#qrmhsgtppx .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#qrmhsgtppx .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#qrmhsgtppx .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qrmhsgtppx .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#qrmhsgtppx .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#qrmhsgtppx .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#qrmhsgtppx .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#qrmhsgtppx .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#qrmhsgtppx .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#qrmhsgtppx .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#qrmhsgtppx .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#qrmhsgtppx .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#qrmhsgtppx .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#qrmhsgtppx .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#qrmhsgtppx .gt_row {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #F6F7F7;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#qrmhsgtppx .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qrmhsgtppx .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#qrmhsgtppx .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#qrmhsgtppx .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#qrmhsgtppx .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qrmhsgtppx .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#qrmhsgtppx .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#qrmhsgtppx .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qrmhsgtppx .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qrmhsgtppx .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#qrmhsgtppx .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qrmhsgtppx .gt_striped {
+  background-color: #FAFAFA;
+}
+
+#qrmhsgtppx .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qrmhsgtppx .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#qrmhsgtppx .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qrmhsgtppx .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#qrmhsgtppx .gt_sourcenote {
+  font-size: 12px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qrmhsgtppx .gt_left {
+  text-align: left;
+}
+
+#qrmhsgtppx .gt_center {
+  text-align: center;
+}
+
+#qrmhsgtppx .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#qrmhsgtppx .gt_font_normal {
+  font-weight: normal;
+}
+
+#qrmhsgtppx .gt_font_bold {
+  font-weight: bold;
+}
+
+#qrmhsgtppx .gt_font_italic {
+  font-style: italic;
+}
+
+#qrmhsgtppx .gt_super {
+  font-size: 65%;
+}
+
+#qrmhsgtppx .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#qrmhsgtppx .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#qrmhsgtppx .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#qrmhsgtppx .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#qrmhsgtppx .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#qrmhsgtppx .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#qrmhsgtppx .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#qrmhsgtppx .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#qrmhsgtppx div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<div id="qrmhsgtppx" class="reactable html-widget" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="qrmhsgtppx">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"name":["adams_hemi","adams_ws1","adams_ws2","aea","aeqd","affine","airy","aitoff","alsk","apian","august","axisswap","bacon","bertin1953","bipc","boggs","bonne","calcofi","cart","cass","cc","ccon","cea","chamb","collg","col_urban","comill","crast","defmodel","deformation","denoy","eck1","eck2","eck3","eck4","eck5","eck6","eqearth","eqc","eqdc","euler","etmerc","fahey","fouc","fouc_s","gall","geoc","geogoffset","geos","gins8","gn_sinu","gnom","goode","gridshift","gs48","gs50","guyou","hammer","hatano","healpix","rhealpix","helmert","hgridshift","horner","igh","igh_o","imoll","imoll_o","imw_p","isea","kav5","kav7","krovak","labrd","laea","lagrng","larr","lask","lonlat","latlon","lcc","lcca","leac","lee_os","loxim","lsat","mbt_s","mbt_fps","mbtfpp","mbtfpq","mbtfps","merc","mil_os","mill","misrsom","moll","molobadekas","molodensky","murd1","murd2","murd3","natearth","natearth2","nell","nell_h","nicol","nsper","nzmg","noop","ob_tran","ocea","oea","omerc","ortel","ortho","pconic","patterson","peirce_q","pipeline","poly","pop","push","putp1","putp2","putp3","putp3p","putp4p","putp5","putp5p","putp6","putp6p","qua_aut","qsc","robin","rouss","rpoly","s2","sch","set","sinu","som","somerc","stere","sterea","gstmerc","tcc","tcea","times","tinshift","tissot","tmerc","tobmerc","topocentric","tpeqd","tpers","unitconvert","ups","urm5","urmfps","utm","vandg","vandg2","vandg3","vandg4","vertoffset","vitk1","vgridshift","wag1","wag2","wag3","wag4","wag5","wag6","wag7","webmerc","weren","wink1","wink2","wintri","xyzgridshift"],"description":["Adams Hemisphere in a Square","Adams World in a Square I","Adams World in a Square II","Albers Equal Area","Azimuthal Equidistant","Affine transformation","Airy","Aitoff","Modified Stereographic of Alaska","Apian Globular I","August Epicycloidal","Axis ordering","Bacon Globular","Bertin 1953","Bipolar conic of western hemisphere","Boggs Eumorphic","Bonne (Werner lat_1=90)","Cal Coop Ocean Fish Invest Lines/Stations","Geodetic/cartesian conversions","Cassini","Central Cylindrical","Central Conic","Equal Area Cylindrical","Chamberlin Trimetric","Collignon","Colombia Urban","Compact Miller","Craster Parabolic (Putnins P4)","Deformation model","Kinematic grid shift","Denoyer Semi-Elliptical","Eckert I","Eckert II","Eckert III","Eckert IV","Eckert V","Eckert VI","Equal Earth","Equidistant Cylindrical (Plate Carree)","Equidistant Conic","Euler","Extended Transverse Mercator","Fahey","Foucaut","Foucaut Sinusoidal","Gall (Gall Stereographic)","Geocentric Latitude","Geographic Offset","Geostationary Satellite View","Ginsburg VIII (TsNIIGAiK)","General Sinusoidal Series","Gnomonic","Goode Homolosine","Generic grid shift","Modified Stereographic of 48 U.S.","Modified Stereographic of 50 U.S.","Guyou","Hammer & Eckert-Greifendorff","Hatano Asymmetrical Equal Area","HEALPix","rHEALPix","3(6)-, 4(8)- and 7(14)-parameter Helmert shift","Horizontal grid shift","Horner polynomial evaluation","Interrupted Goode Homolosine","Interrupted Goode Homolosine Oceanic View","Interrupted Mollweide","Interrupted Mollweide Oceanic View","International Map of the World Polyconic","Icosahedral Snyder Equal Area","Kavrayskiy V","Kavrayskiy VII","Krovak","Laborde","Lambert Azimuthal Equal Area","Lagrange","Larrivee","Laskowski","Lat/long (Geodetic)","Lat/long (Geodetic alias)","Lambert Conformal Conic","Lambert Conformal Conic Alternative","Lambert Equal Area Conic","Lee Oblated Stereographic","Loximuthal","Space oblique for LANDSAT","McBryde-Thomas Flat-Polar Sine (No. 1)","McBryde-Thomas Flat-Pole Sine (No. 2)","McBride-Thomas Flat-Polar Parabolic","McBryde-Thomas Flat-Polar Quartic","McBryde-Thomas Flat-Polar Sinusoidal","Mercator","Miller Oblated Stereographic","Miller Cylindrical","Space oblique for MISR","Mollweide","Molodensky-Badekas transformation","Molodensky transform","Murdoch I","Murdoch II","Murdoch III","Natural Earth","Natural Earth 2","Nell","Nell-Hammer","Nicolosi Globular","Near-sided perspective","New Zealand Map Grid","No operation","General Oblique Transformation","Oblique Cylindrical Equal Area","Oblated Equal Area","Oblique Mercator","Ortelius Oval","Orthographic","Perspective Conic","Patterson Cylindrical","Peirce Quincuncial","Transformation pipeline manager","Polyconic (American)","Retrieve coordinate value from pipeline stack","Save coordinate value on pipeline stack","Putnins P1","Putnins P2","Putnins P3","Putnins P3'","Putnins P4'","Putnins P5","Putnins P5'","Putnins P6","Putnins P6'","Quartic Authalic","Quadrilateralized Spherical Cube","Robinson","Roussilhe Stereographic","Rectangular Polyconic","S2","Spherical Cross-track Height","Set coordinate value","Sinusoidal (Sanson-Flamsteed)","Space Oblique Mercator","Swiss. Obl. Mercator","Stereographic","Oblique Stereographic Alternative","Gauss-Schreiber Transverse Mercator (aka Gauss-Laborde Reunion)","Transverse Central Cylindrical","Transverse Cylindrical Equal Area","Times","Triangulation based transformation","Tissot","Transverse Mercator","Tobler-Mercator","Geocentric/Topocentric conversion","Two Point Equidistant","Tilted perspective","Unit conversion","Universal Polar Stereographic","Urmaev V","Urmaev Flat-Polar Sinusoidal","Universal Transverse Mercator (UTM)","van der Grinten (I)","van der Grinten II","van der Grinten III","van der Grinten IV","Vertical Offset and Slope","Vitkovsky I","Vertical grid shift","Wagner I (Kavrayskiy VI)","Wagner II","Wagner III","Wagner IV","Wagner V","Wagner VI","Wagner VII","Web Mercator / Pseudo Mercator","Werenskiold I","Winkel I","Winkel II","Winkel Tripel","Geocentric grid shift"]},"columns":[{"id":"name","name":"Name","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"description","name":"Description","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}}],"defaultPageSize":10,"showPageSizeOptions":false,"pageSizeOptions":[10,25,50,100],"paginationType":"numbers","showPagination":true,"showPageInfo":true,"minRows":1,"striped":true,"height":"auto","theme":{"color":"#333333","backgroundColor":"#FFFFFF","stripedColor":"#fafafa","style":{"fontFamily":"Lato, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"},"tableStyle":{"borderTopStyle":"solid","borderTopWidth":"2px","borderTopColor":"#D3D3D3"},"headerStyle":{"borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"#D3D3D3"}},"elementId":"qrmhsgtppx","dataKey":"da11b8da9a0c61d44ce66a7aaa35fe9c"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.style","tag.attribs.columns.1.style"],"jsHooks":[]}</script>
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+</section>
+<section id="units" class="level2">
+<h2 class="anchored" data-anchor-id="units">2.5 Units</h2>
+<ul>
+<li><p>CRSs include spatial units information, which is crucial for accurately interpreting distance and area.</p></li>
+<li><p>Cartographic best practices suggest adding scale indicators on maps to show the relationship between map and ground distances.</p></li>
+<li><p><strong>Units in <code>sf</code> Objects</strong>:</p>
+<ul>
+<li><code>sf</code> objects natively support units for geometric data, ensuring outputs from functions like <code>st_area()</code> come with a <code>units</code> attribute.</li>
+<li>This feature, supported by the <code>units</code> package, avoids confusion across different CRSs, which may use meters, feet, etc.</li>
+<li>To convert units, use <code>units::set_units()</code></li>
+</ul></li>
+<li><p><strong>Units in Raster Data</strong>:</p>
+<ul>
+<li>Unlike <code>sf</code>, raster packages do not natively support units.</li>
+<li>Users should be cautious when working with raster data to convert units properly.</li>
+<li>An example to calculate the area of India in square meters and then, square kilometres</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load required libraries</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(units)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the area of India in square meters</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>india_area <span class="ot">&lt;-</span> rnaturalearth<span class="sc">::</span><span class="fu">ne_countries</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(admin <span class="sc">==</span> <span class="st">"India"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_area</span>()</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>india_area</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>3.150428e+12 [m^2]</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert area to square kilometers</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Area of India in square kilometers:"</span>, <span class="fu">format</span>(<span class="fu">set_units</span>(india_area, km<span class="sc">^</span><span class="dv">2</span>))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Area of India in square kilometers: 3150428 [km^2]"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert area to hectares</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Area of India in hectares:"</span>, <span class="fu">format</span>(<span class="fu">set_units</span>(india_area, ha))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Area of India in hectares: 315042827 [ha]"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert area to acres</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Area of India in acres:"</span>, <span class="fu">format</span>(<span class="fu">set_units</span>(india_area, acre))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Area of India in acres: 778484666 [acre]"</code></pre>
+</div>
+</div>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises"><strong>2.6 Exercises</strong></h2>
+<hr>
+<section id="e1" class="level3">
+<h3 class="anchored" data-anchor-id="e1">E1</h3>
+<p>Using <code>summary()</code> on the geometry column of the <code>world</code> data object in the <code>spData</code> package provides valuable information about the spatial characteristics of the dataset:</p>
+<ol type="1">
+<li><strong>Geometry Type</strong>:
+<ul>
+<li>The output will indicate the type of geometries present in the <code>world</code> data object. Here, it is <code>MULTIPOLYGON</code> suggesting that the dataset represents the outlines of countries or regions in <strong>MULTIPLOYGON</strong> formats.</li>
+</ul></li>
+<li><strong>Number of Countries</strong>:
+<ul>
+<li>The summary will show the number of geometries or features present, which corresponds to the number of countries or regions represented in the <code>world</code> dataset. Here, it is <strong>177 countries</strong>.</li>
+</ul></li>
+<li><strong>Coordinate Reference System (CRS)</strong>:
+<ul>
+<li>The output will include details about the CRS, and in the present case it is <strong>EPSG:4326</strong>.</li>
+</ul></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>((spData<span class="sc">::</span>world<span class="sc">$</span>geom))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> MULTIPOLYGON     epsg:4326 +proj=long... 
+          177             0             0 </code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="e2" class="level3">
+<h3 class="anchored" data-anchor-id="e2">E2</h3>
+<p>To generate the world map, you can run the following code (as shown in Section 2.2.3):</p>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spData)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(world[<span class="dv">3</span><span class="sc">:</span><span class="dv">6</span>])</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(world[<span class="st">"pop"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-ex2-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ex2-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter2_files/figure-html/fig-ex2-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13" title="Figure&nbsp;6: Reproducing Figure 2.4 of the book"><img src="chapter2_files/figure-html/fig-ex2-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ex2-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Reproducing Figure 2.4 of the book
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-ex2-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ex2-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter2_files/figure-html/fig-ex2-2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-14" title="Figure&nbsp;7: Reproducing Figure 2.4 of the book"><img src="chapter2_files/figure-html/fig-ex2-2.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ex2-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Reproducing Figure 2.4 of the book
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Similarities</strong>:
+<ol type="1">
+<li>The map displays country boundaries and highlights the global population distribution as shown in the book.</li>
+<li>The color scale representing population data is consistent with that described in the book, with larger populations shown with more intense colors.</li>
+</ol></li>
+<li><strong>Differences</strong>:
+<ol type="1">
+<li>The aspect ratio or positioning of the map might vary depending on your screen resolution and window size.</li>
+<li>The color theme and legend display may differ if your R setup or graphic device uses default settings different from those in the book.</li>
+</ol></li>
+<li><strong><code>cex</code> Argument</strong>: This parameter controls the size of plotting symbols in R. It is a numeric value that acts as a multiplier for the default size of symbols.
+<ul>
+<li>Setting <code>cex</code> to values larger than 1 enlarges symbols, while values less than 1 shrink them.</li>
+</ul></li>
+<li><strong>Reason for <code>cex = sqrt(world$pop) / 10000</code></strong> : The code sets <code>cex</code> to <code>sqrt(world$pop) / 10000</code> to scale the size of the points on the map in proportion to the population of each country. This square root transformation is used to moderate the variation in symbol sizes because population values can vary significantly between countries. Dividing by 10,000 helps to reduce the symbol size to a reasonable range for plotting.</li>
+</ul>
+<p><strong>Other Ideas: —</strong></p>
+<ul>
+<li><strong>Bubble Plot</strong>: Overlay a bubble plot on the map with points sized by population.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(world[<span class="st">"pop"</span>])</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">st_coordinates</span>(<span class="fu">st_centroid</span>(world<span class="sc">$</span>geom)), </span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">cex =</span> <span class="fu">sqrt</span>(world<span class="sc">$</span>pop) <span class="sc">/</span> <span class="dv">5000</span>, </span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">pch =</span> <span class="dv">19</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="chapter2_files/figure-html/unnamed-chunk-14-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-15"><img src="chapter2_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Choropleth Map</strong>: Use color gradients to represent population density.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tmap)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(world) <span class="sc">+</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="st">"pop"</span>, <span class="at">style =</span> <span class="st">"jenks"</span>, </span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">palette =</span> <span class="st">"Blues"</span>, </span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">title =</span> <span class="st">"Population"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="chapter2_files/figure-html/unnamed-chunk-15-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-16"><img src="chapter2_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Log Transformation</strong>: Visualize population using a log scale for better differentiation.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>world<span class="sc">$</span>log_pop <span class="ot">=</span> <span class="fu">log10</span>(world<span class="sc">$</span>pop <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(world[<span class="st">"log_pop"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="chapter2_files/figure-html/unnamed-chunk-16-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-17"><img src="chapter2_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="e3" class="level3">
+<h3 class="anchored" data-anchor-id="e3">E3</h3>
+<p>To create a map of Nigeria in context and customize it using the <code>plot()</code> function, you can follow these steps:</p>
+<p><strong>Step 1:</strong> Load Necessary Libraries and Data: Make sure you have the <code>spData</code> package loaded and access to the world spatial data.</p>
+<p><strong>Step 2:</strong> Plotting Nigeria in Context: You can plot Nigeria by subsetting the <code>world</code> data and adjusting parameters such as <code>lwd</code> (line width), <code>col</code> (color), and <code>expandBB</code> (expanding the bounding box). Here’s an example code snippet:</p>
+<p><strong>Step 3:</strong> Annotating the Map: To annotate the map with text labels, you can use the <code>text()</code> function. Here’s an example where we add the name of Nigeria and its capital, Abuja:</p>
+<p><strong>Step 4:</strong> Exploring the <code>text()</code> Documentation</p>
+<ul>
+<li><strong><code>lwd</code></strong>: This argument controls the line width for the borders of the countries.</li>
+<li><strong><code>col</code></strong>: This argument sets the fill color for the countries. You can customize it based on your preference.</li>
+<li><strong><code>expandBB</code></strong>: This argument expands the bounding box of the plot, which can help visualize nearby areas more clearly.</li>
+</ul>
+<hr>
+</section>
+<section id="e4" class="level3">
+<h3 class="anchored" data-anchor-id="e4">E4</h3>
+<p>To create an empty <code>SpatRaster</code> object with 10 columns and 10 rows, assign random values between 0 and 10, and then plot it, you can use the <code>terra</code> package in R. Here’s how you can do it:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(terra)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Create an empty SpatRaster object with 10 columns and 10 rows</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>my_raster <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="at">nrows =</span> <span class="dv">10</span>, <span class="at">ncols =</span> <span class="dv">10</span>)</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Assign random values between 0 and 10</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="fu">values</span>(my_raster) <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="fu">ncell</span>(my_raster), <span class="at">min =</span> <span class="dv">0</span>, <span class="at">max =</span> <span class="dv">10</span>)</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the raster</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(my_raster, <span class="at">main =</span> <span class="st">"Random Values Raster"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="chapter2_files/figure-html/unnamed-chunk-17-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-18"><img src="chapter2_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="e5" class="level3">
+<h3 class="anchored" data-anchor-id="e5">E5</h3>
+<p>To read in the <code>raster/nlcd.tif</code> file from the <code>spDataLarge</code> package and examine its properties, you can follow these steps in R:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spDataLarge)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(terra)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the raster file</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>nlcd_raster <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="fu">system.file</span>(<span class="st">"raster/nlcd.tif"</span>, <span class="at">package =</span> <span class="st">"spDataLarge"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Information You Can Obtain: —</strong></p>
+<ol type="1">
+<li><p><strong>Basic Properties</strong>: The <code>print(nlcd_raster)</code> command will provide you with information about the raster, including its dimensions, number of layers, and type of data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the basic properties of the raster</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(nlcd_raster)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>class       : SpatRaster 
+dimensions  : 1359, 1073, 1  (nrow, ncol, nlyr)
+resolution  : 31.5303, 31.52466  (x, y)
+extent      : 301903.3, 335735.4, 4111244, 4154086  (xmin, xmax, ymin, ymax)
+coord. ref. : NAD83 / UTM zone 12N (EPSG:26912) 
+source      : nlcd.tif 
+color table : 1 
+categories  : levels 
+name        :   levels 
+min value   :    Water 
+max value   : Wetlands </code></pre>
+</div>
+</div></li>
+<li><p><strong>Summary Statistics</strong>: The <code>summary(nlcd_raster)</code> function will give you basic statistics about the raster values, such as minimum, maximum, and mean values. In this case, it tells the number of cells with Forest, Shrubland, Barren, Developed, Cultivated, Wetlands and Other land-use types.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get summary statistics</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(nlcd_raster)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        levels     
+ Forest    :52620  
+ Shrubland :37463  
+ Barren    : 7290  
+ Developed : 1203  
+ Cultivated:  596  
+ Wetlands  :  443  
+ (Other)   :  421  </code></pre>
+</div>
+</div></li>
+<li><p><strong>Extent</strong>: The <code>ext(nlcd_raster)</code> command will provide the geographical extent of the raster, showing the minimum and maximum x and y coordinates.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the extent of the raster</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ext</span>(nlcd_raster)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>SpatExtent : 301903.344386758, 335735.354381954, 4111244.46098842, 4154086.47216415 (xmin, xmax, ymin, ymax)</code></pre>
+</div>
+</div></li>
+<li><p><strong>Rows and Columns</strong>: You can find the number of rows and columns in the raster using <code>nrow(nlcd_raster)</code> and <code>ncol(nlcd_raster)</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the number of rows and columns</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(nlcd_raster)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1359</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ncol</span>(nlcd_raster)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1073</code></pre>
+</div>
+</div></li>
+<li><p><strong>Coordinate Reference System (CRS)</strong>: The <code>crs(nlcd_raster)</code> command will return the CRS of the raster, which is essential for spatial analyses.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the coordinate reference system (CRS)</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str_view</span>(<span class="fu">crs</span>(nlcd_raster))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] │ PROJCRS["NAD83 / UTM zone 12N",
+    │     BASEGEOGCRS["NAD83",
+    │         DATUM["North American Datum 1983",
+    │             ELLIPSOID["GRS 1980",6378137,298.257222101,
+    │                 LENGTHUNIT["metre",1]]],
+    │         PRIMEM["Greenwich",0,
+    │             ANGLEUNIT["degree",0.0174532925199433]],
+    │         ID["EPSG",4269]],
+    │     CONVERSION["UTM zone 12N",
+    │         METHOD["Transverse Mercator",
+    │             ID["EPSG",9807]],
+    │         PARAMETER["Latitude of natural origin",0,
+    │             ANGLEUNIT["degree",0.0174532925199433],
+    │             ID["EPSG",8801]],
+    │         PARAMETER["Longitude of natural origin",-111,
+    │             ANGLEUNIT["degree",0.0174532925199433],
+    │             ID["EPSG",8802]],
+    │         PARAMETER["Scale factor at natural origin",0.9996,
+    │             SCALEUNIT["unity",1],
+    │             ID["EPSG",8805]],
+    │         PARAMETER["False easting",500000,
+    │             LENGTHUNIT["metre",1],
+    │             ID["EPSG",8806]],
+    │         PARAMETER["False northing",0,
+    │             LENGTHUNIT["metre",1],
+    │             ID["EPSG",8807]]],
+    │     CS[Cartesian,2],
+    │         AXIS["(E)",east,
+    │             ORDER[1],
+    │             LENGTHUNIT["metre",1]],
+    │         AXIS["(N)",north,
+    │             ORDER[2],
+    │             LENGTHUNIT["metre",1]],
+    │     USAGE[
+    │         SCOPE["Engineering survey, topographic mapping."],
+    │         AREA["North America - between 114°W and 108°W - onshore and offshore. Canada - Alberta; Northwest Territories; Nunavut; Saskatchewan. United States (USA) - Arizona; Colorado; Idaho; Montana; New Mexico; Utah; Wyoming."],
+    │         BBOX[31.33,-114,84,-108]],
+    │     ID["EPSG",26912]]</code></pre>
+</div>
+</div></li>
+<li><p><strong>Resolution</strong>: You can check the resolution of the raster with the <code>res(nlcd_raster)</code> function, which will indicate the size of each pixel.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the resolution of the raster</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">res</span>(nlcd_raster)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 31.53030 31.52466</code></pre>
+</div>
+</div></li>
+<li><p><strong>Values</strong>: The <code>values(nlcd_raster)</code> command allows you to access the actual values contained in the raster. Here, I am printing only the first few values.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the values of the raster</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">values</span>(nlcd_raster) <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     levels
+[1,]      4
+[2,]      4
+[3,]      5
+[4,]      4
+[5,]      4
+[6,]      4</code></pre>
+</div>
+</div></li>
+</ol>
+<hr>
+</section>
+<section id="e6" class="level3">
+<h3 class="anchored" data-anchor-id="e6">E6</h3>
+<p>To check the Coordinate Reference System (CRS) of the <code>raster/nlcd.tif</code> file from the <code>spDataLarge</code> package, you can use the following steps in R. The CRS provides essential information about how the spatial data is projected on the Earth’s surface.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spDataLarge)</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(terra)</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the raster file</span></span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>nlcd_raster <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="fu">system.file</span>(<span class="st">"raster/nlcd.tif"</span>, <span class="at">package =</span> <span class="st">"spDataLarge"</span>))</span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the coordinate reference system (CRS)</span></span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>nlcd_crs <span class="ot">&lt;-</span> <span class="fu">crs</span>(nlcd_raster)</span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a>nlcd_crs <span class="sc">|&gt;</span> <span class="fu">str_view</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] │ PROJCRS["NAD83 / UTM zone 12N",
+    │     BASEGEOGCRS["NAD83",
+    │         DATUM["North American Datum 1983",
+    │             ELLIPSOID["GRS 1980",6378137,298.257222101,
+    │                 LENGTHUNIT["metre",1]]],
+    │         PRIMEM["Greenwich",0,
+    │             ANGLEUNIT["degree",0.0174532925199433]],
+    │         ID["EPSG",4269]],
+    │     CONVERSION["UTM zone 12N",
+    │         METHOD["Transverse Mercator",
+    │             ID["EPSG",9807]],
+    │         PARAMETER["Latitude of natural origin",0,
+    │             ANGLEUNIT["degree",0.0174532925199433],
+    │             ID["EPSG",8801]],
+    │         PARAMETER["Longitude of natural origin",-111,
+    │             ANGLEUNIT["degree",0.0174532925199433],
+    │             ID["EPSG",8802]],
+    │         PARAMETER["Scale factor at natural origin",0.9996,
+    │             SCALEUNIT["unity",1],
+    │             ID["EPSG",8805]],
+    │         PARAMETER["False easting",500000,
+    │             LENGTHUNIT["metre",1],
+    │             ID["EPSG",8806]],
+    │         PARAMETER["False northing",0,
+    │             LENGTHUNIT["metre",1],
+    │             ID["EPSG",8807]]],
+    │     CS[Cartesian,2],
+    │         AXIS["(E)",east,
+    │             ORDER[1],
+    │             LENGTHUNIT["metre",1]],
+    │         AXIS["(N)",north,
+    │             ORDER[2],
+    │             LENGTHUNIT["metre",1]],
+    │     USAGE[
+    │         SCOPE["Engineering survey, topographic mapping."],
+    │         AREA["North America - between 114°W and 108°W - onshore and offshore. Canada - Alberta; Northwest Territories; Nunavut; Saskatchewan. United States (USA) - Arizona; Colorado; Idaho; Montana; New Mexico; Utah; Wyoming."],
+    │         BBOX[31.33,-114,84,-108]],
+    │     ID["EPSG",26912]]</code></pre>
+</div>
+</div>
+<p><strong>Understanding the CRS Information: —</strong></p>
+<p>The output from the <code>crs(nlcd_raster)</code> command will typically include details such as:</p>
+<ol type="1">
+<li><p><strong>Projection Type</strong>: Indicates whether the CRS is geographic (latitude and longitude) or projected (a flat representation). Here, it is North American <strong>NAD83 / UTM Zone 12 N</strong></p></li>
+<li><p><strong>Datum</strong>: Information about the geodetic datum used, which is crucial for accurately locating points on the Earth’s surface. Here, it is North American Datum 1983.</p></li>
+<li><p><strong>Coordinate Units</strong>: Specifies the units of measurement used for the coordinates, such as degrees (for geographic CRSs) or meters (for projected CRSs). Here, it is in metres, as shown in:</p>
+<pre><code>LENGTHUNIT["metre",1]</code></pre></li>
+<li><p><strong>EPSG Code</strong>: If applicable, the output might include an EPSG code, which is a standardized reference number for a specific CRS. This code can be used to look up more detailed information about the CRS. Here, it is: —</p>
+<pre><code>ID["EPSG",26912]</code></pre></li>
+<li><p><strong>Transformation Parameters</strong>: If it’s a projected CRS, the output may include parameters related to the projection method, such as central meridian, standard parallels, and false easting/northing. Here, they are: —</p>
+<pre><code>|         PRIMEM["Greenwich",0,     
+│             ANGLEUNIT["degree",0.0174532925199433]],     
+│         ID["EPSG",4269]], 
+|
+|
+│     CONVERSION["UTM zone 12N",     
+│         METHOD["Transverse Mercator",     
+│             ID["EPSG",9807]],     
+│         PARAMETER["Latitude of natural origin",0,     
+│             ANGLEUNIT["degree",0.0174532925199433],     
+│             ID["EPSG",8801]],     
+│         PARAMETER["Longitude of natural origin",-111,     
+|             ANGLEUNIT["degree",0.0174532925199433],     
+│             ID["EPSG",8802]],     
+│         PARAMETER["Scale factor at natural origin",0.9996,
+│             SCALEUNIT["unity",1],     
+│             ID["EPSG",8805]],     
+│         PARAMETER["False easting",500000,     
+│             LENGTHUNIT["metre",1],     
+│             ID["EPSG",8806]],     
+│         PARAMETER["False northing",0,     
+│             LENGTHUNIT["metre",1],     
+│             ID["EPSG",8807]]],</code></pre></li>
+</ol>
+
+
+
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-sfheaders" class="csl-entry" role="listitem">
+Cooley, David. 2024. <span>“Sfheaders: Converts Between r Objects and Simple Feature Objects.”</span> <a href="https://CRAN.R-project.org/package=sfheaders">https://CRAN.R-project.org/package=sfheaders</a>.
+</div>
+<div id="ref-rasterVis" class="csl-entry" role="listitem">
+Oscar Perpiñán, and Robert Hijmans. 2023. <span>“<span></span>rasterVis<span></span>.”</span> <a href="https://oscarperpinan.github.io/rastervis/">https://oscarperpinan.github.io/rastervis/</a>.
+</div>
+<div id="ref-tmap" class="csl-entry" role="listitem">
+Tennekes, Martijn. 2018. <span>“<span></span>Tmap<span></span>: Thematic Maps in <span></span>r<span></span>”</span> 84. <a href="https://doi.org/10.18637/jss.v084.i06">https://doi.org/10.18637/jss.v084.i06</a>.
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/aditya-dahiya\.github\.io\/visage\/index\.html");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://giscus.app/client.js" data-repo="Aditya-Dahiya/visage" data-repo-id="R_kgDONAVlOw" data-category="General" data-category-id="DIC_kwDONAVlO84CjtPl" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script>
+<input type="hidden" id="giscus-base-theme" value="light">
+<input type="hidden" id="giscus-alt-theme" value="dark">
+</div> <!-- /content -->
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/book_solutions/chapter2.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><div class="page-columns page-rows-contents page-layout-article"><div class="social-share"><a href="https://twitter.com/share?url=https://aditya-dahiya.github.io/visage/book_solutions/chapter2.html&amp;text=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="twitter"><i class="fab fa-twitter fa-fw fa-lg"></i></a><a href="https://www.linkedin.com/shareArticle?url=https://aditya-dahiya.github.io/visage/book_solutions/chapter2.html&amp;title=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="linkedin"><i class="fa-brands fa-linkedin-in fa-fw fa-lg"></i></a>  <a href="mailto:?subject=Visualizing Information and Spatial Analysis with ggplot2 Extensions&amp;body=Check out this link:https://aditya-dahiya.github.io/visage/book_solutions/chapter2.html" target="_blank" class="email"><i class="fa-solid fa-envelope fa-fw fa-lg"></i></a><a href="https://www.facebook.com/sharer.php?u=https://aditya-dahiya.github.io/visage/book_solutions/chapter2.html" target="_blank" class="facebook"><i class="fab fa-facebook-f fa-fw fa-lg"></i></a><a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' &amp;&amp; mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=Visualizing Information and Spatial Analysis with ggplot2 Extensions https://aditya-dahiya.github.io/visage/book_solutions/chapter2.html'}else{return false;}" target="_blank" class="mastodon"><i class="fa-brands fa-mastodon fa-fw fa-lg"></i></a></div></div>
+<script>var lightboxQuarto = GLightbox({"loop":false,"closeEffect":"zoom","openEffect":"zoom","descPosition":"bottom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+
+
+</body></html>

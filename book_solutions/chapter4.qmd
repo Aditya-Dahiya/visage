@@ -1,0 +1,1576 @@
+---
+title: "Chapter 4: Spatial data operations"
+subtitle: "Key Learnings from, and Solutions to the exercises in Chapter 4 of the book Geocomputation with R by Robin Lovelace, Jakub Nowosad and Jannes Muenchow."
+date: "2024-11-16"
+author: "Aditya Dahiya"
+bibliography: references.bib
+format:
+  html:
+    code-fold: false
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: true
+  cache: false
+  collapse: true
+categories:
+  - "Geocomputation with R"
+  - "Textbook Solutions"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/book_solutions/chapter4.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+```{r}
+#| label: setup
+
+library(sf)        # Simple Features in R
+library(terra)     # Handling rasters in R
+library(tidyterra) # For plotting rasters in ggplot2
+library(tidyverse) # All things tidy; Data Wrangling
+library(spData)    # Spatial Datasets
+
+
+sysfonts::font_add_google("Saira Extra Condensed", "caption_font")
+sysfonts::font_add_google("Saira", "body_font")
+theme_set(theme_minimal(base_family = "body_font"))
+showtext::showtext_auto()
+```
+
+## 4.1 Introduction to Spatial Operations
+
+-   **Spatial Operations**: Include spatial joins for vectors and local/focal operations for rasters, allowing modification based on location and shape.
+    -   Relation to Non-Spatial Operations: Many spatial operations (e.g., subsetting, joining) have non-spatial counterparts.
+-   **Spatial Joins**: Can be done in multiple ways (e.g., **intersect**, **within distance**), unlike non-spatial joins *(refer to [fuzzyjoin](https://cran.r-project.org/web/packages/fuzzyjoin/index.html) package [@fuzzyjoin] for alternatives).*
+    -   Types of Spatial Relationships: Includes operations like intersects and disjoint. Distance calculations explore spatial relationships.
+-   **Raster Operations**:
+    1.  Subsetting (Section 4.3.1)
+    2.  Map Algebra: Modifies raster cell values through local, focal, zonal, and global operations (Sections 4.3.3 to 4.3.6).
+    3.  Merging Rasters: Demonstrated with reproducible examples (Section 4.3.8).
+-   **Coordinate Reference System (CRS)**: Consistency in CRS is essential for spatial operations..
+
+## 4.2 Spatial operations on vector data
+
+### 4.2.1 Spatial Subsetting: use `st_filter()`
+
+-   Spatial subsetting extracts features from a spatial object (`x`) that relate spatially to another object (`y`).
+-   Syntax: Use the `[ ]` operator: `x[y, , op = st_intersects]`.
+    -   `x`: Target `sf` object.
+
+    -   `y`: Subsetting `sf` object.
+
+    -   `op`: Topological relation (default is `st_intersects`).
+
+        [sf package documentation](https://r-spatial.github.io/sf/)
+-   Default Operator: `st_intersects()` selects features intersecting with the subsetting object. Alternative operators like `st_disjoint()` can be used for different relations.
+    -   Example: `nz_height[canterbury, ]` returns high points within Canterbury from the `nz_height` dataset in the spData package ([spData documentation](https://nowosad.github.io/spData/)).
+-   Topological Relations: Include `touches`, `crosses`, and `within`. These determine spatial relationships between features in `x` and `y`.
+-   Sparse Geometry Binary Predicate (sgbp):
+    -   Using `st_intersects()`, an `sgbp` list object is created.
+    -   Convert `sgbp` to logical vector for subsetting using `lengths({sgbp_object_name} > 0)`
+    -   Using `sparse = FALSE` argument in `st_intersects()` returns a dense matrix.
+-   Tidyverse Alternative: [`st_filter()`](https://r-spatial.github.io/sf/reference/st_filter.html) from the sf package simplifies spatial subsetting, increasing compatibility with `dplyr`.
+-   Output Consistency: Subsets created using `[ ]`, logical vectors, or `st_filter()` are equivalent in spatial operations.
+
+```{r}
+#| label: fig-4-2-1
+#| fig-cap: "Spatial Subsetting and plotting with tidyverse and ggplot2 methods"
+#| fig-subcap: 
+#|   - "New Zealand Map with all the peaks"
+#|   - "New Zealand Map focussing on peaks that intersect with Canterbury"
+#| collapse: true
+#| code-fold: true
+
+data("nz")
+data("nz_height")
+
+class(nz)
+
+# A plot for all regions and all peaks
+nz |> 
+  ggplot() +
+  geom_sf(fill = "white") +
+  ggrepel::geom_text_repel(
+    mapping = aes(
+      label = Name,
+      geometry = geom
+    ),
+    size = 4,
+    family = "caption_font",
+    stat = "sf_coordinates"
+  ) +
+  geom_sf(
+    data = nz_height,
+    pch = 2,
+    colour = "red",
+    size = 3
+  ) +
+  scale_fill_manual(
+    values = c("white", "pink")
+  ) +
+  labs(
+    title = "All peaks in New Zealand, and all regions."
+  ) +
+  theme_void() +
+  theme(
+    plot.background = element_rect(
+      fill = "lightblue",
+      colour = NA
+    ),
+    legend.position = "none"
+  )
+
+# Total peaks in New Zealand
+nz_height |> dim()
+
+# Peaks within Canterbury in New Zealand
+
+# Base R Version
+canterbury <- nz |> filter(Name == "Canterbury")
+nz_height[canterbury,] |> dim()
+
+# Tidyverse Version
+nz_height |>
+  st_filter(
+    nz |> filter(Name == "Canterbury"),
+    .predicate = st_intersects
+  ) |> 
+  dim()
+
+# Getting the peaks which are inside Canterbury
+canterbury_ids <- nz_height |>
+  st_filter(
+    nz |> filter(Name == "Canterbury"),
+    .predicate = st_intersects
+  ) |> 
+  pull(t50_fid)
+
+nz_height |> 
+  mutate(in_canterbury = t50_fid %in% canterbury_ids) |> 
+  ggplot() +
+  
+  # Base NZ Map and Label for Canterbury
+  geom_sf(
+    data = nz,
+    mapping = aes(
+      fill = Name == "Canterbury"
+    )
+  ) +
+  geom_sf_text(
+    data = filter(nz, Name == "Canterbury"),
+    mapping = aes(
+      label = Name,
+      geometry = geom
+    ),
+    size = 4,
+    family = "caption_font"
+  ) +
+  
+  # Plotting the peaks, and colouring by presence in Canterbury
+  geom_sf(
+    mapping = aes(
+      colour = in_canterbury,
+      size = in_canterbury
+    ),
+    pch = 2
+  ) +
+  
+  scale_fill_manual(
+    values = c("white", "lightpink")
+  ) +
+  scale_colour_manual(
+    values = c("black", "red")
+  ) +
+  guides(
+    fill = "none"
+  ) +
+  labs(
+    colour = "Peaks within Canterbury Region?",
+    size = "Peaks within Canterbury Region?",
+    title = "Highlighting Peaks within Canterbury region"
+  ) +
+  theme_void() +
+  theme(
+    plot.background = element_rect(
+      fill = "lightblue"
+    ),
+    legend.position = "bottom"
+  )
+```
+
+Example code for `st_intersects()` and `st_disjoint()` : these functions produce a sparse predicate list only. Hence, correct way to use them would be `st_filter()` with `.predicate = <function>` argument.
+
+```{r}
+nz_height |> 
+  st_intersects(
+    filter(nz, Name == "Canterbury")
+  )
+
+# The 70 peaks within Canterbury region
+nz_height |> 
+  st_filter(
+    filter(nz, Name == "Canterbury"),
+    .predicate = st_intersects
+  )
+
+
+# The 31 peaks outside Canterbury Region
+nz_height |> 
+  st_filter(
+    filter(nz, Name == "Canterbury"),
+    .predicate = st_disjoint
+  )
+```
+
+### 4.2.2 Topological Relations
+
+-   **Topological relations** describe spatial relationships between objects using logical TRUE or FALSE statements *(Egenhofer and Herring, 1990)*.
+-   **Symmetrical vs. non-symmetrical relations**:
+    -   Symmetrical relations (e.g., `equals`, `intersects`, `crosses`) yield the same result when order of input is swapped.
+    -   Non-symmetrical relations (e.g., `contains`, `within`) depend on the order of input geometries.
+-   **Binary predicates** in **`sf`** package test spatial relationships between vector geometries. See [vignette("sf3")](https://r-spatial.github.io/sf/articles/sf3.html). The following binary predicates exist in `sf` : —
+
+| Function | Description | Symmetrical? |
+|------------------------|------------------------|------------------------|
+| `st_intersects` | Checks if geometries intersect. | Yes |
+| `st_disjoint` | Checks if geometries do not intersect (are disjoint). | Yes |
+| `st_touches` | Checks if geometries have at least one boundary point in common. | Yes |
+| `st_crosses` | Checks if a geometry crosses another (e.g., a line crosses a polygon). | Yes |
+| `st_overlaps` | Checks if geometries have some but not all interior points in common. | Yes |
+| `st_equals` | Checks if geometries are topologically equal. | Yes |
+| `st_within` | Checks if a geometry is completely contained within another. | **No** |
+| `st_contains` | Checks if a geometry contains another completely. | **No** |
+| `st_contains_properly` | Checks if a geometry contains another but not vice versa. | **No** |
+| `st_covers` | Checks if a geometry covers another (includes boundary). | **No** |
+| `st_covered_by` | Checks if a geometry is covered by another (includes boundary). | **No** |
+| `st_equals_exact` | Checks if geometries are exactly equal within a given tolerance. | Yes |
+| `st_is_within_distance` | Checks if geometries are within a specified distance from each other. | Yes |
+
+-   **Sparse matrix output**: Functions like `st_intersects()` use sparse matrices to save memory by only registering positive results; setting `sparse = FALSE` returns a dense matrix.
+
+```{r}
+#| label: fig-create-objects
+#| code-fold: true
+#| fig-cap: "Some example objects to demonstrate the topological relations"
+
+# Create two polygons
+ polygon1 <- st_polygon(
+   list(matrix(c(0, 0, 1, 0, 1, 1, 0, 1, 0, 0),
+     ncol = 2,
+     byrow = TRUE
+   ))
+ )
+
+ polygon2 <- st_polygon(
+   list(matrix(c(0.5, 0.5, 1.5, 0.5, 1.5, 1.5, 0.5, 1.5, 0.5, 0.5),
+     ncol = 2,
+     byrow = TRUE
+   ))
+ )
+
+ polygon3 <- st_polygon(
+   list(matrix(c(0.2, 1.2,
+                 0.5, 1.2, 
+                 0.5, 1.5, 
+                 0.2, 1.5, 
+                 0.2, 1.2),
+     ncol = 2,
+     byrow = TRUE
+   ))
+ )
+
+ polygon4 <- st_polygon(
+   list(matrix(c(1.2, 0.2, 
+                 1.5, 0.2, 
+                 1.5, 0.4, 
+                 1.2, 0.4, 
+                 1.2, 0.2),
+     ncol = 2,
+     byrow = TRUE
+   ))
+ )
+ 
+ # Convert to sf objects
+ sf_poly1 <- st_sfc(polygon1, crs = 4326)
+ sf_poly2 <- st_sfc(polygon2, crs = 4326)
+ sf_poly3 <- st_sfc(polygon3, crs = 4326)
+ sf_poly4 <- st_sfc(polygon4, crs = 4326)
+ 
+ # Create a collection of points
+ points <- st_sfc(
+   st_point(c(0.25, 0.25)),
+   st_point(c(0.75, 0.75)),
+   st_point(c(1.25, 1.25)),
+   crs = 4326
+ )
+
+ sf_points <- tibble(
+   point = c("p1", "p2", "p3"),
+   geometry = points
+ ) |>
+   st_as_sf() |>
+   st_set_crs(4326)
+
+# Keeping environment clean
+rm(polygon1, polygon2, 
+   polygon3, polygon4,
+   points)
+
+# Visualize the objects
+ggplot() +
+  geom_sf(data = sf_poly1, 
+          aes(fill = "sf_poly1"),
+          alpha = 0.5) +
+  geom_sf(data = sf_poly2, 
+          aes(fill = "sf_poly2"),
+          alpha = 0.5) +
+  geom_sf(data = sf_poly3, 
+          aes(fill = "sf_poly3"),
+          alpha = 0.5) +
+  geom_sf(data = sf_poly4, 
+          aes(fill = "sf_poly4"),
+          alpha = 0.5) +
+  geom_sf(data = sf_points,
+          aes(fill = point),
+          pch = 21,
+          size = 4) +
+  labs(fill = NULL) +
+  theme_minimal()
+```
+
+```{r}
+#| label: display-relations
+#| collapse: true
+#| code-fold: false
+#| echo: true
+
+#################### Symmetrical Relations ######################
+# The order in which sf objects are placed does not matter
+
+## st_intersects()----------------------------------------
+st_intersects(sf_poly1, sf_poly2, sparse = F) 
+
+st_intersects(sf_poly1, sf_points, sparse = F) 
+
+st_intersects(sf_poly1, sf_poly3, sparse = F)
+
+st_intersects(sf_poly2 ,sf_poly3, sparse = F) 
+
+
+# st_disjoint()------------------------------------------
+st_disjoint(sf_poly1, sf_poly4, sparse = F)
+
+st_disjoint(sf_poly2, sf_poly3, sparse = F) 
+
+
+# st_touches()-------------------------------------------
+st_touches(sf_poly1, sf_poly2, sparse = F) 
+
+st_touches(sf_poly2, sf_poly3, sparse = F)
+
+st_touches(sf_poly1, sf_points, sparse = F)
+
+
+# st_crosses()-------------------------------------------
+st_crosses(sf_poly1, sf_poly2, sparse = F)
+
+st_crosses(sf_poly1, sf_points, sparse = F)
+
+# st_overlaps()
+st_overlaps(sf_poly1, sf_poly2, sparse = F)
+st_overlaps(sf_poly1, sf_points, sparse = F)
+st_overlaps(sf_poly3, sf_poly3, sparse = F)
+
+
+# st_equals()-------------------------------------------
+st_equals(sf_poly1, sf_poly1, sparse = F)
+
+
+
+# st_equals_exact()-------------------------------------
+st_equals_exact(sf_poly1, sf_poly2, par = 0.1, sparse = F)
+st_equals_exact(sf_poly1, sf_poly2, par = 1, sparse = F)
+
+
+# st_is_within_distance()-------------------------------
+st_is_within_distance(sf_poly1, sf_poly2, dist = 0.1, sparse = F)
+st_is_within_distance(sf_poly2, sf_poly3, dist = 0.1, sparse = F)
+st_is_within_distance(sf_poly3, sf_poly4, dist = 0.1, sparse = F)
+st_is_within_distance(sf_poly3, sf_poly4, dist = 13, sparse = F)
+
+
+#################### Non-Symmetrical Relations ####################
+# The order in which sf objects are placed changes the outcome
+
+# st_within()-------------------------------------------
+sf_points |> 
+  st_within(sf_poly1, sparse = F)
+
+sf_poly1 |> 
+  st_within(sf_points, sparse = F)
+
+sf_poly1 |> 
+  st_within(sf_poly2, sparse = F)
+
+
+# st_contains()-----------------------------------------
+sf_poly1 |> 
+  st_contains(sf_points, sparse = F)
+
+sf_points |> 
+  st_contains(sf_poly1, sparse = F)
+
+
+# st_covers()-------------------------------------------
+sf_poly1 |> 
+  st_covers(sf_points, sparse = F)
+
+sf_poly2 |> 
+  st_covers(sf_poly1, sparse = F)
+
+
+# st_covered_by()---------------------------------------
+sf_points |> 
+  st_covered_by(sf_poly1, sparse = F)
+
+```
+
+### 4.2.3 Distance Relations
+
+-   **Distance relations** are continuous, unlike binary topological relations which return TRUE/FALSE values.
+-   The [**`st_distance()`**](https://r-spatial.github.io/sf/reference/st_distance.html) function calculates distances between two **sf** objects, returning a matrix with units of measurement (e.g., meters).
+-   [**`st_centroid()`**](https://r-spatial.github.io/sf/reference/st_centroid.html): Computes the geometric centroid of a spatial feature, useful for representing a region's central point in distance calculations.
+-   **Matrix output**:
+    -   Results are returned as a matrix, even for single value calculations.
+    -   Computes a distance matrix between all combinations of features in objects (e.g., distances between multiple points and polygons).
+-   **Point-to-polygon distance**: Represents the shortest distance from a point to any part of the polygon.
+-   **Usage in distance-based joins**: [`st_distance()`](https://r-spatial.github.io/sf/reference/st_distance.html) is also used for performing joins based on distance criteria.
+-   An example code to find distance between central points of Auckland and Canterbury Regions, vs. Top three peaks in New Zealand, returned as a matrix,a nd shown below as a beautiful table using {gt}.
+
+```{r}
+#| label: tbl-distance
+#| tbl-cap: "Code output for use of st_centroid() and st_distance()"
+
+# Central points of Auckland and Canterbury Regions
+df1 <- nz |> 
+  filter(str_detect(Name, "Auck|Canter")) |> 
+  st_centroid() |> 
+  select(Name, geom)
+
+# Top 3 highest peaks in New Zealand
+df2 <- nz_height |> 
+  slice_max(order_by = elevation, n = 3)
+
+# Finding the distance matrix
+st_distance(df1, df2) |> 
+  as_tibble() |> 
+  mutate(state = c("Auckland", "Canterbury")) |> 
+  relocate(state) |> 
+  mutate(
+    across(
+      .cols = -state,
+      .fns = as.numeric
+    )
+  ) |> 
+  gt::gt() |> 
+  gt::fmt_number(
+    decimals = 1,
+    scale_by = 1e-3
+  ) |> 
+  gt::cols_label(V1 = "Highest Peak", 
+                 V2 = "Second",
+                 V3 = "Third",
+                 state = "Centroid of the State") |> 
+  gt::tab_header(
+    title = "Distance in kilometers"
+  ) |> 
+  gtExtras::gt_theme_538()
+```
+
+### 4.2.4 DE-9IM Strings
+
+-   The **Dimensionally Extended 9-Intersection Model (DE-9IM)** underlies binary spatial predicates. This model forms the basis for many spatial operations and helps create custom spatial predicates.
+-   **Origins**:
+    -   Initially named “DE + 9IM,” it refers to the **dimensions of intersections** between the boundaries, interiors, and exteriors of two geometries (Clementini and Di Felice 1995).
+    -   It applies to two-dimensional geometries (points, lines, polygons) in Euclidean space, requiring data in a projected coordinate reference system (CRS).
+-   **How DE-9IM Works**:
+    -   The model visualizes intersections between components of two geometries (interior, boundary, exterior) in a 3x3 matrix form, indicating the dimension of the intersection (0 for points, 1 for lines, 2 for polygons, and F for false).
+    -   Flattening this matrix row-wise results in the DE-9IM string: **"212111212"**.
+-   **Using `st_relate()`**: The [`st_relate()`](https://r-spatial.github.io/sf/reference/st_relate.html) function returns DE-9IM strings to describe spatial relations.
+-   **Developing Custom Predicates**:
+    -   By interpreting DE-9IM strings, custom binary spatial predicates like **queen** and **rook** relations can be created:
+        -   **Queen relations** (shared border or point): Pattern `F***T****`.
+
+        -   **Rook relations** (shared linear intersection): Pattern `F***1****`.
+    -   Custom functions using [`st_relate()`](https://r-spatial.github.io/sf/reference/st_relate.html):
+
+``` r
+st_queen = function(x, y) 
+  st_relate(x, y, pattern = "F***T****")
+
+st_rook = function(x, y) 
+  st_relate(x, y, pattern = "F***1****")
+```
+
+-   This identifies which geometries in a grid have queen or rook relations to the central geometry.
+
+### 4.2.5 Spatial Joining with `st_join()`
+
+-   Spatial joins combine datasets based on spatial relationships instead of shared key variables (as in non-spatial joins). It adds columns from a source object (`y`) to a target object (`x`).
+
+-   **Join Details**:
+
+    -   Default behavior: A left join, which retains all rows from `x` and includes rows with no match from `y`.
+
+    -   Operators: Uses `st_intersects()` by default but can be modified via the `join` argument.
+
+    -   Handles all geometry types: Works for points, lines, and polygons, though joins involving polygons may create duplicate rows for multiple matches in `y`.
+
+-   **Flexibility**:
+
+    -   **Inner joins**: Set `left = FALSE` to include only matched rows.
+
+-   The `st_join()` function: The `join` argument defines the topological operator to determine these relationships, with the default being `st_intersects()`.
+
+    -   We can customize this behavior by choosing alternative functions such as `st_contains`, `st_within`, `st_overlaps`, `st_touches`, or `st_disjoint`, among others, each defining a different geometric predicate.
+
+    -   For example, `st_contains` selects features where geometries of `x` fully encompass those of `y`, while `st_within` does the reverse.
+
+    -   Additionally, advanced options like `st_is_within_distance` allow proximity-based joins, and `st_relate` supports customized spatial relationships using a pattern.
+
+-   Example: Getting 25 random points in the world, and seeing in which countries they fall in @fig-st-join.
+
+```{r}
+#| code-fold: true
+
+# Getting 25 random points on the world,a dn then seeing in which countries they fall
+random_points <- tibble(
+  x = round(
+    runif(
+    25, 
+    min = st_bbox(world)$xmin, 
+    max = st_bbox(world)$xmax
+    ),
+    2
+  ),
+  y = round(
+    runif(
+    25, 
+    min = st_bbox(world)$ymin, 
+    max = st_bbox(world)$ymax
+    ),
+    2
+  ),
+  id = LETTERS[1:25]
+) |> 
+  st_as_sf(coords = c("x", "y")) |> 
+  st_set_crs(value = crs(world))
+
+
+# Easiest (but not tidyverse) way to subset
+# world[random_points, ]
+
+# Tidyverse way to filter: Names of Countries in which they fall
+intersecting_countries <- world |> 
+  st_filter(random_points) |> 
+  pull(name_long)
+
+# The power of spatial joins: A tibble of countries where each random
+# point falls. st_join() by default performs a left_join()
+st_join(
+  random_points, 
+  world |> select(name_long)
+) |> 
+  drop_na() |> 
+  gt::gt() |> 
+  gtExtras::gt_theme_nytimes()
+```
+
+```{r}
+#| label: fig-st-join
+#| fig-cap: "Using st_join() to spatially join two data sets, based on the st_intersect() relation"
+#| code-fold: true
+
+
+set.seed(42)
+
+world |> 
+  mutate(highlight = name_long %in% intersecting_countries) |> 
+  ggplot() +
+  geom_sf(
+    mapping = aes(
+      fill = highlight
+    ),
+    alpha = 0.5
+  ) +
+  scale_fill_manual(
+    values = c("transparent", "red")
+  ) +
+  geom_sf(
+    data = random_points,
+    pch = 20,
+    size = 4,
+    colour = "black",
+    alpha = 0.5
+  ) +
+  ggrepel::geom_text_repel(
+    data = random_points,
+    mapping = aes(label = id, geometry = geometry),
+    size = 4,
+    colour = "black",
+    nudge_x = 2,
+    nudge_y = -2,
+    stat = "sf_coordinates"
+  ) +
+  labs(
+    title = "25 random points on world map, and Countries in which they fall",
+    x = NULL, y = NULL
+  ) +
+  theme(
+    legend.position = "none"
+  )
+```
+
+### 4.2.6 Distance-based Joins
+
+-   Distance-based joins are used when geographic datasets are spatially proximate but do not intersect. The **sf** package enables such joins using spatial relationships like proximity.
+
+-   **Example Dataset used**:
+
+    -   `cycle_hire`: Official cycle hire points.
+    -   `cycle_hire_osm`: Cycle hire points from OpenStreetMap.
+    -   Relationship: These datasets are geographically close but do not overlap, as verified using [`st_intersects()`](https://r-spatial.github.io/sf/reference/st_intersects.html), which returns `FALSE` for all points.
+
+-   **Implementation**:
+
+    1.  **Check Proximity**:
+        -   Use [`st_is_within_distance()`](https://r-spatial.github.io/sf/reference/st_is_within_distance.html) to determine points within a threshold distance (e.g., 20 meters).
+    2.  **Perform Distance-based Join**:
+        -   Apply [`st_join()`](https://r-spatial.github.io/sf/reference/st_join.html) with the `st_is_within_distance` predicate and a `dist` argument.
+        -   The resulting dataset may contain duplicate rows if points in the target object (`cycle_hire`) match multiple points in the source (`cycle_hire_osm`).
+
+-   **Key Observations**:
+
+    -   Joins retain the geometry of features in the target dataset (`cycle_hire`).
+    -   Distance-based joins are effective for linking datasets that are close geographically but do not overlap.
+
+@fig-st_join2 visualizes the spatial relationship between two datasets, `cycle_hire` and `cycle_hire_osm`, using a proximity filter. The `st_filter()` function from the **sf** package identifies points in the `cycle_hire` dataset that are within 10 meters of points in `cycle_hire_osm`, leveraging the `st_is_within_distance` predicate. The result is a subset of `cycle_hire` points, which are plotted using **ggplot2**. The plot includes:
+
+-   Filtered `cycle_hire` points (dark blue, fully opaque).
+
+-   All `cycle_hire` points (dark blue, semi-transparent) for context.
+
+-   All `cycle_hire_osm` points (red, semi-transparent) to show the proximity relationship.
+
+```{r}
+#| code-fold: true
+
+data("cycle_hire")
+data("cycle_hire_osm")
+
+ggplot() +
+  geom_sf(
+    data = cycle_hire,
+    colour = "blue",
+    alpha = 0.5
+  ) +
+  geom_sf(
+    data = cycle_hire_osm,
+    colour = "red",
+    alpha = 0.5
+  )
+
+# Official Cycle hire points with added info from OSM points within 10 metres
+# 
+# cycle_hire |> 
+#   st_join(
+#     cycle_hire_osm, 
+#     join = st_is_within_distance,
+#     dist = units::set_units(10, "m")
+#   )
+```
+
+Just checking, whether any of the two points in these two data sets exactly match. Well, they don't!
+
+```{r}
+#| code-fold: false
+#| echo: true
+st_intersects(cycle_hire, cycle_hire_osm, sparse = F) |> any()
+
+```
+
+Now, in @fig-st_join2, we highlight only those points of bike hire in the official data, which are within 10 metres of the OSM data. The important function here is `st_filter()` along with the argument `.predicate = st_is_within_distance()` and the argument `dist = ...` .
+
+```{r}
+#| label: fig-st_join2
+#| fig-cap: "Official Cycle Hire Points Within 10 Meters of OpenStreetMap Locations"
+#| code-fold: true
+
+# Plot only points which have a OSM point within 10 metres
+cycle_hire |> 
+  st_filter(
+    cycle_hire_osm,
+    .predicate = st_is_within_distance,
+    dist = units::set_units(10, "m")
+  ) |> 
+  ggplot() +
+  geom_sf(size = 3, alpha = 0.75, colour = "darkblue") +
+  geom_sf(
+    data = cycle_hire, 
+    alpha = 0.2, 
+    colour = "blue",
+    size = 1
+  ) +
+  geom_sf(
+    data = cycle_hire_osm, 
+    alpha = 0.2, 
+    colour = "red",
+    size = 1
+  )
+```
+
+### 4.2.7 Spatial Aggregation
+
+-   Spatial data aggregation condenses data into fewer rows by summarizing multiple values of a variable into a single value per grouping variable, similar to attribute data aggregation. Following two approaches exist: —
+    -   **Base R’s `aggregate()`**: Groups values based on spatial relationships and summarizes them with a specified function (e.g., `mean`).
+    -   **Tidyverse Approach (`group_by()` and `summarize()`)**: Combines `st_join()` with grouping and summarizing to perform spatial aggregation while allowing flexibility in function application and column naming. **(This approach is better, as shown in @fig-st-join-3)**
+-   **Output Differences**:
+    -   `aggregate()` may result in `NA` for unmatched regions.
+    -   Tidyverse methods preserve unmatched region names and allow for more flexible aggregation functions and output formatting.
+-   Functions like `median()`, `sd()`, or other statistical summarizers can replace `mean()` for different aggregation purposes.
+
+```{r}
+#| fig-cap: "Spatial data aggregation with st_join() from {sf} and summarise() from {tidyverse}"
+#| label: fig-st-join-3
+#| code-fold: false
+
+data("nz_height")
+data("nz")
+
+st_join(x = nz, y = nz_height) |> 
+  group_by(Name) |> 
+  summarise(elevation = mean(elevation, na.rm = T)) |> 
+  ggplot(
+    mapping = aes(fill = elevation)
+  ) +
+  geom_sf() +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::Terrain 2",
+    na.value = "white"
+  )
+```
+
+### 4.2.8 Joining In-congruent Layers
+
+-   Spatial congruence occurs when two layers (aggregating object `y` and target object `x`) share borders, enabling accurate spatial aggregation. Incongruence arises when no shared borders exist, complicating spatial operations.
+
+-   Example of Congruence:
+
+    -   Administrative boundaries, such as districts made of smaller units, typically exhibit spatial congruence.
+
+-   Issue with Incongruence:
+
+    -   In-congruent layers, like sub-zones with differing borders from aggregating zones, result in inaccurate aggregations (e.g., centroids of sub-zones).
+
+-   **Solution: Areal Interpolation**: Transfers values between areal units using:
+
+    -   **Simple area-weighted methods**: Proportionally assigns values based on area overlap. This is implemented using **`st_interpolate_aw()`**.
+    -   **Advanced methods**: Include algorithms like ‘pycnophylactic’ interpolation.
+
+-   **Example Dataset**:
+
+    -   The **spData package** includes `incongruent` (sub-zones) and `aggregating_zones` (larger zones). The `value` column in `incongruent` represents total regional income in million Euros, which must be aggregated into `aggregating_zones`.
+
+-   **Implementation: `st_interpolate_aw()`**:
+
+    -   The `st_interpolate_aw()` function in the **sf** package performs areal-weighted interpolation of polygon data, allowing attributes from one spatial object (`x`) to be transferred to another (`to`) based on area overlap. The `extensive` argument determines whether attributes are **spatially extensive** (e.g., population, summed across areas) or **spatially intensive** (e.g., density, averaged). Additional options include `keep_NA` (to retain or exclude `NA` features) and `na.rm` (to remove features with `NA` attributes from `x`).
+    -   Aggregated results depend on the variable type:
+        -   **Extensive variables**: Values increase with area (e.g., total income).
+        -   **Intensive variables**: Values remain constant irrespective of area (e.g., averages).
+    -   **`st_interpolate_aw()`** handles **spatially extensive variables** (e.g., total income) by summing values across areas.
+    -   In **`st_interpolate_aw()`**, for **spatially intensive variables** (e.g., averages, percentages), set `extensive = FALSE` to use averages instead of sums.
+    -   Note: Warning messages indicate the assumption of uniform attribute distribution across areas.
+
+```{r}
+#| warning: true
+#| code-fold: false
+
+data("aggregating_zones")
+data("incongruent")
+
+# The two overall main zones for which the total income needs to be computed
+aggregating_zones
+
+# The 9 smaller counties or districts or sub-units which are not
+# congruent with the main zones
+incongruent
+
+# We are using extensive = TRUE, because our variable is 
+# total income, not average income
+incongruent |> 
+  # We need to keep only the numeric variable (and of course,
+  # the sticky geometry. Otherwise, R will not understand what
+  # to do with non-numeric columns)
+  select(value) |> 
+  st_interpolate_aw(aggregating_zones, extensive = TRUE)
+
+
+```
+
+## 4.3 Spatial operations on raster data
+
+-   Demonstrates **advanced spatial raster operations**.
+-   Provides an alternative to manually creating datasets by accessing them from the **`spData`** package:
+    -   `elev`: Represents elevation data.
+    -   `grain`: Represents grain-related data.
+
+```{r}
+#| label: fig-4-3
+#| fig-cap: "Section 4.3: Raster Datasets used: plotted using ggplot2 and {tidyterra}"
+#| fig-subcap: 
+#|    - "elev"
+#|    - "grain"
+#| layout-ncol: 2
+
+elev <- rast(system.file("raster/elev.tif", 
+                        package = "spData"))
+
+grain <- rast(system.file("raster/grain.tif", 
+                         package = "spData"))
+
+# plot(elev)
+# plot(grain)
+
+ggplot() +
+  geom_spatraster(data = elev) +
+  labs(title = "elev SpatRaster", caption = "data: {spData}")
+  
+
+ggplot() +
+  geom_spatraster(data = grain) +
+  labs(title = "grain SpatRaster", caption = "data: {spData}")
+```
+
+### 4.3.1 Spatial subsetting
+
+-   Builds on Section 3.3, which covered retrieving raster values by cell IDs or row/column combinations.
+-   Spatial subsetting allows extraction of raster data by **location (coordinates)** or **spatial objects**:
+    -   **`terra::extract()`**: Extracts raster values directly using coordinates. *(Note: A function with the same name exists in the **tidyverse**, so be careful to add package name at start)*.
+-   **Subsetting with another raster object**:
+    -   Use a secondary raster as a spatial mask to subset the primary raster, using `terra::extract(ext(...))` .
+    -   Example shown below: Subsetting `elev` using a smaller raster `clip_raster` (defining a specific extent).
+    -   Two kinds of Spatial outputs from subsetting:
+        -   Use the **`drop` argument** with the `[ ]` operator to return subsetting results as raster objects.
+        -   Example: Subsets the first two cells of `elev` with `elev[1:2, drop = FALSE]`, whereas `elev[1:2]` returns the cell values of first two cells only.
+-   **Masking raster data with logical values**:
+    -   Creates a raster mask (`rmask`) with **NA** and **TRUE** values.
+    -   Masks the primary raster (`elev`) to retain only values corresponding to `TRUE` in the mask using:
+        -   `[ ]` operator - use `TRUE` and `FALSE`.
+        -   `mask()` function - use `TRUE` and `NA`.
+-   **The `mask()` function in the terra package** applies a mask to a SpatRaster or SpatVector. It replaces values in a raster (`x`) with `NA` (or another value) where another raster or vector (`mask`) has `NA` or specified mask values. It’s useful for filtering, clipping, or focusing on specific areas.
+-   **The `extract()` function in the terra package** retrieves values from a `SpatRaster` based on specified locations or geometries. Locations can be points (as a `SpatVector`, matrix, or data frame), cell numbers, or spatial objects like polygons. It supports methods for exact or weighted extraction, interpolation, and summary statistics for extracted data. Key arguments include:
+    -   **`x`**: The `SpatRaster` to extract values from
+
+    -   **`y`**: Locations (e.g., points, polygons, or cell numbers) to extract values for.
+
+    -   **`fun`**: Summarizes extracted data for polygons (e.g., mean, sum).
+
+    -   **`cells`/`xy`**: Optionally return cell numbers or coordinates.
+
+    -   **`weights`/`exact`**: Extract weighted or exact fractions for polygons.
+
+    -   **`bind`**: Combines extracted values with input geometries (`SpatVector`).
+-   The code below demonstrates these **spatial operations on raster data**. Initially, it showcases how to extract raster values using coordinates with `terra::extract()` by specifying a set of coordinate pairs. Next, it demonstrates how to create a new raster (`clip_raster`) to subset the `elev` raster, focusing on extracting values only within the extent defined by the clip raster using both the `[ ]` operator and `terra::extract()`. The example highlights the importance of the `drop = FALSE` argument in the `[ ]` operator, which ensures that spatial structure is preserved when subsetting raster objects. Finally, the code illustrates the use of masking with a logical raster (`temporary_mask`), where specific cells in the `elev` raster are retained based on `TRUE` values in the mask. This process is essential for filtering or replacing values (e.g., assigning `NA` to erroneous data).
+
+```{r}
+#| label: sec-4-3-1
+#| collapse: false
+
+# Let us extract some values from "elev" using coordinates
+# I want to extract coordiantes of 
+coords_extract <- matrix(
+  c(-1.2, -1.2,
+    1.2, 1.2),
+  ncol = 2,
+  byrow = T
+)
+
+coords_extract
+
+elev |> 
+  terra::extract(
+    y = coords_extract
+  )
+
+# Let us create a new raster to clip the central four blocks of the elev raster
+clip_raster <- rast(
+  xmin = -0.5, xmax = 0.5, 
+  ymin = -0.5, ymax = 0.5,
+  resolution = 0.5, 
+  vals = sample(1:25, 4)
+  )
+
+# Extracting only the values
+elev[clip_raster]
+
+# This code somehow doesn't work for me!
+# elev |> 
+#   terra::extract(ext(clip_raster))
+
+# Explaining the meaning of argument drop = FALSE in the 
+# base R subsetting operator "[]"
+elev[1:2]
+elev[1:2, drop = FALSE]    
+
+# Creating a temporary_mask object
+temporary_mask <- elev
+values(temporary_mask) <- sample(c(NA, TRUE), 36,
+                                 replace = T)
+# elev |> 
+#   mask(temporary_mask)
+```
+
+```{r}
+#| label: fig-4-3-masking
+#| fig-cap: "Showing plots from the code of above"
+#| fig-subcap: 
+#|   - "Plotting clip_raster: a smaller raster"
+#|   - "The `temporary_mask` raster"
+#|   - "plotting the masked elev, based on a randomly generated `temporary_mask`"
+#| layout-ncol: 3
+
+ggplot() +
+  geom_spatraster(data = clip_raster)
+
+ggplot() +
+  geom_spatraster(data = temporary_mask) +
+  scale_fill_discrete(na.value = "white")
+
+ggplot() +
+  geom_spatraster(data = elev |> mask(temporary_mask)) +
+  scale_fill_continuous(na.value = "white")
+
+```
+
+### 4.3.3 Local operations
+
+-   Local operations are **cell-by-cell operations** performed on one or more raster layers. Includes operations like addition, subtraction, squaring, logical comparisons, and logarithmic transformations. Examples are shown in @fig-local-op-rasters
+-   **Reclassification**:
+    -   Numeric values can be grouped into intervals (e.g., low, middle, high elevations).
+    -   Use the **`classify()` function** with a reclassification matrix to assign new values to defined ranges.
+
+```{r}
+#| label: fig-local-op-rasters
+#| fig-cap: ""
+#| fig-subcap: 
+#|  - "elev"
+#|  - "elev^2"
+#|  - "log2(elev)"
+#|  - "elev > 10"
+
+
+ggplot() +
+  geom_spatraster(data = elev) +
+  ggtitle("`elev` - the original raster") +
+  paletteer::scale_fill_paletteer_c("grDevices::terrain.colors") +
+  theme(legend.position = "bottom")
+
+ggplot() +
+  geom_spatraster(data = elev^2) +
+  ggtitle("elev^2") +
+  paletteer::scale_fill_paletteer_c("grDevices::terrain.colors") +
+  theme(legend.position = "bottom",
+        legend.key.width = unit(30, "pt"))
+
+ggplot() +
+  geom_spatraster(data = log2(elev)) +
+  ggtitle("log2(elev)") +
+  paletteer::scale_fill_paletteer_c("grDevices::terrain.colors") +
+  theme(legend.position = "bottom",
+        legend.key.width = unit(30, "pt"))
+
+
+ggplot() +
+  geom_spatraster(data = elev > 10) +
+  ggtitle("elev > 10") +
+ paletteer::scale_fill_paletteer_d("ggsci::alternating_igv") +
+  theme(legend.position = "bottom",
+        legend.key.width = unit(30, "pt"))
+```
+
+-   **Efficient alternatives for operations**:
+    -   **`app()`**: The `app()` function in the `{terra}` package applies a user-defined or pre-existing function to each cell's values of a `SpatRaster`, treating layers as columns in a matrix. Functions should return outputs divisible by the total cell count.
+    -   **`tapp()`**: The `tapp()` function in the `{terra}` package applies a function to subsets of layers in a `SpatRaster` grouped by an index. It allows for aggregation or summarization of layers based on grouping criteria such as indices, time periods (e.g., "years", "months"), or custom functions.
+    -   **`lapp()`**: The `lapp()` function in the `{terra}` package applies a user-defined function to the layers of a `SpatRaster` or `SpatRasterDataset`, treating each layer as an argument to the function. The function must accept a vector of layer values and return a vector or matrix of the same or compatible size. This is useful for combining or transforming layers, such as performing arithmetic operations between them. An example of `lapp()` is the NDVI Calculation:
+        -   NDVI (Normalized Difference Vegetation Index) is a local operation to assess vegetation:
+            -   Formula: **(NIR - Red) / (NIR + Red)**.
+        -   Calculated from satellite data (e.g., Landsat 8) with red and NIR bands.
+            -   Positive NDVI values (\> 0.2) indicate vegetation.
+            -   Largest values correspond to dense forests, while lowest values are related to lakes and snowy areas.
+
+```{r}
+multi_rast = system.file("raster/landsat.tif", package = "spDataLarge")
+multi_rast = rast(multi_rast)
+# Rescale values to actual values (stored integers to save disk space)
+multi_rast = (multi_rast * 0.0000275) - 0.2
+# Remove negative values due to clouds etc.
+multi_rast[multi_rast < 0] = 0
+object.size(multi_rast)
+
+ndvi_fun = function(nir, red){
+  (nir - red) / (nir + red)
+}
+
+ndvi_rast = lapp(multi_rast[[c(4, 3)]], fun = ndvi_fun)
+
+ggplot() +
+  geom_spatraster(
+    data = ndvi_rast,
+    mapping = aes(fill = lyr1)
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::Terrain 2",
+    direction = -1,
+    limits = c(0, 1),
+    oob = scales::squish
+  ) +
+  labs(
+    title = "Zion National Park - Satellite Photo Raster",
+    subtitle = "Using custom nvdi_fun() to find NVDI\nand plot vegetation areas in {ggplot2}",
+    fill = NULL
+  ) +
+  theme(
+    legend.position = "bottom",
+    legend.key.width = unit(40, "pt")
+  )
+```
+
+### 4.3.4 Focal operations
+
+-   Focal operations consider a central cell and its neighbours within a defined neighbourhood (kernel, filter, or moving window).
+    -   Common neighbourhood size: **3x3 cells** (central cell + 8 neighbours), but customizable sizes and shapes are supported.
+    -   The operation aggregates values within the neighbourhood and assigns the result to the central cell, iterating across all cells.
+-   **Implementation in R**:
+    -   Use the **`focal()` function** to perform spatial filtering @fig-focal-op. Parameters:
+        -   **`w`**: Defines the weights of the moving window using a matrix, example in @fig-focal-op-3.
+        -   **`fun`**: Specifies the aggregation function (e.g., `min`, `sum`, `mean`, `var`), as in @fig-focal-op-2
+-   **Applications**:
+    -   Spatial filtering or convolution for raster operations.
+    -   Low-pass filters:
+        -   Use the mean function to smooth and reduce extreme values.
+        -   For categorical data, replace the mean with the mode (most common value).
+    -   High-pass filters:
+        -   Enhance features using methods like Laplace or Sobel filters (e.g., line detection).
+    -   Terrain processing:
+        -   Compute topographic characteristics like slope, aspect, and flow directions using focal functions.
+
+```{r}
+#| label: fig-focal-op
+#| fig-cap: "Focal operations on Rasters using terra::focal()"
+#| fig-subcap: 
+#|   - "Original elev raster"
+#|   - "Focal operation with min() and a simple matrix of equal weights"
+#|   - "Focal operation with mean() and a sobel filter matrix for edge detection"
+
+ggplot() +
+  geom_spatraster(data = elev) +
+  labs(title = "elev SpatRaster", caption = "data: {spData}")
+
+ggplot() +
+  geom_spatraster(
+    data = elev |> 
+        terra::focal(
+        w = matrix(rep(1, 9), 3, 3),
+        fun = min
+      )
+  ) +
+  labs(title = "Focal operation min on a 3X3 matric",
+       subtitle = "Simple min() function with na.rm = FALSE")
+
+ggplot() +
+  geom_spatraster(
+    data = elev |> 
+        terra::focal(
+        # Sobel filters (for edge detection):
+        w = matrix(c(-1,-2,-1,0,0,0,1,2,1), nrow = 3),
+        fun = mean,
+        na.rm = TRUE
+      )
+  ) +
+  labs(
+    title = "Focal operation min on a 3X3 matric",
+    subtitle = "Sobel filter matrix for edge detection, with mean() function"
+  )
+
+
+
+
+```
+
+### 4.3.5 Zonal operations
+
+-   Zonal operations aggregate raster cell values based on zones defined by a second raster with categorical values. Unlike focal operations, zones in zonal operations do not require neighboring cells to be adjacent.
+-   **Key Characteristics**:
+    -   The `zonal()` function in the **terra** package computes zonal statistics by summarizing the values of a `SpatRaster` for each "zone" defined by another `SpatRaster`. It applies a specified function (`fun`, e.g., mean, sum) to aggregate the data for each zone.
+    -   The result is typically a **summary table**, grouped by zones. Zones are defined by a secondary raster.
+    -   **Optional Output**: A raster with calculated statistics for each zone can be generated by setting `as.raster = TRUE`.
+-   **Usage**:
+    -   Ideal for summarizing raster values based on irregularly spread categorical zones.
+    -   Commonly used in **land classification**, **soil analysis**, and other spatial analyses where zones are pre-defined.
+
+```{r}
+#| label: fig-zonal-op
+#| fig-cap: "The elev and grain rasters"
+#| fig-subcap: 
+#|   - "elev"
+#|   - "grain"
+#| layout-ncol: 2
+
+ggplot() +
+  geom_spatraster(data = elev) +
+  labs(title = "elev SpatRaster", caption = "data: {spData}")
+  
+
+ggplot() +
+  geom_spatraster(data = grain) +
+  labs(title = "grain SpatRaster", caption = "data: {spData}")
+```
+
+```{r}
+elev |> 
+  terra::zonal(
+    z = grain,
+    fun = mean
+  ) |> 
+  as_tibble()
+
+```
+
+### 4.3.6 Global operations and distances
+
+-   Global operations consider the entire raster dataset as a **single zone**.
+-   Common operations include:
+    -   **Descriptive statistics**: Minimum, maximum, etc.
+    -   **Distance calculations**: Compute distance from each cell to a target cell using **`terra::distance()`**. The `terra::distance()` function calculates the shortest distance from each cell in a raster to a set of target cells, which are identified based on a condition (e.g., where raster values are non-NA, equal to a specific value, or greater than a threshold). This is useful for spatial analysis, such as finding proximity to certain features or zones in a raster.
+    -   **Weighted distances**: Factor in additional variables, such as elevation, to modify distance calculations.
+    -   **Visibility and viewshed analysis**: Assess visible areas from a specific point.
+-   **Applications**:
+    -   Distance to coastlines or other target areas.
+    -   Topography-aware distance calculations.
+    -   Advanced spatial modeling like visibility analysis.
+
+```{r}
+# Create a sample SpatRaster
+r <- rast(ncols = 10, nrows = 10, 
+          xmin = 0, xmax = 10, 
+          ymin = 0, ymax = 10)
+values(r) <- NA
+values(r)[c(5, 15, 25)] <- 1  # Assign specific cells as targets
+
+# Compute the distance to the non-NA cells
+dist_raster <- distance(r)
+dist_raster <- dist_raster * 1e-5
+```
+
+```{r}
+#| label: fig-terra-distance
+#| fig-cap: "Using the terra::distance()"
+#| fig-subcap: 
+#|   - "Original raster"
+#|   - "Distance raster"
+#| layout-ncol: 2
+
+# View the raster
+ggplot() +
+  geom_spatraster(data = r) +
+  labs(title = "Original Raster (Targets in Blue)") +
+  theme(
+    legend.position = "bottom"
+  )
+
+# View the distance raster
+ggplot() +
+  geom_spatraster(data = dist_raster) +
+  labs(title = "Distance to Targets (in units)",
+       fill = "Distance in Degrees") +
+  paletteer::scale_fill_paletteer_c("ggthemes::Red-Gold") +
+  theme(legend.position = "bottom")
+```
+
+### 4.3.7 Map algebra counterparts in vector processing
+
+-   Equivalence between raster and vector operations:
+    -   Distance raster (global operation) ≈ Buffer operation (vector) (Section 5.2.5).
+    -   Raster reclassification ≈ Dissolving vector boundaries (Section 4.2.5).
+    -   Raster overlay with masks ≈ Vector clipping (Section 5.2.5).
+    -   Zonal operations ≈ Aggregating vector geometries by zone**s**.
+
+### 4.3.8 Merging rasters
+
+-   Combines multiple raster datasets into a single raster. Often required for datasets spanning multiple spatial scenes (e.g., satellite imagery, elevation data).
+
+-   **`merge()`**:
+
+    -   Places rasters side by side.
+    -   For overlapping areas, prioritizes values from the first raster.
+
+```{r}
+
+aut <- geodata::elevation_30s(country = "AUT", path = tempdir())
+ggplot() +
+  geom_spatraster(data = aut) +
+  scale_fill_wiki_c() +
+  ggtitle("Austria")
+
+cze <- geodata::elevation_30s(country = "CZE", path = tempdir())
+ggplot() +
+  geom_spatraster(data = cze) +
+  scale_fill_wiki_c() +
+  ggtitle("Czechia")
+
+svk <- geodata::elevation_30s(country = "SVK", path = tempdir())
+ggplot() +
+  geom_spatraster(data = svk) +
+  scale_fill_wiki_c() +
+  ggtitle("Slovakia")
+
+aut_cze_svk <- aut |> 
+  merge(svk) |> 
+  merge(cze)
+
+ggplot() +
+  geom_spatraster(data = aut_cze_svk) +
+  scale_fill_wiki_c() +
+  ggtitle("Austria, Czechia and Slovakia")
+
+
+```
+
+-   **`mosaic()`**:
+
+    -   Handles overlaps by applying a function (e.g., mean) to the overlapping area.
+    -   Helps smooth visible borders but may not eliminate them entirely.
+
+## 4.4 Exercises
+
+### E1.
+
+**It was established in Section [4.2](https://r.geocompx.org/spatial-operations#spatial-vec) that Canterbury was the region of New Zealand containing most of the 101 highest points in the country. How many of these high points does the Canterbury region contain?**
+
+Canterbury contains 70 of these high points.
+
+```{r}
+#| warning: false
+
+data("nz")
+data("nz_height")
+
+nz_height |> 
+  st_intersection(
+    nz |> filter(Name == "Canterbury")
+  ) |> 
+  nrow()
+
+```
+
+**Bonus: plot the result using the [`plot()`](https://rspatial.github.io/terra/reference/plot.html) function to show all of New Zealand, `canterbury` region highlighted in yellow, high points in Canterbury represented by red crosses (hint: `pch = 7`) and high points in other parts of New Zealand represented by blue circles. See the help page [`?points`](https://rspatial.github.io/terra/reference/lines.html) for details with an illustration of different `pch` values.**
+
+```{r}
+
+nz_height |> 
+  mutate(
+    in_canterbury = nz_height |> 
+      st_intersects(
+        nz |> filter(Name == "Canterbury"),
+        sparse = FALSE
+      )
+  ) |> 
+  ggplot() +
+  geom_sf(
+    data = nz |> mutate(fill_var = Name == "Canterbury"),
+    mapping = aes(fill = fill_var)
+  ) +
+  geom_sf(
+    mapping = aes(shape = in_canterbury, colour = in_canterbury)
+  ) +
+  scale_shape_manual(values = c(16, 4)) +
+  scale_colour_manual(values = c("blue", "red")) +
+  scale_fill_manual(values = c("transparent", "yellow")) +
+  labs(
+    fill = "Is the region Canterbury?",
+    colour = "Peaks are in Canterbury?",
+    shape = "Peaks are in Canterbury?"
+  ) +
+  theme(legend.position = "bottom")
+
+```
+
+------------------------------------------------------------------------
+
+### E2.
+
+**Which region has the second highest number of `nz_height` points, and how many does it have?**
+
+The region with second highest number of `nz_height` points is **West Coast**. It has 22 such points.
+
+```{r}
+nz_height |> 
+  st_join(nz) |> 
+  st_drop_geometry() |> 
+  group_by(Name) |> 
+  count()
+```
+
+------------------------------------------------------------------------
+
+### E3.
+
+**Generalizing the question to all regions: how many of New Zealand’s 16 regions contain points which belong to the top 101 highest points in the country? Which regions?**
+
+-   **Bonus: create a table listing these regions in order of the number of points and their name.**
+
+Seven (7) regions of New Zealand contain points which belong to top 101 highest points in the country. The table is shown below.
+
+```{r}
+#| tbl-cap: "Table listing the regions"
+#| label: tbl-e3
+#| eval: true
+
+nz_height |> 
+  st_join(nz) |> 
+  st_drop_geometry() |> 
+  group_by(Name) |> 
+  count(name = "Number of points", sort = T) |> 
+  ungroup() |> 
+  mutate(`S.No.` = row_number()) |> 
+  relocate(`S.No.`) |>
+  gt::gt() |> 
+  gtExtras::gt_theme_538() |> 
+  gt::tab_header(
+    title = "Number of highest points in each region of New Zealand"
+  )
+```
+
+------------------------------------------------------------------------
+
+**Test your knowledge of spatial predicates by finding out and plotting how US states relate to each other and other spatial objects.**
+
+### E4.
+
+**The starting point of this exercise is to create an object representing Colorado state in the USA. Do this with the command `colorado = us_states[us_states$NAME == "Colorado",]` (base R) or with the [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) function (tidyverse) and plot the resulting object in the context of US states.**
+
+```{r}
+#| label: fig-col-1
+#| fig-cap: "Map of Colorado State"
+
+data("us_states")
+
+colorado <- us_states |> 
+  filter(NAME == "Colorado")
+
+ggplot() +
+  geom_sf(data = colorado) +
+  ggtitle("Map of Colorado State") +
+  coord_sf(
+    crs = "EPSG:5070"
+  )
+```
+
+-   **Create a new object representing all the states that geographically intersect with Colorado and plot the result (hint: the most concise way to do this is with the subsetting method `[`)**.
+
+```{r}
+#| label: fig-col-usa
+#| fig-cap: "Colorado, within USA's states; with projection changed to Albers Equal Area	Projection"
+
+ggplot() +
+  geom_sf(
+    data = us_states,
+    fill = "transparent"
+  ) +
+  geom_sf(
+    data = colorado,
+    fill = "yellow"
+  ) +
+  geom_sf_text(
+    data = colorado,
+    mapping = aes(
+      label = NAME
+    ),
+    family = "caption_font",
+    fontface = "bold"
+  ) +
+  coord_sf(
+    crs = "EPSG:5070"
+  ) +
+  labs(
+    x = NULL, y = NULL,
+    title = "Map of USA states, with Colorado highlighted"
+  )
+```
+
+-   **Create another object representing all the objects that touch (have a shared boundary with) Colorado and plot the result (hint: remember you can use the argument `op = st_intersects` and other spatial relations during spatial subsetting operations in base R).**
+
+```{r}
+
+bordering <- us_states |> 
+  mutate(
+    border_colorado = as_vector(
+      as_vector(
+        us_states |> 
+        st_intersects(colorado, sparse = FALSE)
+      )
+    )
+  )
+
+ggplot() +
+  geom_sf(
+    data = bordering,
+    mapping = aes(
+      fill = border_colorado
+    )
+  ) +
+  scale_fill_manual(
+    values = c("transparent", "orange")
+  ) +
+  geom_sf_text(
+    data = filter(bordering, border_colorado),
+    mapping = aes(
+      label = NAME
+    ),
+    family = "caption_font"
+  ) +
+  geom_sf(
+    data = colorado,
+    fill = "red"
+  ) +
+  geom_sf_text(
+    data = colorado,
+    mapping = aes(
+      label = NAME
+    ),
+    family = "caption_font",
+    fontface = "bold"
+  ) +
+  coord_sf(
+    crs = "EPSG:5070"
+  ) +
+  labs(
+    x = NULL, y = NULL,
+    title = "Map of USA states, with states bordering Colorado highlighted in orange"
+  ) +
+  theme(
+    legend.position = "none"
+  )
+```
+
+-   **Bonus: create a straight line from the centroid of the District of Columbia near the East coast to the centroid of California near the West coast of the USA (hint: functions [`st_centroid()`](https://r-spatial.github.io/sf/reference/geos_unary.html), [`st_union()`](https://r-spatial.github.io/sf/reference/geos_combine.html) and [`st_cast()`](https://r-spatial.github.io/sf/reference/st_cast.html) described in Chapter 5 may help) and identify which states this long East-West line crosses**.
+
+```{r}
+
+wdc_centre <- st_centroid(
+  us_states |> filter(NAME == "District of Columbia")
+) |> 
+  pull(geometry)
+
+cal_centre <- st_centroid(
+  us_states |> filter(NAME == "California")
+) |> 
+  pull(geometry)
+
+straight_line <- st_union(
+  wdc_centre,
+  cal_centre
+) |> 
+  st_cast(
+    "LINESTRING"
+  )
+
+us_states |> 
+  mutate(
+    on_the_way = as_vector(
+      st_intersects(
+        us_states, 
+        straight_line, 
+        sparse = FALSE
+      )
+    )
+  ) |> 
+  ggplot() +
+  geom_sf(
+    mapping = aes(
+      fill = on_the_way
+    )
+  ) +
+  scale_fill_manual(
+    values = c("transparent", "orange")
+  ) +
+  geom_sf(
+    data = straight_line,
+    linewidth = 0.5
+  ) +
+  geom_sf(
+    data = cal_centre,
+    size = 2
+  ) +
+  geom_sf(
+    data = wdc_centre,
+    size = 2
+  ) +
+  coord_sf(
+    crs = "EPSG:5070"
+  ) +
+  labs(
+    subtitle = "Line from Centroids of District of Columbia and California;\nand highlighting the states that it crosses through"
+  ) +
+  theme(
+    legend.position = "none"
+  )
+```
+
+------------------------------------------------------------------------
+
+### E5.
+
+**Use `dem = rast(system.file("raster/dem.tif", package = "spDataLarge"))`, and reclassify the elevation in three classes: low (\<300), medium and high (\>500). Secondly, read the NDVI raster (`ndvi = rast(system.file("raster/ndvi.tif", package = "spDataLarge"))`) and compute the mean NDVI and the mean elevation for each altitudinal class.**
+
+```{r}
+
+dem <- rast(system.file("raster/dem.tif", package = "spDataLarge"))
+
+ggplot() +
+  geom_spatraster(data = dem) +
+  paletteer::scale_fill_paletteer_c("grDevices::Terrain 2")
+```
+
+------------------------------------------------------------------------
+
+### E6.
+
+**Apply a line detection filter to `rast(system.file("ex/logo.tif", package = "terra"))`. Plot the result. Hint: Read `?terra::focal()`.**
+
+------------------------------------------------------------------------
+
+### E7.
+
+Calculate the Normalized Difference Water Index (NDWI; `(green - nir)/(green + nir)`) of a Landsat image. Use the Landsat image provided by the **spDataLarge** package (`system.file("raster/landsat.tif", package = "spDataLarge")`). Also, calculate a correlation between NDVI and NDWI for this area (hint: you can use the [`layerCor()`](https://rspatial.github.io/terra/reference/layerCor.html) function).
+
+------------------------------------------------------------------------
+
+### E8.
+
+A StackOverflow [post (stackoverflow.com/questions/35555709)](https://stackoverflow.com/questions/35555709/global-raster-of-geographic-distances) shows how to compute distances to the nearest coastline using [`raster::distance()`](https://rspatial.github.io/terra/reference/distance.html). Try to do something similar but with [`terra::distance()`](https://rspatial.github.io/terra/reference/distance.html): retrieve a digital elevation model of Spain, and compute a raster which represents distances to the coast across the country (hint: use [`geodata::elevation_30s()`](https://rdrr.io/pkg/geodata/man/elevation.html)). Convert the resulting distances from meters to kilometers. Note: it may be wise to increase the cell size of the input raster to reduce compute time during this operation ([`aggregate()`](https://rspatial.github.io/terra/reference/aggregate.html)).
+
+E9. Try to modify the approach used in the above exercise by weighting the distance raster with the elevation raster; every 100 altitudinal meters should increase the distance to the coast by 10 km. Next, compute and visualize the difference between the raster created using the Euclidean distance (E7) and the raster weighted by elevation.
