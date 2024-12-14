@@ -14,7 +14,7 @@ execute:
   message: false
   warning: false
   eval: true
-  cache: false
+  cache: true
   collapse: true
 categories:
   - "Geocomputation with R"
@@ -1547,12 +1547,64 @@ us_states |>
 **Use `dem = rast(system.file("raster/dem.tif", package = "spDataLarge"))`, and reclassify the elevation in three classes: low (\<300), medium and high (\>500). Secondly, read the NDVI raster (`ndvi = rast(system.file("raster/ndvi.tif", package = "spDataLarge"))`) and compute the mean NDVI and the mean elevation for each altitudinal class.**
 
 ```{r}
+#| label: fig-e5-1
+#| fig-cap: "Classifying elevation into high, middle and low"
+#| fig-subcap: 
+#|   - "Base raster"
+#|   - "Reclassified raster"
 
 dem <- rast(system.file("raster/dem.tif", package = "spDataLarge"))
 
 ggplot() +
   geom_spatraster(data = dem) +
-  paletteer::scale_fill_paletteer_c("grDevices::Terrain 2")
+  paletteer::scale_fill_paletteer_c("grDevices::Terrain 2") +
+  ggtitle("Base raster `dem`")
+
+dem1 <- dem
+
+values(dem1) <- values(dem) |> 
+  as_tibble() |> 
+  mutate(
+    dem_class = case_when(
+      dem < 300 ~ "Low",
+      dem > 500 ~ "High",
+      .default = "Medium"
+    )
+  ) |> 
+  pull(dem_class)
+
+ggplot() +
+  geom_spatraster(data = dem1) +
+  scale_fill_manual(values = c("#F1E4E3FF", "#00A600FF", "#EAB550FF")) +
+  ggtitle("The raster `dem` with elevation classified into 3 levels")
+
+```
+
+```{r}
+#| label: tbl-e5-2
+#| tbl-cap: "Mean elevation and NDVI for each altitude class"
+
+ndvi <- rast(system.file("raster/ndvi.tif", package = "spDataLarge"))
+
+tibble(
+  elevation_class = values(dem1),
+  elevation = values(dem),
+  ndvi = values(ndvi)
+) |> 
+  group_by(elevation_class) |> 
+  summarise(
+    mean_elevation = mean(elevation),
+    mean_ndvi = mean(ndvi)
+  ) |> 
+  gt::gt() |> 
+  gt::fmt_number(
+    columns = c(mean_elevation, mean_ndvi)
+  ) |> 
+  gt::cols_label_with(fn = snakecase::to_title_case) |> 
+  gt::tab_header(
+    title = "Mean elevation and NDVI for each altitude class"
+  ) |> 
+  gtExtras::gt_theme_538()
 ```
 
 ------------------------------------------------------------------------
@@ -1560,6 +1612,33 @@ ggplot() +
 ### E6.
 
 **Apply a line detection filter to `rast(system.file("ex/logo.tif", package = "terra"))`. Plot the result. Hint: Read `?terra::focal()`.**
+
+The code below demonstrates edge detection on a raster image using Sobel filters with the **{terra}** package in R. The Sobel filters, represented as matrices `fx` and `fy`, are defined for detecting edges in horizontal and vertical directions, respectively. The `focal()` function applies these filters to the raster image, performing convolution to emphasize areas of rapid intensity change (edges). The processed images are then plotted, one showing **horizontal edges (filtered with `fx`)** in black and white, and the other showing **vertical edges (filtered with `fy`)** in white and black. This illustrates how Sobel filters can be used for edge detection in spatial raster data.
+
+```{r}
+#| label: fig-e6
+#| fig-cap: "Edge detection with terra::focal()"
+#| fig-subcap: 
+#|   - "Base raster Logo"
+#|   - "Horizontal edges detected with fx"
+#|   - "Vertical edges detected with fy"
+#| layout-ncol: 3
+logo <- rast(system.file("ex/logo.tif", package = "terra"))
+
+plot(logo)
+
+# Sobel filters (for edge detection):
+fx <- matrix(c(-1,-2,-1,0,0,0,1,2,1), nrow = 3)
+fy <- matrix(c(1,0,-1,2,0,-2,1,0,-1), nrow = 3)
+
+logo |> 
+  terra::focal(w = fx) |> 
+  plot(col = c("white", "black"))
+
+logo |> 
+  terra::focal(w = fy) |> 
+  plot(col = c("black", "white"))
+```
 
 ------------------------------------------------------------------------
 
@@ -1573,4 +1652,8 @@ Calculate the Normalized Difference Water Index (NDWI; `(green - nir)/(green + n
 
 A StackOverflow [post (stackoverflow.com/questions/35555709)](https://stackoverflow.com/questions/35555709/global-raster-of-geographic-distances) shows how to compute distances to the nearest coastline using [`raster::distance()`](https://rspatial.github.io/terra/reference/distance.html). Try to do something similar but with [`terra::distance()`](https://rspatial.github.io/terra/reference/distance.html): retrieve a digital elevation model of Spain, and compute a raster which represents distances to the coast across the country (hint: use [`geodata::elevation_30s()`](https://rdrr.io/pkg/geodata/man/elevation.html)). Convert the resulting distances from meters to kilometers. Note: it may be wise to increase the cell size of the input raster to reduce compute time during this operation ([`aggregate()`](https://rspatial.github.io/terra/reference/aggregate.html)).
 
-E9. Try to modify the approach used in the above exercise by weighting the distance raster with the elevation raster; every 100 altitudinal meters should increase the distance to the coast by 10 km. Next, compute and visualize the difference between the raster created using the Euclidean distance (E7) and the raster weighted by elevation.
+------------------------------------------------------------------------
+
+### E9.
+
+Try to modify the approach used in the above exercise by weighting the distance raster with the elevation raster; every 100 altitudinal meters should increase the distance to the coast by 10 km. Next, compute and visualize the difference between the raster created using the Euclidean distance (E7) and the raster weighted by elevation.
