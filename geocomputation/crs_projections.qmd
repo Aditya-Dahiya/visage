@@ -1,8 +1,8 @@
 ---
 title: "Various CRS projections for use with {sf} plots in {ggplot2}"
 author: "Aditya Dahiya"
-subtitle: "............................"
-date: "2024-12-12"
+subtitle: "A ready reckoner for different projections that we can plot the World, Continents and Countries with using {ggplot2} in R."
+date: "2024-12-14"
 bibliography: references.bib
 format:
   html:
@@ -15,9 +15,8 @@ execute:
   warning: false
   eval: false
 categories:
-  - "Background Map"
-  - "{terra}"
-  - "Raster Map"
+  - "{sf}"
+  - "CRS projections"
 comments:
   giscus: 
     repo: Aditya-Dahiya/visage
@@ -33,30 +32,101 @@ share:
   facebook: true
 ---
 
-| No. | **Projection Name** | **EPSG Code** | `coord_sf()` code | **Description** | **Use Case** |
-|------------|------------|------------|------------|------------|------------|
-| 1 | **WGS 84 (Geographic)** | 4326 | `EPSG:4326` | Default geographic coordinate system using latitude and longitude. | Working with raw geographic coordinates. |
-| 2 | **Web Mercator** | 3857 | `EPSG:3857` | Used by most web mapping services like [Google Maps](https://maps.google.com/), [OpenStreetMap](https://www.openstreetmap.org/). | Visualizing data on interactive maps or raster tiles. |
-| 3 | **UTM Zone 33N** | 32633 | `EPSG:32633` | Universal Transverse Mercator for Zone 33 North (WGS 84). | Detailed mapping with minimal distortion for Zone 33N. |
-| 4 | **UTM Zone 33S** | 32733 | `EPSG:32733` | Universal Transverse Mercator for Zone 33 South (WGS 84). | Detailed mapping with minimal distortion for Zone 33S. |
-| 5 | **NAD83** | 4269 | `EPSG:4269` | North American Datum 1983. | Standard for North American datasets. |
-| 6 | **ETRS89 / LAEA Europe** | 3035 | `EPSG:3035` | Lambert Azimuthal Equal Area projection for Europe. | Mapping datasets across Europe with minimal area distortion. |
-| 7 | **WGS 84 / Pseudo-Mercator** | 3857 | `EPSG:3857` | Similar to Web Mercator but suited for global-scale applications. | Quick global visualizations and compatibility with tile layers. |
-| 8 | **Albers Equal Area** | 5070 | `EPSG:5070` | Albers Equal Area for continental-scale datasets in the US. | US-focused analysis with equal-area properties. |
-| 9 | **Lambert Conformal Conic** | 102004 | `EPSG:102004` | Projection widely used for mapping in the US. | Regional analysis and thematic mapping in North America. |
-| 10 | **Mollweide** | 54009 | `EPSG:54009` | Equal-area pseudocylindrical projection for global maps. | Global-scale thematic maps with equal area representation. |
-| 11 | **Robinson** | 54030 | `EPSG:54030` | A compromise projection for visually pleasing world maps. | World maps for general use, emphasizing aesthetics. |
-| 12 | **Sinusoidal** | 54008 | `EPSG:54008` | Pseudocylindrical equal-area projection. | Global-scale analysis with equal-area properties. |
-| 13 | **Bonne** | 54024 | `EPSG:54024` | Equal-area projection, often used for continents. | Regional mapping with minimized distortion. |
-| 14 | **World Van der Grinten I** | 54029 | `EPSG:54029` | Projection displaying the entire world in a circular format. | Aesthetic and general-purpose world maps. |
-| 15 | **Plate Carrée** | 32662 | `EPSG:32662` | Simple projection with equally spaced latitudes and longitudes. | Basic visualization of geographic data. |
-| 16 | **Transverse Mercator** | 4326 | `EPSG:4326` | Cylindrical projection ideal for mapping narrow regions. | Regional and local-scale mapping (often used with UTM zones). |
-| 17 | **North Pole Stereographic** | 3413 | `EPSG:3413` | Stereographic projection for mapping the Arctic region. | Mapping polar data in the Arctic with minimal distortion. |
-| 18 | **South Pole Stereographic** | 3031 | `EPSG:3031` | Stereographic projection for mapping the Antarctic region. | Mapping polar data in the Antarctic with minimal distortion. |
-| 19 | **Interrupted Goode Homolosine** | 54052 | `EPSG:54052` | Composite projection for minimal distortion of landmasses. | Global mapping that emphasizes land area accuracy. |
-| 20 | **Krovak** | 5514 | `EPSG:5514` | Projection widely used in the Czech Republic and Slovakia. | Mapping datasets specific to these regions. |
-| 21 | **Asia North Lambert Conformal** | 102026 | `EPSG:102026` | Lambert Conformal projection for northern Asia. | Mapping datasets across northern Asia. |
-| 22 | **Australia Albers** | 3577 | `EPSG:3577` | Equal-area projection for Australia. | Regional mapping of Australia with minimized area distortion. |
+## A Table of various Projections
+
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| No. | **Projection Name**              | **EPSG /ESRI Code** | Example & `coord_sf()` code | **Description**                                                                                                                  | **Use Case**                                                    |
++=====+==================================+=====================+=============================+==================================================================================================================================+=================================================================+
+| 1   | **WGS 84 (Geographic)**          | 4326                | @fig-1                      | Default geographic coordinate system using latitude and longitude.                                                               | Working with raw geographic coordinates.                        |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `EPSG:4326`                 |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 2   | **Web Mercator**                 | 3857                | @fig-2                      | Used by most web mapping services like [Google Maps](https://maps.google.com/), [OpenStreetMap](https://www.openstreetmap.org/). | Visualizing data on interactive maps or raster tiles.           |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `EPSG:3857`                 |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 3   | **UTM Zone 33N**                 | 32633               | @fig-3                      | Universal Transverse Mercator for Zone 33 North (WGS 84).                                                                        | Detailed mapping with minimal distortion for Zone 33N.          |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `EPSG:32633`                |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 4   | **UTM Zone 33S**                 | 32733               | @fig-4                      | Universal Transverse Mercator for Zone 33 South (WGS 84).                                                                        | Detailed mapping with minimal distortion for Zone 33S.          |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `EPSG:32733`                |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 5   | **NAD83**                        | 4269                | @fig-5                      | North American Datum 1983.                                                                                                       | Standard for North American datasets.                           |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `EPSG:4269`                 |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 6   | **ETRS89 / LAEA Europe**         | 3035                | @fig-6                      | Lambert Azimuthal Equal Area projection for Europe.                                                                              | Mapping datasets across Europe with minimal area distortion.    |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `EPSG:3035`                 |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 7   | **WGS 84 / Pseudo-Mercator**     | 3857                | @fig-7                      | Similar to Web Mercator but suited for global-scale applications.                                                                | Quick global visualizations and compatibility with tile layers. |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `EPSG:3857`                 |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 8   | **Albers Equal Area**            | 5070                | @fig-8                      | Albers Equal Area for continental-scale datasets in the US.                                                                      | US-focused analysis with equal-area properties.                 |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `EPSG:5070`                 |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 9   | **Lambert Conformal Conic**      | 102004 (ESRI)       | @fig-9                      | Projection widely used for mapping in the US.                                                                                    | Regional analysis and thematic mapping in North America.        |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `ESRI:102004`               |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 10  | **Mollweide**                    | 54009 (ESRI)        | @fig-10                     | Equal-area pseudocylindrical projection for global maps.                                                                         | Global-scale thematic maps with equal area representation.      |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `ESRI:54009`                |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 11  | **Robinson**                     | 54030 (ESRI)        | @fig-11                     | A compromise projection for visually pleasing world maps.                                                                        | World maps for general use, emphasizing aesthetics.             |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `ESRI:54030`                |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 12  | **Sinusoidal**                   | 54008 (ESRI)        | @fig-12                     | Pseudocylindrical equal-area projection.                                                                                         | Global-scale analysis with equal-area properties.               |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `ESRI:54008`                |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 13  | **Bonne**                        | 54024 (ESRI)        | @fig-13                     | Equal-area projection, often used for continents.                                                                                | Regional mapping with minimized distortion.                     |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `ESRI:54024`                |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 14  | **World Van der Grinten I**      | 54029 (ESRI)        | @fig-14                     | Projection displaying the entire world in a circular format.                                                                     | Aesthetic and general-purpose world maps.                       |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `ESRI:54029`                |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 15  | **Plate Carrée**                 | 32662               | @fig-15                     | Simple projection with equally spaced latitudes and longitudes.                                                                  | Basic visualization of geographic data.                         |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `EPSG:32662`                |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 16  | **Transverse Mercator**          | 4326                | @fig-16                     | Cylindrical projection ideal for mapping narrow regions.                                                                         | Regional and local-scale mapping (often used with UTM zones).   |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `EPSG:4326`                 |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 17  | **North Pole Stereographic**     | 3413                | @fig-17                     | Stereographic projection for mapping the Arctic region.                                                                          | Mapping polar data in the Arctic with minimal distortion.       |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `EPSG:3413`                 |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 18  | **South Pole Stereographic**     | 3031                | @fig-18                     | Stereographic projection for mapping the Antarctic region.                                                                       | Mapping polar data in the Antarctic with minimal distortion.    |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `EPSG:3031`                 |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 19  | **Interrupted Goode Homolosine** | 54052 (ESRI)        | @fig-19                     | Composite projection for minimal distortion of landmasses.                                                                       | Global mapping that emphasizes land area accuracy.              |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `ESRI:54052`                |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 20  | **Krovak**                       | 5514                | @fig-20                     | Projection widely used in the Czech Republic and Slovakia.                                                                       | Mapping datasets specific to these regions.                     |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `EPSG:5514`                 |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 21  | **Asia North Lambert Conformal** | 102026 (ESRI)       | @fig-21                     | Lambert Conformal projection for northern Asia.                                                                                  | Mapping datasets across northern Asia.                          |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `ESRI:102026`               |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+| 22  | **Australia Albers**             | 3577                | @fig-22                     | Equal-area projection for Australia.                                                                                             | Regional mapping of Australia with minimized area distortion.   |
+|     |                                  |                     |                             |                                                                                                                                  |                                                                 |
+|     |                                  |                     | `EPSG:3577`                 |                                                                                                                                  |                                                                 |
++-----+----------------------------------+---------------------+-----------------------------+----------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
+
+Setting up the basic code, libraries and getting world map data
 
 ```{r}
 #| label: setup
@@ -66,7 +136,7 @@ library(sf)                 # Simple Features in R
 library(rnaturalearth)      # Map data
 
 world <- ne_countries(
-  scale = "small",
+  scale = "medium",
   returnclass = "sf"
 ) |> 
   select(name, name_long, 
@@ -74,6 +144,8 @@ world <- ne_countries(
          geometry, continent)
 
 ```
+
+## Details on different projections, their usage, examples and code
 
 ### 1. **WGS 84 (Geographic)**
 
@@ -197,7 +269,7 @@ g <- world |>
   labs(
     x = NULL, y = NULL,
     title = "UTM Zone 33N Projection: For Europe",
-    subtitle = "Minimal distortion for European Region."
+    subtitle = "After removing Russia and setting xlim & ylim"
   )
 
 ggsave(
@@ -267,19 +339,27 @@ g <- world |>
   ggplot() +
   geom_sf() +
   geom_sf_text(
-    mapping = aes(label = name),
-    check_overlap = TRUE,
-    size = 4
+    mapping = aes(
+      label = name,
+      size = as.numeric(st_area(geometry))
+    ),
+    check_overlap = TRUE
   ) +
+  scale_size(range = c(0.75, 3)) +
   coord_sf(
     crs = "EPSG:4269",
-    clip = "off"
+    clip = "on",
+    xlim = c(-160, -40),
+    default_crs = st_crs(4326)
     ) +
   theme_minimal() +
   labs(
     x = NULL, y = NULL,
     title = "North American Datum 1983 (NAD83) Projection",
     subtitle = "For Canada and USA"
+  ) +
+  theme(
+    legend.position = "none"
   )
 
 ggsave(
@@ -449,49 +529,222 @@ ggsave(
 
 ------------------------------------------------------------------------
 
-### 9. **Lambert Conformal Conic**
+### 9. **Lambert Conformal Conic (ESRI)**
 
-The Lambert Conformal Conic projection, represented by **EPSG:102004**, is a conformal projection widely used for mapping in North America. It minimizes distortion for regions with east-west orientation. This projection is often employed for regional-scale thematic mapping and analysis.
+The Lambert Conformal Conic projection, represented by **ESRI:102004**, is a conformal projection widely used for mapping in North America. It minimizes distortion for regions with east-west orientation. This projection is often employed for regional-scale thematic mapping and analysis.
+
+```{r}
+
+g <- world |> 
+  filter(continent == "North America") |> 
+  ggplot() +
+  geom_sf(
+    fill = NA
+  ) +
+  geom_sf_text(
+    mapping = aes(
+      label = name,
+      size = as.numeric(st_area(geometry))
+    ),
+    check_overlap = TRUE
+  ) +
+  scale_size(range = c(0.5, 3)) +
+  coord_sf(
+    crs = "ESRI:102004",
+    xlim = c(-160, -40),
+    ylim = c(5, 85),
+    default_crs = sf::st_crs(4326)
+  ) +
+  theme_minimal() +
+  labs(
+    x = NULL, y = NULL,
+    title = "Lambert Conformal Conic Projection",
+    subtitle = "For mapping North America. Minimizes East-West distortion"
+  ) +
+  theme(
+    legend.position = "none",
+    plot.title.position = "plot"
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "crs_projections_9.png"),
+  height = 1200,
+  width = 1800,
+  units = "px"
+)
+```
 
 ![Lambert Conformal Conic Projection](images/crs_projections_9.png){#fig-9}
 
 ------------------------------------------------------------------------
 
-### 10. **Mollweide**
+### 10. **Mollweide (ESRI)**
 
-The Mollweide projection, identified by **EPSG:54009**, is an equal-area pseudocylindrical projection. It is ideal for global-scale thematic maps, such as climate or population density maps, where preserving area relationships is important. Its elliptical shape makes it visually distinct and effective for representing the entire world.
+The Mollweide projection, identified by **ESRI:54009**, is an equal-area pseudo-cylindrical projection. It is ideal for global-scale thematic maps, such as climate or population density maps, where preserving area relationships is important. Its elliptical shape makes it visually distinct and effective for representing the entire world.
+
+```{r}
+
+g <- ggplot() +
+  geom_sf(
+    data = world
+  ) +
+  coord_sf(
+    crs = "ESRI:54009"
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Mollweide Projection (ESRI:54009)",
+    subtitle = "For world maps, preserving area-relationships"
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "crs_projections_10.png"),
+  height = 1200,
+  width = 1800,
+  units = "px"
+)
+```
 
 ![Mollweide Projection](images/crs_projections_10.png){#fig-10}
 
 ------------------------------------------------------------------------
 
-### 11. **Robinson**
+### 11. **Robinson (ESRI)**
 
-The Robinson projection, represented by **EPSG:54030**, is a compromise projection designed to create visually appealing world maps. It strikes a balance between distortion of shape, area, and distance, making it suitable for general-purpose global mapping. It is widely used in atlases and educational materials.
+The Robinson projection, represented by **ESRI:54030**, is a compromise projection designed to create visually appealing world maps. It strikes a balance between distortion of shape, area, and distance, making it suitable for general-purpose global mapping. It is widely used in atlases and educational materials.
+
+```{r}
+
+g <- ggplot() +
+  geom_sf(
+    data = world
+  ) +
+  coord_sf(
+    crs = "ESRI:54030"
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Robinson Projection (ESRI:54030)",
+    subtitle = "General purpose, visually appealing global maps."
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "crs_projections_11.png"),
+  height = 1200,
+  width = 1800,
+  units = "px"
+)
+```
 
 ![Robinson Projection](images/crs_projections_11.png){#fig-11}
 
 ------------------------------------------------------------------------
 
-### 12. **Sinusoidal**
+### 12. **Sinusoidal (ESRI)**
 
-The Sinusoidal projection, identified by **EPSG:54008**, is an equal-area projection that is widely used for global-scale analysis. It is particularly effective for thematic maps showing area distribution, such as land cover or climate zones. Its straightforward representation of meridians makes it easy to interpret.
+The Sinusoidal projection, identified by **ESRI:54008**, is an equal-area projection that is widely used for global-scale analysis. It is particularly effective for thematic maps showing area distribution, such as land cover or climate zones. Its straightforward representation of meridians makes it easy to interpret.
+
+```{r}
+
+g <- ggplot() +
+  geom_sf(
+    data = world
+  ) +
+  coord_sf(
+    crs = "ESRI:54008"
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Sinusoidal Projection (ESRI:54008)",
+    subtitle = "An equal area projection, meridians are easier to interpret."
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "crs_projections_12.png"),
+  height = 1200,
+  width = 1800,
+  units = "px"
+)
+```
 
 ![Sinusoidal Projection](images/crs_projections_12.png){#fig-12}
 
 ------------------------------------------------------------------------
 
-### 13. **Bonne**
+### 13. **Bonne (ESRI)**
 
-The Bonne projection, represented by **EPSG:54024**, is an equal-area projection often used for mapping continents. It minimizes area distortion while maintaining a pleasing, compact layout. It is suitable for thematic maps where regional relationships are critical.
+The Bonne projection, represented by **ESRI:54024**, is an equal-area projection often used for mapping continents. It minimizes area distortion while maintaining a pleasing, compact layout. It is suitable for thematic maps where regional relationships are critical.
+
+```{r}
+
+g <- ggplot() +
+  geom_sf(
+    data = world
+  ) +
+  coord_sf(
+    crs = "ESRI:54024"
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Bonne Projection (ESRI:54024)",
+    subtitle = "An equal area projection, with focus on regional relationships."
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "crs_projections_13.png"),
+  height = 1200,
+  width = 1800,
+  units = "px"
+)
+```
 
 ![Bonne Projection](images/crs_projections_13.png){#fig-13}
 
 ------------------------------------------------------------------------
 
-### 14. **World Van der Grinten I**
+### 14. **World Van der Grinten I (ESRI)**
 
-The World Van der Grinten I projection, identified by **EPSG:54029**, displays the entire world in a circular format. It offers an aesthetically pleasing view of global datasets, though it sacrifices accuracy in terms of area and shape. It is often used for decorative or general-purpose maps.
+The World Van der Grinten I projection, identified by **ESRI:54029**, displays the entire world in a circular format. It offers an aesthetically pleasing view of global datasets, though it sacrifices accuracy in terms of area and shape. It is often used for decorative or general-purpose maps.
+
+::: callout-note
+The World Van der Grinten I projection, being circular, significantly expands Antarctica. SO it is best not to plot Antarctica with a world map in this projection.
+:::
+
+```{r}
+
+g <- ggplot() +
+  geom_sf(
+    data = world |> 
+      filter(name != "Antarctica")
+  ) +
+  coord_sf(
+    crs = "ESRI:54029"
+  ) +
+  theme_minimal() +
+  labs(
+    title = "World Van der Grinten Projection (ESRI:54029)",
+    subtitle = "An aesthetically pleasing, circular decorative World Map."
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "crs_projections_14.png"),
+  height = 1200,
+  width = 1800,
+  units = "px"
+)
+```
 
 ![World Van der Grinten I Projection](images/crs_projections_14.png){#fig-14}
 
@@ -501,6 +754,31 @@ The World Van der Grinten I projection, identified by **EPSG:54029**, displays t
 
 The Plate Carrée projection, represented by **EPSG:32662**, is one of the simplest projections with equally spaced latitudes and longitudes. It is easy to work with but distorts area and shape significantly away from the equator. It is suitable for visualizing raw geographic data.
 
+```{r}
+
+g <- ggplot() +
+  geom_sf(
+    data = world
+  ) +
+  coord_sf(
+    crs = "EPSG:32662"
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Plate Carrée Projection (EPSG:32662)",
+    subtitle = "For working with Raw data. Has equally spaced latitudes and longitudes."
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "crs_projections_15.png"),
+  height = 1200,
+  width = 1800,
+  units = "px"
+)
+```
+
 ![Plate Carrée Projection](images/crs_projections_15.png){#fig-15}
 
 ------------------------------------------------------------------------
@@ -508,6 +786,31 @@ The Plate Carrée projection, represented by **EPSG:32662**, is one of the simpl
 ### 16. **Transverse Mercator**
 
 The Transverse Mercator projection, associated with **EPSG:4326**, is a cylindrical projection ideal for narrow regions. It minimizes distortion along the central meridian, making it widely used for mapping zones like UTM. It is often employed in engineering and cadastral surveys.
+
+```{r}
+
+g <- ggplot() +
+  geom_sf(
+    data = world
+  ) +
+  coord_sf(
+    crs = "EPSG:4326"
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Transverse Mercator Projection (EPSG:4326)",
+    subtitle = "Cylindrical Projection."
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "crs_projections_16.png"),
+  height = 1200,
+  width = 1800,
+  units = "px"
+)
+```
 
 ![Transverse Mercator Projection](images/crs_projections_16.png){#fig-16}
 
@@ -517,6 +820,37 @@ The Transverse Mercator projection, associated with **EPSG:4326**, is a cylindri
 
 The North Pole Stereographic projection, identified by **EPSG:3413**, is designed for mapping the Arctic region. It minimizes distortion near the pole, making it suitable for polar datasets, including sea ice and Arctic biodiversity.
 
+```{r}
+
+g <- ggplot() +
+  geom_sf(
+    data = world,
+    fill = "grey80",
+    alpha = 0.3
+  ) +
+  coord_sf(
+    crs = "EPSG:3413",
+    ylim = c(50, 90),
+    xlim = c(-180, 180),
+    default_crs = st_crs(4326),
+    clip = "on"
+  ) +
+  theme_minimal() +
+  labs(
+    title = "North Pole Stereographic Projection (EPSG:3413)",
+    subtitle = "For mapping the Arctic Region."
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "crs_projections_17.png"),
+  height = 1200,
+  width = 1800,
+  units = "px"
+)
+```
+
 ![North Pole Stereographic Projection](images/crs_projections_17.png){#fig-17}
 
 ------------------------------------------------------------------------
@@ -525,13 +859,74 @@ The North Pole Stereographic projection, identified by **EPSG:3413**, is designe
 
 The South Pole Stereographic projection, represented by **EPSG:3031**, is specifically designed for mapping the Antarctic region. It preserves the geometric properties near the pole and is commonly used for research on Antarctic ice sheets and ecosystems.
 
+```{r}
+
+
+g <- ggplot() +
+  geom_sf(
+    data = world |> 
+      filter(name == "Antarctica")
+  ) +
+  coord_sf(
+    crs = "EPSG:3031",
+    # ylim = c(-90, -60),
+    # xlim = c(-180, 180),
+    # default_crs = st_crs(4326)
+  ) +
+  theme_minimal() +
+  labs(
+    title = "South Pole Stereographic Projection (EPSG:3031)",
+    subtitle = "For mapping the Antarctic Region."
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "crs_projections_18.png"),
+  height = 1200,
+  width = 1800,
+  units = "px"
+)
+```
+
 ![South Pole Stereographic Projection](images/crs_projections_18.png){#fig-18}
 
 ------------------------------------------------------------------------
 
-### 19. **Interrupted Goode Homolosine**
+### 19. **Interrupted Goode Homolosine (ESRI)**
 
 The Interrupted Goode Homolosine projection, identified by **EPSG:54052**, is a composite projection designed to minimize distortion of landmasses. It is particularly effective for global mapping that emphasizes land area accuracy and is often used in environmental studies.
+
+::: callout-note
+This interrupted composite projection severely distorts and pulls apart Greenland and Antarctica, so avoid plotting them with this projection.
+:::
+
+```{r}
+
+
+g <- ggplot() +
+  geom_sf(
+    data = world |> 
+      filter(!(name %in% c("Greenland", "Antarctica")))
+  ) +
+  coord_sf(
+    crs = "ESRI:54052"
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Interrupted Goode Homolosine Projection (ESRI:4326)",
+    subtitle = "Composite Projection. Minimzes distortion of landmasses"
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "crs_projections_19.png"),
+  height = 1200,
+  width = 1800,
+  units = "px"
+)
+```
 
 ![Interrupted Goode Homolosine Projection](images/crs_projections_19.png){#fig-19}
 
@@ -541,13 +936,67 @@ The Interrupted Goode Homolosine projection, identified by **EPSG:54052**, is a 
 
 The Krovak projection, associated with **EPSG:5514**, is widely used in the Czech Republic and Slovakia. It is tailored to their geographic extents, ensuring minimal distortion for regional applications. It is ideal for cadastral and engineering projects in these areas.
 
+```{r}
+g <- world |> 
+  filter(name %in% c("Czechia", "Slovakia")) |> 
+  ggplot() +
+  geom_sf() +
+  geom_sf_text(
+    aes(label = name)
+  ) +
+  coord_sf(
+    crs = "EPSG:5514"
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Krovak Projection (EPSG:5514)",
+    subtitle = "Used for Czechia and Slovakia, for minimal distortion in those regions"
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "crs_projections_20.png"),
+  height = 1200,
+  width = 1800,
+  units = "px"
+)
+```
+
 ![Krovak Projection](images/crs_projections_20.png){#fig-20}
 
 ------------------------------------------------------------------------
 
-### 21. **Asia North Lambert Conformal**
+### 21. **Asia North Lambert Conformal (ESRI)**
 
-The Asia North Lambert Conformal Conic projection, identified by **EPSG:102026**, is designed for northern Asia. It is suitable for mapping datasets across this vast region with minimal distortion. It is commonly used in regional studies and thematic mapping.
+The Asia North Lambert Conformal Conic projection, identified by **ESRI:102026**, is designed for northern Asia. It is suitable for mapping datasets across this vast region with minimal distortion. It is commonly used in regional studies and thematic mapping.
+
+```{r}
+g <- world |> 
+  filter(continent == "Asia" | name == "Russia") |> 
+  ggplot() +
+  geom_sf() +
+  coord_sf(
+    crs = "ESRI:102026"
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Asia North Lambert Conformal Projection",
+    subtitle = "Used for plotting Northern Asia within minimal distortion"
+  ) +
+  theme(
+    plot.title.position = "plot"
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "crs_projections_21.png"),
+  height = 1200,
+  width = 1800,
+  units = "px"
+)
+```
 
 ![Asia North Lambert Conformal Projection](images/crs_projections_21.png){#fig-21}
 
@@ -556,6 +1005,35 @@ The Asia North Lambert Conformal Conic projection, identified by **EPSG:102026**
 ### 22. **Australia Albers**
 
 The Australia Albers projection, represented by **EPSG:3577**, is an equal-area projection optimized for Australia. It minimizes area distortion and is commonly used for environmental studies and resource management across the continent.
+
+```{r}
+g <- world |> 
+  filter(name %in% c("Australia")) |> 
+  ggplot() +
+  geom_sf() +
+  coord_sf(
+    crs = "EPSG:3577",
+    default_crs = st_crs(4326),
+    ylim = c(-43, -10)
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Australia Albers Projection",
+    subtitle = "A projection optimized for Australia"
+  ) +
+  theme(
+    plot.title.position = "plot"
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "crs_projections_22.png"),
+  height = 1200,
+  width = 1800,
+  units = "px"
+)
+```
 
 ![Australia Albers Projection](images/crs_projections_22.png){#fig-22}
 

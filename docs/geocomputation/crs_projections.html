@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Dahiya">
-<meta name="dcterms.date" content="2024-12-12">
+<meta name="dcterms.date" content="2024-12-14">
 
 <title>Various CRS projections for use with {sf} plots in {ggplot2} – visage</title>
 <style>
@@ -112,7 +112,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <link rel="stylesheet" href="../styles.css">
 <meta name="twitter:title" content="Various CRS projections for use with {sf} plots in {ggplot2} – visage">
-<meta name="twitter:description" content="……………………….">
+<meta name="twitter:description" content="A ready reckoner for different projections that we can plot the World, Continents and Countries with using {ggplot2} in R.">
 <meta name="twitter:card" content="summary">
 </head>
 
@@ -189,7 +189,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#wgs-84-geographic" id="toc-wgs-84-geographic" class="nav-link active" data-scroll-target="#wgs-84-geographic">1. <strong>WGS 84 (Geographic)</strong></a></li>
+  <li><a href="#a-table-of-various-projections" id="toc-a-table-of-various-projections" class="nav-link active" data-scroll-target="#a-table-of-various-projections">A Table of various Projections</a></li>
+  <li><a href="#details-on-different-projections-their-usage-examples-and-code" id="toc-details-on-different-projections-their-usage-examples-and-code" class="nav-link" data-scroll-target="#details-on-different-projections-their-usage-examples-and-code">Details on different projections, their usage, examples and code</a>
+  <ul class="collapse">
+  <li><a href="#wgs-84-geographic" id="toc-wgs-84-geographic" class="nav-link" data-scroll-target="#wgs-84-geographic">1. <strong>WGS 84 (Geographic)</strong></a></li>
   <li><a href="#web-mercator" id="toc-web-mercator" class="nav-link" data-scroll-target="#web-mercator">2. <strong>Web Mercator</strong></a></li>
   <li><a href="#utm-zone-33n" id="toc-utm-zone-33n" class="nav-link" data-scroll-target="#utm-zone-33n">3. <strong>UTM Zone 33N</strong></a></li>
   <li><a href="#utm-zone-33s" id="toc-utm-zone-33s" class="nav-link" data-scroll-target="#utm-zone-33s">4. <strong>UTM Zone 33S</strong></a></li>
@@ -197,20 +200,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#etrs89-laea-europe" id="toc-etrs89-laea-europe" class="nav-link" data-scroll-target="#etrs89-laea-europe">6. <strong>ETRS89 / LAEA Europe</strong></a></li>
   <li><a href="#wgs-84-pseudo-mercator" id="toc-wgs-84-pseudo-mercator" class="nav-link" data-scroll-target="#wgs-84-pseudo-mercator">7. <strong>WGS 84 / Pseudo-Mercator</strong></a></li>
   <li><a href="#albers-equal-area" id="toc-albers-equal-area" class="nav-link" data-scroll-target="#albers-equal-area">8. <strong>Albers Equal Area</strong></a></li>
-  <li><a href="#lambert-conformal-conic" id="toc-lambert-conformal-conic" class="nav-link" data-scroll-target="#lambert-conformal-conic">9. <strong>Lambert Conformal Conic</strong></a></li>
-  <li><a href="#mollweide" id="toc-mollweide" class="nav-link" data-scroll-target="#mollweide">10. <strong>Mollweide</strong></a></li>
-  <li><a href="#robinson" id="toc-robinson" class="nav-link" data-scroll-target="#robinson">11. <strong>Robinson</strong></a></li>
-  <li><a href="#sinusoidal" id="toc-sinusoidal" class="nav-link" data-scroll-target="#sinusoidal">12. <strong>Sinusoidal</strong></a></li>
-  <li><a href="#bonne" id="toc-bonne" class="nav-link" data-scroll-target="#bonne">13. <strong>Bonne</strong></a></li>
-  <li><a href="#world-van-der-grinten-i" id="toc-world-van-der-grinten-i" class="nav-link" data-scroll-target="#world-van-der-grinten-i">14. <strong>World Van der Grinten I</strong></a></li>
+  <li><a href="#lambert-conformal-conic-esri" id="toc-lambert-conformal-conic-esri" class="nav-link" data-scroll-target="#lambert-conformal-conic-esri">9. <strong>Lambert Conformal Conic (ESRI)</strong></a></li>
+  <li><a href="#mollweide-esri" id="toc-mollweide-esri" class="nav-link" data-scroll-target="#mollweide-esri">10. <strong>Mollweide (ESRI)</strong></a></li>
+  <li><a href="#robinson-esri" id="toc-robinson-esri" class="nav-link" data-scroll-target="#robinson-esri">11. <strong>Robinson (ESRI)</strong></a></li>
+  <li><a href="#sinusoidal-esri" id="toc-sinusoidal-esri" class="nav-link" data-scroll-target="#sinusoidal-esri">12. <strong>Sinusoidal (ESRI)</strong></a></li>
+  <li><a href="#bonne-esri" id="toc-bonne-esri" class="nav-link" data-scroll-target="#bonne-esri">13. <strong>Bonne (ESRI)</strong></a></li>
+  <li><a href="#world-van-der-grinten-i-esri" id="toc-world-van-der-grinten-i-esri" class="nav-link" data-scroll-target="#world-van-der-grinten-i-esri">14. <strong>World Van der Grinten I (ESRI)</strong></a></li>
   <li><a href="#plate-carrée" id="toc-plate-carrée" class="nav-link" data-scroll-target="#plate-carrée">15. <strong>Plate Carrée</strong></a></li>
   <li><a href="#transverse-mercator" id="toc-transverse-mercator" class="nav-link" data-scroll-target="#transverse-mercator">16. <strong>Transverse Mercator</strong></a></li>
   <li><a href="#north-pole-stereographic" id="toc-north-pole-stereographic" class="nav-link" data-scroll-target="#north-pole-stereographic">17. <strong>North Pole Stereographic</strong></a></li>
   <li><a href="#south-pole-stereographic" id="toc-south-pole-stereographic" class="nav-link" data-scroll-target="#south-pole-stereographic">18. <strong>South Pole Stereographic</strong></a></li>
-  <li><a href="#interrupted-goode-homolosine" id="toc-interrupted-goode-homolosine" class="nav-link" data-scroll-target="#interrupted-goode-homolosine">19. <strong>Interrupted Goode Homolosine</strong></a></li>
+  <li><a href="#interrupted-goode-homolosine-esri" id="toc-interrupted-goode-homolosine-esri" class="nav-link" data-scroll-target="#interrupted-goode-homolosine-esri">19. <strong>Interrupted Goode Homolosine (ESRI)</strong></a></li>
   <li><a href="#krovak" id="toc-krovak" class="nav-link" data-scroll-target="#krovak">20. <strong>Krovak</strong></a></li>
-  <li><a href="#asia-north-lambert-conformal" id="toc-asia-north-lambert-conformal" class="nav-link" data-scroll-target="#asia-north-lambert-conformal">21. <strong>Asia North Lambert Conformal</strong></a></li>
+  <li><a href="#asia-north-lambert-conformal-esri" id="toc-asia-north-lambert-conformal-esri" class="nav-link" data-scroll-target="#asia-north-lambert-conformal-esri">21. <strong>Asia North Lambert Conformal (ESRI)</strong></a></li>
   <li><a href="#australia-albers" id="toc-australia-albers" class="nav-link" data-scroll-target="#australia-albers">22. <strong>Australia Albers</strong></a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/crs_projections.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -220,11 +224,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Various CRS projections for use with {sf} plots in {ggplot2}</h1>
-<p class="subtitle lead">……………………….</p>
+<p class="subtitle lead">A ready reckoner for different projections that we can plot the World, Continents and Countries with using {ggplot2} in R.</p>
   <div class="quarto-categories">
-    <div class="quarto-category">Background Map</div>
-    <div class="quarto-category">{terra}</div>
-    <div class="quarto-category">Raster Map</div>
+    <div class="quarto-category">{sf}</div>
+    <div class="quarto-category">CRS projections</div>
   </div>
   </div>
 
@@ -242,7 +245,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">December 12, 2024</p>
+      <p class="date">December 14, 2024</p>
     </div>
   </div>
   
@@ -254,13 +257,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<section id="a-table-of-various-projections" class="level2">
+<h2 class="anchored" data-anchor-id="a-table-of-various-projections">A Table of various Projections</h2>
 <table class="caption-top table">
 <thead>
 <tr class="header">
 <th>No.</th>
 <th><strong>Projection Name</strong></th>
-<th><strong>EPSG Code</strong></th>
-<th><code>coord_sf()</code> code</th>
+<th><strong>EPSG /ESRI Code</strong></th>
+<th>Example &amp; <code>coord_sf()</code> code</th>
 <th><strong>Description</strong></th>
 <th><strong>Use Case</strong></th>
 </tr>
@@ -270,7 +275,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>1</td>
 <td><strong>WGS 84 (Geographic)</strong></td>
 <td>4326</td>
-<td><code>EPSG:4326</code></td>
+<td><p><a href="#fig-1" class="quarto-xref">Figure&nbsp;1</a></p>
+<p><code>EPSG:4326</code></p></td>
 <td>Default geographic coordinate system using latitude and longitude.</td>
 <td>Working with raw geographic coordinates.</td>
 </tr>
@@ -278,7 +284,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>2</td>
 <td><strong>Web Mercator</strong></td>
 <td>3857</td>
-<td><code>EPSG:3857</code></td>
+<td><p><a href="#fig-2" class="quarto-xref">Figure&nbsp;2</a></p>
+<p><code>EPSG:3857</code></p></td>
 <td>Used by most web mapping services like <a href="https://maps.google.com/">Google Maps</a>, <a href="https://www.openstreetmap.org/">OpenStreetMap</a>.</td>
 <td>Visualizing data on interactive maps or raster tiles.</td>
 </tr>
@@ -286,7 +293,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>3</td>
 <td><strong>UTM Zone 33N</strong></td>
 <td>32633</td>
-<td><code>EPSG:32633</code></td>
+<td><p><a href="#fig-3" class="quarto-xref">Figure&nbsp;3</a></p>
+<p><code>EPSG:32633</code></p></td>
 <td>Universal Transverse Mercator for Zone 33 North (WGS 84).</td>
 <td>Detailed mapping with minimal distortion for Zone 33N.</td>
 </tr>
@@ -294,7 +302,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>4</td>
 <td><strong>UTM Zone 33S</strong></td>
 <td>32733</td>
-<td><code>EPSG:32733</code></td>
+<td><p><a href="#fig-4" class="quarto-xref">Figure&nbsp;4</a></p>
+<p><code>EPSG:32733</code></p></td>
 <td>Universal Transverse Mercator for Zone 33 South (WGS 84).</td>
 <td>Detailed mapping with minimal distortion for Zone 33S.</td>
 </tr>
@@ -302,7 +311,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>5</td>
 <td><strong>NAD83</strong></td>
 <td>4269</td>
-<td><code>EPSG:4269</code></td>
+<td><p><a href="#fig-5" class="quarto-xref">Figure&nbsp;5</a></p>
+<p><code>EPSG:4269</code></p></td>
 <td>North American Datum 1983.</td>
 <td>Standard for North American datasets.</td>
 </tr>
@@ -310,7 +320,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>6</td>
 <td><strong>ETRS89 / LAEA Europe</strong></td>
 <td>3035</td>
-<td><code>EPSG:3035</code></td>
+<td><p><a href="#fig-6" class="quarto-xref">Figure&nbsp;6</a></p>
+<p><code>EPSG:3035</code></p></td>
 <td>Lambert Azimuthal Equal Area projection for Europe.</td>
 <td>Mapping datasets across Europe with minimal area distortion.</td>
 </tr>
@@ -318,7 +329,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>7</td>
 <td><strong>WGS 84 / Pseudo-Mercator</strong></td>
 <td>3857</td>
-<td><code>EPSG:3857</code></td>
+<td><p><a href="#fig-7" class="quarto-xref">Figure&nbsp;7</a></p>
+<p><code>EPSG:3857</code></p></td>
 <td>Similar to Web Mercator but suited for global-scale applications.</td>
 <td>Quick global visualizations and compatibility with tile layers.</td>
 </tr>
@@ -326,55 +338,62 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>8</td>
 <td><strong>Albers Equal Area</strong></td>
 <td>5070</td>
-<td><code>EPSG:5070</code></td>
+<td><p><a href="#fig-8" class="quarto-xref">Figure&nbsp;8</a></p>
+<p><code>EPSG:5070</code></p></td>
 <td>Albers Equal Area for continental-scale datasets in the US.</td>
 <td>US-focused analysis with equal-area properties.</td>
 </tr>
 <tr class="odd">
 <td>9</td>
 <td><strong>Lambert Conformal Conic</strong></td>
-<td>102004</td>
-<td><code>EPSG:102004</code></td>
+<td>102004 (ESRI)</td>
+<td><p><a href="#fig-9" class="quarto-xref">Figure&nbsp;9</a></p>
+<p><code>ESRI:102004</code></p></td>
 <td>Projection widely used for mapping in the US.</td>
 <td>Regional analysis and thematic mapping in North America.</td>
 </tr>
 <tr class="even">
 <td>10</td>
 <td><strong>Mollweide</strong></td>
-<td>54009</td>
-<td><code>EPSG:54009</code></td>
+<td>54009 (ESRI)</td>
+<td><p><a href="#fig-10" class="quarto-xref">Figure&nbsp;10</a></p>
+<p><code>ESRI:54009</code></p></td>
 <td>Equal-area pseudocylindrical projection for global maps.</td>
 <td>Global-scale thematic maps with equal area representation.</td>
 </tr>
 <tr class="odd">
 <td>11</td>
 <td><strong>Robinson</strong></td>
-<td>54030</td>
-<td><code>EPSG:54030</code></td>
+<td>54030 (ESRI)</td>
+<td><p><a href="#fig-11" class="quarto-xref">Figure&nbsp;11</a></p>
+<p><code>ESRI:54030</code></p></td>
 <td>A compromise projection for visually pleasing world maps.</td>
 <td>World maps for general use, emphasizing aesthetics.</td>
 </tr>
 <tr class="even">
 <td>12</td>
 <td><strong>Sinusoidal</strong></td>
-<td>54008</td>
-<td><code>EPSG:54008</code></td>
+<td>54008 (ESRI)</td>
+<td><p><a href="#fig-12" class="quarto-xref">Figure&nbsp;12</a></p>
+<p><code>ESRI:54008</code></p></td>
 <td>Pseudocylindrical equal-area projection.</td>
 <td>Global-scale analysis with equal-area properties.</td>
 </tr>
 <tr class="odd">
 <td>13</td>
 <td><strong>Bonne</strong></td>
-<td>54024</td>
-<td><code>EPSG:54024</code></td>
+<td>54024 (ESRI)</td>
+<td><p><a href="#fig-13" class="quarto-xref">Figure&nbsp;13</a></p>
+<p><code>ESRI:54024</code></p></td>
 <td>Equal-area projection, often used for continents.</td>
 <td>Regional mapping with minimized distortion.</td>
 </tr>
 <tr class="even">
 <td>14</td>
 <td><strong>World Van der Grinten I</strong></td>
-<td>54029</td>
-<td><code>EPSG:54029</code></td>
+<td>54029 (ESRI)</td>
+<td><p><a href="#fig-14" class="quarto-xref">Figure&nbsp;14</a></p>
+<p><code>ESRI:54029</code></p></td>
 <td>Projection displaying the entire world in a circular format.</td>
 <td>Aesthetic and general-purpose world maps.</td>
 </tr>
@@ -382,7 +401,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>15</td>
 <td><strong>Plate Carrée</strong></td>
 <td>32662</td>
-<td><code>EPSG:32662</code></td>
+<td><p><a href="#fig-15" class="quarto-xref">Figure&nbsp;15</a></p>
+<p><code>EPSG:32662</code></p></td>
 <td>Simple projection with equally spaced latitudes and longitudes.</td>
 <td>Basic visualization of geographic data.</td>
 </tr>
@@ -390,7 +410,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>16</td>
 <td><strong>Transverse Mercator</strong></td>
 <td>4326</td>
-<td><code>EPSG:4326</code></td>
+<td><p><a href="#fig-16" class="quarto-xref">Figure&nbsp;16</a></p>
+<p><code>EPSG:4326</code></p></td>
 <td>Cylindrical projection ideal for mapping narrow regions.</td>
 <td>Regional and local-scale mapping (often used with UTM zones).</td>
 </tr>
@@ -398,7 +419,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>17</td>
 <td><strong>North Pole Stereographic</strong></td>
 <td>3413</td>
-<td><code>EPSG:3413</code></td>
+<td><p><a href="#fig-17" class="quarto-xref">Figure&nbsp;17</a></p>
+<p><code>EPSG:3413</code></p></td>
 <td>Stereographic projection for mapping the Arctic region.</td>
 <td>Mapping polar data in the Arctic with minimal distortion.</td>
 </tr>
@@ -406,15 +428,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>18</td>
 <td><strong>South Pole Stereographic</strong></td>
 <td>3031</td>
-<td><code>EPSG:3031</code></td>
+<td><p><a href="#fig-18" class="quarto-xref">Figure&nbsp;18</a></p>
+<p><code>EPSG:3031</code></p></td>
 <td>Stereographic projection for mapping the Antarctic region.</td>
 <td>Mapping polar data in the Antarctic with minimal distortion.</td>
 </tr>
 <tr class="odd">
 <td>19</td>
 <td><strong>Interrupted Goode Homolosine</strong></td>
-<td>54052</td>
-<td><code>EPSG:54052</code></td>
+<td>54052 (ESRI)</td>
+<td><p><a href="#fig-19" class="quarto-xref">Figure&nbsp;19</a></p>
+<p><code>ESRI:54052</code></p></td>
 <td>Composite projection for minimal distortion of landmasses.</td>
 <td>Global mapping that emphasizes land area accuracy.</td>
 </tr>
@@ -422,15 +446,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>20</td>
 <td><strong>Krovak</strong></td>
 <td>5514</td>
-<td><code>EPSG:5514</code></td>
+<td><p><a href="#fig-20" class="quarto-xref">Figure&nbsp;20</a></p>
+<p><code>EPSG:5514</code></p></td>
 <td>Projection widely used in the Czech Republic and Slovakia.</td>
 <td>Mapping datasets specific to these regions.</td>
 </tr>
 <tr class="odd">
 <td>21</td>
 <td><strong>Asia North Lambert Conformal</strong></td>
-<td>102026</td>
-<td><code>EPSG:102026</code></td>
+<td>102026 (ESRI)</td>
+<td><p><a href="#fig-21" class="quarto-xref">Figure&nbsp;21</a></p>
+<p><code>ESRI:102026</code></p></td>
 <td>Lambert Conformal projection for northern Asia.</td>
 <td>Mapping datasets across northern Asia.</td>
 </tr>
@@ -438,12 +464,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>22</td>
 <td><strong>Australia Albers</strong></td>
 <td>3577</td>
-<td><code>EPSG:3577</code></td>
+<td><p><a href="#fig-22" class="quarto-xref">Figure&nbsp;22</a></p>
+<p><code>EPSG:3577</code></p></td>
 <td>Equal-area projection for Australia.</td>
 <td>Regional mapping of Australia with minimized area distortion.</td>
 </tr>
 </tbody>
 </table>
+<p>Setting up the basic code, libraries and getting world map data</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -452,7 +480,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rnaturalearth)      <span class="co"># Map data</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>world <span class="ot">&lt;-</span> <span class="fu">ne_countries</span>(</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">scale =</span> <span class="st">"small"</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">scale =</span> <span class="st">"medium"</span>,</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">returnclass =</span> <span class="st">"sf"</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(name, name_long, </span>
@@ -460,6 +488,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>         geometry, continent)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
+</section>
+<section id="details-on-different-projections-their-usage-examples-and-code" class="level2">
+<h2 class="anchored" data-anchor-id="details-on-different-projections-their-usage-examples-and-code">Details on different projections, their usage, examples and code</h2>
 <section id="wgs-84-geographic" class="level3">
 <h3 class="anchored" data-anchor-id="wgs-84-geographic">1. <strong>WGS 84 (Geographic)</strong></h3>
 <p>The WGS 84 projection, identified by <strong>EPSG:4326</strong>, is the default geographic coordinate system used for latitude and longitude. It is the most common system for raw geographic data and is widely used in GPS devices and mapping applications. This projection is excellent for datasets that involve global coverage but does not preserve area, shape, or distance due to its geographic nature.</p>
@@ -616,7 +647,7 @@ Note
 <span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
 <span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>,</span>
 <span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"UTM Zone 33N Projection: For Europe"</span>,</span>
-<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Minimal distortion for European Region."</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"After removing Russia and setting xlim &amp; ylim"</span></span>
 <span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
@@ -702,29 +733,37 @@ Figure&nbsp;4: UTM Zone 33S Projection
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_text</span>(</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">label =</span> name),</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">check_overlap =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">4</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs =</span> <span class="st">"EPSG:4269"</span>,</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">clip =</span> <span class="st">"off"</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>,</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"North American Datum 1983 (NAD83) Projection"</span>,</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"For Canada and USA"</span></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"crs_projections_5.png"</span>),</span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">1200</span>,</span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1800</span>,</span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> name,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="fu">as.numeric</span>(<span class="fu">st_area</span>(geometry))</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">check_overlap =</span> <span class="cn">TRUE</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="fl">0.75</span>, <span class="dv">3</span>)) <span class="sc">+</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs =</span> <span class="st">"EPSG:4269"</span>,</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">clip =</span> <span class="st">"on"</span>,</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">160</span>, <span class="sc">-</span><span class="dv">40</span>),</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">default_crs =</span> <span class="fu">st_crs</span>(<span class="dv">4326</span>)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>,</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"North American Datum 1983 (NAD83) Projection"</span>,</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"For Canada and USA"</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"crs_projections_5.png"</span>),</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">1200</span>,</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1800</span>,</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div id="fig-5" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -888,7 +927,7 @@ Figure&nbsp;7: WGS 84 / Pseudo-Mercator Projection
 <span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_text</span>(</span>
 <span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">label =</span> name),</span>
 <span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">check_overlap =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="fl">1.5</span></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">4</span></span>
 <span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
 <span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(</span>
 <span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs =</span> <span class="st">"EPSG:5070"</span>,</span>
@@ -931,9 +970,53 @@ Figure&nbsp;8: Albers Equal Area Projection
 </div>
 <hr>
 </section>
-<section id="lambert-conformal-conic" class="level3">
-<h3 class="anchored" data-anchor-id="lambert-conformal-conic">9. <strong>Lambert Conformal Conic</strong></h3>
-<p>The Lambert Conformal Conic projection, represented by <strong>EPSG:102004</strong>, is a conformal projection widely used for mapping in North America. It minimizes distortion for regions with east-west orientation. This projection is often employed for regional-scale thematic mapping and analysis.</p>
+<section id="lambert-conformal-conic-esri" class="level3">
+<h3 class="anchored" data-anchor-id="lambert-conformal-conic-esri">9. <strong>Lambert Conformal Conic (ESRI)</strong></h3>
+<p>The Lambert Conformal Conic projection, represented by <strong>ESRI:102004</strong>, is a conformal projection widely used for mapping in North America. It minimizes distortion for regions with east-west orientation. This projection is often employed for regional-scale thematic mapping and analysis.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> world <span class="sc">|&gt;</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(continent <span class="sc">==</span> <span class="st">"North America"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="cn">NA</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_text</span>(</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> name,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="fu">as.numeric</span>(<span class="fu">st_area</span>(geometry))</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">check_overlap =</span> <span class="cn">TRUE</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">3</span>)) <span class="sc">+</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs =</span> <span class="st">"ESRI:102004"</span>,</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">160</span>, <span class="sc">-</span><span class="dv">40</span>),</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">85</span>),</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">default_crs =</span> sf<span class="sc">::</span><span class="fu">st_crs</span>(<span class="dv">4326</span>)</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>,</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Lambert Conformal Conic Projection"</span>,</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"For mapping North America. Minimizes East-West distortion"</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title.position =</span> <span class="st">"plot"</span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"crs_projections_9.png"</span>),</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">1200</span>,</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1800</span>,</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <div id="fig-9" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-9-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -946,9 +1029,35 @@ Figure&nbsp;9: Lambert Conformal Conic Projection
 </div>
 <hr>
 </section>
-<section id="mollweide" class="level3">
-<h3 class="anchored" data-anchor-id="mollweide">10. <strong>Mollweide</strong></h3>
-<p>The Mollweide projection, identified by <strong>EPSG:54009</strong>, is an equal-area pseudocylindrical projection. It is ideal for global-scale thematic maps, such as climate or population density maps, where preserving area relationships is important. Its elliptical shape makes it visually distinct and effective for representing the entire world.</p>
+<section id="mollweide-esri" class="level3">
+<h3 class="anchored" data-anchor-id="mollweide-esri">10. <strong>Mollweide (ESRI)</strong></h3>
+<p>The Mollweide projection, identified by <strong>ESRI:54009</strong>, is an equal-area pseudo-cylindrical projection. It is ideal for global-scale thematic maps, such as climate or population density maps, where preserving area relationships is important. Its elliptical shape makes it visually distinct and effective for representing the entire world.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> world</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs =</span> <span class="st">"ESRI:54009"</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Mollweide Projection (ESRI:54009)"</span>,</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"For world maps, preserving area-relationships"</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"crs_projections_10.png"</span>),</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">1200</span>,</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1800</span>,</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <div id="fig-10" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-10-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -961,9 +1070,35 @@ Figure&nbsp;10: Mollweide Projection
 </div>
 <hr>
 </section>
-<section id="robinson" class="level3">
-<h3 class="anchored" data-anchor-id="robinson">11. <strong>Robinson</strong></h3>
-<p>The Robinson projection, represented by <strong>EPSG:54030</strong>, is a compromise projection designed to create visually appealing world maps. It strikes a balance between distortion of shape, area, and distance, making it suitable for general-purpose global mapping. It is widely used in atlases and educational materials.</p>
+<section id="robinson-esri" class="level3">
+<h3 class="anchored" data-anchor-id="robinson-esri">11. <strong>Robinson (ESRI)</strong></h3>
+<p>The Robinson projection, represented by <strong>ESRI:54030</strong>, is a compromise projection designed to create visually appealing world maps. It strikes a balance between distortion of shape, area, and distance, making it suitable for general-purpose global mapping. It is widely used in atlases and educational materials.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> world</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs =</span> <span class="st">"ESRI:54030"</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Robinson Projection (ESRI:54030)"</span>,</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"General purpose, visually appealing global maps."</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"crs_projections_11.png"</span>),</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">1200</span>,</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1800</span>,</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <div id="fig-11" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-11-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -976,9 +1111,35 @@ Figure&nbsp;11: Robinson Projection
 </div>
 <hr>
 </section>
-<section id="sinusoidal" class="level3">
-<h3 class="anchored" data-anchor-id="sinusoidal">12. <strong>Sinusoidal</strong></h3>
-<p>The Sinusoidal projection, identified by <strong>EPSG:54008</strong>, is an equal-area projection that is widely used for global-scale analysis. It is particularly effective for thematic maps showing area distribution, such as land cover or climate zones. Its straightforward representation of meridians makes it easy to interpret.</p>
+<section id="sinusoidal-esri" class="level3">
+<h3 class="anchored" data-anchor-id="sinusoidal-esri">12. <strong>Sinusoidal (ESRI)</strong></h3>
+<p>The Sinusoidal projection, identified by <strong>ESRI:54008</strong>, is an equal-area projection that is widely used for global-scale analysis. It is particularly effective for thematic maps showing area distribution, such as land cover or climate zones. Its straightforward representation of meridians makes it easy to interpret.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> world</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs =</span> <span class="st">"ESRI:54008"</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Sinusoidal Projection (ESRI:54008)"</span>,</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"An equal area projection, meridians are easier to interpret."</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"crs_projections_12.png"</span>),</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">1200</span>,</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1800</span>,</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <div id="fig-12" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-12-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -991,9 +1152,35 @@ Figure&nbsp;12: Sinusoidal Projection
 </div>
 <hr>
 </section>
-<section id="bonne" class="level3">
-<h3 class="anchored" data-anchor-id="bonne">13. <strong>Bonne</strong></h3>
-<p>The Bonne projection, represented by <strong>EPSG:54024</strong>, is an equal-area projection often used for mapping continents. It minimizes area distortion while maintaining a pleasing, compact layout. It is suitable for thematic maps where regional relationships are critical.</p>
+<section id="bonne-esri" class="level3">
+<h3 class="anchored" data-anchor-id="bonne-esri">13. <strong>Bonne (ESRI)</strong></h3>
+<p>The Bonne projection, represented by <strong>ESRI:54024</strong>, is an equal-area projection often used for mapping continents. It minimizes area distortion while maintaining a pleasing, compact layout. It is suitable for thematic maps where regional relationships are critical.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> world</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs =</span> <span class="st">"ESRI:54024"</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Bonne Projection (ESRI:54024)"</span>,</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"An equal area projection, with focus on regional relationships."</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"crs_projections_13.png"</span>),</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">1200</span>,</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1800</span>,</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <div id="fig-13" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-13-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1006,9 +1193,49 @@ Figure&nbsp;13: Bonne Projection
 </div>
 <hr>
 </section>
-<section id="world-van-der-grinten-i" class="level3">
-<h3 class="anchored" data-anchor-id="world-van-der-grinten-i">14. <strong>World Van der Grinten I</strong></h3>
-<p>The World Van der Grinten I projection, identified by <strong>EPSG:54029</strong>, displays the entire world in a circular format. It offers an aesthetically pleasing view of global datasets, though it sacrifices accuracy in terms of area and shape. It is often used for decorative or general-purpose maps.</p>
+<section id="world-van-der-grinten-i-esri" class="level3">
+<h3 class="anchored" data-anchor-id="world-van-der-grinten-i-esri">14. <strong>World Van der Grinten I (ESRI)</strong></h3>
+<p>The World Van der Grinten I projection, identified by <strong>ESRI:54029</strong>, displays the entire world in a circular format. It offers an aesthetically pleasing view of global datasets, though it sacrifices accuracy in terms of area and shape. It is often used for decorative or general-purpose maps.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The World Van der Grinten I projection, being circular, significantly expands Antarctica. SO it is best not to plot Antarctica with a world map in this projection.</p>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> world <span class="sc">|&gt;</span> </span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">filter</span>(name <span class="sc">!=</span> <span class="st">"Antarctica"</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs =</span> <span class="st">"ESRI:54029"</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"World Van der Grinten Projection (ESRI:54029)"</span>,</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"An aesthetically pleasing, circular decorative World Map."</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"crs_projections_14.png"</span>),</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">1200</span>,</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1800</span>,</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <div id="fig-14" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-14-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1024,6 +1251,32 @@ Figure&nbsp;14: World Van der Grinten I Projection
 <section id="plate-carrée" class="level3">
 <h3 class="anchored" data-anchor-id="plate-carrée">15. <strong>Plate Carrée</strong></h3>
 <p>The Plate Carrée projection, represented by <strong>EPSG:32662</strong>, is one of the simplest projections with equally spaced latitudes and longitudes. It is easy to work with but distorts area and shape significantly away from the equator. It is suitable for visualizing raw geographic data.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> world</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs =</span> <span class="st">"EPSG:32662"</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Plate Carrée Projection (EPSG:32662)"</span>,</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"For working with Raw data. Has equally spaced latitudes and longitudes."</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"crs_projections_15.png"</span>),</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">1200</span>,</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1800</span>,</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <div id="fig-15" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-15-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1039,6 +1292,32 @@ Figure&nbsp;15: Plate Carrée Projection
 <section id="transverse-mercator" class="level3">
 <h3 class="anchored" data-anchor-id="transverse-mercator">16. <strong>Transverse Mercator</strong></h3>
 <p>The Transverse Mercator projection, associated with <strong>EPSG:4326</strong>, is a cylindrical projection ideal for narrow regions. It minimizes distortion along the central meridian, making it widely used for mapping zones like UTM. It is often employed in engineering and cadastral surveys.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> world</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs =</span> <span class="st">"EPSG:4326"</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Transverse Mercator Projection (EPSG:4326)"</span>,</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Cylindrical Projection."</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"crs_projections_16.png"</span>),</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">1200</span>,</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1800</span>,</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <div id="fig-16" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-16-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1054,6 +1333,38 @@ Figure&nbsp;16: Transverse Mercator Projection
 <section id="north-pole-stereographic" class="level3">
 <h3 class="anchored" data-anchor-id="north-pole-stereographic">17. <strong>North Pole Stereographic</strong></h3>
 <p>The North Pole Stereographic projection, identified by <strong>EPSG:3413</strong>, is designed for mapping the Arctic region. It minimizes distortion near the pole, making it suitable for polar datasets, including sea ice and Arctic biodiversity.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> world,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"grey80"</span>,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.3</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs =</span> <span class="st">"EPSG:3413"</span>,</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">90</span>),</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">180</span>, <span class="dv">180</span>),</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">default_crs =</span> <span class="fu">st_crs</span>(<span class="dv">4326</span>),</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">clip =</span> <span class="st">"on"</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"North Pole Stereographic Projection (EPSG:3413)"</span>,</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"For mapping the Arctic Region."</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"crs_projections_17.png"</span>),</span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">1200</span>,</span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1800</span>,</span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <div id="fig-17" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-17-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1069,6 +1380,36 @@ Figure&nbsp;17: North Pole Stereographic Projection
 <section id="south-pole-stereographic" class="level3">
 <h3 class="anchored" data-anchor-id="south-pole-stereographic">18. <strong>South Pole Stereographic</strong></h3>
 <p>The South Pole Stereographic projection, represented by <strong>EPSG:3031</strong>, is specifically designed for mapping the Antarctic region. It preserves the geometric properties near the pole and is commonly used for research on Antarctic ice sheets and ecosystems.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> world <span class="sc">|&gt;</span> </span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">filter</span>(name <span class="sc">==</span> <span class="st">"Antarctica"</span>)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs =</span> <span class="st">"EPSG:3031"</span>,</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ylim = c(-90, -60),</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># xlim = c(-180, 180),</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># default_crs = st_crs(4326)</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"South Pole Stereographic Projection (EPSG:3031)"</span>,</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"For mapping the Antarctic Region."</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"crs_projections_18.png"</span>),</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">1200</span>,</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1800</span>,</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <div id="fig-18" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-18-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1081,9 +1422,49 @@ Figure&nbsp;18: South Pole Stereographic Projection
 </div>
 <hr>
 </section>
-<section id="interrupted-goode-homolosine" class="level3">
-<h3 class="anchored" data-anchor-id="interrupted-goode-homolosine">19. <strong>Interrupted Goode Homolosine</strong></h3>
+<section id="interrupted-goode-homolosine-esri" class="level3">
+<h3 class="anchored" data-anchor-id="interrupted-goode-homolosine-esri">19. <strong>Interrupted Goode Homolosine (ESRI)</strong></h3>
 <p>The Interrupted Goode Homolosine projection, identified by <strong>EPSG:54052</strong>, is a composite projection designed to minimize distortion of landmasses. It is particularly effective for global mapping that emphasizes land area accuracy and is often used in environmental studies.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This interrupted composite projection severely distorts and pulls apart Greenland and Antarctica, so avoid plotting them with this projection.</p>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> world <span class="sc">|&gt;</span> </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">filter</span>(<span class="sc">!</span>(name <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Greenland"</span>, <span class="st">"Antarctica"</span>)))</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs =</span> <span class="st">"ESRI:54052"</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Interrupted Goode Homolosine Projection (ESRI:4326)"</span>,</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Composite Projection. Minimzes distortion of landmasses"</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"crs_projections_19.png"</span>),</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">1200</span>,</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1800</span>,</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <div id="fig-19" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-19-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1099,6 +1480,35 @@ Figure&nbsp;19: Interrupted Goode Homolosine Projection
 <section id="krovak" class="level3">
 <h3 class="anchored" data-anchor-id="krovak">20. <strong>Krovak</strong></h3>
 <p>The Krovak projection, associated with <strong>EPSG:5514</strong>, is widely used in the Czech Republic and Slovakia. It is tailored to their geographic extents, ensuring minimal distortion for regional applications. It is ideal for cadastral and engineering projects in these areas.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> world <span class="sc">|&gt;</span> </span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(name <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Czechia"</span>, <span class="st">"Slovakia"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_text</span>(</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">label =</span> name)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs =</span> <span class="st">"EPSG:5514"</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Krovak Projection (EPSG:5514)"</span>,</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Used for Czechia and Slovakia, for minimal distortion in those regions"</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"crs_projections_20.png"</span>),</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">1200</span>,</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1800</span>,</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <div id="fig-20" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-20-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1111,9 +1521,38 @@ Figure&nbsp;20: Krovak Projection
 </div>
 <hr>
 </section>
-<section id="asia-north-lambert-conformal" class="level3">
-<h3 class="anchored" data-anchor-id="asia-north-lambert-conformal">21. <strong>Asia North Lambert Conformal</strong></h3>
-<p>The Asia North Lambert Conformal Conic projection, identified by <strong>EPSG:102026</strong>, is designed for northern Asia. It is suitable for mapping datasets across this vast region with minimal distortion. It is commonly used in regional studies and thematic mapping.</p>
+<section id="asia-north-lambert-conformal-esri" class="level3">
+<h3 class="anchored" data-anchor-id="asia-north-lambert-conformal-esri">21. <strong>Asia North Lambert Conformal (ESRI)</strong></h3>
+<p>The Asia North Lambert Conformal Conic projection, identified by <strong>ESRI:102026</strong>, is designed for northern Asia. It is suitable for mapping datasets across this vast region with minimal distortion. It is commonly used in regional studies and thematic mapping.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> world <span class="sc">|&gt;</span> </span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(continent <span class="sc">==</span> <span class="st">"Asia"</span> <span class="sc">|</span> name <span class="sc">==</span> <span class="st">"Russia"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs =</span> <span class="st">"ESRI:102026"</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Asia North Lambert Conformal Projection"</span>,</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Used for plotting Northern Asia within minimal distortion"</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title.position =</span> <span class="st">"plot"</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"crs_projections_21.png"</span>),</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">1200</span>,</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1800</span>,</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <div id="fig-21" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-21-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1129,6 +1568,37 @@ Figure&nbsp;21: Asia North Lambert Conformal Projection
 <section id="australia-albers" class="level3">
 <h3 class="anchored" data-anchor-id="australia-albers">22. <strong>Australia Albers</strong></h3>
 <p>The Australia Albers projection, represented by <strong>EPSG:3577</strong>, is an equal-area projection optimized for Australia. It minimizes area distortion and is commonly used for environmental studies and resource management across the continent.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> world <span class="sc">|&gt;</span> </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(name <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Australia"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs =</span> <span class="st">"EPSG:3577"</span>,</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">default_crs =</span> <span class="fu">st_crs</span>(<span class="dv">4326</span>),</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">43</span>, <span class="sc">-</span><span class="dv">10</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Australia Albers Projection"</span>,</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"A projection optimized for Australia"</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title.position =</span> <span class="st">"plot"</span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, <span class="st">"images"</span>,</span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"crs_projections_22.png"</span>),</span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">1200</span>,</span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1800</span>,</span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <div id="fig-22" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-22-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1142,6 +1612,7 @@ Figure&nbsp;22: Australia Albers Projection
 <hr>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -1571,7 +2042,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 <footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/crs_projections.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><div class="page-columns page-rows-contents page-layout-article"><div class="social-share"><a href="https://twitter.com/share?url=https://aditya-dahiya.github.io/visage/geocomputation/crs_projections.html&amp;text=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="twitter"><i class="fab fa-twitter fa-fw fa-lg"></i></a><a href="https://www.linkedin.com/shareArticle?url=https://aditya-dahiya.github.io/visage/geocomputation/crs_projections.html&amp;title=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="linkedin"><i class="fa-brands fa-linkedin-in fa-fw fa-lg"></i></a>  <a href="mailto:?subject=Visualizing Information and Spatial Analysis with ggplot2 Extensions&amp;body=Check out this link:https://aditya-dahiya.github.io/visage/geocomputation/crs_projections.html" target="_blank" class="email"><i class="fa-solid fa-envelope fa-fw fa-lg"></i></a><a href="https://www.facebook.com/sharer.php?u=https://aditya-dahiya.github.io/visage/geocomputation/crs_projections.html" target="_blank" class="facebook"><i class="fab fa-facebook-f fa-fw fa-lg"></i></a><a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' &amp;&amp; mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=Visualizing Information and Spatial Analysis with ggplot2 Extensions https://aditya-dahiya.github.io/visage/geocomputation/crs_projections.html'}else{return false;}" target="_blank" class="mastodon"><i class="fa-brands fa-mastodon fa-fw fa-lg"></i></a></div></div>
-<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","openEffect":"zoom","loop":false,"selector":".lightbox","descPosition":"bottom"});
+<script>var lightboxQuarto = GLightbox({"loop":false,"closeEffect":"zoom","selector":".lightbox","descPosition":"bottom","openEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {
