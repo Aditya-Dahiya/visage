@@ -293,14 +293,16 @@ div.csl-indent {
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)        <span class="co"># Simple Features in R</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(terra)     <span class="co"># Handling rasters in R</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyterra) <span class="co"># For plotting rasters in ggplot2</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse) <span class="co"># All things tidy; Data Wrangling</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spData)    <span class="co"># Spatial Datasets</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(magrittr)  <span class="co"># Using pipes with raster objects</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse) <span class="co"># All things tidy; Data Wrangling</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spData)    <span class="co"># Spatial Datasets</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>sysfonts<span class="sc">::</span><span class="fu">font_add_google</span>(<span class="st">"Saira Extra Condensed"</span>, <span class="st">"caption_font"</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>sysfonts<span class="sc">::</span><span class="fu">font_add_google</span>(<span class="st">"Saira"</span>, <span class="st">"body_font"</span>)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_minimal</span>(<span class="at">base_family =</span> <span class="st">"body_font"</span>))</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>showtext<span class="sc">::</span><span class="fu">showtext_auto</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>sysfonts<span class="sc">::</span><span class="fu">font_add_google</span>(<span class="st">"Saira Extra Condensed"</span>, <span class="st">"caption_font"</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>sysfonts<span class="sc">::</span><span class="fu">font_add_google</span>(<span class="st">"Saira"</span>, <span class="st">"body_font"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_minimal</span>(<span class="at">base_family =</span> <span class="st">"body_font"</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>                        <span class="at">base_size =</span> <span class="dv">16</span>))</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>showtext<span class="sc">::</span><span class="fu">showtext_auto</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="introduction-to-spatial-operations" class="level2">
 <h2 class="anchored" data-anchor-id="introduction-to-spatial-operations">4.1 Introduction to Spatial Operations</h2>
@@ -986,27 +988,27 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
 </figcaption>
 <div aria-describedby="tbl-distance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="iigowkfqwd" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="mhlgwgvzlj" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Cairo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#iigowkfqwd table {
+#mhlgwgvzlj table {
   font-family: Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#iigowkfqwd thead, #iigowkfqwd tbody, #iigowkfqwd tfoot, #iigowkfqwd tr, #iigowkfqwd td, #iigowkfqwd th {
+#mhlgwgvzlj thead, #mhlgwgvzlj tbody, #mhlgwgvzlj tfoot, #mhlgwgvzlj tr, #mhlgwgvzlj td, #mhlgwgvzlj th {
   border-style: none;
 }
 
-#iigowkfqwd p {
+#mhlgwgvzlj p {
   margin: 0;
   padding: 0;
 }
 
-#iigowkfqwd .gt_table {
+#mhlgwgvzlj .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1032,12 +1034,12 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-left-color: #D3D3D3;
 }
 
-#iigowkfqwd .gt_caption {
+#mhlgwgvzlj .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#iigowkfqwd .gt_title {
+#mhlgwgvzlj .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1049,7 +1051,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-bottom-width: 0;
 }
 
-#iigowkfqwd .gt_subtitle {
+#mhlgwgvzlj .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1061,7 +1063,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-top-width: 0;
 }
 
-#iigowkfqwd .gt_heading {
+#mhlgwgvzlj .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -1073,13 +1075,13 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-right-color: #D3D3D3;
 }
 
-#iigowkfqwd .gt_bottom_border {
+#mhlgwgvzlj .gt_bottom_border {
   border-bottom-style: none;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#iigowkfqwd .gt_col_headings {
+#mhlgwgvzlj .gt_col_headings {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1094,7 +1096,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-right-color: #D3D3D3;
 }
 
-#iigowkfqwd .gt_col_heading {
+#mhlgwgvzlj .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1114,7 +1116,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   overflow-x: hidden;
 }
 
-#iigowkfqwd .gt_column_spanner_outer {
+#mhlgwgvzlj .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1126,15 +1128,15 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   padding-right: 4px;
 }
 
-#iigowkfqwd .gt_column_spanner_outer:first-child {
+#mhlgwgvzlj .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#iigowkfqwd .gt_column_spanner_outer:last-child {
+#mhlgwgvzlj .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#iigowkfqwd .gt_column_spanner {
+#mhlgwgvzlj .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #000000;
@@ -1146,11 +1148,11 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   width: 100%;
 }
 
-#iigowkfqwd .gt_spanner_row {
+#mhlgwgvzlj .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#iigowkfqwd .gt_group_heading {
+#mhlgwgvzlj .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1176,7 +1178,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   text-align: left;
 }
 
-#iigowkfqwd .gt_empty_group_heading {
+#mhlgwgvzlj .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1191,15 +1193,15 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   vertical-align: middle;
 }
 
-#iigowkfqwd .gt_from_md > :first-child {
+#mhlgwgvzlj .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#iigowkfqwd .gt_from_md > :last-child {
+#mhlgwgvzlj .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#iigowkfqwd .gt_row {
+#mhlgwgvzlj .gt_row {
   padding-top: 3px;
   padding-bottom: 3px;
   padding-left: 5px;
@@ -1218,7 +1220,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   overflow-x: hidden;
 }
 
-#iigowkfqwd .gt_stub {
+#mhlgwgvzlj .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1231,7 +1233,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   padding-right: 5px;
 }
 
-#iigowkfqwd .gt_stub_row_group {
+#mhlgwgvzlj .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1245,15 +1247,15 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   vertical-align: top;
 }
 
-#iigowkfqwd .gt_row_group_first td {
+#mhlgwgvzlj .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#iigowkfqwd .gt_row_group_first th {
+#mhlgwgvzlj .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#iigowkfqwd .gt_summary_row {
+#mhlgwgvzlj .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1263,16 +1265,16 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   padding-right: 5px;
 }
 
-#iigowkfqwd .gt_first_summary_row {
+#mhlgwgvzlj .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#iigowkfqwd .gt_first_summary_row.thick {
+#mhlgwgvzlj .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#iigowkfqwd .gt_last_summary_row {
+#mhlgwgvzlj .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1282,7 +1284,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-bottom-color: #D3D3D3;
 }
 
-#iigowkfqwd .gt_grand_summary_row {
+#mhlgwgvzlj .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1292,7 +1294,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   padding-right: 5px;
 }
 
-#iigowkfqwd .gt_first_grand_summary_row {
+#mhlgwgvzlj .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1302,7 +1304,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-top-color: #D3D3D3;
 }
 
-#iigowkfqwd .gt_last_grand_summary_row_top {
+#mhlgwgvzlj .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1312,11 +1314,11 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-bottom-color: #D3D3D3;
 }
 
-#iigowkfqwd .gt_striped {
+#mhlgwgvzlj .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#iigowkfqwd .gt_table_body {
+#mhlgwgvzlj .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1325,7 +1327,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-bottom-color: #D3D3D3;
 }
 
-#iigowkfqwd .gt_footnotes {
+#mhlgwgvzlj .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1339,7 +1341,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-right-color: #D3D3D3;
 }
 
-#iigowkfqwd .gt_footnote {
+#mhlgwgvzlj .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1348,7 +1350,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   padding-right: 5px;
 }
 
-#iigowkfqwd .gt_sourcenotes {
+#mhlgwgvzlj .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1362,7 +1364,7 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   border-right-color: #D3D3D3;
 }
 
-#iigowkfqwd .gt_sourcenote {
+#mhlgwgvzlj .gt_sourcenote {
   font-size: 12px;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1370,72 +1372,72 @@ Table&nbsp;1: Code output for use of st_centroid() and st_distance()
   padding-right: 5px;
 }
 
-#iigowkfqwd .gt_left {
+#mhlgwgvzlj .gt_left {
   text-align: left;
 }
 
-#iigowkfqwd .gt_center {
+#mhlgwgvzlj .gt_center {
   text-align: center;
 }
 
-#iigowkfqwd .gt_right {
+#mhlgwgvzlj .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#iigowkfqwd .gt_font_normal {
+#mhlgwgvzlj .gt_font_normal {
   font-weight: normal;
 }
 
-#iigowkfqwd .gt_font_bold {
+#mhlgwgvzlj .gt_font_bold {
   font-weight: bold;
 }
 
-#iigowkfqwd .gt_font_italic {
+#mhlgwgvzlj .gt_font_italic {
   font-style: italic;
 }
 
-#iigowkfqwd .gt_super {
+#mhlgwgvzlj .gt_super {
   font-size: 65%;
 }
 
-#iigowkfqwd .gt_footnote_marks {
+#mhlgwgvzlj .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#iigowkfqwd .gt_asterisk {
+#mhlgwgvzlj .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#iigowkfqwd .gt_indent_1 {
+#mhlgwgvzlj .gt_indent_1 {
   text-indent: 5px;
 }
 
-#iigowkfqwd .gt_indent_2 {
+#mhlgwgvzlj .gt_indent_2 {
   text-indent: 10px;
 }
 
-#iigowkfqwd .gt_indent_3 {
+#mhlgwgvzlj .gt_indent_3 {
   text-indent: 15px;
 }
 
-#iigowkfqwd .gt_indent_4 {
+#mhlgwgvzlj .gt_indent_4 {
   text-indent: 20px;
 }
 
-#iigowkfqwd .gt_indent_5 {
+#mhlgwgvzlj .gt_indent_5 {
   text-indent: 25px;
 }
 
-#iigowkfqwd .katex-display {
+#mhlgwgvzlj .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#iigowkfqwd div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#mhlgwgvzlj div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 
@@ -1581,26 +1583,26 @@ tbody tr:last-child {
 <span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>  gtExtras<span class="sc">::</span><span class="fu">gt_theme_nytimes</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="niyqdmpgtt" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="ztnogmfhwf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#niyqdmpgtt table {
+#ztnogmfhwf table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#niyqdmpgtt thead, #niyqdmpgtt tbody, #niyqdmpgtt tfoot, #niyqdmpgtt tr, #niyqdmpgtt td, #niyqdmpgtt th {
+#ztnogmfhwf thead, #ztnogmfhwf tbody, #ztnogmfhwf tfoot, #ztnogmfhwf tr, #ztnogmfhwf td, #ztnogmfhwf th {
   border-style: none;
 }
 
-#niyqdmpgtt p {
+#ztnogmfhwf p {
   margin: 0;
   padding: 0;
 }
 
-#niyqdmpgtt .gt_table {
+#ztnogmfhwf .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1626,12 +1628,12 @@ tbody tr:last-child {
   border-left-color: #D3D3D3;
 }
 
-#niyqdmpgtt .gt_caption {
+#ztnogmfhwf .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#niyqdmpgtt .gt_title {
+#ztnogmfhwf .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1643,7 +1645,7 @@ tbody tr:last-child {
   border-bottom-width: 0;
 }
 
-#niyqdmpgtt .gt_subtitle {
+#ztnogmfhwf .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1655,7 +1657,7 @@ tbody tr:last-child {
   border-top-width: 0;
 }
 
-#niyqdmpgtt .gt_heading {
+#ztnogmfhwf .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -1667,13 +1669,13 @@ tbody tr:last-child {
   border-right-color: #D3D3D3;
 }
 
-#niyqdmpgtt .gt_bottom_border {
+#ztnogmfhwf .gt_bottom_border {
   border-bottom-style: none;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#niyqdmpgtt .gt_col_headings {
+#ztnogmfhwf .gt_col_headings {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1688,7 +1690,7 @@ tbody tr:last-child {
   border-right-color: #D3D3D3;
 }
 
-#niyqdmpgtt .gt_col_heading {
+#ztnogmfhwf .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 12px;
@@ -1708,7 +1710,7 @@ tbody tr:last-child {
   overflow-x: hidden;
 }
 
-#niyqdmpgtt .gt_column_spanner_outer {
+#ztnogmfhwf .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 12px;
@@ -1720,15 +1722,15 @@ tbody tr:last-child {
   padding-right: 4px;
 }
 
-#niyqdmpgtt .gt_column_spanner_outer:first-child {
+#ztnogmfhwf .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#niyqdmpgtt .gt_column_spanner_outer:last-child {
+#ztnogmfhwf .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#niyqdmpgtt .gt_column_spanner {
+#ztnogmfhwf .gt_column_spanner {
   border-bottom-style: none;
   border-bottom-width: 1px;
   border-bottom-color: #334422;
@@ -1740,11 +1742,11 @@ tbody tr:last-child {
   width: 100%;
 }
 
-#niyqdmpgtt .gt_spanner_row {
+#ztnogmfhwf .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#niyqdmpgtt .gt_group_heading {
+#ztnogmfhwf .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1770,7 +1772,7 @@ tbody tr:last-child {
   text-align: left;
 }
 
-#niyqdmpgtt .gt_empty_group_heading {
+#ztnogmfhwf .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1785,15 +1787,15 @@ tbody tr:last-child {
   vertical-align: middle;
 }
 
-#niyqdmpgtt .gt_from_md > :first-child {
+#ztnogmfhwf .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#niyqdmpgtt .gt_from_md > :last-child {
+#ztnogmfhwf .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#niyqdmpgtt .gt_row {
+#ztnogmfhwf .gt_row {
   padding-top: 7px;
   padding-bottom: 7px;
   padding-left: 5px;
@@ -1812,7 +1814,7 @@ tbody tr:last-child {
   overflow-x: hidden;
 }
 
-#niyqdmpgtt .gt_stub {
+#ztnogmfhwf .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1825,7 +1827,7 @@ tbody tr:last-child {
   padding-right: 5px;
 }
 
-#niyqdmpgtt .gt_stub_row_group {
+#ztnogmfhwf .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1839,15 +1841,15 @@ tbody tr:last-child {
   vertical-align: top;
 }
 
-#niyqdmpgtt .gt_row_group_first td {
+#ztnogmfhwf .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#niyqdmpgtt .gt_row_group_first th {
+#ztnogmfhwf .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#niyqdmpgtt .gt_summary_row {
+#ztnogmfhwf .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1857,16 +1859,16 @@ tbody tr:last-child {
   padding-right: 5px;
 }
 
-#niyqdmpgtt .gt_first_summary_row {
+#ztnogmfhwf .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#niyqdmpgtt .gt_first_summary_row.thick {
+#ztnogmfhwf .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#niyqdmpgtt .gt_last_summary_row {
+#ztnogmfhwf .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1876,7 +1878,7 @@ tbody tr:last-child {
   border-bottom-color: #D3D3D3;
 }
 
-#niyqdmpgtt .gt_grand_summary_row {
+#ztnogmfhwf .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1886,7 +1888,7 @@ tbody tr:last-child {
   padding-right: 5px;
 }
 
-#niyqdmpgtt .gt_first_grand_summary_row {
+#ztnogmfhwf .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1896,7 +1898,7 @@ tbody tr:last-child {
   border-top-color: #D3D3D3;
 }
 
-#niyqdmpgtt .gt_last_grand_summary_row_top {
+#ztnogmfhwf .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1906,11 +1908,11 @@ tbody tr:last-child {
   border-bottom-color: #D3D3D3;
 }
 
-#niyqdmpgtt .gt_striped {
+#ztnogmfhwf .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#niyqdmpgtt .gt_table_body {
+#ztnogmfhwf .gt_table_body {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1919,7 +1921,7 @@ tbody tr:last-child {
   border-bottom-color: #FFFFFF;
 }
 
-#niyqdmpgtt .gt_footnotes {
+#ztnogmfhwf .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1933,7 +1935,7 @@ tbody tr:last-child {
   border-right-color: #D3D3D3;
 }
 
-#niyqdmpgtt .gt_footnote {
+#ztnogmfhwf .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1942,7 +1944,7 @@ tbody tr:last-child {
   padding-right: 5px;
 }
 
-#niyqdmpgtt .gt_sourcenotes {
+#ztnogmfhwf .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1956,7 +1958,7 @@ tbody tr:last-child {
   border-right-color: #D3D3D3;
 }
 
-#niyqdmpgtt .gt_sourcenote {
+#ztnogmfhwf .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1964,72 +1966,72 @@ tbody tr:last-child {
   padding-right: 5px;
 }
 
-#niyqdmpgtt .gt_left {
+#ztnogmfhwf .gt_left {
   text-align: left;
 }
 
-#niyqdmpgtt .gt_center {
+#ztnogmfhwf .gt_center {
   text-align: center;
 }
 
-#niyqdmpgtt .gt_right {
+#ztnogmfhwf .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#niyqdmpgtt .gt_font_normal {
+#ztnogmfhwf .gt_font_normal {
   font-weight: normal;
 }
 
-#niyqdmpgtt .gt_font_bold {
+#ztnogmfhwf .gt_font_bold {
   font-weight: bold;
 }
 
-#niyqdmpgtt .gt_font_italic {
+#ztnogmfhwf .gt_font_italic {
   font-style: italic;
 }
 
-#niyqdmpgtt .gt_super {
+#ztnogmfhwf .gt_super {
   font-size: 65%;
 }
 
-#niyqdmpgtt .gt_footnote_marks {
+#ztnogmfhwf .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#niyqdmpgtt .gt_asterisk {
+#ztnogmfhwf .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#niyqdmpgtt .gt_indent_1 {
+#ztnogmfhwf .gt_indent_1 {
   text-indent: 5px;
 }
 
-#niyqdmpgtt .gt_indent_2 {
+#ztnogmfhwf .gt_indent_2 {
   text-indent: 10px;
 }
 
-#niyqdmpgtt .gt_indent_3 {
+#ztnogmfhwf .gt_indent_3 {
   text-indent: 15px;
 }
 
-#niyqdmpgtt .gt_indent_4 {
+#ztnogmfhwf .gt_indent_4 {
   text-indent: 20px;
 }
 
-#niyqdmpgtt .gt_indent_5 {
+#ztnogmfhwf .gt_indent_5 {
   text-indent: 25px;
 }
 
-#niyqdmpgtt .katex-display {
+#ztnogmfhwf .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#niyqdmpgtt div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#ztnogmfhwf div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -2044,39 +2046,34 @@ tbody tr:last-child {
 </thead>
 <tbody class="gt_table_body">
 <tr class="odd">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">B</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-64.39, -87.03)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Antarctica</td>
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">I</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(43.05, 61.96)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Russian Federation</td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">C</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(72.76, 59)</td>
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">N</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(112.59, 71.68)</td>
 <td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Russian Federation</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">N</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-64.79, -74.47)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Antarctica</td>
-</tr>
-<tr class="even">
 <td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">O</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-46.06, 78.44)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Greenland</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">Q</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-134.02, -80.36)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Antarctica</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(59.22, 33.55)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Iran</td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">V</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(23.44, -26.37)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">South Africa</td>
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">P</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(93.88, 52.24)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Russian Federation</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">X</td>
-<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(2.3, 26.97)</td>
-<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Algeria</td>
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">R</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(62.63, 51.25)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Kazakhstan</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="id" style="font-family: 'Source Sans Pro'; font-weight: 400">S</td>
+<td class="gt_row gt_center" headers="geometry" style="font-family: 'Source Sans Pro'; font-weight: 400">c(-17.61, -88.84)</td>
+<td class="gt_row gt_left" headers="name_long" style="font-family: 'Source Sans Pro'; font-weight: 400">Antarctica</td>
 </tr>
 </tbody>
 </table>
@@ -4636,17 +4633,418 @@ Figure&nbsp;15: Edge detection with terra::focal()
 </section>
 <section id="e7." class="level3">
 <h3 class="anchored" data-anchor-id="e7.">E7.</h3>
-<p>Calculate the Normalized Difference Water Index (NDWI; <code>(green - nir)/(green + nir)</code>) of a Landsat image. Use the Landsat image provided by the <strong>spDataLarge</strong> package (<code>system.file("raster/landsat.tif", package = "spDataLarge")</code>). Also, calculate a correlation between NDVI and NDWI for this area (hint: you can use the <a href="https://rspatial.github.io/terra/reference/layerCor.html"><code>layerCor()</code></a> function).</p>
+<p><strong>Calculate the Normalized Difference Water Index (NDWI; <code>(green - nir)/(green + nir)</code>) of a Landsat image. Use the Landsat image provided by the spDataLarge package (<code>system.file("raster/landsat.tif", package = "spDataLarge")</code>). Also, calculate a correlation between NDVI and NDWI for this area (hint: you can use the <a href="https://rspatial.github.io/terra/reference/layerCor.html"><code>layerCor()</code></a> function).</strong></p>
+<p>This code processes and visualizes raster data for Zion National Park, performing computations to derive vegetation and water indices and then plotting the results. The raster, containing layers for Red, Green, Blue, and Near Infrared (NIR) bands, is rescaled to real-world values, with negative values replaced by zeros.</p>
+<p>Using custom functions, the NDVI (Normalized Difference Vegetation Index) and NDWI (Normalized Difference Water Index) are calculated from the NIR, Red, and Green bands. The resulting indices are converted into a tidy SpatRaster format for plotting.</p>
+<p>The code below also calculates the correlation between the NDVI and NDWI layers as <strong>-0.96, thus telling us the NDVI and NDWI are negatively correlated (inversely correlated)</strong>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="do">#################### LONG, BASE R METHOD ########################</span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a><span class="do">#################### I Don't Use This ###########################</span></span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Download the Zion National Park Raster File with layers of </span></span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Red, Green, Blue and NIR (Near Infra Red)</span></span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>landsat <span class="ot">&lt;-</span> <span class="fu">rast</span>(</span>
+<span id="cb70-8"><a href="#cb70-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">system.file</span>(<span class="st">"raster/landsat.tif"</span>, <span class="at">package =</span> <span class="st">"spDataLarge"</span>)</span>
+<span id="cb70-9"><a href="#cb70-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb70-10"><a href="#cb70-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-11"><a href="#cb70-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Applying a scale factor to return values to actual ones.</span></span>
+<span id="cb70-12"><a href="#cb70-12" aria-hidden="true" tabindex="-1"></a><span class="co"># The data-set was scaled to save disk space</span></span>
+<span id="cb70-13"><a href="#cb70-13" aria-hidden="true" tabindex="-1"></a>landsat <span class="ot">=</span> (landsat <span class="sc">*</span> <span class="fl">0.0000275</span>) <span class="sc">-</span> <span class="fl">0.2</span></span>
+<span id="cb70-14"><a href="#cb70-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-15"><a href="#cb70-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove and replace negative values, since these were due to clouds</span></span>
+<span id="cb70-16"><a href="#cb70-16" aria-hidden="true" tabindex="-1"></a>landsat[landsat <span class="sc">&lt;</span> <span class="dv">0</span>] <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb70-17"><a href="#cb70-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-18"><a href="#cb70-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Write a custom function for computing values of </span></span>
+<span id="cb70-19"><a href="#cb70-19" aria-hidden="true" tabindex="-1"></a><span class="co"># NDVI (normalized difference vegetation index) in R</span></span>
+<span id="cb70-20"><a href="#cb70-20" aria-hidden="true" tabindex="-1"></a>ndvi_fun <span class="ot">=</span> <span class="cf">function</span>(nir, red){</span>
+<span id="cb70-21"><a href="#cb70-21" aria-hidden="true" tabindex="-1"></a>  (nir <span class="sc">-</span> red) <span class="sc">/</span> (nir <span class="sc">+</span> red)</span>
+<span id="cb70-22"><a href="#cb70-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb70-23"><a href="#cb70-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-24"><a href="#cb70-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a new raster with NDVI values using terra::lapp()</span></span>
+<span id="cb70-25"><a href="#cb70-25" aria-hidden="true" tabindex="-1"></a>landsat_ndvi <span class="ot">&lt;-</span> <span class="fu">lapp</span>(landsat[[<span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">3</span>)]], <span class="at">fun =</span> ndvi_fun)</span>
+<span id="cb70-26"><a href="#cb70-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-27"><a href="#cb70-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Write a custom function for computing values of </span></span>
+<span id="cb70-28"><a href="#cb70-28" aria-hidden="true" tabindex="-1"></a><span class="co"># NDWI (normalized difference water index) in R</span></span>
+<span id="cb70-29"><a href="#cb70-29" aria-hidden="true" tabindex="-1"></a>ndwi_fun <span class="ot">=</span> <span class="cf">function</span>(nir, green){</span>
+<span id="cb70-30"><a href="#cb70-30" aria-hidden="true" tabindex="-1"></a>  (green <span class="sc">-</span> nir) <span class="sc">/</span> (nir <span class="sc">+</span> green)</span>
+<span id="cb70-31"><a href="#cb70-31" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb70-32"><a href="#cb70-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-33"><a href="#cb70-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a new raster with NDVI values using terra::lapp()</span></span>
+<span id="cb70-34"><a href="#cb70-34" aria-hidden="true" tabindex="-1"></a>landsat_ndwi <span class="ot">&lt;-</span> <span class="fu">lapp</span>(landsat[[<span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">2</span>)]], <span class="at">fun =</span> ndwi_fun)</span>
+<span id="cb70-35"><a href="#cb70-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-36"><a href="#cb70-36" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(</span>
+<span id="cb70-37"><a href="#cb70-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">values</span>(landsat_ndvi),</span>
+<span id="cb70-38"><a href="#cb70-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">values</span>(landsat_ndwi),</span>
+<span id="cb70-39"><a href="#cb70-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">use =</span> <span class="st">"complete.obs"</span></span>
+<span id="cb70-40"><a href="#cb70-40" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb70-41"><a href="#cb70-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-42"><a href="#cb70-42" aria-hidden="true" tabindex="-1"></a><span class="co"># The correlation is -0.96. NDVI and NDWI are negatively correlated.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="do">###################### THE TIDY APPROACH #######################</span></span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Download the Zion National Park Raster File with layers of </span></span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Red, Green, Blue and NIR (Near Infra Red)</span></span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>landsat <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="fu">system.file</span>(<span class="st">"raster/landsat.tif"</span>, <span class="at">package =</span> <span class="st">"spDataLarge"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb71-7"><a href="#cb71-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Applying a scale factor to return values to actual ones,</span></span>
+<span id="cb71-8"><a href="#cb71-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># The data-set was scaled to save disk space.</span></span>
+<span id="cb71-9"><a href="#cb71-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">multiply_by</span>(<span class="fl">0.0000275</span>) <span class="sc">|&gt;</span></span>
+<span id="cb71-10"><a href="#cb71-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">subtract</span>(<span class="fl">0.2</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb71-11"><a href="#cb71-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb71-12"><a href="#cb71-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Remove and replace negative values, since these were due to clouds</span></span>
+<span id="cb71-13"><a href="#cb71-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), <span class="sc">~</span> <span class="fu">ifelse</span>(. <span class="sc">&lt;</span> <span class="dv">0</span>, <span class="dv">0</span>, .)))</span>
+<span id="cb71-14"><a href="#cb71-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-15"><a href="#cb71-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Write a custom function for computing values of </span></span>
+<span id="cb71-16"><a href="#cb71-16" aria-hidden="true" tabindex="-1"></a><span class="co"># NDVI (normalized difference vegetation index) in R</span></span>
+<span id="cb71-17"><a href="#cb71-17" aria-hidden="true" tabindex="-1"></a>ndvi_fun <span class="ot">&lt;-</span> <span class="cf">function</span>(nir, red) {</span>
+<span id="cb71-18"><a href="#cb71-18" aria-hidden="true" tabindex="-1"></a>  (nir <span class="sc">-</span> red) <span class="sc">/</span> (nir <span class="sc">+</span> red)</span>
+<span id="cb71-19"><a href="#cb71-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb71-20"><a href="#cb71-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-21"><a href="#cb71-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Write a custom function for computing values of </span></span>
+<span id="cb71-22"><a href="#cb71-22" aria-hidden="true" tabindex="-1"></a><span class="co"># NDWI (normalized difference water index) in R</span></span>
+<span id="cb71-23"><a href="#cb71-23" aria-hidden="true" tabindex="-1"></a>ndwi_fun <span class="ot">&lt;-</span> <span class="cf">function</span>(nir, green) {</span>
+<span id="cb71-24"><a href="#cb71-24" aria-hidden="true" tabindex="-1"></a>  (green <span class="sc">-</span> nir) <span class="sc">/</span> (green <span class="sc">+</span> nir)</span>
+<span id="cb71-25"><a href="#cb71-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb71-26"><a href="#cb71-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-27"><a href="#cb71-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Doing the tidy data wrangling magic with tidyverse and tidyterra</span></span>
+<span id="cb71-28"><a href="#cb71-28" aria-hidden="true" tabindex="-1"></a>landsat1 <span class="ot">&lt;-</span> landsat <span class="sc">|&gt;</span> </span>
+<span id="cb71-29"><a href="#cb71-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>(<span class="at">xy =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb71-30"><a href="#cb71-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb71-31"><a href="#cb71-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">ndvi =</span> <span class="fu">ndvi_fun</span>(landsat_4, landsat_3),</span>
+<span id="cb71-32"><a href="#cb71-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">ndwi =</span> <span class="fu">ndwi_fun</span>(landsat_4, landsat_2)</span>
+<span id="cb71-33"><a href="#cb71-33" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb71-34"><a href="#cb71-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">starts_with</span>(<span class="st">"landsat"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb71-35"><a href="#cb71-35" aria-hidden="true" tabindex="-1"></a>  tidyterra<span class="sc">::</span><span class="fu">as_spatraster</span>(</span>
+<span id="cb71-36"><a href="#cb71-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs =</span> <span class="fu">st_crs</span>(landsat)</span>
+<span id="cb71-37"><a href="#cb71-37" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb71-38"><a href="#cb71-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-39"><a href="#cb71-39" aria-hidden="true" tabindex="-1"></a><span class="co"># Labeller for the facets</span></span>
+<span id="cb71-40"><a href="#cb71-40" aria-hidden="true" tabindex="-1"></a>lyr_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb71-41"><a href="#cb71-41" aria-hidden="true" tabindex="-1"></a>  <span class="st">"normalized difference vegetation index"</span>,</span>
+<span id="cb71-42"><a href="#cb71-42" aria-hidden="true" tabindex="-1"></a>  <span class="st">"normalized difference water index"</span></span>
+<span id="cb71-43"><a href="#cb71-43" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb71-44"><a href="#cb71-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_to_title</span>()</span>
+<span id="cb71-45"><a href="#cb71-45" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(lyr_labels) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ndvi"</span>, <span class="st">"ndwi"</span>)</span>
+<span id="cb71-46"><a href="#cb71-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-47"><a href="#cb71-47" aria-hidden="true" tabindex="-1"></a><span class="fu">layerCor</span>(landsat1, <span class="at">fun =</span> cor, <span class="at">use =</span> <span class="st">"complete.obs"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb71-48"><a href="#cb71-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="at">digits =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      [,1]  [,2]
+[1,]  1.00 -0.96
+[2,] -0.96  1.00</code></pre>
+</div>
+</div>
+<p>The <code>ggplot2</code> visualization in <a href="#fig-e7" class="quarto-xref">Figure&nbsp;16</a> uses facets to compare NDVI and NDWI values across the area, with clear labelling and a perceptually uniform colour scale.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The actual final plot</span></span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_spatraster</span>(<span class="at">data =</span> landsat1) <span class="sc">+</span></span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_grass_c</span>(</span>
+<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">na.value =</span> <span class="st">"white"</span></span>
+<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb73-7"><a href="#cb73-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>lyr, <span class="at">labeller =</span> <span class="fu">labeller</span>(<span class="at">lyr =</span> lyr_labels)) <span class="sc">+</span></span>
+<span id="cb73-8"><a href="#cb73-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">expand =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb73-9"><a href="#cb73-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb73-10"><a href="#cb73-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Comparing NDVI and NDWI values"</span>,</span>
+<span id="cb73-11"><a href="#cb73-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Zion National Park area SpatRaster"</span>,</span>
+<span id="cb73-12"><a href="#cb73-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Value"</span></span>
+<span id="cb73-13"><a href="#cb73-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb73-14"><a href="#cb73-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(</span>
+<span id="cb73-15"><a href="#cb73-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_family =</span> <span class="st">"caption_font"</span></span>
+<span id="cb73-16"><a href="#cb73-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb73-17"><a href="#cb73-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb73-18"><a href="#cb73-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb73-19"><a href="#cb73-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">text =</span> <span class="fu">element_text</span>(</span>
+<span id="cb73-20"><a href="#cb73-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">hjust =</span> <span class="fl">0.5</span>,</span>
+<span id="cb73-21"><a href="#cb73-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">vjust =</span> <span class="fl">0.5</span></span>
+<span id="cb73-22"><a href="#cb73-22" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb73-23"><a href="#cb73-23" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="fig-e7" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-e7-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-e7-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-39" title="Figure&nbsp;16: Comparing NDVI and NDWI values"><img src="chapter4_files/figure-html/fig-e7-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-e7-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;16: Comparing NDVI and NDWI values
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 <hr>
 </section>
 <section id="e8." class="level3">
 <h3 class="anchored" data-anchor-id="e8.">E8.</h3>
-<p>A StackOverflow <a href="https://stackoverflow.com/questions/35555709/global-raster-of-geographic-distances">post (stackoverflow.com/questions/35555709)</a> shows how to compute distances to the nearest coastline using <a href="https://rspatial.github.io/terra/reference/distance.html"><code>raster::distance()</code></a>. Try to do something similar but with <a href="https://rspatial.github.io/terra/reference/distance.html"><code>terra::distance()</code></a>: retrieve a digital elevation model of Spain, and compute a raster which represents distances to the coast across the country (hint: use <a href="https://rdrr.io/pkg/geodata/man/elevation.html"><code>geodata::elevation_30s()</code></a>). Convert the resulting distances from meters to kilometers. Note: it may be wise to increase the cell size of the input raster to reduce compute time during this operation (<a href="https://rspatial.github.io/terra/reference/aggregate.html"><code>aggregate()</code></a>).</p>
+<p><strong>A StackOverflow <a href="https://stackoverflow.com/questions/35555709/global-raster-of-geographic-distances">post (stackoverflow.com/questions/35555709)</a> shows how to compute distances to the nearest coastline using <a href="https://rspatial.github.io/terra/reference/distance.html"><code>raster::distance()</code></a>. Try to do something similar but with <a href="https://rspatial.github.io/terra/reference/distance.html"><code>terra::distance()</code></a>: retrieve a digital elevation model of Spain, and compute a raster which represents distances to the coast across the country (hint: use <a href="https://rdrr.io/pkg/geodata/man/elevation.html"><code>geodata::elevation_30s()</code></a>). Convert the resulting distances from meters to kilometers. Note: it may be wise to increase the cell size of the input raster to reduce compute time during this operation (<a href="https://rspatial.github.io/terra/reference/aggregate.html"><code>aggregate()</code></a>).</strong></p>
+<p>This code demonstrates the steps to compute and visualize the distance to the nearest coastline for Spain. First, it loads elevation data for Spain and nearby areas ( <a href="#fig-e8-1" class="quarto-xref">Figure&nbsp;17 (a)</a> ), as well as for Spain’s political boundaries ( <a href="#fig-e8-2" class="quarto-xref">Figure&nbsp;17 (b)</a> ), ensuring the inclusion of surrounding countries and water bodies. The raster is then aggregated for efficiency.</p>
+<p>Initial visualizations are created: one showing elevation for Spain and neighbouring areas, and another isolating only Spain.</p>
+<p>A binary raster is created where water is marked as <code>TRUE</code> (1) and land as <code>NA</code>. The <code>distance()</code> function calculates the distance of each land cell to the nearest water cell, with values converted to kilometres. ( <a href="#fig-e8-3" class="quarto-xref">Figure&nbsp;17 (c)</a> )</p>
+<p>Finally, the raw distance raster is masked to display only distances within Spain, producing a final visualization of Spain with distances to its nearest coastline ( <a href="#fig-e8-4" class="quarto-xref">Figure&nbsp;17 (d)</a> ). The <a href="#fig-e8" class="quarto-xref">Figure&nbsp;17</a> includes multiple stages of the process, from raw data to the final processed map.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Full Spain and nearby Land Data</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>spain_land <span class="ot">&lt;-</span> geodata<span class="sc">::</span><span class="fu">elevation_30s</span>(</span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">country =</span> <span class="st">"Spain"</span>, </span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">tempdir</span>(),</span>
+<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Use mask = FALSE to ensure that other countries are not shown as NA</span></span>
+<span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">mask =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-9"><a href="#cb74-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Data for only Sapin Political Boundaries Land</span></span>
+<span id="cb74-10"><a href="#cb74-10" aria-hidden="true" tabindex="-1"></a>spain_only <span class="ot">&lt;-</span> geodata<span class="sc">::</span><span class="fu">elevation_30s</span>(</span>
+<span id="cb74-11"><a href="#cb74-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">country =</span> <span class="st">"Spain"</span>, </span>
+<span id="cb74-12"><a href="#cb74-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">tempdir</span>()</span>
+<span id="cb74-13"><a href="#cb74-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb74-14"><a href="#cb74-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-15"><a href="#cb74-15" aria-hidden="true" tabindex="-1"></a>spain_working_land <span class="ot">&lt;-</span> spain_land <span class="sc">|&gt;</span> </span>
+<span id="cb74-16"><a href="#cb74-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aggregate</span>(<span class="at">fact =</span> <span class="dv">5</span>)</span>
+<span id="cb74-17"><a href="#cb74-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-18"><a href="#cb74-18" aria-hidden="true" tabindex="-1"></a>spain_working_only <span class="ot">&lt;-</span> spain_only <span class="sc">|&gt;</span> </span>
+<span id="cb74-19"><a href="#cb74-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aggregate</span>(<span class="at">fact =</span> <span class="dv">5</span>)</span>
+<span id="cb74-20"><a href="#cb74-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-21"><a href="#cb74-21" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb74-22"><a href="#cb74-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_spatraster</span>(<span class="at">data =</span> spain_working_land) <span class="sc">+</span></span>
+<span id="cb74-23"><a href="#cb74-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_terrain_c</span>(</span>
+<span id="cb74-24"><a href="#cb74-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">direction =</span> <span class="sc">-</span><span class="dv">1</span></span>
+<span id="cb74-25"><a href="#cb74-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb74-26"><a href="#cb74-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb74-27"><a href="#cb74-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Land map of Spain and nearby areas"</span>,</span>
+<span id="cb74-28"><a href="#cb74-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Water / Sea is shown as transparent values (NA)"</span>,</span>
+<span id="cb74-29"><a href="#cb74-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Elevation (m)"</span></span>
+<span id="cb74-30"><a href="#cb74-30" aria-hidden="true" tabindex="-1"></a>  ) </span>
+<span id="cb74-31"><a href="#cb74-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-32"><a href="#cb74-32" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb74-33"><a href="#cb74-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_spatraster</span>(<span class="at">data =</span> spain_working_only) <span class="sc">+</span></span>
+<span id="cb74-34"><a href="#cb74-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_terrain_c</span>(</span>
+<span id="cb74-35"><a href="#cb74-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">direction =</span> <span class="sc">-</span><span class="dv">1</span></span>
+<span id="cb74-36"><a href="#cb74-36" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb74-37"><a href="#cb74-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb74-38"><a href="#cb74-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Land map of only Spain"</span>,</span>
+<span id="cb74-39"><a href="#cb74-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Water + nearby countries are shown as transparent values (NA)"</span>,</span>
+<span id="cb74-40"><a href="#cb74-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill  =</span> <span class="st">"Elevation (m)"</span></span>
+<span id="cb74-41"><a href="#cb74-41" aria-hidden="true" tabindex="-1"></a>  ) </span>
+<span id="cb74-42"><a href="#cb74-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-43"><a href="#cb74-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Start with a simple raster where only water is TRUE (1) </span></span>
+<span id="cb74-44"><a href="#cb74-44" aria-hidden="true" tabindex="-1"></a><span class="co"># and land is FALSE (0)</span></span>
+<span id="cb74-45"><a href="#cb74-45" aria-hidden="true" tabindex="-1"></a>temp <span class="ot">&lt;-</span> <span class="fu">is.na</span>(spain_working_land)</span>
+<span id="cb74-46"><a href="#cb74-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-47"><a href="#cb74-47" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert land (i.e. FALSE) into NA</span></span>
+<span id="cb74-48"><a href="#cb74-48" aria-hidden="true" tabindex="-1"></a>temp[temp <span class="sc">==</span> <span class="dv">0</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb74-49"><a href="#cb74-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-50"><a href="#cb74-50" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute distance of from nearest non-NA (i.e. Water / Sea)</span></span>
+<span id="cb74-51"><a href="#cb74-51" aria-hidden="true" tabindex="-1"></a>temp <span class="ot">&lt;-</span> <span class="fu">distance</span>(temp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+|---------|---------|---------|---------|
+=========================================
+                                          </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Divide by 1000 to convert into KM</span></span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>temp <span class="ot">&lt;-</span> temp <span class="sc">/</span> <span class="dv">1000</span></span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb76-5"><a href="#cb76-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_spatraster</span>(<span class="at">data =</span> temp) <span class="sc">+</span></span>
+<span id="cb76-6"><a href="#cb76-6" aria-hidden="true" tabindex="-1"></a>  paletteer<span class="sc">::</span><span class="fu">scale_fill_paletteer_c</span>(</span>
+<span id="cb76-7"><a href="#cb76-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"grDevices::heat.colors"</span>,</span>
+<span id="cb76-8"><a href="#cb76-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">direction =</span> <span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb76-9"><a href="#cb76-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb76-10"><a href="#cb76-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb76-11"><a href="#cb76-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb76-12"><a href="#cb76-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Distance from</span><span class="sc">\n</span><span class="st">water (km)"</span>,</span>
+<span id="cb76-13"><a href="#cb76-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Raw Spatraster of distance from Sea / Ocean"</span></span>
+<span id="cb76-14"><a href="#cb76-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb76-15"><a href="#cb76-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb76-16"><a href="#cb76-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert this raw distance vector to mask and only show Spain</span></span>
+<span id="cb76-17"><a href="#cb76-17" aria-hidden="true" tabindex="-1"></a>temp_spain <span class="ot">&lt;-</span> temp <span class="sc">|&gt;</span> </span>
+<span id="cb76-18"><a href="#cb76-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Mask it with only the map of Spain Raster</span></span>
+<span id="cb76-19"><a href="#cb76-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mask</span>(spain_working_only) </span>
+<span id="cb76-20"><a href="#cb76-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb76-21"><a href="#cb76-21" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb76-22"><a href="#cb76-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_spatraster</span>(<span class="at">data =</span> temp_spain) <span class="sc">+</span></span>
+<span id="cb76-23"><a href="#cb76-23" aria-hidden="true" tabindex="-1"></a>  paletteer<span class="sc">::</span><span class="fu">scale_fill_paletteer_c</span>(</span>
+<span id="cb76-24"><a href="#cb76-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">"grDevices::heat.colors"</span>,</span>
+<span id="cb76-25"><a href="#cb76-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">direction =</span> <span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb76-26"><a href="#cb76-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">na.value =</span> <span class="st">"transparent"</span></span>
+<span id="cb76-27"><a href="#cb76-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb76-28"><a href="#cb76-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb76-29"><a href="#cb76-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Distance</span><span class="sc">\n</span><span class="st">(km)"</span>,</span>
+<span id="cb76-30"><a href="#cb76-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Spain: distances to nearest Coastline"</span></span>
+<span id="cb76-31"><a href="#cb76-31" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="fig-e8" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-e8-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="fig-e8-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-e8-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-e8-1.png" class="lightbox" data-gallery="fig-e8" title="Figure&nbsp;17&nbsp;(a): Land map of Spain and nearby areas"><img src="chapter4_files/figure-html/fig-e8-1.png" class="img-fluid figure-img" data-ref-parent="fig-e8" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-e8-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Land map of Spain and nearby areas
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-e8-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-e8-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-e8-2.png" class="lightbox" data-gallery="fig-e8" title="Figure&nbsp;17&nbsp;(b): Land map of only Spain"><img src="chapter4_files/figure-html/fig-e8-2.png" class="img-fluid figure-img" data-ref-parent="fig-e8" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-e8-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) Land map of only Spain
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-e8-3" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-e8-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-e8-3.png" class="lightbox" data-gallery="fig-e8" title="Figure&nbsp;17&nbsp;(c): Raw Spatraster of distance from coastline for entire landmass"><img src="chapter4_files/figure-html/fig-e8-3.png" class="img-fluid figure-img" data-ref-parent="fig-e8" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-e8-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(c) Raw Spatraster of distance from coastline for entire landmass
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-e8-4" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-e8-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-e8-4.png" class="lightbox" data-gallery="fig-e8" title="Figure&nbsp;17&nbsp;(d): Final product: Spain with distances to nearest Coastline"><img src="chapter4_files/figure-html/fig-e8-4.png" class="img-fluid figure-img" data-ref-parent="fig-e8" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-e8-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(d) Final product: Spain with distances to nearest Coastline
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-e8-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;17: Steps in Computing the distance to nearest Coastline for Spain
+</figcaption>
+</figure>
+</div>
+</div>
 <hr>
 </section>
 <section id="e9." class="level3">
 <h3 class="anchored" data-anchor-id="e9.">E9.</h3>
-<p>Try to modify the approach used in the above exercise by weighting the distance raster with the elevation raster; every 100 altitudinal meters should increase the distance to the coast by 10 km. Next, compute and visualize the difference between the raster created using the Euclidean distance (E7) and the raster weighted by elevation.</p>
+<p><strong>Try to modify the approach used in the above exercise by weighting the distance raster with the elevation raster; every 100 altitudinal meters should increase the distance to the coast by 10 km. Next, compute and visualize the difference between the raster created using the Euclidean distance (E7) and the raster weighted by elevation.</strong></p>
+<p>The code below performs a spatial analysis and visualization of the relationship between elevation and distance to the coastline for Spain. It begins by visualizing Spain’s elevation using a raster dataset (<code>spain_working_only</code>). It then calculates and visualizes the Euclidean distance from each point to the nearest coastline (<code>temp_spain</code>), as already done in Exercise <strong>E7</strong>.</p>
+<p>A new raster (<code>spain_weighted</code>) is computed by weighting the Euclidean distance with elevation, where every 100 meters of elevation increases the effective distance to the coastline by 10 km.</p>
+<p>The difference between the Euclidean distance raster and the elevation-weighted distance raster is then calculated and visualized (<code>spain_difference</code>).</p>
+<p>The code uses the <code>ggplot2</code> package to display these rasters as separate maps, with clear titles and color scales to interpret the elevation, distances, and differences.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_spatraster</span>(<span class="at">data =</span> spain_working_only) <span class="sc">+</span></span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_wiki_c</span>() <span class="sc">+</span></span>
+<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb77-5"><a href="#cb77-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Altitude (m)"</span>,</span>
+<span id="cb77-6"><a href="#cb77-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"1. Elevation map of Spain"</span></span>
+<span id="cb77-7"><a href="#cb77-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb77-8"><a href="#cb77-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-9"><a href="#cb77-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb77-10"><a href="#cb77-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_spatraster</span>(<span class="at">data =</span> temp_spain) <span class="sc">+</span></span>
+<span id="cb77-11"><a href="#cb77-11" aria-hidden="true" tabindex="-1"></a>  paletteer<span class="sc">::</span><span class="fu">scale_fill_paletteer_c</span>(</span>
+<span id="cb77-12"><a href="#cb77-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"grDevices::heat.colors"</span>,</span>
+<span id="cb77-13"><a href="#cb77-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">direction =</span> <span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb77-14"><a href="#cb77-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">na.value =</span> <span class="st">"transparent"</span></span>
+<span id="cb77-15"><a href="#cb77-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb77-16"><a href="#cb77-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb77-17"><a href="#cb77-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Distance</span><span class="sc">\n</span><span class="st">(km)"</span>,</span>
+<span id="cb77-18"><a href="#cb77-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"2. Spain: euclidean distances to nearest Coastline"</span></span>
+<span id="cb77-19"><a href="#cb77-19" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb77-20"><a href="#cb77-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-21"><a href="#cb77-21" aria-hidden="true" tabindex="-1"></a>spain_weighted <span class="ot">&lt;-</span> temp_spain <span class="sc">+</span> ((spain_working_only<span class="sc">/</span><span class="dv">100</span>) <span class="sc">*</span> <span class="dv">10</span>)</span>
+<span id="cb77-22"><a href="#cb77-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-23"><a href="#cb77-23" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb77-24"><a href="#cb77-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_spatraster</span>(<span class="at">data =</span> spain_weighted) <span class="sc">+</span></span>
+<span id="cb77-25"><a href="#cb77-25" aria-hidden="true" tabindex="-1"></a>  paletteer<span class="sc">::</span><span class="fu">scale_fill_paletteer_c</span>(</span>
+<span id="cb77-26"><a href="#cb77-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">"grDevices::heat.colors"</span>,</span>
+<span id="cb77-27"><a href="#cb77-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">direction =</span> <span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb77-28"><a href="#cb77-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">na.value =</span> <span class="st">"transparent"</span></span>
+<span id="cb77-29"><a href="#cb77-29" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb77-30"><a href="#cb77-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb77-31"><a href="#cb77-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Distance</span><span class="sc">\n</span><span class="st">(km)"</span>,</span>
+<span id="cb77-32"><a href="#cb77-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"3. Spain: distance to coastline weighted by elevation"</span></span>
+<span id="cb77-33"><a href="#cb77-33" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb77-34"><a href="#cb77-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-35"><a href="#cb77-35" aria-hidden="true" tabindex="-1"></a>spain_difference <span class="ot">&lt;-</span> spain_weighted <span class="sc">-</span> temp_spain</span>
+<span id="cb77-36"><a href="#cb77-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-37"><a href="#cb77-37" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb77-38"><a href="#cb77-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_spatraster</span>(<span class="at">data =</span> spain_difference) <span class="sc">+</span></span>
+<span id="cb77-39"><a href="#cb77-39" aria-hidden="true" tabindex="-1"></a>  paletteer<span class="sc">::</span><span class="fu">scale_fill_paletteer_c</span>(</span>
+<span id="cb77-40"><a href="#cb77-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">"grDevices::heat.colors"</span>,</span>
+<span id="cb77-41"><a href="#cb77-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">direction =</span> <span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb77-42"><a href="#cb77-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">na.value =</span> <span class="st">"transparent"</span></span>
+<span id="cb77-43"><a href="#cb77-43" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb77-44"><a href="#cb77-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb77-45"><a href="#cb77-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Difference</span><span class="sc">\n</span><span class="st">in Distance</span><span class="sc">\n</span><span class="st">(km)"</span>,</span>
+<span id="cb77-46"><a href="#cb77-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"4. Difference between 2nd and 3rd maps"</span></span>
+<span id="cb77-47"><a href="#cb77-47" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="fig-e9" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-e9-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="fig-e9-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-e9-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-e9-1.png" class="lightbox" data-gallery="fig-e9" title="Figure&nbsp;18&nbsp;(a): Elevation map of Spain"><img src="chapter4_files/figure-html/fig-e9-1.png" class="img-fluid figure-img" data-ref-parent="fig-e9" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-e9-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Elevation map of Spain
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-e9-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-e9-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-e9-2.png" class="lightbox" data-gallery="fig-e9" title="Figure&nbsp;18&nbsp;(b): Spain: euclidean distances to nearest Coastline"><img src="chapter4_files/figure-html/fig-e9-2.png" class="img-fluid figure-img" data-ref-parent="fig-e9" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-e9-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) Spain: euclidean distances to nearest Coastline
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-e9-3" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-e9-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-e9-3.png" class="lightbox" data-gallery="fig-e9" title="Figure&nbsp;18&nbsp;(c): Spain: distance to coastline weighted by elevation"><img src="chapter4_files/figure-html/fig-e9-3.png" class="img-fluid figure-img" data-ref-parent="fig-e9" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-e9-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(c) Spain: distance to coastline weighted by elevation
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-e9-4" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-e9-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter4_files/figure-html/fig-e9-4.png" class="lightbox" data-gallery="fig-e9" title="Figure&nbsp;18&nbsp;(d): Difference between 2nd and 3rd maps"><img src="chapter4_files/figure-html/fig-e9-4.png" class="img-fluid figure-img" data-ref-parent="fig-e9" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-e9-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(d) Difference between 2nd and 3rd maps
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-e9-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;18: Algebra on Rasters
+</figcaption>
+</figure>
+</div>
+</div>
 
 
 
@@ -5084,7 +5482,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 <footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/book_solutions/chapter4.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><div class="page-columns page-rows-contents page-layout-article"><div class="social-share"><a href="https://twitter.com/share?url=https://aditya-dahiya.github.io/visage/book_solutions/chapter4.html&amp;text=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="twitter"><i class="fab fa-twitter fa-fw fa-lg"></i></a><a href="https://www.linkedin.com/shareArticle?url=https://aditya-dahiya.github.io/visage/book_solutions/chapter4.html&amp;title=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="linkedin"><i class="fa-brands fa-linkedin-in fa-fw fa-lg"></i></a>  <a href="mailto:?subject=Visualizing Information and Spatial Analysis with ggplot2 Extensions&amp;body=Check out this link:https://aditya-dahiya.github.io/visage/book_solutions/chapter4.html" target="_blank" class="email"><i class="fa-solid fa-envelope fa-fw fa-lg"></i></a><a href="https://www.facebook.com/sharer.php?u=https://aditya-dahiya.github.io/visage/book_solutions/chapter4.html" target="_blank" class="facebook"><i class="fab fa-facebook-f fa-fw fa-lg"></i></a><a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' &amp;&amp; mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=Visualizing Information and Spatial Analysis with ggplot2 Extensions https://aditya-dahiya.github.io/visage/book_solutions/chapter4.html'}else{return false;}" target="_blank" class="mastodon"><i class="fa-brands fa-mastodon fa-fw fa-lg"></i></a></div></div>
-<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","openEffect":"zoom","selector":".lightbox","loop":false,"descPosition":"bottom"});
+<script>var lightboxQuarto = GLightbox({"descPosition":"bottom","selector":".lightbox","loop":false,"openEffect":"zoom","closeEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

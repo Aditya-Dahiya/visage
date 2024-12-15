@@ -40,13 +40,15 @@ share:
 library(sf)        # Simple Features in R
 library(terra)     # Handling rasters in R
 library(tidyterra) # For plotting rasters in ggplot2
+library(magrittr)  # Using pipes with raster objects
 library(tidyverse) # All things tidy; Data Wrangling
 library(spData)    # Spatial Datasets
 
 
 sysfonts::font_add_google("Saira Extra Condensed", "caption_font")
 sysfonts::font_add_google("Saira", "body_font")
-theme_set(theme_minimal(base_family = "body_font"))
+theme_set(theme_minimal(base_family = "body_font",
+                        base_size = 16))
 showtext::showtext_auto()
 ```
 
@@ -244,7 +246,7 @@ nz_height |>
 -   **Binary predicates** in **`sf`** package test spatial relationships between vector geometries. See [vignette("sf3")](https://r-spatial.github.io/sf/articles/sf3.html). The following binary predicates exist in `sf` : —
 
 | Function | Description | Symmetrical? |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | `st_intersects` | Checks if geometries intersect. | Yes |
 | `st_disjoint` | Checks if geometries do not intersect (are disjoint). | Yes |
 | `st_touches` | Checks if geometries have at least one boundary point in common. | Yes |
@@ -1644,16 +1646,322 @@ logo |>
 
 ### E7.
 
-Calculate the Normalized Difference Water Index (NDWI; `(green - nir)/(green + nir)`) of a Landsat image. Use the Landsat image provided by the **spDataLarge** package (`system.file("raster/landsat.tif", package = "spDataLarge")`). Also, calculate a correlation between NDVI and NDWI for this area (hint: you can use the [`layerCor()`](https://rspatial.github.io/terra/reference/layerCor.html) function).
+**Calculate the Normalized Difference Water Index (NDWI; `(green - nir)/(green + nir)`) of a Landsat image. Use the Landsat image provided by the spDataLarge package (`system.file("raster/landsat.tif", package = "spDataLarge")`). Also, calculate a correlation between NDVI and NDWI for this area (hint: you can use the [`layerCor()`](https://rspatial.github.io/terra/reference/layerCor.html) function).**
+
+This code processes and visualizes raster data for Zion National Park, performing computations to derive vegetation and water indices and then plotting the results. The raster, containing layers for Red, Green, Blue, and Near Infrared (NIR) bands, is rescaled to real-world values, with negative values replaced by zeros.
+
+Using custom functions, the NDVI (Normalized Difference Vegetation Index) and NDWI (Normalized Difference Water Index) are calculated from the NIR, Red, and Green bands. The resulting indices are converted into a tidy SpatRaster format for plotting.
+
+The code below also calculates the correlation between the NDVI and NDWI layers as **-0.96, thus telling us the NDVI and NDWI are negatively correlated (inversely correlated)**.
+
+```{r}
+#| label: code-inspired-from-book
+#| eval: false
+
+#################### LONG, BASE R METHOD ########################
+
+#################### I Don't Use This ###########################
+
+# Download the Zion National Park Raster File with layers of 
+# Red, Green, Blue and NIR (Near Infra Red)
+landsat <- rast(
+  system.file("raster/landsat.tif", package = "spDataLarge")
+)
+
+# Applying a scale factor to return values to actual ones.
+# The data-set was scaled to save disk space
+landsat = (landsat * 0.0000275) - 0.2
+
+# Remove and replace negative values, since these were due to clouds
+landsat[landsat < 0] = 0
+
+# Write a custom function for computing values of 
+# NDVI (normalized difference vegetation index) in R
+ndvi_fun = function(nir, red){
+  (nir - red) / (nir + red)
+}
+
+# Create a new raster with NDVI values using terra::lapp()
+landsat_ndvi <- lapp(landsat[[c(4, 3)]], fun = ndvi_fun)
+
+# Write a custom function for computing values of 
+# NDWI (normalized difference water index) in R
+ndwi_fun = function(nir, green){
+  (green - nir) / (nir + green)
+}
+
+# Create a new raster with NDVI values using terra::lapp()
+landsat_ndwi <- lapp(landsat[[c(4, 2)]], fun = ndwi_fun)
+
+cor(
+  values(landsat_ndvi),
+  values(landsat_ndwi),
+  use = "complete.obs"
+)
+
+# The correlation is -0.96. NDVI and NDWI are negatively correlated.
+```
+
+```{r}
+#| label: tidy-code-with-pipe-operator
+
+###################### THE TIDY APPROACH #######################
+
+# Download the Zion National Park Raster File with layers of 
+# Red, Green, Blue and NIR (Near Infra Red)
+landsat <- rast(system.file("raster/landsat.tif", package = "spDataLarge")) |>
+  
+  # Applying a scale factor to return values to actual ones,
+  # The data-set was scaled to save disk space.
+  multiply_by(0.0000275) |>
+  subtract(0.2) |> 
+  
+  # Remove and replace negative values, since these were due to clouds
+  mutate(across(everything(), ~ ifelse(. < 0, 0, .)))
+
+# Write a custom function for computing values of 
+# NDVI (normalized difference vegetation index) in R
+ndvi_fun <- function(nir, red) {
+  (nir - red) / (nir + red)
+}
+
+# Write a custom function for computing values of 
+# NDWI (normalized difference water index) in R
+ndwi_fun <- function(nir, green) {
+  (green - nir) / (green + nir)
+}
+
+# Doing the tidy data wrangling magic with tidyverse and tidyterra
+landsat1 <- landsat |> 
+  as_tibble(xy = TRUE) |> 
+  mutate(
+    ndvi = ndvi_fun(landsat_4, landsat_3),
+    ndwi = ndwi_fun(landsat_4, landsat_2)
+  ) |> 
+  select(-starts_with("landsat")) |> 
+  tidyterra::as_spatraster(
+    crs = st_crs(landsat)
+  )
+
+# Labeller for the facets
+lyr_labels <- c(
+  "normalized difference vegetation index",
+  "normalized difference water index"
+) |> 
+  str_to_title()
+names(lyr_labels) <- c("ndvi", "ndwi")
+
+layerCor(landsat1, fun = cor, use = "complete.obs") |> 
+  round(digits = 2)
+```
+
+The `ggplot2` visualization in @fig-e7 uses facets to compare NDVI and NDWI values across the area, with clear labelling and a perceptually uniform colour scale.
+
+```{r}
+#| label: fig-e7
+#| fig-cap: "Comparing NDVI and NDWI values"
+
+# The actual final plot
+ggplot() +
+  geom_spatraster(data = landsat1) +
+  scale_fill_grass_c(
+    na.value = "white"
+  ) +
+  facet_wrap(~lyr, labeller = labeller(lyr = lyr_labels)) +
+  coord_sf(expand = FALSE) +
+  labs(
+    title = "Comparing NDVI and NDWI values",
+    subtitle = "Zion National Park area SpatRaster",
+    fill = "Value"
+  ) +
+  theme_minimal(
+    base_family = "caption_font"
+  ) +
+  theme(
+    legend.position = "bottom",
+    text = element_text(
+      hjust = 0.5,
+      vjust = 0.5
+    )
+  )
+```
 
 ------------------------------------------------------------------------
 
 ### E8.
 
-A StackOverflow [post (stackoverflow.com/questions/35555709)](https://stackoverflow.com/questions/35555709/global-raster-of-geographic-distances) shows how to compute distances to the nearest coastline using [`raster::distance()`](https://rspatial.github.io/terra/reference/distance.html). Try to do something similar but with [`terra::distance()`](https://rspatial.github.io/terra/reference/distance.html): retrieve a digital elevation model of Spain, and compute a raster which represents distances to the coast across the country (hint: use [`geodata::elevation_30s()`](https://rdrr.io/pkg/geodata/man/elevation.html)). Convert the resulting distances from meters to kilometers. Note: it may be wise to increase the cell size of the input raster to reduce compute time during this operation ([`aggregate()`](https://rspatial.github.io/terra/reference/aggregate.html)).
+**A StackOverflow [post (stackoverflow.com/questions/35555709)](https://stackoverflow.com/questions/35555709/global-raster-of-geographic-distances) shows how to compute distances to the nearest coastline using [`raster::distance()`](https://rspatial.github.io/terra/reference/distance.html). Try to do something similar but with [`terra::distance()`](https://rspatial.github.io/terra/reference/distance.html): retrieve a digital elevation model of Spain, and compute a raster which represents distances to the coast across the country (hint: use [`geodata::elevation_30s()`](https://rdrr.io/pkg/geodata/man/elevation.html)). Convert the resulting distances from meters to kilometers. Note: it may be wise to increase the cell size of the input raster to reduce compute time during this operation ([`aggregate()`](https://rspatial.github.io/terra/reference/aggregate.html)).**
+
+This code demonstrates the steps to compute and visualize the distance to the nearest coastline for Spain. First, it loads elevation data for Spain and nearby areas ( @fig-e8-1 ), as well as for Spain's political boundaries ( @fig-e8-2 ), ensuring the inclusion of surrounding countries and water bodies. The raster is then aggregated for efficiency.
+
+Initial visualizations are created: one showing elevation for Spain and neighbouring areas, and another isolating only Spain.
+
+A binary raster is created where water is marked as `TRUE` (1) and land as `NA`. The `distance()` function calculates the distance of each land cell to the nearest water cell, with values converted to kilometres. ( @fig-e8-3 )
+
+Finally, the raw distance raster is masked to display only distances within Spain, producing a final visualization of Spain with distances to its nearest coastline ( @fig-e8-4 ). The @fig-e8 includes multiple stages of the process, from raw data to the final processed map.
+
+```{r}
+#| label: fig-e8
+#| fig-cap: "Steps in Computing the distance to nearest Coastline for Spain"
+#| fig-subcap: 
+#|   - "Land map of Spain and nearby areas"
+#|   - "Land map of only Spain"
+#|   - "Raw Spatraster of distance from coastline for entire landmass"
+#|   - "Final product: Spain with distances to nearest Coastline"
+
+# Full Spain and nearby Land Data
+spain_land <- geodata::elevation_30s(
+  country = "Spain", 
+  path = tempdir(),
+  
+  # Use mask = FALSE to ensure that other countries are not shown as NA
+  mask = FALSE)
+
+# Data for only Sapin Political Boundaries Land
+spain_only <- geodata::elevation_30s(
+  country = "Spain", 
+  path = tempdir()
+  )
+
+spain_working_land <- spain_land |> 
+  aggregate(fact = 5)
+
+spain_working_only <- spain_only |> 
+  aggregate(fact = 5)
+
+ggplot() +
+  geom_spatraster(data = spain_working_land) +
+  scale_fill_terrain_c(
+    direction = -1
+  ) +
+  labs(
+    title = "Land map of Spain and nearby areas",
+    subtitle = "Water / Sea is shown as transparent values (NA)",
+    fill = "Elevation (m)"
+  ) 
+
+ggplot() +
+  geom_spatraster(data = spain_working_only) +
+  scale_fill_terrain_c(
+    direction = -1
+  ) +
+  labs(
+    title = "Land map of only Spain",
+    subtitle = "Water + nearby countries are shown as transparent values (NA)",
+    fill  = "Elevation (m)"
+  ) 
+
+# Start with a simple raster where only water is TRUE (1) 
+# and land is FALSE (0)
+temp <- is.na(spain_working_land)
+
+# Convert land (i.e. FALSE) into NA
+temp[temp == 0] <- NA
+
+# Compute distance of from nearest non-NA (i.e. Water / Sea)
+temp <- distance(temp)
+
+# Divide by 1000 to convert into KM
+temp <- temp / 1000
+
+ggplot() +
+  geom_spatraster(data = temp) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::heat.colors",
+    direction = -1,
+  ) +
+  
+  labs(
+    fill = "Distance from\nwater (km)",
+    title = "Raw Spatraster of distance from Sea / Ocean"
+  )
+
+# Convert this raw distance vector to mask and only show Spain
+temp_spain <- temp |> 
+  # Mask it with only the map of Spain Raster
+  mask(spain_working_only) 
+
+ggplot() +
+  geom_spatraster(data = temp_spain) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::heat.colors",
+    direction = -1,
+    na.value = "transparent"
+  ) +
+  labs(
+    fill = "Distance\n(km)",
+    title = "Spain: distances to nearest Coastline"
+  )
+```
 
 ------------------------------------------------------------------------
 
 ### E9.
 
-Try to modify the approach used in the above exercise by weighting the distance raster with the elevation raster; every 100 altitudinal meters should increase the distance to the coast by 10 km. Next, compute and visualize the difference between the raster created using the Euclidean distance (E7) and the raster weighted by elevation.
+**Try to modify the approach used in the above exercise by weighting the distance raster with the elevation raster; every 100 altitudinal meters should increase the distance to the coast by 10 km. Next, compute and visualize the difference between the raster created using the Euclidean distance (E7) and the raster weighted by elevation.**
+
+The code below performs a spatial analysis and visualization of the relationship between elevation and distance to the coastline for Spain. It begins by visualizing Spain's elevation using a raster dataset (`spain_working_only`). It then calculates and visualizes the Euclidean distance from each point to the nearest coastline (`temp_spain`), as already done in Exercise **E7**.
+
+A new raster (`spain_weighted`) is computed by weighting the Euclidean distance with elevation, where every 100 meters of elevation increases the effective distance to the coastline by 10 km.
+
+The difference between the Euclidean distance raster and the elevation-weighted distance raster is then calculated and visualized (`spain_difference`).
+
+The code uses the `ggplot2` package to display these rasters as separate maps, with clear titles and color scales to interpret the elevation, distances, and differences.
+
+```{r}
+#| label: fig-e9
+#| fig-cap: "Algebra on Rasters"
+#| fig-subcap: 
+#|  - "Elevation map of Spain"
+#|  - "Spain: euclidean distances to nearest Coastline"
+#|  - "Spain: distance to coastline weighted by elevation"
+#|  - "Difference between 2nd and 3rd maps"
+
+ggplot() +
+  geom_spatraster(data = spain_working_only) +
+  scale_fill_wiki_c() +
+  labs(
+    fill = "Altitude (m)",
+    title = "1. Elevation map of Spain"
+  )
+
+ggplot() +
+  geom_spatraster(data = temp_spain) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::heat.colors",
+    direction = -1,
+    na.value = "transparent"
+  ) +
+  labs(
+    fill = "Distance\n(km)",
+    title = "2. Spain: euclidean distances to nearest Coastline"
+  )
+
+spain_weighted <- temp_spain + ((spain_working_only/100) * 10)
+
+ggplot() +
+  geom_spatraster(data = spain_weighted) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::heat.colors",
+    direction = -1,
+    na.value = "transparent"
+  ) +
+  labs(
+    fill = "Distance\n(km)",
+    title = "3. Spain: distance to coastline weighted by elevation"
+  )
+
+spain_difference <- spain_weighted - temp_spain
+
+ggplot() +
+  geom_spatraster(data = spain_difference) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::heat.colors",
+    direction = -1,
+    na.value = "transparent"
+  ) +
+  labs(
+    fill = "Difference\nin Distance\n(km)",
+    title = "4. Difference between 2nd and 3rd maps"
+  )
+```
