@@ -222,25 +222,25 @@ ggsave(
 )
 ```
 
-::: {#fig-simplified layout-ncol=2}
-![](images/ch5-2-1_1.png)
+::: {#fig-simplified layout-ncol="2"}
+![Official Map of India (full details)](images/ch5-2-1_1.png)
 
-![](images/ch5-2-1_2.png)
+![Using st_simplify(dTolerance = 100000), i.e. 100 km resolution](images/ch5-2-1_2.png)
 
-![](images/ch5-2-1_3.png)
+![Using rmapshaper::ms_simplify(keep_shape = TRUE) to retain topology](images/ch5-2-1_3.png)
 
-![](images/ch5-2-1_4.png)
+![Using gaussian kernel regression with smoothr::smooth(method = "ksmooth")](images/ch5-2-1_4.png)
 
-![](images/ch5-2-1_5.png)
+![Using Chalkin's corner cutting algorithm with smoothr::smooth(method = "chalkin")](images/ch5-2-1_5.png)
 
-![](images/ch5-2-1_6.png) 
+![Using spline interpolation with smoothr::smooth(method = "spline")](images/ch5-2-1_6.png)
 :::
 
-The {smoothr} package uses three different types of algorithms.
+#### `smoothr`
+
+A short note on the **{smoothr}** package [@smoothr-2], which uses three different types of algorithms:-.
 
 ::: callout-note
-### An aside on the {**smoothr**} package [@smoothr]
-
 ```{r}
 #| label: plot-smoothr
 #| eval: false
@@ -268,8 +268,7 @@ plot_data <- bind_rows(
 method_colors <- c(
   chaikin = "#E41A1C",
   ksmooth = "#4DAF4A",
-  spline = "#377EB8",
-  original = "transparent"
+  spline = "#377EB8"
 )
 
 # Convert geometry for plotting
@@ -277,25 +276,36 @@ plot_data <- plot_data |>
   mutate(geometry = st_sfc(geometry)) |> 
   st_as_sf()
 
+p2 <- plot_data |> 
+  filter(method != "original")
+
+p1 <- plot_data |> 
+  filter(method == "original") |> 
+  select(-method)
 
 # Plot with ggplot2
-g <- ggplot(data = plot_data) +
+g <- ggplot(data = p2) +
   geom_sf(aes(geometry = geometry, 
-              color = method,
-              fill = method == "original"),
+              color = method),
           size = 0.7,
-          linewidth = 0.5) +
+          linewidth = 0.5,
+          fill = "transparent") +
+  geom_sf(
+    data = p1,
+    fill = alpha("grey50", 0.5),
+    colour = "transparent"
+  ) +
   scale_color_manual(values = method_colors) +
-  scale_fill_manual(values = c("transparent", 
-                               alpha("grey50", 0.2))) +
-  facet_wrap(~ id, ncol = 3) +
+  facet_grid(id ~ method) +
   guides(fill = "none") +
   theme_void() +
   theme(
-    legend.position = "right"
+    legend.position = "none",
+    plot.title.position = "plot",
+    strip.text.y = element_blank()
     ) +
   labs(
-    title = "Options for simplification with {smoothr}",
+    title = "Simplification with {smoothr}",
     colour = "Method"
   )
 
@@ -303,7 +313,7 @@ ggsave(
   filename = here::here("book_solutions", "images",
                         "ch5-2-1_7.png"),
   plot = g,
-  height = 1200,
+  height = 2000,
   width = 1200,
   units = "px"
 )
