@@ -1,0 +1,313 @@
+---
+title: "Chapter 5: Geometry operations"
+subtitle: "Key Learnings from, and Solutions to the exercises in Chapter 4 of the book Geocomputation with R by Robin Lovelace, Jakub Nowosad and Jannes Muenchow."
+date: "2024-12-16"
+author: "Aditya Dahiya"
+bibliography: references.bib
+format:
+  html:
+    code-fold: false
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: true
+  cache: false
+  collapse: true
+categories:
+  - "Geocomputation with R"
+  - "Textbook Solutions"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/book_solutions/chapter5.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+```{r}
+#| label: setup
+
+library(sf)        # Simple Features in R
+library(terra)     # Handling rasters in R
+library(tidyterra) # For plotting rasters in ggplot2
+library(magrittr)  # Using pipes with raster objects
+library(tidyverse) # All things tidy; Data Wrangling
+library(spData)    # Spatial Datasets
+```
+
+## 5.1 Introduction
+
+-   Previous chapters introduced geographic datasets' structure (Chapter 2), attribute-based manipulation (Chapter 3), and spatial relations (Chapter 4).
+-   Focus of this chapter: Manipulating geographic elements of spatial objects.
+    -   Examples: Creating buffers, simplifying/converting vector geometries, and raster aggregation/resampling.
+-   Section 5.2: Transforming vector geometries using:
+    -   **Unary operations:** Simplifications, buffers, centroids, and affine transformations (Sections 5.2.1–5.2.4).
+    -   **Binary operations:** Modifying geometries through clipping and unions (Sections 5.2.5–5.2.7).
+    -   **Type transformations:** Converting geometry types, e.g., polygons to lines (Section 5.2.8).
+-   Section 5.3: Raster transformations:
+    -   Alter pixel size, resolution, extent, and origin.
+    -   Align raster datasets for map algebra.
+
+## 5.2 Geometric operations on vector data
+
+-   Focus: Operations that modify the geometry of vector (`sf`) objects.
+-   Key distinction: Works directly on geometry-level objects of class `sfc`, in addition to `sf` objects.
+-   Examples: Drilling into geometry to transform, simplify, or reshape vector data.
+
+### 5.2.1 Simplification
+
+-   Generalizes vector geometries (lines/polygons) for smaller scale maps, reducing memory, disk space, and bandwidth usage. Useful for publishing interactive maps by simplifying complex geometries.
+-   **Key Functions and Algorithms**:
+    -   `st_simplify()` from the [sf package](https://r-spatial.github.io/sf/) [@sf-3]:
+        -   Implements the Douglas-Peucker algorithm ([Douglas and Peucker 1973](https://doi.org/10.3138/FM57-6770-U75U-7727)).
+
+        -   Controlled by `dTolerance` (generalization level in metres, or map units).
+
+        -   Simplifies individual geometries but does **not preserve topology**, leading to overlaps or holes.
+
+::: callout-note
+topology (noun): the way in which parts of something are organized, arranged or connected
+:::
+
+-   `ms_simplify()` from the [rmapshaper package](https://github.com/ateucher/rmapshaper) [@rmapshaper]:
+    -   Uses the Visvalingam algorithm ([Visvalingam and Whyatt 1993](https://doi.org/10.3138/FM57-6770-U75U-7727)).
+    -   Retains topology by default (`keep_shapes = TRUE`) and allows fine control over the vertex retention (`keep`: the % of vertices that are to be retained, given as a proportion).
+-   `smooth()` from the [smoothr package](https://cran.r-project.org/package=smoothr):
+    -   Smooths edges using techniques like Gaussian kernel regression, Chaikin’s algorithm, or spline interpolation.
+    -   Does not reduce vertex count and does not preserve topology.
+    -   Key parameter: `smoothness` (controls Gaussian bandwidth).
+-   Examples of Simplification are shown in @fig-simplified
+-   **Applications of Smoothing**:
+    -   Suitable for geometries derived from raster vectorization (e.g., Chapter 6).
+
+```{r}
+#| eval: false
+#| code-fold: true
+
+
+# Download India's Official states' map from
+# https://github.com/Aditya-Dahiya/projects_presentations/tree/main/data/india_map
+
+#### Base Map
+india_states <- read_sf("India_State_Boundary.shp")
+
+g <- india_states |> 
+  ggplot() +
+  geom_sf() +
+  theme_minimal() +
+  labs(
+    title = "Base Map of India: in full detail",
+    subtitle = "Source: Census of India"
+  )
+
+ggsave(
+  filename = here::here("book_solutions", "images",
+                        "ch5-2-1_1.png"),
+  plot = g,
+  height = 1600,
+  width = 1200,
+  units = "px"
+)
+
+#### st_simplify()
+g <- india_states |> 
+  st_simplify(dTolerance = 100000) |>    # 100 km tolerance
+  ggplot() +
+  geom_sf() +
+  theme_minimal() +
+  labs(
+    title = "India: st_simplify(dTolerance = 100000)",
+    subtitle = "Douglas-Peucker algorithm. Topology is lost."
+  )
+
+ggsave(
+  filename = here::here("book_solutions", "images",
+                        "ch5-2-1_2.png"),
+  plot = g,
+  height = 1600,
+  width = 1200,
+  units = "px"
+)
+
+#### rmapshaper::ms_simplify()
+g <- india_states |> 
+  rmapshaper::ms_simplify(keep = 0.0001, keep_shapes = TRUE) |>    
+  ggplot() +
+  geom_sf() +
+  theme_minimal() +
+  labs(
+    title = "India: rmapshaper::ms_simplify(keep_shapes = TRUE)",
+    subtitle = "Visvalingam algorithm. Topology is retained."
+  )
+
+ggsave(
+  filename = here::here("book_solutions", "images",
+                        "ch5-2-1_3.png"),
+  plot = g,
+  height = 1600,
+  width = 1200,
+  units = "px"
+)
+
+#### smoothr::smooth() - 3 methods
+g <- india_states |> 
+  st_simplify(dTolerance = 10000) |>  # To save computing time
+  smoothr::smooth(method = "ksmooth",
+                  smoothness = 5) |>    
+  ggplot() +
+  geom_sf() +
+  theme_minimal() +
+  labs(
+    title = "smoothr::smooth(method = \"ksmooth\")",
+    subtitle = "Gaussian kernel regression. Topology is lost."
+  )
+
+ggsave(
+  filename = here::here("book_solutions", "images",
+                        "ch5-2-1_4.png"),
+  plot = g,
+  height = 1600,
+  width = 1200,
+  units = "px"
+)
+
+g <- india_states |> 
+  st_simplify(dTolerance = 50000) |>  # To save computing time
+  smoothr::smooth(method = "chaikin") |>    
+  ggplot() +
+  geom_sf() +
+  theme_minimal() +
+  labs(
+    title = "smoothr::smooth(method = \"chaikin\")",
+    subtitle = "Chaikin’s corner cutting algorithm. Topology is lost."
+  )
+
+ggsave(
+  filename = here::here("book_solutions", "images",
+                        "ch5-2-1_5.png"),
+  plot = g,
+  height = 1600,
+  width = 1200,
+  units = "px"
+)
+
+g <- india_states |> 
+  st_simplify(dTolerance = 50000) |>  # To save computing time
+  smoothr::smooth(method = "spline") |>    
+  ggplot() +
+  geom_sf() +
+  theme_minimal() +
+  labs(
+    title = "smoothr::smooth(method = \"spline\")",
+    subtitle = "Spline interpolation. Topology is lost."
+  )
+
+ggsave(
+  filename = here::here("book_solutions", "images",
+                        "ch5-2-1_6.png"),
+  plot = g,
+  height = 1600,
+  width = 1200,
+  units = "px"
+)
+```
+
+::: {#fig-simplified layout-ncol=2}
+![](images/ch5-2-1_1.png)
+
+![](images/ch5-2-1_2.png)
+
+![](images/ch5-2-1_3.png)
+
+![](images/ch5-2-1_4.png)
+
+![](images/ch5-2-1_5.png)
+
+![](images/ch5-2-1_6.png) 
+:::
+
+The {smoothr} package uses three different types of algorithms.
+
+::: callout-note
+### An aside on the {**smoothr**} package [@smoothr]
+
+```{r}
+#| label: plot-smoothr
+#| eval: false
+#| code-fold: true
+
+
+library(sf)
+library(smoothr)
+library(tidyverse)
+
+# Smooth polygons using different methods
+p_smooth_chaikin <- smooth(jagged_polygons, method = "chaikin")
+p_smooth_ksmooth <- smooth(jagged_polygons, method = "ksmooth")
+p_smooth_spline <- smooth(jagged_polygons, method = "spline")
+
+# Combine data for plotting
+plot_data <- bind_rows(
+  mutate(st_as_sf(p_smooth_chaikin), method = "chaikin"),
+  mutate(st_as_sf(p_smooth_ksmooth), method = "ksmooth"),
+  mutate(st_as_sf(p_smooth_spline), method = "spline"),
+  mutate(st_as_sf(jagged_polygons), method = "original")
+)
+
+# Assign colors to methods
+method_colors <- c(
+  chaikin = "#E41A1C",
+  ksmooth = "#4DAF4A",
+  spline = "#377EB8",
+  original = "transparent"
+)
+
+# Convert geometry for plotting
+plot_data <- plot_data |> 
+  mutate(geometry = st_sfc(geometry)) |> 
+  st_as_sf()
+
+
+# Plot with ggplot2
+g <- ggplot(data = plot_data) +
+  geom_sf(aes(geometry = geometry, 
+              color = method,
+              fill = method == "original"),
+          size = 0.7,
+          linewidth = 0.5) +
+  scale_color_manual(values = method_colors) +
+  scale_fill_manual(values = c("transparent", 
+                               alpha("grey50", 0.2))) +
+  facet_wrap(~ id, ncol = 3) +
+  guides(fill = "none") +
+  theme_void() +
+  theme(
+    legend.position = "right"
+    ) +
+  labs(
+    title = "Options for simplification with {smoothr}",
+    colour = "Method"
+  )
+
+ggsave(
+  filename = here::here("book_solutions", "images",
+                        "ch5-2-1_7.png"),
+  plot = g,
+  height = 1200,
+  width = 1200,
+  units = "px"
+)
+```
+
+![](images/ch5-2-1_7.png)
+:::
