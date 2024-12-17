@@ -321,3 +321,216 @@ ggsave(
 
 ![](images/ch5-2-1_7.png)
 :::
+
+### 5.2.2 Centroids
+
+-   Identify the center of geographic objects, creating single-point representations of complex geometries using `st_centroid()`
+
+-   **Types of Centroids**: (shown in @fig-5-2-2-1)
+
+    1.  **Geographic Centroid** (center of mass):
+        -   Balances a spatial object (like balancing a plate).
+        -   Useful for creating simple point representations or estimating distances between polygons.
+        -   Calculated with `st_centroid()` from the [sf package](https://r-spatial.github.io/sf/).
+        -   Limitation: Centroids may fall outside the object (e.g., doughnut-shaped polygons).
+    2.  **Point on Surface**:
+        -   Ensures the point lies **within** the object boundaries.
+        -   Useful for labeling irregular polygons, such as islands or multipolygon geometries.
+        -   Calculated with `st_point_on_surface()`.
+
+-   **Other Centroid Types**: Chebyshev center and visual center
+
+```{r}
+#| eval: false
+#| code-fold: true
+
+sysfonts::font_add_google("Saira Extra Condensed", "caption_font")
+showtext::showtext_auto()
+
+ggplot2::theme_set(
+  theme_minimal(
+    base_size = 30,
+    base_family = "caption_font"
+  ) +
+    theme(
+      text = element_text(
+        lineheight = 0.3,
+        hjust = 0.5
+      ),
+      plot.title.position = "plot"
+    )
+)
+
+# Focussing on the Island Chains of India
+andaman <- india_states |> 
+  filter(
+    State_Name == "Andaman & Nicobar"
+  )
+  
+g1 <- ggplot(andaman) +
+  geom_sf() +
+  labs(
+    title = "Base Map",
+    subtitle = "Andaman & Nicobar\nIslands (India)"
+  )
+
+g2 <- ggplot() +
+  geom_sf(
+    data = andaman
+    ) +
+  geom_sf(
+    data = st_centroid(andaman),
+    colour = "red",
+    size = 4, 
+    pch = 1,
+    stroke = 2
+  ) +
+  labs(
+    title = "st_centroid()",
+    subtitle = "Andaman & Nicobar\nIslands (India)"
+  )
+
+g3 <- ggplot() +
+  geom_sf(
+    data = andaman
+    ) +
+  geom_sf(
+    data = st_centroid(andaman, of_largest_polygon = TRUE),
+    colour = "red",
+    size = 4, 
+    pch = 1,
+    stroke = 2,
+    fill = "transparent"
+  ) +
+  labs(
+    title = "st_centroid\n(of_largest_polygon = TRUE)",
+    subtitle = "Andaman & Nicobar\nIslands (India)"
+  )
+
+g4 <- ggplot() +
+  geom_sf(
+    data = andaman
+    ) +
+  geom_sf(
+    data = st_point_on_surface(andaman),
+    colour = "red",
+    size = 4, 
+    pch = 1,
+    stroke = 2,
+    fill = "transparent"
+  ) +
+  labs(
+    title = "st_point_on_surface()",
+    subtitle = "Andaman & Nicobar\nIslands (India)"
+  )
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter5-2-2_1.png"),
+  plot = patchwork::wrap_plots(g1, g2, g3, g4, nrow = 1),
+  height = 1900,
+  width = 2400,
+  units = "px"
+)
+```
+
+![Various centroids using st_centroid() and st_point_on_surface()](images/chapter5-2-2_1.png){#fig-5-2-2-1}
+
+### 5.2.3 Buffers
+
+-   Buffers are **polygons** representing areas within a specified distance from a geometric feature (point, line, or polygon).
+-   **Purpose**: Used for geographic **data analysis** (not just visualization). Examples:
+    -   How many points are within a given distance of a line?
+    -   Which demographic groups are within travel range of a new shop?
+-   **`st_buffer()`** from the [sf package](https://r-spatial.github.io/sf/). Example Visualization is shown in @fig-5-2-3-1
+    -   **Input**: Geometry and `dist` (distance in CRS units, e.g., meters).
+    -   **Output**: One buffer polygon per geometry feature.
+-   **Other Key Arguments in `st_buffer()`**:
+    -   **`nQuadSegs`** (GEOS engine):
+        -   Number of segments per quadrant (default: 30).
+        -   Adjust: Decrease for memory concerns, or increase for high resolution output.
+    -   **`max_cells`** (S2 engine):
+        -   Higher values create smoother buffers (slower computation).
+    -   **`endCapStyle` and `joinStyle`** (GEOS engine):
+        -   Control buffer edge appearance (useful for lines).
+    -   **`singleSide`** (GEOS engine):
+        -   Buffer on one or both sides of the geometry.
+
+```{r}
+#| eval: false
+#| code-fold: true
+
+a1 <- andaman |> 
+  st_cast("POLYGON")
+
+a2 <- st_buffer(a1, dist = 20000) |> 
+  mutate(id = as_factor(row_number()))
+
+a3 <- st_buffer(a1, dist = 20000, nQuadSegs = 0.5) |> 
+  mutate(id = as_factor(row_number()))
+
+g1 <- ggplot() +
+  geom_sf(data = a1) +
+  labs(
+    title = "Base Map with\nst_cast(\"POLYGON\")",
+    subtitle = "Nicobar Islands"
+  ) +
+  coord_sf(
+    ylim = c(6.5, 9.5),
+    default_crs = 4326
+  )
+
+g2 <- ggplot() +
+  geom_sf(
+    data = a2,
+    mapping = aes(fill = id),
+    alpha = 0.2,
+    colour = "transparent"
+  ) +
+  geom_sf(
+    data = a1
+  ) +
+  labs(
+    title = "With 20 km buffer\n around each island",
+    subtitle = "Nicobar Islands; each\nbuffer in separate colour"
+  ) +
+  theme(legend.position = "none") +
+  coord_sf(
+    ylim = c(6.5, 9.5),
+    default_crs = 4326
+  )
+
+
+g3 <- ggplot() +
+  geom_sf(
+    data = a3,
+    mapping = aes(fill = id),
+    alpha = 0.2,
+    colour = "transparent"
+  ) +
+  geom_sf(
+    data = a1
+  ) +
+  labs(
+    title = "With 20 km buffer\n around each island",
+    subtitle = "Nicobar Islands;\narugment (nQuadSegs = 1)"
+  ) +
+  theme(legend.position = "none") +
+  coord_sf(
+    ylim = c(6.5, 9.5),
+    default_crs = 4326
+  )
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter5-2-3_1.png"),
+  plot = patchwork::wrap_plots(g1, g2, g3, nrow = 1),
+  height = 1200,
+  width = 2000,
+  units = "px"
+)
+```
+
+![Use of st_buffer()](images/chapter5-2-3_1.png){#fig-5-2-3-1}
