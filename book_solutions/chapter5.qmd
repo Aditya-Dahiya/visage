@@ -445,7 +445,7 @@ ggsave(
     -   Which demographic groups are within travel range of a new shop?
 -   **`st_buffer()`** from the [sf package](https://r-spatial.github.io/sf/). Example Visualization is shown in @fig-5-2-3-1
     -   **Input**: Geometry and `dist` (distance in CRS units, e.g., meters).
-    -   **Output**: One buffer polygon per geometry feature.
+    -   **Output**: **One buffer polygon per geometry feature.**
 -   **Other Key Arguments in `st_buffer()`**:
     -   **`nQuadSegs`** (GEOS engine):
         -   Number of segments per quadrant (default: 30).
@@ -534,3 +534,220 @@ ggsave(
 ```
 
 ![Use of st_buffer()](images/chapter5-2-3_1.png){#fig-5-2-3-1}
+
+### 5.2.4 Affine Transformations
+
+-   Definition: Transformations that preserve **lines and parallelism** but not necessarily angles or lengths.
+-   **Types of Affine Transformations**:
+    1.  **Shifting (Translation)**: Moves every point by a constant distance.
+
+        -   Example: Adding a vector to shift all **y-coordinates** north by 400 km distance while keeping **x-coordinates** unchanged using:
+
+            ``` r
+            n_shift <- n1 |> 
+              add(c(0, 400000)) |> 
+              st_set_crs(st_crs(n1))
+            ```
+
+        -   *Note: This converts the CRS of the new sfc object to `NA` and thus needs `st_set_crs()` to return it back to the original CRS.*
+
+    2.  **Scaling**: Enlarges or shrinks geometries.
+
+        -   **Global Scaling**:
+            -   Multiplies all coordinates relative to the origin, preserving **topological relations**.
+        -   **Local Scaling**:
+            -   Scales geometries around specific points (e.g., centroids).
+
+            -   Steps:
+
+                1.  Shift geometries so the centroid becomes (0,0).
+                2.  Scale by a factor.
+                3.  Shift back to original centroid coordinates.
+
+            -   Example: Enlarge the geometries by a factor of 2.5.
+
+                ``` r
+                n1_scale <- (n1 - n1_centroid) |> 
+                  multiply_by(2.5) |> 
+                  add(n1_centroid) |> 
+                  st_set_crs(st_crs(n1))
+                ```
+
+    3.  **Rotation**: Rotates coordinates using a **rotation matrix**.
+
+        -   Rotation matrix: Define a function to create the rotation matrix and apply it to the geometry. R=\[cosθ/sinθ​ − sinθ/cosθ​\]
+-   **Replacing Old Geometry**: Use `st_set_geometry()` from the [sf package](https://r-spatial.github.io/sf/) to finally Replace original geometry with scaled versions (shifted, rotated or scaled)
+-   **Applications**:
+    -   Shifting: For **label placement**.
+    -   Scaling: In non-contiguous cartograms (see [Section 9.6](https://r.geocompx.org/cartograms.html)).
+    -   Rotation: Correcting distorted geometries during re-projection.
+
+```{r}
+#| eval: false
+#| code-fold: true
+
+sysfonts::font_add_google("Saira Extra Condensed", "caption_font")
+showtext::showtext_auto()
+
+ggplot2::theme_set(
+  theme_minimal(
+    base_size = 30,
+    base_family = "caption_font"
+  ) +
+    theme(
+      text = element_text(
+        lineheight = 0.3,
+        hjust = 0.5
+      ),
+      plot.title.position = "plot",
+      plot.title = element_text(hjust = 1),
+      plot.subtitle = element_text(hjust = 1),
+      panel.grid = element_line(
+        linewidth = 0.2
+      )
+    )
+)
+
+df1 <- andaman |> 
+  st_cast("POLYGON") |> 
+  mutate(id = row_number()) |> 
+  filter(id < 10) |> 
+  mutate(
+    name = case_when(
+      id %in% c(4,8, 9, 7) ~ "Nicobar Islands",
+      .default = "Andaman Islands"
+    )
+  )
+
+
+# Pull out only sfc class (i.e. geometry for Andaman Islands)
+a1 <- df1 |> 
+  filter(name == "Andaman Islands") |> 
+  st_geometry()
+
+# Pull out only sfc class (i.e. geometry for Nicobar Islands)
+n1 <- df1 |> 
+  filter(name == "Nicobar Islands") |> 
+  st_geometry()
+
+
+g1 <- df1 |> 
+  ggplot(aes(fill = name)) +
+  geom_sf(colour = "transparent") +
+  geom_sf_text(aes(label = id)) +
+  coord_sf(
+    ylim = c(7, 13.5),
+    default_crs = 4326
+  ) +
+  labs(
+    title = "Base Map",
+    subtitle = "10 Largest Islands amongst\nAndamand and Nicobar Island chain",
+    fill = NULL, x = NULL, y = NULL
+  ) +
+  scale_fill_manual(values = c("#89973DFF", "#E8B92FFF")) +
+  theme(
+    legend.position = "left"
+  )
+
+g2 <- ggplot() +
+  geom_sf(data = a1, fill = "#89973DFF", colour = "transparent") +
+  geom_sf(data = n1, fill = "#E8B92FFF", colour = "transparent") +
+  coord_sf(
+    ylim = c(7, 13.5),
+    default_crs = 4326
+  ) + 
+  labs(
+    title = "Plotting as separate\nsfc objects",
+    subtitle = "10 Largest Islands"
+  )
+
+#################### Shifting #########################
+
+n_shift <- n1 |> 
+  add(c(0, 400000)) |> 
+  st_set_crs(st_crs(n1))
+
+g3 <- ggplot() +
+  geom_sf(data = a1, fill = "#89973DFF", colour = "transparent") +
+  geom_sf(
+    data = n_shift, 
+    fill = "#E8B92FFF", 
+    colour = "transparent"
+    ) +
+  coord_sf(
+    ylim = c(7, 13.5),
+    default_crs = 4326
+  ) +
+  labs(
+    title = "Shifting sfc objects",
+    subtitle = "Bring Nicobar Islands\ncloser to the Andamans"
+  )
+
+#################### Scaling ##########################
+
+n1_centroid <- st_centroid(n1)
+
+n1_scale <- (n1 - n1_centroid) |> 
+  multiply_by(2.5) |> 
+  add(n1_centroid) |> 
+  st_set_crs(st_crs(n1))
+
+g4 <- ggplot() +
+  geom_sf(data = a1, fill = "#89973DFF", colour = "transparent") +
+  geom_sf(
+    data = n1_scale, 
+    fill = "#E8B92FFF", 
+    colour = "transparent"
+    ) +
+  coord_sf(
+    ylim = c(7, 13.5),
+    default_crs = 4326
+  ) + 
+  labs(
+    title = "Scaling sfc objects",
+    subtitle = "Enlarging Nicobar Islands\nby 2.5 times."
+  )
+
+##################### Rotation ########################
+rotation = function(a){
+  r = a * pi / 180 #degrees to radians
+  matrix(c(cos(r), sin(r), -sin(r), cos(r)), nrow = 2, ncol = 2)
+} 
+
+n1_rotate <- (n1 - n1_centroid) |> 
+  multiply_by(rotation(90)) |> 
+  add(n1_centroid) |> 
+  st_set_crs(st_crs(n1))
+
+
+g5 <- ggplot() +
+  geom_sf(data = a1, fill = "#89973DFF", colour = "transparent") +
+  geom_sf(
+    data = n1_rotate, 
+    fill = "#E8B92FFF", 
+    colour = "transparent"
+    ) +
+  coord_sf(
+    ylim = c(7, 13.5),
+    default_crs = 4326
+  ) + 
+  labs(
+    title = "Rotating sfc objects",
+    subtitle = "Rotating Nicobar Islands\nclockwise by 90 degrees"
+  )
+
+g <- patchwork::wrap_plots(g1, g3, g4, g5) +
+  patchwork::plot_layout(widths = c(1,1,1,1,1), nrow = 1)
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter5-2-4_1.png"),
+  plot = g,
+  height = 1200,
+  width = 2500,
+  units = "px"
+)
+```
+
+![](images/chapter5-2-4_1.png)
