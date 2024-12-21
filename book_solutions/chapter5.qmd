@@ -43,6 +43,7 @@ library(tidyterra) # For plotting rasters in ggplot2
 library(magrittr)  # Using pipes with raster objects
 library(tidyverse) # All things tidy; Data Wrangling
 library(spData)    # Spatial Datasets
+library(patchwork) # Composing plots
 ```
 
 ## 5.1 Introduction
@@ -772,7 +773,7 @@ Here's a more visually appealing version of the same graphic, produced using com
 
     -   Inspired by [Figure 12.1](https://r4ds.hadley.nz/logicals.html#fig-bool-ops) of [*R for Data Science (2e)*](https://r4ds.hadley.nz/).
 
-    -   Spatial equivalents to logical operators (e.g., AND, OR, NOT) allow flexible geometry subsetting:
+    -   Spatial equivalents to logical operators (e.g., AND, OR, NOT) allow flexible geometry subsetting (as shown in @fig-5-2-5)
 
         -   **Intersection (AND)**: `st_intersection()`
 
@@ -789,21 +790,28 @@ Here's a more visually appealing version of the same graphic, produced using com
     -   Creating subsets of spatial data for specific analysis or visualization.
 
 ```{r}
-sysfonts::font_add_google("Fira Code", "body_font")
+#| code-fold: true
+#| eval: false
+
+
+sysfonts::font_add_google("Nova Mono", "body_font")
 showtext::showtext_auto()
 
 theme_custom <- function(...) {
   ggthemes::theme_map(
-    base_size = 16,
+    base_size = 20,
     base_family = "body_font"
-  ) +
+    ) +
     labs(
       x = NULL, y = NULL
     ) +
     theme(
       plot.title = element_text(
-        hjust = 0.5
+        hjust = 0.5,
+        lineheight = 0.3,
+        margin = margin(5,0,2,0, "mm")
       ),
+      plot.margin = margin(0,0,0,0, "mm"),
       ...
     )
 }
@@ -830,10 +838,11 @@ g1 <- sf_circles |>
     ) +
   geom_sf(
     fill = "transparent",
-    linewidth = 1
+    linewidth = 0.5,
+    colour = "grey10"
   ) +
   geom_sf_text(
-    colour = "black",
+    colour = "grey10",
     fontface = "bold",
     size = 16,
     family = "body_font"
@@ -874,7 +883,7 @@ g4 <- g1 +
     data = d1 |> st_difference(a1) |> st_difference(b1),
     fill = alpha("grey", 0.7)
   ) +
-  ggtitle("D |> st_difference(A) |> st_difference(B)")
+  ggtitle("D |> st_difference(A) |>\nst_difference(B)")
 
 g5 <- g1 +
   geom_sf(
@@ -920,15 +929,59 @@ g9 <- g1 +
     data = overlap,
     fill = alpha("grey", 0.7)
   ) +
-  labs(title = "A st_union() and st_interaction() chain")
+  labs(title = "A st_union() and\nst_interaction() chain")
 
-patchwork::wrap_plots(
+custom_layout_design <- "
+  AAAAAA
+  AAAAAA
+  BBCCDD
+  BBCCDD
+  EEFFGG
+  EEFFGG
+  HHHIII
+  HHHIII
+"
+
+g <- patchwork::wrap_plots(
   g1, g2, g3, g4, g5, g6, g7, g8, g9
-  ) |> 
+  ) + 
   patchwork::plot_layout(
-    ncol = 2
+    design = custom_layout_design
+  ) +
+  patchwork::plot_annotation(
+    title = "Clipping {sf} objects\n(Boolean Algebra examples)",
+    subtitle = "Using functions like st_intersection(), st_union(), st_difference()\n& st_sym_difference()",
+    theme = theme(
+      plot.title = element_text(
+        family = "body_font",
+        size = 54, 
+        lineheight = 0.3,
+        hjust = 0.5,
+        face = "bold"
+      ),
+      plot.subtitle = element_text(
+        family = "body_font",
+        size = 30, 
+        lineheight = 0.3,
+        hjust = 0.5
+      )
+    )
   )
+
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter5-2-5_1.png"),
+  plot = g,
+  height = 2000,
+  width = 1600,
+  units = "px",
+  bg = "white"
+)
 ```
+
+![Various methods and examples (inspired by Boolean Algebra) for clipping {sf} objects in R](images/chapter5-2-5_1.png){#fig-5-2-5}
 
 ### 5.2.6 Subsetting and Clipping
 
