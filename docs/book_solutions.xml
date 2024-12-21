@@ -2877,21 +2877,13 @@ font-style: inherit;">"px"</span></span>
 <h3 class="anchored" data-anchor-id="clipping">5.2.5 Clipping</h3>
 <ul>
 <li><p><strong>Definition</strong>: A form of spatial subsetting that modifies the geometry column of affected features. Applies to lines, polygons, and their multi equivalents (not points).</p></li>
-<li><p><strong>Purpose</strong>:</p>
-<ul>
-<li><p>Identifies or extracts areas of overlap or subsets of spatial features.</p></li>
-<li><p>Commonly used in geographic data analysis to focus on regions of interest.</p></li>
-</ul></li>
-<li><p><strong>Logical Operations and Spatial Equivalents</strong>:</p>
-<ul>
-<li><p>Inspired by <a href="https://r4ds.hadley.nz/logicals.html#fig-bool-ops">Figure 12.1</a> of <a href="https://r4ds.hadley.nz/"><em>R for Data Science (2e)</em></a>.</p></li>
-<li><p>Spatial equivalents to logical operators (e.g., AND, OR, NOT) allow flexible geometry subsetting (as shown in Figure&nbsp;4)</p>
+<li><p><strong>Purpose</strong>: Identifies or extracts areas of overlap or subsets of spatial features. Commonly used in geographic data analysis to focus on regions of interest.</p></li>
+<li><p><strong>Logical Operations and Spatial Equivalents</strong>. Inspired by <a href="https://r4ds.hadley.nz/logicals.html#fig-bool-ops">Figure 12.1</a> of <a href="https://r4ds.hadley.nz/"><em>R for Data Science (2e)</em></a>. Spatial equivalents to logical operators (e.g., AND, OR, NOT) allow flexible geometry subsetting (as shown in Figure&nbsp;4)</p>
 <ul>
 <li><p><strong>Intersection (AND)</strong>: <code>st_intersection()</code></p></li>
 <li><p><strong>Union (OR)</strong>: <code>st_union()</code></p></li>
 <li><p><strong>Difference (NOT)</strong>: <code>st_difference()</code></p></li>
 <li><p><strong>Exclusive OR (XOR):</strong> <code>st_sym_difference()</code></p></li>
-</ul></li>
 </ul></li>
 <li><p><strong>Applications</strong>:</p>
 <ul>
@@ -3774,27 +3766,800 @@ Figure&nbsp;4: Various methods and examples (inspired by Boolean Algebra) for cl
 </figure>
 </div>
 </section>
-<section id="subsetting-and-clipping" class="level3">
-<h3 class="anchored" data-anchor-id="subsetting-and-clipping">5.2.6 Subsetting and Clipping</h3>
+<section id="sub-setting-and-clipping" class="level3">
+<h3 class="anchored" data-anchor-id="sub-setting-and-clipping">5.2.6 Sub-setting and Clipping</h3>
 <ul>
-<li><strong>Clipping</strong>: Modifies geometry to match a subsetting object. <strong>Subsetting</strong>: Selects features that intersect or partly intersect with a clipping object.</li>
-<li><strong>Illustration</strong>: Points randomly distributed within the bounding box enclosing two overlapping circles (<code>x</code> and <code>y</code>). Some points are inside one circle, both circles, or neither. Then, we subset points intersecting with <strong>both</strong> <code>x</code> and <code>y</code>.</li>
+<li><strong>Clipping</strong>: Modifies geometry to match a subsetting object. <strong>Subsetting</strong>: Selects features that intersect or partly intersect with a clipping object. An example: Points randomly distributed within the bounding box of the five concentric circles. Some points are inside one circle, some inside two circles, or neither. Then, we subset points intersecting with <strong>one, two or no circles.</strong></li>
 <li><strong>Key Functions</strong>:
 <ol type="1">
 <li><code>st_sample()</code>: Generates random points within a geometry.</li>
 <li><strong>Clipping and Subsetting Approaches</strong>:
 <ul>
 <li><strong>Way #1</strong>: Use the intersection of <code>x</code> and <code>y</code> (<code>x_and_y</code>) as a direct subsetting object: <code>p[x_and_y]</code></li>
-<li><strong>Way #2</strong>: Find the intersection between points (<code>p</code>) and <code>x_and_y</code>, modifying overlapping geometries: <code>st_intersection(p, x_and_y)</code></li>
+<li><strong>Way #2</strong>: Find the intersection between points (<code>p</code>) and <code>x_and_y</code>, modifying overlapping geometries: <code>st_intersection(p, x_and_y)</code> , or, using <code>st_interesects()</code> when working in a pipe (<code>|&gt;</code>) chain.</li>
 <li><strong>Way #3</strong>: Use <code>st_intersects()</code> to determine logical overlap between <code>p</code> and the subsetting objects: <code>sel_p_xy = st_intersects(p, x, sparse = FALSE)[, 1] &amp; st_intersects(p, y, sparse = FALSE)[, 1]</code> and then subset, using <code>p_xy3 = p[sel_p_xy]</code></li>
 </ul></li>
 </ol></li>
 <li><strong>Preferred Implementation</strong>:
 <ul>
-<li><strong>Way #2</strong> (concise and efficient) and it is the tidyverse approach with <code>|&gt;</code> compatibility</li>
-<li><strong>Way #2 and #3</strong> are alternatives with more control over geometry modifications.</li>
+<li><strong>Way #2</strong> (concise and efficient) and it is the tidyverse approach with <code>|&gt;</code> compatibility. Example shown in Figure&nbsp;5</li>
 </ul></li>
 </ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1">sysfonts<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">font_add_google</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Fira Sans Condensed"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>)</span>
+<span id="cb10-2">showtext<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">showtext_auto</span>()</span>
+<span id="cb10-3"></span>
+<span id="cb10-4">theme_custom <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(...) {</span>
+<span id="cb10-5">  ggthemes<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_map</span>(</span>
+<span id="cb10-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>,</span>
+<span id="cb10-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span></span>
+<span id="cb10-8">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb10-9">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb10-10">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span></span>
+<span id="cb10-11">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb10-12">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb10-13">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb10-14">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">hjust =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>,</span>
+<span id="cb10-15">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lineheight =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>,</span>
+<span id="cb10-16">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)</span>
+<span id="cb10-17">      ),</span>
+<span id="cb10-18">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb10-19">      ...</span>
+<span id="cb10-20">    )</span>
+<span id="cb10-21">}</span>
+<span id="cb10-22"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define the center points of the circles</span></span>
+<span id="cb10-23">sf_circles <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tibble</span>(</span>
+<span id="cb10-24">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>),</span>
+<span id="cb10-25">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>),</span>
+<span id="cb10-26">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour_var =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"blue"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"black"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"yellow"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"green"</span>),</span>
+<span id="cb10-27">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label_var =</span> LETTERS[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>]</span>
+<span id="cb10-28">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-29">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Convert the points to an sf object</span></span>
+<span id="cb10-30">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_as_sf</span>(</span>
+<span id="cb10-31">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">coords =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"x"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"y"</span>), </span>
+<span id="cb10-32">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span></span>
+<span id="cb10-33">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-34">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create circular geometries using st_buffer</span></span>
+<span id="cb10-35">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">geometry =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_buffer</span>(geometry, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dist =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>))</span>
+<span id="cb10-36"></span>
+<span id="cb10-37"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Naming the individual circles</span></span>
+<span id="cb10-38">pull_a_circle <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(ch_pick){</span>
+<span id="cb10-39">  sf_circles <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-40">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(label_var <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> ch_pick)</span>
+<span id="cb10-41">}</span>
+<span id="cb10-42">a1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull_a_circle</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A"</span>)  </span>
+<span id="cb10-43">b1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull_a_circle</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B"</span>)  </span>
+<span id="cb10-44">c1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull_a_circle</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"C"</span>)  </span>
+<span id="cb10-45">d1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull_a_circle</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"D"</span>)  </span>
+<span id="cb10-46">e1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull_a_circle</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"E"</span>)  </span>
+<span id="cb10-47"></span>
+<span id="cb10-48">one_circle <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> a1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-49">            <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_sym_difference</span>(d1) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-50">            <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_sym_difference</span>(b1) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-51">            <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_sym_difference</span>(c1) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-52">            <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_sym_difference</span>(e1)</span>
+<span id="cb10-53">overlap <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> a1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-54">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersection</span>(d1) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-55">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_union</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersection</span>(d1, b1)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-56">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_union</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersection</span>(b1, e1)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-57">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_union</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersection</span>(e1, c1))</span>
+<span id="cb10-58"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rm</span>(a1, b1, c1, d1, e1)</span>
+<span id="cb10-59"></span>
+<span id="cb10-60"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">42</span>)</span>
+<span id="cb10-61"></span>
+<span id="cb10-62">random_points <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> sf_circles <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-63">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Get a bounding box</span></span>
+<span id="cb10-64">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_bbox</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-65">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Covert it into a polygon</span></span>
+<span id="cb10-66">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_as_sfc</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-67">  </span>
+<span id="cb10-68">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Get a sample of points within this polygon</span></span>
+<span id="cb10-69">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_sample</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-70">  </span>
+<span id="cb10-71">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Convert into a sf object</span></span>
+<span id="cb10-72">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_as_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-73">  </span>
+<span id="cb10-74">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Add identifiers for where the points fall</span></span>
+<span id="cb10-75">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb10-76">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour_var =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">case_when</span>(</span>
+<span id="cb10-77">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersects</span>(x, overlap, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Two Circles"</span>,</span>
+<span id="cb10-78">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersects</span>(x, one_circle, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"One Circle"</span>,</span>
+<span id="cb10-79">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.default =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Outside"</span></span>
+<span id="cb10-80">    ),</span>
+<span id="cb10-81">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour_var =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fct</span>(</span>
+<span id="cb10-82">      colour_var,</span>
+<span id="cb10-83">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">levels =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(</span>
+<span id="cb10-84">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Outside"</span>,</span>
+<span id="cb10-85">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"One Circle"</span>,</span>
+<span id="cb10-86">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Two Circles"</span></span>
+<span id="cb10-87">      )</span>
+<span id="cb10-88">    )</span>
+<span id="cb10-89">  )</span>
+<span id="cb10-90"></span>
+<span id="cb10-91">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb10-92">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb10-93">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> sf_circles, </span>
+<span id="cb10-94">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span>,</span>
+<span id="cb10-95">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>,</span>
+<span id="cb10-96">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"grey10"</span></span>
+<span id="cb10-97">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb10-98">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb10-99">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> random_points,</span>
+<span id="cb10-100">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb10-101">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">geometry =</span> x,</span>
+<span id="cb10-102">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> colour_var</span>
+<span id="cb10-103">    ),</span>
+<span id="cb10-104">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.75</span>,</span>
+<span id="cb10-105">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.7</span>,</span>
+<span id="cb10-106">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">stroke =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span></span>
+<span id="cb10-107">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb10-108">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb10-109">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Clipping and Subsetting"</span>,</span>
+<span id="cb10-110">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Subsetting random points into those that overlap none, one or two circles"</span>,</span>
+<span id="cb10-111">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Point lies within"</span></span>
+<span id="cb10-112">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb10-113">  paletteer<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_colour_paletteer_d</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"khroma::highcontrast"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb10-114">  ggthemes<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_map</span>(</span>
+<span id="cb10-115">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>,</span>
+<span id="cb10-116">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">16</span></span>
+<span id="cb10-117">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb10-118">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb10-119">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb10-120">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">24</span>,</span>
+<span id="cb10-121">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">hjust =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>,</span>
+<span id="cb10-122">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)</span>
+<span id="cb10-123">    ),</span>
+<span id="cb10-124">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.subtitle =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb10-125">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">hjust =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>,</span>
+<span id="cb10-126">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lineheight =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>,</span>
+<span id="cb10-127">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)</span>
+<span id="cb10-128">    ),</span>
+<span id="cb10-129">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"inside"</span>,</span>
+<span id="cb10-130">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position.inside =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>),</span>
+<span id="cb10-131">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.justification =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>),</span>
+<span id="cb10-132">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.direction =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"horizontal"</span>,</span>
+<span id="cb10-133">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb10-134">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)</span>
+<span id="cb10-135">    ),</span>
+<span id="cb10-136">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb10-137">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb10-138">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">hjust =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span></span>
+<span id="cb10-139">    ),</span>
+<span id="cb10-140">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb10-141">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.key.size =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pt"</span>),</span>
+<span id="cb10-142">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.title.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"top"</span></span>
+<span id="cb10-143">  )</span>
+<span id="cb10-144"></span>
+<span id="cb10-145"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb10-146">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"book_solutions"</span>, </span>
+<span id="cb10-147">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>, </span>
+<span id="cb10-148">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"chapter5-2-6_1.png"</span>),</span>
+<span id="cb10-149">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb10-150">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>,</span>
+<span id="cb10-151">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">800</span>,</span>
+<span id="cb10-152">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span>,</span>
+<span id="cb10-153">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bg =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span></span>
+<span id="cb10-154">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-5-2-6" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-5-2-6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/chapter5-2-6_1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13" title="Figure&nbsp;5: Sub-setting points with clipped {sf} objects - an example"><img src="https://aditya-dahiya.github.io/visage/index.html/book_solutions/images/chapter5-2-6_1.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-5-2-6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Sub-setting points with clipped {sf} objects - an example
+</figcaption>
+</figure>
+</div>
 
 
 

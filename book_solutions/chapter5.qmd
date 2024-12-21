@@ -763,25 +763,17 @@ Here's a more visually appealing version of the same graphic, produced using com
 
 -   **Definition**: A form of spatial subsetting that modifies the geometry column of affected features. Applies to lines, polygons, and their multi equivalents (not points).
 
--   **Purpose**:
+-   **Purpose**: Identifies or extracts areas of overlap or subsets of spatial features. Commonly used in geographic data analysis to focus on regions of interest.
 
-    -   Identifies or extracts areas of overlap or subsets of spatial features.
+-   **Logical Operations and Spatial Equivalents**. Inspired by [Figure 12.1](https://r4ds.hadley.nz/logicals.html#fig-bool-ops) of [*R for Data Science (2e)*](https://r4ds.hadley.nz/). Spatial equivalents to logical operators (e.g., AND, OR, NOT) allow flexible geometry subsetting (as shown in @fig-5-2-5)
 
-    -   Commonly used in geographic data analysis to focus on regions of interest.
+    -   **Intersection (AND)**: `st_intersection()`
 
--   **Logical Operations and Spatial Equivalents**:
+    -   **Union (OR)**: `st_union()`
 
-    -   Inspired by [Figure 12.1](https://r4ds.hadley.nz/logicals.html#fig-bool-ops) of [*R for Data Science (2e)*](https://r4ds.hadley.nz/).
+    -   **Difference (NOT)**: `st_difference()`
 
-    -   Spatial equivalents to logical operators (e.g., AND, OR, NOT) allow flexible geometry subsetting (as shown in @fig-5-2-5)
-
-        -   **Intersection (AND)**: `st_intersection()`
-
-        -   **Union (OR)**: `st_union()`
-
-        -   **Difference (NOT)**: `st_difference()`
-
-        -   **Exclusive OR (XOR):** `st_sym_difference()`
+    -   **Exclusive OR (XOR):** `st_sym_difference()`
 
 -   **Applications**:
 
@@ -983,20 +975,178 @@ ggsave(
 
 ![Various methods and examples (inspired by Boolean Algebra) for clipping {sf} objects in R](images/chapter5-2-5_1.png){#fig-5-2-5}
 
-### 5.2.6 Subsetting and Clipping
+### 5.2.6 Sub-setting and Clipping
 
--   **Clipping**: Modifies geometry to match a subsetting object. **Subsetting**: Selects features that intersect or partly intersect with a clipping object.
--   **Illustration**: Points randomly distributed within the bounding box enclosing two overlapping circles (`x` and `y`). Some points are inside one circle, both circles, or neither. Then, we subset points intersecting with **both** `x` and `y`.
+-   **Clipping**: Modifies geometry to match a subsetting object. **Subsetting**: Selects features that intersect or partly intersect with a clipping object. An example: Points randomly distributed within the bounding box of the five concentric circles. Some points are inside one circle, some inside two circles, or neither. Then, we subset points intersecting with **one, two or no circles.**
 -   **Key Functions**:
     1.  `st_sample()`: Generates random points within a geometry.
     2.  **Clipping and Subsetting Approaches**:
         -   **Way #1**: Use the intersection of `x` and `y` (`x_and_y`) as a direct subsetting object: `p[x_and_y]`
-        -   **Way #2**: Find the intersection between points (`p`) and `x_and_y`, modifying overlapping geometries: `st_intersection(p, x_and_y)`
+        -   **Way #2**: Find the intersection between points (`p`) and `x_and_y`, modifying overlapping geometries: `st_intersection(p, x_and_y)` , or, using `st_interesects()` when working in a pipe (`|>`) chain.
         -   **Way #3**: Use `st_intersects()` to determine logical overlap between `p` and the subsetting objects: `sel_p_xy = st_intersects(p, x, sparse = FALSE)[, 1] & st_intersects(p, y, sparse = FALSE)[, 1]` and then subset, using `p_xy3 = p[sel_p_xy]`
 -   **Preferred Implementation**:
-    -   **Way #2** (concise and efficient) and it is the tidyverse approach with `|>` compatibility
-    -   **Way #2 and #3** are alternatives with more control over geometry modifications.
+    -   **Way #2** (concise and efficient) and it is the tidyverse approach with `|>` compatibility. Example shown in @fig-5-2-6
 
 ```{r}
+#| code-fold: true
+#| eval: false
+
+
+sysfonts::font_add_google("Fira Sans Condensed", "body_font")
+showtext::showtext_auto()
+
+theme_custom <- function(...) {
+  ggthemes::theme_map(
+    base_size = 20,
+    base_family = "body_font"
+    ) +
+    labs(
+      x = NULL, y = NULL
+    ) +
+    theme(
+      plot.title = element_text(
+        hjust = 0.5,
+        lineheight = 0.3,
+        margin = margin(5,0,2,0, "mm")
+      ),
+      plot.margin = margin(0,0,0,0, "mm"),
+      ...
+    )
+}
+# Define the center points of the circles
+sf_circles <- tibble(
+  x = c(0, 2, 4, 1, 3),
+  y = c(0, 0, 0, -1, -1),
+  colour_var = c("blue", "black", "red", "yellow", "green"),
+  label_var = LETTERS[1:5]
+  ) |> 
+  # Convert the points to an sf object
+  st_as_sf(
+  coords = c("x", "y"), 
+  crs = NA
+  ) |> 
+  # Create circular geometries using st_buffer
+  mutate(geometry = st_buffer(geometry, dist = 1))
+
+# Naming the individual circles
+pull_a_circle <- function(ch_pick){
+  sf_circles |> 
+    filter(label_var == ch_pick)
+}
+a1 <- pull_a_circle("A")  
+b1 <- pull_a_circle("B")  
+c1 <- pull_a_circle("C")  
+d1 <- pull_a_circle("D")  
+e1 <- pull_a_circle("E")  
+
+one_circle <- a1 |> 
+            st_sym_difference(d1) |> 
+            st_sym_difference(b1) |> 
+            st_sym_difference(c1) |> 
+            st_sym_difference(e1)
+overlap <- a1 |> 
+  st_intersection(d1) |> 
+  st_union(st_intersection(d1, b1)) |> 
+  st_union(st_intersection(b1, e1)) |> 
+  st_union(st_intersection(e1, c1))
+rm(a1, b1, c1, d1, e1)
+
+set.seed(42)
+
+random_points <- sf_circles |> 
+  # Get a bounding box
+  st_bbox() |> 
+  # Covert it into a polygon
+  st_as_sfc() |> 
+  
+  # Get a sample of points within this polygon
+  st_sample(size = 100) |> 
+  
+  # Convert into a sf object
+  st_as_sf() |> 
+  
+  # Add identifiers for where the points fall
+  mutate(
+    colour_var = case_when(
+      st_intersects(x, overlap, sparse = F) ~ "Two Circles",
+      st_intersects(x, one_circle, sparse = F) ~ "One Circle",
+      .default = "Outside"
+    ),
+    colour_var = fct(
+      colour_var,
+      levels = c(
+        "Outside",
+        "One Circle",
+        "Two Circles"
+      )
+    )
+  )
+
+g <- ggplot() +
+  geom_sf(
+    data = sf_circles, 
+    fill = "transparent",
+    linewidth = 0.2,
+    colour = "grey10"
+    ) +
+  geom_sf(
+    data = random_points,
+    mapping = aes(
+      geometry = x,
+      colour = colour_var
+    ),
+    alpha = 0.75,
+    size = 0.7,
+    stroke = 0.1
+  ) +
+  labs(
+    title = "Clipping and Subsetting",
+    subtitle = "Subsetting random points into those that overlap none, one or two circles",
+    colour = "Point lies within"
+  ) +
+  paletteer::scale_colour_paletteer_d("khroma::highcontrast") +
+  ggthemes::theme_map(
+    base_family = "body_font",
+    base_size = 16
+  ) +
+  theme(
+    plot.title = element_text(
+      size = 24,
+      hjust = 0.5,
+      margin = margin(0,0,0,0, "mm")
+    ),
+    plot.subtitle = element_text(
+      hjust = 0.5,
+      lineheight = 0.3,
+      margin = margin(0,0,0,0, "mm")
+    ),
+    legend.position = "inside",
+    legend.position.inside = c(0.5, 0),
+    legend.justification = c(0.5, 1),
+    legend.direction = "horizontal",
+    legend.text = element_text(
+      margin = margin(0,0,0,0, "mm")
+    ),
+    legend.title = element_text(
+      margin = margin(0,0,0,0, "mm"),
+      hjust = 0.5
+    ),
+    legend.margin = margin(0,0,0,0, "mm"),
+    legend.key.size = unit(5, "pt"),
+    legend.title.position = "top"
+  )
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter5-2-6_1.png"),
+  plot = g,
+  height = 500,
+  width = 800,
+  units = "px",
+  bg = "white"
+)
 
 ```
+
+![Sub-setting points with clipped {sf} objects - an example](images/chapter5-2-6_1.png){#fig-5-2-6}
