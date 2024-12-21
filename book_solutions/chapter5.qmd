@@ -1150,3 +1150,122 @@ ggsave(
 ```
 
 ![Sub-setting points with clipped {sf} objects - an example](images/chapter5-2-6_1.png){#fig-5-2-6}
+
+### 5.2.7 Geometry Unions
+
+-   **Spatial Aggregation and Geometry Dissolution:**
+    -   Spatial aggregation dissolves boundaries of touching polygons within the same group automatically. Example: Aggregating 48 US states into four regions with **`aggregate()`** (base R approach) or **`summarize()`** (tidyverse approach).
+    -   Geometric Operation Behind the Scenes: Functions **`aggregate()`** and **`summarize()`** internally call **`st_union()`** from the [sf](https://r-spatial.github.io/sf/) package to dissolve boundaries and merge geometries.
+-   **Union of Geometries:** Visualization Insight example is shown below.
+
+```{r}
+#| code-fold: true
+#| eval: false
+
+sysfonts::font_add_google("Fira Sans Condensed", "body_font")
+showtext::showtext_auto()
+
+haryana <- read_sf(
+  here::here(
+    "data", "haryana_map",
+    "HARYANA_SUBDISTRICT_BDY.shp"
+  )
+) |> 
+  janitor::clean_names() |> 
+  st_simplify(dTolerance = 100) |> 
+  mutate(
+    district = str_replace_all(district, ">", "A"),
+    district = str_replace_all(district, "\\|", "I"),
+    district = str_to_title(district),
+    tehsil = str_to_title(str_replace_all(tehsil, ">", "A"))
+  )
+
+g1 <- ggplot() +
+  geom_sf(data = haryana, linewidth = 0.1) +
+  ggthemes::theme_map(
+    base_family = "body_font"
+  ) +
+  coord_sf(expand = FALSE) +
+  labs(
+    title = "Tehsils of Haryana State (India)",
+    subtitle = "The raw map, showing each tehsil /\nsubdivision of Haryana."
+  )  +
+  theme(
+    plot.title = element_text(
+      hjust = 0.5
+    ),
+    plot.subtitle = element_text(
+      hjust = 0.5,
+      lineheight = 0.35
+    )
+  )
+
+g2 <- haryana |> 
+  group_by(district) |> 
+  summarise() |> 
+  ggplot() +
+  geom_sf(
+    linewidth = 0.1
+  ) +
+  ggthemes::theme_map(
+    base_family = "body_font"
+  ) +
+  coord_sf(expand = FALSE) +
+  labs(
+    title = "Districts of Haryana State (India)",
+    subtitle = "Aggregating tehsils with group_by(..) |> summarise()\nwhich uses st_union() at the backend."
+  ) +
+  theme(
+    plot.title = element_text(
+      hjust = 0.5
+    ),
+    plot.subtitle = element_text(
+      hjust = 0.5,
+      lineheight = 0.35
+    )
+  )
+
+g3 <- haryana |> 
+  group_by(district) |> 
+  summarise() |> 
+  st_cast("LINESTRING") |> 
+  ggplot() +
+  geom_sf(
+    linewidth = 0.1
+  ) +
+  ggthemes::theme_map(
+    base_family = "body_font"
+  ) +
+  coord_sf(expand = FALSE) +
+  labs(
+    title = "Casting geometry into LINESTRING",
+    subtitle = "group_by(district) |> summarise() |> st_cast(\"LINESTRING\").\nLoss of some geometries, but internal slivers are removed."
+  ) +
+  theme(
+    plot.title = element_text(
+      hjust = 0.5
+    ),
+    plot.subtitle = element_text(
+      hjust = 0.5,
+      lineheight = 0.35
+    )
+  )
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter5-2-7_1.png"),
+  plot = (g1 + g2 + g3),
+  height = 500,
+  width = 900,
+  units = "px",
+  bg = "white"
+)
+
+```
+
+::: callout-note
+When using the `st_union()` function in spatial analysis, "inside small lines" or "slivers" appearing in the resulting combined geometry often indicates slight discrepancies in the input geometries, particularly at boundary points, causing the union operation to create small, extra line segments where the geometries nearly overlap but don't perfectly align, as shown in @fig-5-2-7
+:::
+
+![](images/chapter5-2-7_1.png){#fig-5-2-7}
