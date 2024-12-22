@@ -6,7 +6,7 @@ author: "Aditya Dahiya"
 bibliography: references.bib
 format:
   html:
-    code-fold: false
+    code-fold: true
 editor_options: 
   chunk_output_type: console
 execute: 
@@ -1154,9 +1154,83 @@ ggsave(
 ### 5.2.7 Geometry Unions
 
 -   **Spatial Aggregation and Geometry Dissolution:**
-    -   Spatial aggregation dissolves boundaries of touching polygons within the same group automatically. Example: Aggregating 48 US states into four regions with **`aggregate()`** (base R approach) or **`summarize()`** (tidyverse approach).
+    -   Spatial aggregation dissolves boundaries of touching polygons within the same group automatically. Example: Aggregating 22 districts of the State of Haryana into an overall boundary map with **`aggregate()`** (base R approach) or **`summarize()`** (tidyverse approach), for example in @fig-5-2-7_2
     -   Geometric Operation Behind the Scenes: Functions **`aggregate()`** and **`summarize()`** internally call **`st_union()`** from the [sf](https://r-spatial.github.io/sf/) package to dissolve boundaries and merge geometries.
 -   **Union of Geometries:** Visualization Insight example is shown below.
+
+```{r}
+#| code-fold: true
+#| eval: false
+
+
+sysfonts::font_add_google("Fira Sans Condensed", "body_font")
+showtext::showtext_auto()
+
+haryana1 <- read_sf(here::here(
+  "data", "haryana_map",
+  "HARYANA_DISTRICT_BDY.shp"
+))
+
+g1 <- haryana1 |>
+  ggplot() +
+  geom_sf(
+    aes(fill = District)
+  ) +
+  ggthemes::theme_map(
+    base_family = "body_font"
+  ) +
+  coord_sf(expand = FALSE) +
+  labs(
+    title = "Districts of Haryana State (India)",
+    subtitle = "The raw map, showing each district."
+  )  +
+  theme(
+    plot.title = element_text(
+      hjust = 0.5
+    ),
+    plot.subtitle = element_text(
+      hjust = 0.5,
+      lineheight = 0.35
+    ),
+    legend.position = "none"
+  )
+
+g2 <- haryana1 |>
+  st_union() |> 
+  ggplot() +
+  geom_sf() +
+  ggthemes::theme_map(
+    base_family = "body_font"
+  ) +
+  coord_sf(expand = FALSE) +
+  labs(
+    title = "Boundary of Haryana State (India)",
+    subtitle = "Generated using sf::st_union()"
+  )  +
+  theme(
+    plot.title = element_text(
+      hjust = 0.5
+    ),
+    plot.subtitle = element_text(
+      hjust = 0.5,
+      lineheight = 0.35
+    ),
+    legend.position = "none"
+  )
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter5-2-7_2.png"),
+  plot = (g1 + g2),
+  height = 400,
+  width = 600,
+  units = "px",
+  bg = "white"
+)
+```
+
+![A district map of Haryana, converted into an outer boundary map using st_union()](images/chapter5-2-7_2.png){#fig-5-2-7_2}
 
 ```{r}
 #| code-fold: true
@@ -1268,4 +1342,4 @@ ggsave(
 When using the `st_union()` function in spatial analysis, "inside small lines" or "slivers" appearing in the resulting combined geometry often indicates slight discrepancies in the input geometries, particularly at boundary points, causing the union operation to create small, extra line segments where the geometries nearly overlap but don't perfectly align, as shown in @fig-5-2-7
 :::
 
-![](images/chapter5-2-7_1.png){#fig-5-2-7}
+![A sub-district / Tehsil map of Haryana, when converted into a district map with `summarise()` \[which basically uses `st_union()` only\] produces an imperfect result with internal slivers, as the boundary nodes are not overlapping amongst the sub-districts / tehsils. **This depicts an inherent (limitation? / caution?) of `sf::st_union()`.**](images/chapter5-2-7_1.png){#fig-5-2-7}
