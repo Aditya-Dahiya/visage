@@ -13,7 +13,7 @@ execute:
   error: false
   message: false
   warning: false
-  eval: true
+  eval: false
   cache: false
   collapse: true
 categories:
@@ -36,6 +36,7 @@ share:
 
 ```{r}
 #| label: setup
+#| eval: true
 
 library(sf)        # Simple Features in R
 library(terra)     # Handling rasters in R
@@ -565,22 +566,13 @@ ggsave(
                 2.  Scale by a factor.
                 3.  Shift back to original centroid coordinates.
 
-            -   Example: Enlarge the geometries by a factor of 2.5.
-
-                ``` r
-                n1_scale <- (n1 - n1_centroid) |> 
-                  multiply_by(2.5) |> 
-                  add(n1_centroid) |> 
-                  st_set_crs(st_crs(n1))
-                ```
-
     3.  **Rotation**: Rotates coordinates using a **rotation matrix**.
 
         -   Rotation matrix: Define a function to create the rotation matrix and apply it to the geometry. R=\[cosθ/sinθ​ − sinθ/cosθ​\]
--   **Replacing Old Geometry**: Use `st_set_geometry()` from the [sf package](https://r-spatial.github.io/sf/) to finally Replace original geometry with scaled versions (shifted, rotated or scaled)
+-   **Replacing Old Geometry**: Once the affine transformation has been completed, use `st_set_geometry()` from the [sf package](https://r-spatial.github.io/sf/) to finally Replace original geometry with scaled versions (shifted, rotated or scaled)
 -   **Applications**:
     -   Shifting: For **label placement**.
-    -   Scaling: In non-contiguous cartograms (see [Section 9.6](https://r.geocompx.org/cartograms.html)).
+    -   Scaling: In non-contiguous cartograms.
     -   Rotation: Correcting distorted geometries during re-projection.
 
 ```{r}
@@ -1343,3 +1335,231 @@ When using the `st_union()` function in spatial analysis, "inside small lines" o
 :::
 
 ![A sub-district / Tehsil map of Haryana, when converted into a district map with `summarise()` \[which basically uses `st_union()` only\] produces an imperfect result with internal slivers, as the boundary nodes are not overlapping amongst the sub-districts / tehsils. **This depicts an inherent (limitation? / caution?) of `sf::st_union()`.**](images/chapter5-2-7_1.png){#fig-5-2-7}
+
+### 5.2.8 Type Transformations
+
+-   Geometry Casting: Transform geometry types using [st_cast()](https://r-spatial.github.io/sf/reference/st_cast.html) from the **sf** package.
+
+-   Works on simple feature geometry (sfg), simple feature column (sfc), and simple feature objects (sf).
+
+-   **Reversible Casting**:
+
+    -   Example: `st_cast(linestring, "MULTIPOINT")` reverts to multipoint geometry.
+    -   Retains original geometry for compatible transformations.
+
+-   **Feature Splitting**:
+
+    -   Converts multi-objects to non-multi-objects by splitting (e.g., MULTIPOINT to multiple POINTs).
+    -   Expands rows with duplicate attribute values during splitting.
+
+-   **Use cases:**
+
+    -   **Multipoint to Linestring**: For path length calculations from ordered points.
+    -   **Linestring to Polygon**: To compute area, e.g., lake boundary.
+    -   Added attributes (e.g., road names, lengths) in case of feature splitting.
+    -   Measurements like `st_length()` for each LINESTRING.
+
+Table 5.1: Geometry Type Transformations for Simple Features *(Credits: [Geomputation with R](https://r.geocompx.org/), Book [Table 5.1](https://r.geocompx.org/geometry-operations#tab:sfs-st-cast))*
+
+| Input Geometry Type | POINT | MULTIPOINT | LINESTRING | MULTILINESTRING | POLYGON | MULTIPOLYGON | GEOMETRYCOLLECTION |
+|---------|---------|---------|---------|---------|---------|---------|---------|
+| POINT (1 point) | 1 | 1 | 1 | NA | NA | NA | NA |
+| MULTIPOINT (4 points) | 4 | 1 | 1 | 1 | NA | NA | NA |
+| LINESTRING (1 linestring with 5 points) | 5 | 1 | 1 | 1 | NA | NA | NA |
+| MULTILINESTRING (2 linestrings: one with 5 points, one with 2 points) | 7 | 2 | 2 | 1 | NA | NA | NA |
+| POLYGON (1 polygon with 5 points) | 5 | 1 | 1 | 1 | 1 | NA | NA |
+| MULTIPOLYGON (2 polygons: each with 5 points) | 10 | 1 | NA | 1 | 2 | 1 | 1 |
+| GEOMETRYCOLLECTION (2 geometries: a MULTIPOINT with 4 points and a LINESTRING with 5 points) | 9 | 1 | NA | NA | NA | NA | 1 |
+
+An attempt to recreate this table graphically with {ggplot2} and {sf}:
+
+```{r}
+library(sf)
+
+# Define the bounding box limits
+xmin <- -2; xmax <- 2; ymin <- -2; ymax <- 2
+
+# Create POINT
+tbl_poi <- data.frame(x = 0, y = 0)
+poi <- st_sfc(st_point(c(tbl_poi$x, tbl_poi$y)), crs = 4326)
+
+# Create MULTIPOINT
+tbl_mpoi <- data.frame(x = c(-1, 1, -1, 1), y = c(-1, -1, 1, 1))
+mpoi <- st_sfc(st_multipoint(as.matrix(tbl_mpoi)), crs = 4326)
+
+# Create LINESTRING
+tbl_lin <- data.frame(x = seq(xmin, xmax, length.out = 5), y = seq(ymin, ymax, length.out = 5))
+lin <- st_sfc(st_linestring(as.matrix(tbl_lin)), crs = 4326)
+
+# Create MULTILINESTRING
+tbl_mlin1 <- data.frame(x = seq(xmin, xmax, length.out = 5), y = seq(ymin, ymax, length.out = 5))
+tbl_mlin2 <- data.frame(x = c(xmin, xmax), y = c(ymax, ymin))
+mlin <- st_sfc(st_multilinestring(list(as.matrix(tbl_mlin1), as.matrix(tbl_mlin2))), crs = 4326)
+
+# Create POLYGON
+tbl_pol <- data.frame(x = c(xmin, xmax, xmax, xmin, xmin),
+                      y = c(ymin, ymin, ymax, ymax, ymin))
+pol <- st_sfc(st_polygon(list(as.matrix(tbl_pol))), crs = 4326)
+
+# Create MULTIPOLYGON
+tbl_mpol1 <- data.frame(x = c(-1, 0, 0, -1, -1),
+                       y = c(-1, -1, 0, 0, -1))
+tbl_mpol2 <- data.frame(x = c(0, 1, 1, 0, 0),
+                       y = c(0, 0, 1, 1, 0))
+mpol <- st_sfc(st_multipolygon(list(list(as.matrix(tbl_mpol1)), list(as.matrix(tbl_mpol2)))), crs = 4326)
+
+# Create GEOMETRYCOLLECTION
+gc <- st_sfc(st_geometrycollection(
+  list(
+    st_multipoint(as.matrix(tbl_mpoi)),
+    st_linestring(as.matrix(tbl_lin))
+  )
+), crs = 4326)
+
+names_geometries <- c(
+  "POINT", "MULTIPOINT",
+  "LINESTRING", "MULTILINESTRING",
+  "POLYGON", "MULTIPOLYGON",
+  "GEOMETRYCOLLECTION"
+  )
+# Clean workspace
+rm(list = ls(pattern = "^tbl_"))
+rm(list = ls(pattern = "min|max"))
+
+# Combine all objects into an sf object for viewing
+sf_objects <- st_sf(
+  geometry = c(poi, mpoi, lin, mlin, pol, mpol, gc), 
+  type = names_geometries
+  )
+
+
+theme_custom <- function(...){
+  theme_minimal() +
+    theme(
+      axis.ticks = element_blank(),
+      axis.text = element_blank(),
+      ...
+      )
+}
+
+# basic geometries made
+sf_objects |> 
+  ggplot() +
+  geom_sf() +
+  facet_wrap(~type)
+
+i = 1
+original_geometry = names_geometries[i]
+
+temp <- sf_objects |> 
+  filter(type == original_geometry) |> 
+  st_cast(names_geometries[3])
+  
+ggplot(temp) +
+  geom_sf() +
+  labs(
+    title = if_else(
+      i == 1,
+      str_remove(class(temp$geometry), "sfc_")[1],
+      ""
+    )
+  ) +
+  scale_x_continuous(position = "top") +
+  theme_custom()
+```
+
+## 5.3 Geometric operations on raster data
+
+-   Geometric raster operations include shifting, flipping, mirroring, scaling, rotation, and warping of images. Purpose:
+    -   Enable georeferencing for overlaying images on accurate maps with a known CRS (Coordinate Reference System).
+    -   Applications include georectification, orthorectification, and image registration.
+-   Techniques:
+    -   **Georectification**: Uses known ground control points for alignment *(Liu and Mason 2009)* [@loecher2015]*.*
+    -   **Orthorectification**: Accounts for local topography.
+    -   **Image Registration**: Aligns images from different sensors by matching their coordinate systems and resolutions.
+-   **Suitability of R**:
+    -   Manual operations like georectification and orthorectification are better handled in GIS software like [QGIS](https://www.qgistutorials.com/en/docs/3/georeferencing_basics.html).
+    -   R is suitable for aligning multiple images by modifying extent, resolution, and origin.
+
+### 5.3.1 Geometric Intersections
+
+-   Purpose:
+
+    -   **Extract raster values**: Use spatial objects overlaid on a raster to extract values with subsetting syntax.
+
+    -   **Keep spatial output**: To retain a spatial output (e.g., raster structure), set `drop = FALSE` during subsetting.
+
+    -   **Raster midpoints**: Returns a raster object containing cells whose **midpoints** overlap with the clip area.
+
+-   Comparison of Base R `[]` vs. `terra::crop()` shown in @fig-5-3-1
+
+| Feature | Base R `[]` Subsetting | `terra::crop()` |
+|-----------------|-------------------------|------------------------------|
+| **Purpose** | General selection of raster values | Spatial clipping of rasters |
+| **Spatial Metadata** | Requires manual handling | Automatically preserved |
+| **Syntax** | `raster[condition, drop = FALSE]` | `terra::crop(raster, extent)` |
+| **Key Functionality** | Selects raster cells by condition | Clips raster to the provided extent |
+| **Recommended For** | Basic operations, custom workflows | Efficient raster clipping in geospatial analyses |
+
+`terra::crop()` is often more efficient and user-friendly for spatial raster workflows with pipe operator (`|>`) compared to base R's `[]` subsetting.
+
+```{r}
+elev <- rast(system.file("raster/elev.tif", package = "spData"))
+clip <- rast(xmin = -0.5, xmax = 0.5, ymin = -1, ymax = 1,
+            resolution = 0.5, vals = rep(1, 8))
+
+
+g1 <- ggplot() +
+  geom_spatraster(data = elev) +
+  scale_fill_grass_c(limits = c(1, 36)) +
+  scale_x_continuous(limits = c(-1.5, 1.5)) +
+  scale_y_continuous(limits = c(-1.5, 1.5)) +
+  ggtitle("elev raster") +
+  theme(legend.position = "none")
+
+g2 <- ggplot() +
+  geom_spatraster(data = clip) +
+  scale_fill_grass_c(limits = c(1, 36)) +
+  scale_x_continuous(limits = c(-1.5, 1.5)) +
+  scale_y_continuous(limits = c(-1.5, 1.5)) +
+  ggtitle("clip raster") +
+  theme(legend.position = "none")
+
+g3 <- ggplot() +
+  geom_spatraster(data = elev[clip, drop = FALSE]) +
+  scale_fill_grass_c(limits = c(1, 36)) +
+  scale_x_continuous(limits = c(-1.5, 1.5)) +
+  scale_y_continuous(limits = c(-1.5, 1.5)) +
+  ggtitle("elev[clip, drop = FALSE]") +
+  theme(legend.position = "none")
+
+g4 <- ggplot() +
+  geom_spatraster(data = elev |> terra::crop(clip)) +
+  scale_fill_grass_c(limits = c(1, 36)) +
+  scale_x_continuous(limits = c(-1.5, 1.5)) +
+  scale_y_continuous(limits = c(-1.5, 1.5)) +
+  ggtitle("elev |> terra::crop(clip)") +
+  theme(
+    legend.key.height = unit(10, "pt"),
+    legend.key.width = unit(4, "pt")
+  )
+
+g <- g1 + g2 + g3 + g4 +
+  plot_layout(
+    nrow = 1
+  )
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter5-3-1_1.png"),
+  plot = g,
+  height = 700,
+  width = 1800,
+  units = "px",
+  bg = "white"
+)
+
+```
+
+![Comparising base R `[]` and `terra::crop()` for subsetting rasters](images/chapter5-3-1_1.png){#fig-5-3-1}

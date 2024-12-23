@@ -246,7 +246,7 @@ nz_height |>
 -   **Binary predicates** in **`sf`** package test spatial relationships between vector geometries. See [vignette("sf3")](https://r-spatial.github.io/sf/articles/sf3.html). The following binary predicates exist in `sf` : —
 
 | Function | Description | Symmetrical? |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | `st_intersects` | Checks if geometries intersect. | Yes |
 | `st_disjoint` | Checks if geometries do not intersect (are disjoint). | Yes |
 | `st_touches` | Checks if geometries have at least one boundary point in common. | Yes |
@@ -858,21 +858,22 @@ grain <- rast(system.file("raster/grain.tif",
 
 ggplot() +
   geom_spatraster(data = elev) +
-  labs(title = "elev SpatRaster", caption = "data: {spData}")
+  labs(title = "elev SpatRaster", caption = "data: {spData}") +
+  scale_fill_grass_c()
   
 
 ggplot() +
   geom_spatraster(data = grain) +
+  scale_fill_grass_d() +
   labs(title = "grain SpatRaster", caption = "data: {spData}")
 ```
 
 ### 4.3.1 Spatial subsetting
 
--   Builds on Section 3.3, which covered retrieving raster values by cell IDs or row/column combinations.
 -   Spatial subsetting allows extraction of raster data by **location (coordinates)** or **spatial objects**:
     -   **`terra::extract()`**: Extracts raster values directly using coordinates. *(Note: A function with the same name exists in the **tidyverse**, so be careful to add package name at start)*.
 -   **Subsetting with another raster object**:
-    -   Use a secondary raster as a spatial mask to subset the primary raster, using `terra::extract(ext(...))` .
+    -   Use a secondary raster as a spatial mask to subset the primary raster, using `terra::crop()` .
     -   Example shown below: Subsetting `elev` using a smaller raster `clip_raster` (defining a specific extent).
     -   Two kinds of Spatial outputs from subsetting:
         -   Use the **`drop` argument** with the `[ ]` operator to return subsetting results as raster objects.
@@ -882,7 +883,8 @@ ggplot() +
     -   Masks the primary raster (`elev`) to retain only values corresponding to `TRUE` in the mask using:
         -   `[ ]` operator - use `TRUE` and `FALSE`.
         -   `mask()` function - use `TRUE` and `NA`.
--   **The `mask()` function in the terra package** applies a mask to a SpatRaster or SpatVector. It replaces values in a raster (`x`) with `NA` (or another value) where another raster or vector (`mask`) has `NA` or specified mask values. It’s useful for filtering, clipping, or focusing on specific areas.
+-   **The `terra::crop()` function** extracts a subset of a raster or vector object based on a specified extent, defined using another spatial object or `terra::ext()`. It retains the input's resolution and CRS, focusing analysis on a specific region. Commonly used for preprocessing large datasets, it pairs well with `terra::mask()` for refined cropping.
+-   **The `mask()` function in the `terra` package** applies a mask to a SpatRaster or SpatVector. It replaces values in a raster (`x`) with `NA` (or another value) where another raster or vector (`mask`) has `NA` or specified mask values. It’s useful for filtering, clipping, or focusing on specific areas.
 -   **The `extract()` function in the terra package** retrieves values from a `SpatRaster` based on specified locations or geometries. Locations can be points (as a `SpatVector`, matrix, or data frame), cell numbers, or spatial objects like polygons. It supports methods for exact or weighted extraction, interpolation, and summary statistics for extracted data. Key arguments include:
     -   **`x`**: The `SpatRaster` to extract values from
 
@@ -893,9 +895,6 @@ ggplot() +
     -   **`cells`/`xy`**: Optionally return cell numbers or coordinates.
 
     -   **`weights`/`exact`**: Extract weighted or exact fractions for polygons.
-
-    -   **`bind`**: Combines extracted values with input geometries (`SpatVector`).
--   The code below demonstrates these **spatial operations on raster data**. Initially, it showcases how to extract raster values using coordinates with `terra::extract()` by specifying a set of coordinate pairs. Next, it demonstrates how to create a new raster (`clip_raster`) to subset the `elev` raster, focusing on extracting values only within the extent defined by the clip raster using both the `[ ]` operator and `terra::extract()`. The example highlights the importance of the `drop = FALSE` argument in the `[ ]` operator, which ensures that spatial structure is preserved when subsetting raster objects. Finally, the code illustrates the use of masking with a logical raster (`temporary_mask`), where specific cells in the `elev` raster are retained based on `TRUE` values in the mask. This process is essential for filtering or replacing values (e.g., assigning `NA` to erroneous data).
 
 ```{r}
 #| label: sec-4-3-1
@@ -928,21 +927,22 @@ clip_raster <- rast(
 # Extracting only the values
 elev[clip_raster]
 
-# This code somehow doesn't work for me!
-# elev |> 
-#   terra::extract(ext(clip_raster))
-
 # Explaining the meaning of argument drop = FALSE in the 
 # base R subsetting operator "[]"
-elev[1:2]
-elev[1:2, drop = FALSE]    
+elev[clip_raster]
+elev[clip_raster, drop = FALSE]    
+
+# Using the {terra} approach: with the function terra::crop()
+elev |> 
+  terra::crop(clip_raster)
 
 # Creating a temporary_mask object
 temporary_mask <- elev
 values(temporary_mask) <- sample(c(NA, TRUE), 36,
                                  replace = T)
-# elev |> 
-#   mask(temporary_mask)
+
+elev |>
+  terra::mask(temporary_mask)
 ```
 
 ```{r}
@@ -955,15 +955,22 @@ values(temporary_mask) <- sample(c(NA, TRUE), 36,
 #| layout-ncol: 3
 
 ggplot() +
-  geom_spatraster(data = clip_raster)
+  geom_spatraster(data = clip_raster) +
+  scale_x_continuous(limits = c(-1.5, 1.5)) +
+  scale_y_continuous(limits = c(-1.5, 1.5)) +
+  scale_fill_grass_c(limits = c(1, 36))
 
 ggplot() +
   geom_spatraster(data = temporary_mask) +
-  scale_fill_discrete(na.value = "white")
+  scale_fill_discrete(na.value = "white") +
+  scale_x_continuous(limits = c(-1.5, 1.5)) +
+  scale_y_continuous(limits = c(-1.5, 1.5))
 
 ggplot() +
   geom_spatraster(data = elev |> mask(temporary_mask)) +
-  scale_fill_continuous(na.value = "white")
+  scale_x_continuous(limits = c(-1.5, 1.5)) +
+  scale_y_continuous(limits = c(-1.5, 1.5)) +
+  scale_fill_grass_c(limits = c(1, 36))
 
 ```
 
