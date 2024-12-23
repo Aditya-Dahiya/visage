@@ -1359,22 +1359,63 @@ When using the `st_union()` function in spatial analysis, "inside small lines" o
     -   Added attributes (e.g., road names, lengths) in case of feature splitting.
     -   Measurements like `st_length()` for each LINESTRING.
 
-Table 5.1: Geometry Type Transformations for Simple Features *(Credits: [Geomputation with R](https://r.geocompx.org/), Book [Table 5.1](https://r.geocompx.org/geometry-operations#tab:sfs-st-cast))*
-
-| Input Geometry Type | POINT | MULTIPOINT | LINESTRING | MULTILINESTRING | POLYGON | MULTIPOLYGON | GEOMETRYCOLLECTION |
-|---------|---------|---------|---------|---------|---------|---------|---------|
-| POINT (1 point) | 1 | 1 | 1 | NA | NA | NA | NA |
-| MULTIPOINT (4 points) | 4 | 1 | 1 | 1 | NA | NA | NA |
-| LINESTRING (1 linestring with 5 points) | 5 | 1 | 1 | 1 | NA | NA | NA |
-| MULTILINESTRING (2 linestrings: one with 5 points, one with 2 points) | 7 | 2 | 2 | 1 | NA | NA | NA |
-| POLYGON (1 polygon with 5 points) | 5 | 1 | 1 | 1 | 1 | NA | NA |
-| MULTIPOLYGON (2 polygons: each with 5 points) | 10 | 1 | NA | 1 | 2 | 1 | 1 |
-| GEOMETRYCOLLECTION (2 geometries: a MULTIPOINT with 4 points and a LINESTRING with 5 points) | 9 | 1 | NA | NA | NA | NA | 1 |
-
-An attempt to recreate this table graphically with {ggplot2} and {sf}:
+-   Geometry Type Transformations for Simple Features is shown in @tbl-st-types *(Credits: [Geomputation with R](https://r.geocompx.org/), Book [Table 5.1](https://r.geocompx.org/geometry-operations#tab:sfs-st-cast))*
 
 ```{r}
-library(sf)
+#| eval: true
+#| label: tbl-st-types
+#| tbl-cap: "All possible combinations of Geometry type transformations for Simple Features"
+
+# Load necessary libraries
+library(tibble)
+library(gt)
+
+# Create the tibble
+geometry_table <- tibble::tibble(
+  `Input Geometry Type` = c(
+    "POINT (1 point)",
+    "MULTIPOINT (4 points)",
+    "LINESTRING (1 linestring with 5 points)",
+    "MULTILINESTRING (2 linestrings: one with 5 points, one with 2 points)",
+    "POLYGON (1 polygon with 5 points)",
+    "MULTIPOLYGON (2 polygons: each with 5 points)",
+    "GEOMETRYCOLLECTION (2 geometries: a MULTIPOINT with 4 points and a LINESTRING with 5 points)"
+  ),
+  `POINT` = c(1, 4, 5, 7, 5, 10, 9),
+  `MULTIPOINT` = c(1, 1, 1, 2, 1, 1, 1),
+  `LINESTRING` = c(1, 1, 1, 2, 1, NA, NA),
+  `MULTI-LINESTRING` = c(NA, 1, 1, 1, 1, 1, NA),
+  `POLYGON` = c(NA, NA, NA, NA, 1, 2, NA),
+  `MULTI-POLYGON` = c(NA, NA, NA, NA, NA, 1, NA),
+  `GEOMETRY-COLLECTION` = c(NA, NA, NA, NA, NA, 1, 1)
+)
+
+# Render the table using gt
+geometry_table |> 
+  gt::gt() |> 
+  gt::fmt_missing(columns = gt::everything(), missing_text = "") |> 
+  gtExtras::gt_theme_538() |> 
+  tab_style(
+    style = cell_text(size = px(10)), # Set the desired font size in pixels
+    locations = cells_body(
+      columns = `Input Geometry Type`, # Apply to only one column
+      rows = everything()              # Apply to all rows
+    )
+  ) |> 
+  tab_style(
+    style = cell_text(size = px(10)),
+    locations = list(
+      cells_column_labels(columns = everything()), # Apply to column labels
+      cells_stub(rows = everything())             # Apply to row labels (stub)
+    )
+  )
+
+```
+
+An attempt to recreate this table graphically with {ggplot2} and {sf}. Unfortunately, it didn't work out.
+
+```{r}
+#| eval: false
 
 # Define the bounding box limits
 xmin <- -2; xmax <- 2; ymin <- -2; ymax <- 2
@@ -1448,24 +1489,58 @@ sf_objects |>
   geom_sf() +
   facet_wrap(~type)
 
-i = 1
-original_geometry = names_geometries[i]
+blank_numbers <- c(
+  4, 5, 6, 7,
+  12, 13, 14,
+  19, 20, 21, 26, 27, 28,
+  33, 34, 35, 38,
+  41, 42, 
+  45, 46, 47, 48
+)
 
-temp <- sf_objects |> 
-  filter(type == original_geometry) |> 
-  st_cast(names_geometries[3])
+for (i in 1:7){
+  original_geometry = names_geometries[i]
+
+  for (j in 1:7){
+    plot_number <- ((7 * (i-1)) + j)
   
-ggplot(temp) +
-  geom_sf() +
-  labs(
-    title = if_else(
-      i == 1,
-      str_remove(class(temp$geometry), "sfc_")[1],
-      ""
-    )
-  ) +
-  scale_x_continuous(position = "top") +
-  theme_custom()
+    if (plot_number %in% blank_numbers) {
+      assign(
+        paste0("g", ((7 * (i-1)) + j)),
+        ggplot() + theme_custom()
+      )
+    } else {
+      temp <- sf_objects |> 
+        filter(type == original_geometry) |> 
+        st_cast(names_geometries[j])
+      assign(
+        paste0("g", ((7 * (i-1)) + j)),
+        ggplot(temp) +
+          geom_sf() +
+          scale_x_continuous(position = "top") +
+          theme_custom()
+        )
+      }
+    }
+}
+
+g <- patchwork::wrap_plots(
+  mget(paste0("g", 1:49))
+) +
+  patchwork::plot_layout(
+    ncol = 7, nrow = 7
+  )
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter5-2-8_1.png"),
+  plot = g,
+  height = 7800,
+  width = 7800,
+  units = "px",
+  bg = "white"
+)
 ```
 
 ## 5.3 Geometric operations on raster data
@@ -1494,7 +1569,7 @@ ggplot(temp) +
 -   Comparison of Base R `[]` vs. `terra::crop()` shown in @fig-5-3-1
 
 | Feature | Base R `[]` Subsetting | `terra::crop()` |
-|-----------------|-------------------------|------------------------------|
+|------------------|-------------------------|-----------------------------|
 | **Purpose** | General selection of raster values | Spatial clipping of rasters |
 | **Spatial Metadata** | Requires manual handling | Automatically preserved |
 | **Syntax** | `raster[condition, drop = FALSE]` | `terra::crop(raster, extent)` |
