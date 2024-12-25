@@ -1806,3 +1806,404 @@ ggsave(
 ```
 
 ![Using `terra::origin()` to change origin of a raster in relation to c(0,0)](images/chapter5-3-2_1.png){#fig-origin}
+
+### 5.3.3 Aggregation and Disaggregation
+
+-   Raster Resolution Adjustments:
+    -   **Aggregation**: Decreases raster resolution using the `aggregate()` function.
+    -   **Disaggregation**: Increases raster resolution using the `disagg()` function.
+-   **Aggregation Details**: The output cell values represent the mean of input cells. Other functions like `median()`, `sum()`, etc., can also be applied.
+    -   Effect on Resolution: Aggregation increases resolution by reducing rows and columns.
+-   Disaggregation Details: 2 Methods are shown in @fig-agg-disagg
+    -   **Default** (`method = "near"`): Duplicates input cell values, creating a 'blocky' output.
+    -   **Bilinear** (`method = "bilinear"`): Computes output values using a weighted average of the four nearest input pixel centers.
+    -   **Accuracy**: Results in finer resolution, but values are interpolations of the lower-resolution source.
+-   **Comparison of Rasters**:
+    -   Aggregated and disaggregated rasters differ from the original raster.
+    -   Use functions like `compareGeom()` or `all.equal()` to identify differences.
+-   **Key Considerations**:
+    -   Aggregation simplifies data, while disaggregation interpolates it, often leading to approximate values based on the source resolution.
+    -   Resolution changes impact raster extent, dimensions, and data accuracy.
+
+```{r}
+original_raster <- rast(system.file("raster/dem.tif", package = "spDataLarge"))
+
+g1 <- ggplot() +
+  geom_spatraster(data = original_raster) +
+  scale_fill_wiki_c() +
+  labs(
+    title = "Original Raster",
+    subtitle = paste0(
+      "Resolution: ", 
+      terra::res(original_raster) |> 
+        round(1) |> 
+        paste0(collapse = ", "),
+      "\nDimensions: ",
+      dim(original_raster)[1:2] |> 
+        paste0(collapse = ", ")
+    )
+  )
+
+agg_raster <- terra::aggregate(
+  x = original_raster, 
+  fact = 5, 
+  fun = mean
+  )
+
+g2 <- ggplot() +
+  geom_spatraster(data = agg_raster) +
+  scale_fill_wiki_c() +
+  labs(
+    title = "Aggregation by factor of 5",
+    subtitle = paste0(
+      "Resolution: ", 
+      terra::res(agg_raster) |> 
+        round(1) |> 
+        paste0(collapse = ", "),
+      "\nDimensions: ",
+      dim(agg_raster)[1:2] |> 
+        paste0(collapse = ", ")
+    )
+  )
+
+
+disagg_raster1 <- terra::disagg(
+  x = agg_raster,
+  fact = 5,
+  method = "near"
+)
+
+g3 <- ggplot() +
+  geom_spatraster(data = disagg_raster1) +
+  scale_fill_wiki_c() +
+  labs(
+    title = "Dis-Aggregation (method = near)",
+    subtitle = paste0(
+      "Resolution: ", 
+      terra::res(disagg_raster1) |> 
+        round(1) |> 
+        paste0(collapse = ", "),
+      "\nDimensions: ",
+      dim(disagg_raster1)[1:2] |> 
+        paste0(collapse = ", ")
+    )
+  )
+
+disagg_raster2 <- terra::disagg(
+  x = agg_raster,
+  fact = 5,
+  method = "bilinear"
+)
+
+g4 <- ggplot() +
+  geom_spatraster(data = disagg_raster2) +
+  scale_fill_wiki_c() +
+  labs(
+    title = "Dis-Aggregation (method = bilinear)",
+    subtitle = paste0(
+      "Resolution: ", 
+      terra::res(disagg_raster2) |> 
+        round(1) |> 
+        paste0(collapse = ", "),
+      "\nDimensions: ",
+      dim(disagg_raster2)[1:2] |> 
+        paste0(collapse = ", ")
+    )
+  )
+
+g <- g1 + g2 + g3 + g4 +
+  plot_layout(
+    guides = "collect",
+    nrow = 1
+  ) + 
+  plot_annotation(
+    title = "Aggregating and Disaggregating rasters",
+    subtitle = "Disaggregating a raster will not revert to original details as some data is lost.",
+    theme = theme(
+      legend.title = element_blank(),
+      plot.title = element_text(
+        size = 42
+      ),
+      plot.subtitle = element_text(
+        size = 18
+      )
+    )
+  )
+
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter5-3-3_1.png"),
+  plot = g,
+  height = 1800,
+  width = 5400,
+  units = "px",
+  bg = "white"
+)
+```
+
+![Aggregating and Disaggregating a raster by a factor of 5. Note the superiority of blinear method of disaggregatiion.](images/chapter5-3-3_1.png){#fig-agg-disagg}
+
+### 5.3.4 Resampling
+
+-   **Purpose**: Adjusts pixel values for a target raster with different resolution and origin than the original raster ([terra](https://rspatial.org/terra/)). Useful for combining rasters with varying resolutions/origins.
+
+-   **Methods**: A comparison table on resampling methods available in the `{terra}` package's `resample()` function with examples in @fig-resample
+
+| No. | **Method** | **Description** | **Suitable For** | **Complexity** | **Use Case** |
+|------|-----------|----------------|-----------|----------|--------------|
+| 1 | **Nearest Neighbor** | Assigns the value of the nearest cell of the original raster to the target cell. | Categorical rasters | Simple | Discrete data like land-use classifications |
+| 2 | **Bilinear Interpolation** | Computes a weighted average of the four nearest cells from the original raster for the target cell. | Continuous rasters | Moderate | Continuous data; smoother transitions, elevation models or temperature data. |
+| 3 | **Cubic Interpolation** | Uses the values of the 16 nearest cells, applying third-order polynomial functions for smooth output. | Continuous rasters | Higher | Continuous data requiring smoother surfaces; resampling satellite imagery. |
+| 4 | **Cubic Spline Interpolation** | Uses the 16 nearest cells, applying cubic splines (piece-wise third-order polynomial functions). | Continuous rasters | Higher | Continuous data where smoothness is crucial; terrain modeling. |
+| 5 | **Lanczos Resampling** | Uses the 36 nearest cells with a Lanczos windowed sinc function for smoother outputs. | Continuous rasters | High | Best for high-quality image scaling; maintains sharpness and reduces aliasing in photographic images. |
+| 6 | **Sum** | Calculates the weighted sum of all non-NA contributing grid cells. | Spatially extensive variables | Variable | Aggregating data like population counts; ensures the total sum remains consistent. |
+| 7 | **Min** | Finds the minimum value among all non-NA contributing grid cells. | Continuous rasters | Variable | Where the minimum value is of interest, such as finding the lowest temperature in a region. |
+| 8 | **Q1 (First Quartile)** | Computes the first quartile value of all non-NA contributing grid cells. | Continuous rasters | Variable | To understand the lower distribution of data values. |
+| 9 | **Median (Med)** | Computes the median value of all non-NA contributing grid cells. | Continuous rasters | Variable | Reducing the impact of outliers;  in skewed data distributions. |
+| 10 | **Q3 (Third Quartile)** | Computes the third quartile value of all non-NA contributing grid cells. | Continuous rasters | Variable | Focussing on the upper distribution of data values. |
+| 11 | **Max** | Finds the maximum value among all non-NA contributing grid cells. | Continuous rasters | Variable | Identifying peak values, such as maximum elevation or highest temperature. |
+| 12 | **Average** | Calculates the mean value of all non-NA contributing grid cells. | Continuous rasters | Variable | For smoothing data; provides an overall average. |
+| 13 | **Mode** | Identifies the most frequent value among all non-NA contributing grid cells. | Continuous rasters | Variable | For categorical data; to determine the most common land cover type. |
+| 14 | **RMS (Root Mean Square)** | Computes the root mean square of all non-NA contributing grid cells. | Continuous rasters | Variable | In error analysis; For assessing the  variability in data values. |
+
+-   **Notes:**
+
+    -   **Nearest Neighbor** is the preferred method for categorical data to prevent the creation of non-existent categories.
+    -   **Bilinear, Cubic, Cubic Spline, and Lanczos methods** are more appropriate for continuous data, offering varying degrees of smoothness and detail preservation.
+
+-   **Categorical vs. Continuous**:
+
+    -   Only *nearest neighbor* is suitable for categorical rasters.
+    -   Other methods can be used for continuous rasters but vary in outcomes, complexity, and processing time.
+
+-   **Additional Options**:
+
+    -   **Statistical Resampling**:
+        -   Methods like sum, min, med, mode, and rms compute statistics over contributing cells.
+        -   Example: `sum` ensures the total remains unchanged for spatially extensive variables (e.g., population).
+
+-   **Implementation in terra**:
+
+    -   Use the `resample()` function ([documentation](https://rspatial.org/terra/reference/resample.html)).
+    -   Requires:
+        -   **Input Raster (x)**: Original raster.
+        -   **Target Raster (y)**: Raster with desired resolution/origin.
+        -   **Method**: Resampling method (e.g., "bilinear").
+
+-   Note: Raster Re-projection is a special case of raster re-sampling. A specific type of re-sampling used for target rasters with different Coordinate Reference Systems (CRS).
+
+```{r}
+sysfonts::font_add_google("Encode Sans Condensed", "body_font")
+showtext::showtext_auto()
+original_raster <- rast(system.file("raster/dem.tif", package = "spDataLarge"))
+
+resampling_methods_tbl <- tibble(
+  name = c(
+    "near",
+    "bilinear",
+    "cubic",
+    "cubicspline",
+    "lanczos",
+    "sum",
+    "min",
+    "q1",
+    "median",
+    "q3",
+    "max",
+    "average",
+    "mode",
+    "rms"
+  ),
+  description = c(
+    "Nearest Neighbor",
+    "Bilinear Interpolation",
+    "Cubic Interpolation",
+    "Cubic Spline Interpolation",
+    "Lanczos Resampling",
+    "Sum",
+    "Minimum",
+    "First Quartile",
+    "Median",
+    "Third Quartile",
+    "Maximum",
+    "Average (Mean)",
+    "Mode",
+    "Root Mean Square"
+  )
+)
+
+# A Target Raster for re-sampling
+target_rast <- rast(xmin = 794650, xmax = 798250, 
+                   ymin = 8931750, ymax = 8935350,
+                   resolution = 100, crs = "EPSG:32717")
+
+theme_custom <- function(...){
+  ggthemes::theme_map(
+    base_family = "body_font",
+    base_size = 45
+  ) +
+    theme(
+      plot.title = element_text(
+        size = 45, 
+        margin = margin(0,0,2,0, "mm")
+      ),
+      legend.position = "bottom",
+      legend.text = element_text(
+        margin = margin(1,0,0,0, "mm")
+      ),
+      plot.margin = margin(0,0,0,0, "mm"),
+      ...
+    )
+}
+
+```
+
+```{r}
+
+g1 <- ggplot() +
+  geom_spatraster(data = original_raster) +
+  scale_fill_wiki_c() +
+  coord_sf(expand = F) +
+  labs(
+    title = "Original Raster"
+  ) +
+  guides(fill = "none") +
+  theme_custom()
+
+for (i in c(2:7, 11, 12, 13, 14)) {
+  assign(
+    paste0("g", i),
+    ggplot() +
+      geom_spatraster(
+        data = terra::resample(
+          x = original_raster,
+          y = target_rast,
+          method = resampling_methods_tbl$name[i]
+        )
+      ) +
+      scale_fill_wiki_c() +
+      coord_sf(expand = F) +
+      labs(
+        title = paste0(resampling_methods_tbl$description[i]),
+        fill = NULL
+      ) +
+      theme_custom(
+        legend.key.height = unit(2, "mm"),
+        legend.key.width = unit(20, "mm")
+      )
+  )
+}
+
+g <- g1 + g2 + g3 + g4 + g5 + g7 + g12 + g13 + g14 + 
+  plot_layout(
+    guides = "collect",
+  ) + 
+  plot_annotation(
+    title = "Methods for Re-sampling rasters with {terra}",
+    theme = theme(
+      legend.title = element_blank(),
+      plot.title = element_text(
+        size = 75,
+        margin = margin(5,0,5,0, "mm"),
+        hjust = 0.5
+      ),
+      legend.position = "bottom"
+    )
+  )
+
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter5-3-4_1.png"),
+  plot = g,
+  height = 2400 * 5/4,
+  width = 2400,
+  units = "px",
+  bg = "white"
+)
+
+```
+
+![Various methods for re-sampling a raster with `terra::resample()`](images/chapter5-3-4_1.png){#fig-resample}
+
+```{r}
+#| eval: true
+#| tbl-cap: "Comparison of Resampling Methods for rasters in {terra}"
+#| label: tbl-resample1
+
+
+# Load required libraries
+library(tibble)
+library(gt)
+
+# Create the resampling methods table as a tibble
+resampling_methods <- tibble::tibble(
+  `Resampling Method` = c(
+    "Nearest Neighbor", "Bilinear Interpolation", "Cubic Interpolation", 
+    "Cubic Spline Interpolation", "Lanczos Resampling", "Sum", "Min", 
+    "Q1 (First Quartile)", "Median (Med)", "Q3 (Third Quartile)", 
+    "Max", "Average", "Mode", "RMS (Root Mean Square)"
+  ),
+  Description = c(
+    "Assigns the value of the nearest cell of the original raster to the target cell.",
+    "Computes a weighted average of the four nearest cells from the original raster for the target cell.",
+    "Uses the values of the 16 nearest cells, applying third-order polynomial functions for smooth output.",
+    "Uses the 16 nearest cells, applying cubic splines (piece-wise third-order polynomial functions).",
+    "Uses the 36 nearest cells with a Lanczos windowed sinc function for smoother outputs.",
+    "Calculates the weighted sum of all non-NA contributing grid cells.",
+    "Finds the minimum value among all non-NA contributing grid cells.",
+    "Computes the first quartile value of all non-NA contributing grid cells.",
+    "Computes the median value of all non-NA contributing grid cells.",
+    "Computes the third quartile value of all non-NA contributing grid cells.",
+    "Finds the maximum value among all non-NA contributing grid cells.",
+    "Calculates the mean value of all non-NA contributing grid cells.",
+    "Identifies the most frequent value among all non-NA contributing grid cells.",
+    "Computes the root mean square of all non-NA contributing grid cells."
+  ),
+  `Suitable For` = c(
+    "Categorical rasters", "Continuous rasters", "Continuous rasters", 
+    "Continuous rasters", "Continuous rasters", "Spatially extensive variables", 
+    "Continuous rasters", "Continuous rasters", "Continuous rasters", 
+    "Continuous rasters", "Continuous rasters", "Continuous rasters", 
+    "Continuous rasters", "Continuous rasters"
+  ),
+  Complexity = c(
+    "Simple", "Moderate", "Higher", "Higher", "High", "Variable", 
+    "Variable", "Variable", "Variable", "Variable", "Variable", 
+    "Variable", "Variable", "Variable"
+  ),
+  `Processing Time` = c(
+    "Fast", "Fast", "Moderate", "Moderate", "High", "Variable", 
+    "Variable", "Variable", "Variable", "Variable", "Variable", 
+    "Variable", "Variable", "Variable"
+  ),
+  `Use Case` = c(
+    "Ideal for discrete data like land-use classifications; preserves original values without alteration.",
+    "Suitable for continuous data; provides smoother transitions, useful for elevation models or temperature data.",
+    "Appropriate for continuous data requiring smoother surfaces; beneficial for resampling satellite imagery.",
+    "Effective for continuous data where smoothness is crucial; often used in terrain modeling.",
+    "Best for high-quality image scaling; maintains sharpness and reduces aliasing in photographic images.",
+    "Useful for aggregating data like population counts; ensures the total sum remains consistent after resampling.",
+    "Applied in scenarios where the minimum value is of interest, such as finding the lowest temperature in a region.",
+    "Useful in statistical analyses to understand the lower distribution of data values.",
+    "Ideal for reducing the impact of outliers; provides a central tendency measure in skewed data distributions.",
+    "Beneficial for statistical analyses focusing on the upper distribution of data values.",
+    "Suitable for identifying peak values, such as maximum elevation or highest temperature in a dataset.",
+    "Commonly used for smoothing data; provides an overall average, useful in environmental data analyses.",
+    "Effective for categorical data to determine the most common category, such as predominant land cover type.",
+    "Applied in error analysis; useful for assessing the magnitude of variability in data values."
+  )
+)
+
+# Display the table using gt
+resampling_methods %>%
+  gt::gt() %>%
+  gt::tab_header(
+    title = "Resampling Methods for rasters in {terra}"
+  ) |> 
+  gtExtras::gt_theme_pff()
+
+```
