@@ -2605,14 +2605,182 @@ p = st_sample(x = box, size = 10)
 
 **Calculate the length of the boundary lines of US states in meters. Which state has the longest border and which has the shortest? Hint: The `st_length` function computes the length of a `LINESTRING` or `MULTILINESTRING` geometry.**
 
+The longest border is of Texas (4,959.8 km) and the shortest border is of District of Columbia (60.2 km). The complete list is at @tbl-e6 .
+
 ```{r}
+#| label: tbl-e6
+#| tbl-cap: "The border length of the different states in USA"
+#| eval: true
+#| code-fold: true
+
 data("us_states")
 
 us_states |> 
+  janitor::clean_names() |> 
   st_cast("MULTILINESTRING") |> 
-  mutate(border = st_length(geometry))
+  mutate(border = as.numeric(st_length(geometry))/1000) |> 
+  st_drop_geometry() |> 
+  select(name, region, border) |> 
+  arrange(desc(border)) |> 
+  gt::gt() |> 
+  gt::cols_label(
+    name = "State Name",
+    region = "Region",
+    border = "Length of Border (km)"
+  ) |> 
+  gt::fmt_number(
+    columns = border
+  ) |> 
+  gt::opt_interactive()
 ```
 
 ### E7.
 
-Read the srtm.tif file into R (`srtm = rast(system.file("raster/srtm.tif", package = "spDataLarge"))`). This raster has a resolution of 0.00083 \* 0.00083 degrees. Change its resolution to 0.01 \* 0.01 degrees using all of the methods available in the **terra** package. Visualize the results. Can you notice any differences between the results of these resampling methods?
+**Read the srtm.tif file into R (`srtm = rast(system.file("raster/srtm.tif", package = "spDataLarge"))`). This raster has a resolution of 0.00083 \* 0.00083 degrees. Change its resolution to 0.01 \* 0.01 degrees using all of the methods available in the `terra` package. Visualize the results. Can you notice any differences between the results of these re-sampling methods?**
+
+The different methods of resampling rasters and their demonstration is in @fig-e7-a
+
+```{r}
+#| eval: false
+#| code-fold: true
+
+sysfonts::font_add_google("Encode Sans Condensed", "body_font")
+showtext::showtext_auto()
+srtm <- rast(system.file("raster/srtm.tif", package = "spDataLarge"))
+
+# Create a target raster on which to re-sample
+target_rast <- rast(
+  xmin = xmin(ext(srtm)), 
+  xmax = xmax(ext(srtm)), 
+  ymin = ymin(ext(srtm)), 
+  ymax = ymax(ext(srtm)),
+  # resolution = res(srtm), 
+  resolution = c(0.01, 0.01),
+  crs = crs(srtm)
+  )
+
+original_raster <- srtm
+
+resampling_methods_tbl <- tibble(
+  name = c(
+    "bilinear",
+    "cubic",
+    "lanczos",
+    "min",
+    "average",
+    "mode"
+  ),
+  description = c(
+    "Bilinear Interpolation",
+    "Cubic Interpolation",
+    "Lanczos Resampling",
+    "Minimum",
+    "Average (Mean)",
+    "Mode"
+  )
+)
+
+theme_custom <- function(...){
+  ggthemes::theme_map(
+    base_family = "body_font",
+    base_size = 36
+  ) +
+    theme(
+      plot.title = element_text(
+        size = 45, 
+        margin = margin(0,0,2,0, "mm")
+      ),
+      legend.position = "bottom",
+      legend.text = element_text(
+        margin = margin(1,0,0,0, "mm")
+      ),
+      plot.margin = margin(0,0,0,0, "mm"),
+      ...
+    )
+}
+
+g1 <- ggplot() +
+  geom_spatraster(data = original_raster) +
+  scale_fill_wiki_c() +
+  coord_sf(expand = F) +
+  labs(
+    title = "Original Raster"
+  ) +
+  guides(fill = "none") +
+  theme_custom()
+
+for (i in 1:6) {
+  assign(
+    paste0("g", i+1),
+    ggplot() +
+      geom_spatraster(
+        data = terra::resample(
+          x = original_raster,
+          y = target_rast,
+          method = resampling_methods_tbl$name[i]
+        )
+      ) +
+      scale_fill_wiki_c() +
+      coord_sf(expand = F) +
+      labs(
+        title = paste0(resampling_methods_tbl$description[i]),
+        fill = NULL
+      ) +
+      theme_custom(
+        legend.key.height = unit(2, "mm"),
+        legend.key.width = unit(20, "mm")
+      )
+  )
+}
+
+g <- g1 + g2 + g3 + g4 + g5 + g6 + 
+  plot_layout(
+    guides = "collect",
+  ) + 
+  plot_annotation(
+    title = "Methods for Re-sampling rasters with {terra}",
+    theme = theme(
+      legend.title = element_blank(),
+      plot.title = element_text(
+        size = 60,
+        margin = margin(5,0,5,0, "mm"),
+        hjust = 0.5
+      ),
+      legend.position = "bottom"
+    )
+  )
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter5-e7.png"),
+  plot = g,
+  height = 2400,
+  width = 2400,
+  units = "px",
+  bg = "white"
+)
+```
+
+![The various methods of resampling in the {terra} for rasters.](images/chapter5-e7.png){#fig-e7-a}
+
+Another method for converting into the resolution of (0.01, 0.01) is to use `terra::aggregate()` with `fact = 0.01 / 0.00083`.
+
+```{r}
+#| label: fig-e8
+#| fig-cap: "Using terra::aggregate() to make resolution of 0.01"
+#| fig-width: 4
+#| eval: true
+#| code-fold: true
+
+srtm <- rast(system.file("raster/srtm.tif", package = "spDataLarge"))
+
+temp <- srtm |> 
+  terra::aggregate(fact = 0.01 / 0.0008333333)
+
+ggplot() +
+  geom_spatraster(data = temp) +
+  scale_fill_wiki_c() + 
+  coord_sf(expand = FALSE) +
+  theme_minimal()
+```
