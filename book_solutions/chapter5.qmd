@@ -1952,7 +1952,7 @@ ggsave(
 -   **Methods**: A comparison table on resampling methods available in the `{terra}` package's `resample()` function with examples in @fig-resample
 
 | No. | **Method** | **Description** | **Suitable For** | **Complexity** | **Use Case** |
-|------|-----------|----------------|-----------|----------|--------------|
+|------------|------------|------------|------------|------------|------------|
 | 1 | **Nearest Neighbor** | Assigns the value of the nearest cell of the original raster to the target cell. | Categorical rasters | Simple | Discrete data like land-use classifications |
 | 2 | **Bilinear Interpolation** | Computes a weighted average of the four nearest cells from the original raster for the target cell. | Continuous rasters | Moderate | Continuous data; smoother transitions, elevation models or temperature data. |
 | 3 | **Cubic Interpolation** | Uses the values of the 16 nearest cells, applying third-order polynomial functions for smooth output. | Continuous rasters | Higher | Continuous data requiring smoother surfaces; resampling satellite imagery. |
@@ -1961,12 +1961,12 @@ ggsave(
 | 6 | **Sum** | Calculates the weighted sum of all non-NA contributing grid cells. | Spatially extensive variables | Variable | Aggregating data like population counts; ensures the total sum remains consistent. |
 | 7 | **Min** | Finds the minimum value among all non-NA contributing grid cells. | Continuous rasters | Variable | Where the minimum value is of interest, such as finding the lowest temperature in a region. |
 | 8 | **Q1 (First Quartile)** | Computes the first quartile value of all non-NA contributing grid cells. | Continuous rasters | Variable | To understand the lower distribution of data values. |
-| 9 | **Median (Med)** | Computes the median value of all non-NA contributing grid cells. | Continuous rasters | Variable | Reducing the impact of outliers;  in skewed data distributions. |
+| 9 | **Median (Med)** | Computes the median value of all non-NA contributing grid cells. | Continuous rasters | Variable | Reducing the impact of outliers; in skewed data distributions. |
 | 10 | **Q3 (Third Quartile)** | Computes the third quartile value of all non-NA contributing grid cells. | Continuous rasters | Variable | Focussing on the upper distribution of data values. |
 | 11 | **Max** | Finds the maximum value among all non-NA contributing grid cells. | Continuous rasters | Variable | Identifying peak values, such as maximum elevation or highest temperature. |
 | 12 | **Average** | Calculates the mean value of all non-NA contributing grid cells. | Continuous rasters | Variable | For smoothing data; provides an overall average. |
 | 13 | **Mode** | Identifies the most frequent value among all non-NA contributing grid cells. | Continuous rasters | Variable | For categorical data; to determine the most common land cover type. |
-| 14 | **RMS (Root Mean Square)** | Computes the root mean square of all non-NA contributing grid cells. | Continuous rasters | Variable | In error analysis; For assessing the  variability in data values. |
+| 14 | **RMS (Root Mean Square)** | Computes the root mean square of all non-NA contributing grid cells. | Continuous rasters | Variable | In error analysis; For assessing the variability in data values. |
 
 -   **Notes:**
 
@@ -2199,11 +2199,245 @@ resampling_methods <- tibble::tibble(
 )
 
 # Display the table using gt
-resampling_methods %>%
-  gt::gt() %>%
+resampling_methods |> 
+  gt::gt() |> 
   gt::tab_header(
     title = "Resampling Methods for rasters in {terra}"
   ) |> 
-  gtExtras::gt_theme_pff()
-
+  gtExtras::gt_theme_espn()
 ```
+
+::: callout-note
+## Alternatives to `{terra}` Functions
+
+-   **Why Alternatives?** While `{terra}` is user-friendly and performs well for large rasters, it may not be the most efficient for extensive rasters or numerous raster files.
+-   **Key Alternatives via C++ Library GDAL (accessed via `{gdalUtilities}` or [`sf::gdal_utils()`](https://r-spatial.github.io/sf/reference/gdal_utils.html) function)**:
+    -   **`gdalinfo`**:
+        -   Provides detailed information about a raster file (e.g., resolution, CRS, bounding box).
+        -   Useful for metadata exploration.
+    -   **`gdal_translate`**:
+        -   Converts raster files between formats.
+        -   Can also modify properties like compression or CRS (e.g., `t_srs = "EPSG:4326"`).
+    -   **`gdal_rasterize`**:
+        -   Converts vector data into raster format.
+        -   Ideal for creating rasterized maps from vector datasets.
+    -   **`gdalwarp`**:
+        -   Performs raster mosaicing, cropping, resampling, and reprojection.
+        -   Essential for combining rasters, altering extents, or changing resolutions.
+-   **Integration with R**:
+    -   GDAL functions are written in C++ but can be accessed in R using:
+        -   **`sf::gdal_utils()`**: Wrapper for calling GDAL functions.
+        -   **`gdalUtilities`** package: Dedicated functions for common GDAL tasks.
+        -   **System Commands**: Directly call GDAL commands from the terminal within R.
+    -   Input/output handling:
+        -   GDAL functions work with file paths. Output is often saved as a file rather than in-memory objects like `{terra}`'s `SpatRaster`.
+-   **When to Use GDAL**:
+    -   For handling very large datasets or batch processing of raster files.
+    -   When advanced raster operations (e.g., raster mosaics) are required.
+    -   For compatibility with diverse raster file formats and global standards.
+:::
+
+## 5.4 Exercises
+
+### E1. 
+
+**Generate and plot simplified versions of the `nz` dataset. Experiment with different values of `keep` (ranging from 0.5 to 0.00005) for `ms_simplify()` and `dTolerance` (from 100 to 100,000) [`st_simplify()`](https://r-spatial.github.io/sf/reference/geos_unary.html).**
+
+The plots for different levels of `keep` in `ms_simplify()` are shown in @fig-e1-ms-simplify.
+
+```{r}
+#| label: fig-e1-ms-simplify
+#| fig-cap: "Different keep levels in rmapshaper::ms_simplify()"
+#| fig-subcap: 
+#|   - "keep = 0.5"
+#|   - "keep = 0.05"
+#|   - "keep = 0.005"
+#|   - "keep = 0.0005"
+#|   - "keep = 0.00005"
+#| layout-nrow: 1
+#| layout-ncol: 5
+#| eval: true
+#| code-fold: true
+
+data("nz")
+
+for (i in c(0.5, 0.05, 0.005, 0.0005, 0.00005)) {
+  g <- ggplot(
+    data = nz |> rmapshaper::ms_simplify(keep = i)
+  ) +
+    geom_sf() +
+    theme_minimal() +
+    theme(
+      panel.grid = element_line(
+        linewidth = 0.3, 
+        linetype = 3
+      )
+    ) +
+    labs(
+      title = paste0("st_simplify(keep = ", i, ")")
+    )
+  print(g)
+}
+```
+
+The plots for different levels of `dTolerance` within `st_simplify()` are in @fig-e1-st-simplify.
+
+```{r}
+#| label: fig-e1-st-simplify
+#| fig-cap: "Different dTolerance levels in st_simplify()"
+#| fig-subcap: 
+#|   - "dTolerance = 100"
+#|   - "dTolerance = 1000"
+#|   - "dTolerance = 10000"
+#|   - "dTolerance = 100000"
+#| layout-nrow: 1
+#| layout-ncol: 4
+#| eval: true
+#| code-fold: true
+
+data("nz")
+
+for (i in c(100, 1000, 10000, 100000)) {
+  g <- ggplot(
+    data = nz |> st_simplify(dTolerance = i)
+  ) +
+    geom_sf() +
+    theme_minimal() +
+    theme(
+      panel.grid = element_line(
+        linewidth = 0.3, 
+        linetype = 3
+      )
+    ) +
+    labs(
+      title = paste0("st_simplify(dTolerance = ", i, ")")
+    )
+  print(g)
+}
+```
+
+-   **At what value does the form of the result start to break down for each method, making New Zealand unrecognizable?**
+
+    For the `rmapshaper::ms_simplify()` method, the result starts to break down at `keep = 0.005` . For the `sf::st_simplify()` method, the result starts to break down around `dTolerance = 10000` .
+
+-   **Advanced: What is different about the geometry type of the results from [`st_simplify()`](https://r-spatial.github.io/sf/reference/geos_unary.html) compared with the geometry type of `ms_simplify()`? What problems does this create and how can this be resolved?**
+
+    The results from `st_simplify()` can be of multiple geometry types: MULTIPOLYGON or POLYGON, where as the results from `ms_simplify()` are always of a single geometry type: POLYGON.
+
+    Problems Created by `st_simplify()`
+
+    -   The invalid geometries produced by `st_simplify()` can lead to errors in subsequent spatial operations, such as overlays, spatial joins, or intersections.
+
+    -   For example, functions like `st_intersection()` or `st_union()` may fail or produce incorrect results when operating on invalid geometries.
+
+    Resolution: Using `st_cast()` to convert all geometries into a single type.
+
+```{r}
+#| collapse: false
+#| echo: true
+#| code-fold: false
+#| eval: true
+
+# Number of features in New Zealand Dataset
+nrow(nz)
+
+# New Zealand data after st_simplify(): some features are MULTIPLOYGON, and some are POLYGON
+nz |> 
+  st_simplify(dTolerance = 1000) |> 
+  st_as_sfc()
+  
+# Resolution: cast them into any one type using st_cast()
+nz |> 
+  st_simplify(dTolerance = 1000) |> 
+  st_as_sfc() |> 
+  st_cast("POLYGON")
+
+nz |> 
+  st_simplify(dTolerance = 1000) |> 
+  st_as_sfc() |> 
+  st_cast("MULTIPOLYGON")
+
+nz |> 
+  rmapshaper::ms_simplify(keep = 0.005) |> 
+  st_as_sfc()
+```
+
+### E2.
+
+**In the first exercise in Chapter Spatial Data Operations it was established that Canterbury region had 70 of the 101 highest points in New Zealand. Using [`st_buffer()`](https://r-spatial.github.io/sf/reference/geos_unary.html), how many points in `nz_height` are within 100 km of Canterbury?**
+
+Out of the 101 heights, 95 of them fall within 100 km of the Canterbury region, as explained in the code below, and as shown in @fig-e2
+
+```{r}
+#| eval: true
+#| code-fold: false
+#| collapse: false
+data("nz_height")
+
+nz_height |> nrow()
+
+canterbury_bf <- nz |> 
+  filter(Name == "Canterbury") |> 
+  st_buffer(dist = 100000)
+
+nz_height |> 
+  st_filter(canterbury_bf) |> 
+  nrow()
+```
+
+```{r}
+#| eval: true
+#| code-fold: true
+#| label: fig-e2
+
+
+selected <- nz_height |> 
+  st_filter(canterbury_bf) |> 
+  pull(t50_fid)
+
+nz_height <- nz_height |> 
+  mutate(colour_var = t50_fid %in% selected)
+
+ggplot() +
+  geom_sf(data = nz) +
+  geom_sf(
+    data = canterbury_bf,
+    fill = alpha("red", 0.1)
+  ) +
+  geom_sf(
+    data = nz_height,
+    mapping = aes(colour = colour_var),
+    alpha = 0.7,
+    pch = 17
+  ) +
+  scale_colour_manual(
+    values = c("blue", "red")
+  ) +
+  labs(
+    colour = "Within 100 km\nof Canterbury?"
+  )
+```
+
+### E3.
+
+Find the geographic centroid of New Zealand. How far is it from the geographic centroid of Canterbury?
+
+### E4.
+
+Most world maps have a north-up orientation. A world map with a south-up orientation could be created by a reflection (one of the affine transformations not mentioned in this chapter) of the `world` object’s geometry. Write code to do so. Hint: you can to use the `rotation()` function from this chapter for this transformation. Bonus: create an upside-down map of your country.
+
+### E5. 
+
+Run the code in Section [5.2.6](https://r.geocompx.org/geometry-operations#subsetting-and-clipping). With reference to the objects created in that section, subset the point in `p` that is contained within `x` *and* `y`.
+
+-   Using base subsetting operators.
+
+-   Using an intermediary object created with [`st_intersection()`](https://r-spatial.github.io/sf/reference/geos_binary_ops.html).
+
+### E6.
+
+Calculate the length of the boundary lines of US states in meters. Which state has the longest border and which has the shortest? Hint: The `st_length` function computes the length of a `LINESTRING` or `MULTILINESTRING` geometry.
+
+### E7.
+
+Read the srtm.tif file into R (`srtm = rast(system.file("raster/srtm.tif", package = "spDataLarge"))`). This raster has a resolution of 0.00083 \* 0.00083 degrees. Change its resolution to 0.01 \* 0.01 degrees using all of the methods available in the **terra** package. Visualize the results. Can you notice any differences between the results of these resampling methods?
