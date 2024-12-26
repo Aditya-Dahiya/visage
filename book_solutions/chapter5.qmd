@@ -2239,7 +2239,7 @@ resampling_methods |>
 
 ## 5.4 Exercises
 
-### E1. 
+### E1.
 
 **Generate and plot simplified versions of the `nz` dataset. Experiment with different values of `keep` (ranging from 0.5 to 0.00005) for `ms_simplify()` and `dTolerance` (from 100 to 100,000) [`st_simplify()`](https://r-spatial.github.io/sf/reference/geos_unary.html).**
 
@@ -2420,23 +2420,198 @@ ggplot() +
 
 ### E3.
 
-Find the geographic centroid of New Zealand. How far is it from the geographic centroid of Canterbury?
+**Find the geographic centroid of New Zealand. How far is it from the geographic centroid of Canterbury?**
+
+```{r}
+#| code-fold: false
+#| eval: true
+#| collapse: false
+
+data(nz)
+
+nz_centre <- nz |> 
+  # Combining entire New Zealand into a geometry
+  st_union() |> 
+  st_centroid()
+
+# Geographic Centroid of New Zealand
+nz_centre |> 
+  st_transform(crs = 4326) |> 
+  as_vector() |> 
+  round(digits = 3) |> 
+  paste0(c(" Longitude;  ", " Latitude"), collapse = "")
+
+canterbury_centre <- nz |> 
+  filter(Name == "Canterbury") |> 
+  st_centroid() |> 
+  st_as_sfc()
+
+# Geographic Centroid of Canterbury
+canterbury_centre |> 
+  st_transform(crs = 4326) |> 
+  as_vector() |> 
+  round(digits = 3) |> 
+  paste0(c(" Longitude;  ", " Latitude"), collapse = "")  
+
+# Distance between the two centroid
+st_distance(nz_centre, canterbury_centre) |> 
+  as.vector() |> 
+  multiply_by(0.001) |> 
+  round(digits = 2) |> 
+  paste0(" km")
+
+line_centres <- st_union(
+  nz_centre,
+  canterbury_centre
+) |> 
+  st_cast("LINESTRING")
+
+ggplot() +
+  geom_sf(
+    data = nz, 
+    mapping = aes(fill = Name == "Canterbury"),
+    colour = "white"
+  ) +
+  scale_fill_manual(values = c(alpha("blue", 0.2), 
+                               alpha("red", 0.2))) +
+  geom_sf(data = nz_centre, colour = "blue") +
+  geom_sf(data = canterbury_centre, colour = "red") +
+  geom_sf(data = line_centres, linetype = 3) +
+  labs(
+    title = paste0("Distance = ",
+                   st_distance(nz_centre, canterbury_centre) |> 
+                      as.vector() |> 
+                      multiply_by(0.001) |> 
+                      round(digits = 2) |> 
+                      paste0(" km")
+                  )
+  ) +
+  ggthemes::theme_map() +
+  theme(
+    legend.position = "none"
+  )
+```
 
 ### E4.
 
-Most world maps have a north-up orientation. A world map with a south-up orientation could be created by a reflection (one of the affine transformations not mentioned in this chapter) of the `world` object’s geometry. Write code to do so. Hint: you can to use the `rotation()` function from this chapter for this transformation. Bonus: create an upside-down map of your country.
+**Most world maps have a north-up orientation. A world map with a south-up orientation could be created by a reflection (one of the affine transformations not mentioned in this chapter) of the `world` object’s geometry. Write code to do so. Hint: you can to use the `rotation()` function from this chapter for this transformation. Bonus: create an upside-down map of your country.**
 
-### E5. 
+The multiplication of an `sfc` object with custom function `rotation(180)` can be used to create a world map with south-up orientation, as shown in @fig-world-rotate-2
 
-Run the code in Section [5.2.6](https://r.geocompx.org/geometry-operations#subsetting-and-clipping). With reference to the objects created in that section, subset the point in `p` that is contained within `x` *and* `y`.
+```{r}
+#| eval: true
+#| code-fold: true
+#| label: fig-world-rotate
+#| fig-cap: "Using a custom rotation() and multiplying the sfc object with rotation(180)"
+#| fig-subcap: 
+#|   - "World map upright"
+#|   - "World map upside-down"
 
--   Using base subsetting operators.
+# Use the rotation function from the textbook
+rotation <- function(a){
+  r = a * pi / 180 #degrees to radians
+  matrix(c(cos(r), sin(r), -sin(r), cos(r)), nrow = 2, ncol = 2)
+} 
+data("world")
+world_up <- world |> 
+  st_geometry()
 
--   Using an intermediary object created with [`st_intersection()`](https://r-spatial.github.io/sf/reference/geos_binary_ops.html).
+world_rotate <- (world_up * rotation(180)) |> 
+  st_set_crs(st_crs(world_up))
+
+ggplot() +
+  geom_sf(data = world_up) +
+  coord_sf(crs = "ESRI:54009") +
+  theme_minimal()
+
+ggplot() +
+  geom_sf(data = world_rotate) +
+  coord_sf(crs = "ESRI:54009") +
+  theme_minimal()
+```
+
+### E5.
+
+**Run the code in Section [5.2.6](https://r.geocompx.org/geometry-operations#subsetting-and-clipping). With reference to the objects created in that section, subset the point in `p` that is contained within `x`*and*`y`.**
+
+```{r}
+#| eval: true
+#| code-fold: false
+
+# Create the two points
+b <- st_sfc(st_point(c(0, 1)), st_point(c(1, 1))) 
+# Create circles around those points
+b <- st_buffer(b, dist = 1)
+# Name x and y -- the two circles
+x = b[1]
+y = b[2]
+x_and_y = st_intersection(x, y)
+
+# Bounding box of x and y
+bb = st_bbox(st_union(x, y))
+# Covert bounding box into a polygon
+box = st_as_sfc(bb)
+set.seed(2024)
+p = st_sample(x = box, size = 10)
+
+```
+
+-   **Using base subsetting operators.** Answer is shown in @fig-e5-a
+
+    ```{r}
+    #| eval: true
+    #| label: fig-e5-a
+    #| fig-cap: "Using base r [] operator"
+    #| code-fold: false
+
+    p_xy1 = p[x_and_y]
+
+    ggplot() +
+      geom_sf(data = b, fill = "transparent") +
+      geom_sf(data = p, size = 2, alpha = 0.75) +
+      geom_sf(data = p_xy1, 
+              colour = "red",
+              fill = "transparent",
+              pch = 1,
+              size = 6,
+              stroke = 2)
+    ```
+
+-   **Using an intermediary object created with [`st_intersection()`](https://r-spatial.github.io/sf/reference/geos_binary_ops.html).** Answer is shown in @fig-e5-b
+
+    ```{r}
+    #| eval: true
+    #| label: fig-e5-b
+    #| fig-cap: "Using sf::st_intersection()"
+    #| code-fold: false
+
+    p1 <- p |> 
+      st_as_sf() |> 
+      mutate(highlight = st_intersects(x, x_and_y, sparse = F))
+
+    ggplot() +
+      geom_sf(data = b, fill = "transparent") +
+      geom_sf(
+        data = p1,
+        mapping = aes(
+          colour = highlight
+        ),
+        size = 3
+      ) +
+      theme(legend.position = "none")
+    ```
 
 ### E6.
 
-Calculate the length of the boundary lines of US states in meters. Which state has the longest border and which has the shortest? Hint: The `st_length` function computes the length of a `LINESTRING` or `MULTILINESTRING` geometry.
+**Calculate the length of the boundary lines of US states in meters. Which state has the longest border and which has the shortest? Hint: The `st_length` function computes the length of a `LINESTRING` or `MULTILINESTRING` geometry.**
+
+```{r}
+data("us_states")
+
+us_states |> 
+  st_cast("MULTILINESTRING") |> 
+  mutate(border = st_length(geometry))
+```
 
 ### E7.
 
