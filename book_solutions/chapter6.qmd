@@ -1,0 +1,238 @@
+---
+title: "Chapter 6: Raster-vector interactions"
+subtitle: "Key Learnings from, and Solutions to the exercises in Chapter 6 of the book Geocomputation with R by Robin Lovelace, Jakub Nowosad and Jannes Muenchow."
+date: "2024-12-27"
+author: "Aditya Dahiya"
+bibliography: references.bib
+format:
+  html:
+    code-fold: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: false
+  cache: false
+categories:
+  - "Geocomputation with R"
+  - "Textbook Solutions"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/book_solutions/chapter6.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+## 6.1 Introduction
+
+-   Focuses on **interactions** between [raster](https://r-spatial.github.io/raster) and [vector](https://r-spatial.github.io/sf/) data models, first introduced in [Chapter 2](https://r.geocompx.org/).
+-   Covers three main techniques:
+    -   Raster cropping and masking using vector objects ([Section 6.2](https://r.geocompx.org/)).
+    -   Extracting raster values based on vector data ([Section 6.3](https://r.geocompx.org/)).
+    -   Raster-vector conversions, explained in [Sections 6.4](https://r.geocompx.org/) and [6.5](https://r.geocompx.org/).
+
+```{r}
+#| label: setup
+#| eval: true
+
+library(sf)        # Simple Features in R
+library(terra)     # Handling rasters in R
+library(tidyterra) # For plotting rasters in ggplot2
+library(magrittr)  # Using pipes with raster objects
+library(tidyverse) # All things tidy; Data Wrangling
+library(spData)    # Spatial Datasets
+library(patchwork) # Composing plots
+```
+
+## 6.2 Raster Cropping
+
+-   Raster cropping and masking unify spatial extents of data, reduce memory use, and optimize computational resources, especially for **remote sensing rasters** and **vector boundaries** integration.
+
+-   **Applications**:
+
+    -   Crop rasters to fit an area of interest.
+    -   Mask values outside specified bounds.
+    -   Essential preprocessing for creating maps and analyses.
+
+-   **Projection Alignment**:
+
+    -   Rasters and vectors must share the same projection.
+    -   Use `st_transform()` from **sf** for re-projection.
+
+-   **Typical Workflow**: shown in @fig-6-2-1
+
+    1.  Crop raster to the area of interest: `terra::crop()`.
+    2.  Mask values outside the area: `terra::mask()`.
+    3.  Combined operation ensures raster extent fits the area and external values are replaced with `NA`.
+
+-   **`terra::crop()`**
+
+    -   **Purpose**: Reduces the extent of a raster object to match a defined area of interest.
+
+    -   **Key Arguments**:
+
+        -   **`x`**: The raster object to be cropped (e.g., a `SpatRaster`).
+        -   **`y`**: The spatial object (e.g., `SpatRaster`, `sf`, or extent) defining the cropping area.
+        -   **`snap`**: Adjusts alignment of the cropped raster to match the target (options: `"near"`, `"out"`, `"in"`).
+
+    -   **Output**: A cropped raster limited to the extent defined by `y`.
+
+-   **`terra::mask()`**
+
+    -   **Purpose**: Sets raster cell values outside the defined spatial object to `NA` or a specified value.
+
+    -   **Key Arguments**:
+
+        -   **`x`**: The raster object to be masked.
+        -   **`mask`**: The spatial object (e.g., `SpatRaster`, `sf`, or extent) defining the masking bounds.
+        -   **`inverse`**: If `TRUE`, masks values *inside* the bounds instead of outside.
+        -   **`updatevalue`**: Sets a custom value (e.g., `0`) for masked areas instead of `NA`.
+
+    -   **Output**: A raster with specified cells masked based on the spatial bounds of the second argument.
+
+| Aspect | `crop() |> mask()` | `mask()` |
+|------------------|---------------------------|---------------------------|
+| **Extent Modification** | Reduces raster extent to vector's bounding box | Retains original raster extent |
+| **Output Size** | Smaller raster (optimized for memory) | Larger raster (original extent retained) |
+| **Use Case** | When reducing raster size is desired | When full raster extent is needed but irrelevant cells must be excluded |
+
+```{r}
+#| eval: false
+sysfonts::font_add_google("Saira Condensed", "body_font")
+showtext::showtext_auto()
+
+theme_set(
+  theme_minimal(
+    base_family = "body_font",
+    base_size = 20
+  )
+)
+
+theme_custom <- function(...){
+  theme(
+    panel.grid = element_line(
+      linewidth = 0.3,
+      linetype = 2
+    ),
+    plot.margin = margin(0,1,0,1, "mm"),
+    axis.text = element_text(
+      size = 8
+    ),
+    axis.ticks = element_blank(),
+    axis.ticks.length = unit(0, "mm"),
+    legend.title = element_blank(),
+    legend.key.width = unit(2, "mm"),
+    legend.text = element_text(
+      margin = margin(0,0,0,0.5, "mm")
+    ),
+    legend.margin = margin(0,0,0,0, "mm"),
+    legend.box.margin = margin(0,0,0,0,"mm")
+  )
+}
+
+srtm <- rast(system.file("raster/srtm.tif", package = "spDataLarge"))
+zion <- read_sf(system.file("vector/zion.gpkg", 
+                            package = "spDataLarge")) |> 
+  st_transform(st_crs(srtm))
+
+g1 <- ggplot() +
+  geom_spatraster(data = srtm) +
+  geom_sf(data = zion, fill = NA) +
+  labs(title = "Base Map: Raster and Vector") +
+  scale_fill_whitebox_c() +
+  coord_sf(
+    xlim = c(-113.25, -112.85),
+    ylim = c(37.14, 37.51),
+    default_crs = 4326
+  ) +
+  theme_custom()
+
+g2 <- ggplot() +
+  geom_spatraster(data = srtm |> crop(zion)) +
+  geom_sf(data = zion, fill = NA) +
+  labs(title = "terra::crop()") +
+  scale_fill_whitebox_c() +
+  coord_sf(
+    xlim = c(-113.25, -112.85),
+    ylim = c(37.14, 37.51),
+    default_crs = 4326
+  ) +
+  theme_custom()
+
+g3 <- ggplot() +
+  geom_spatraster(data = srtm |> crop(zion) |> mask(zion)) +
+  geom_sf(data = zion, fill = NA) +
+  labs(title = "crop() |> mask()") +
+  scale_fill_whitebox_c() +
+  coord_sf(
+    xlim = c(-113.25, -112.85),
+    ylim = c(37.14, 37.51),
+    default_crs = 4326
+  ) +
+  theme_custom()
+
+g4 <- ggplot() +
+  geom_spatraster(data = srtm |> mask(zion)) +
+  geom_sf(data = zion, fill = NA) +
+  labs(title = "mask()") +
+  scale_fill_whitebox_c() +
+  coord_sf(
+    xlim = c(-113.25, -112.85),
+    ylim = c(37.14, 37.51),
+    default_crs = 4326
+  ) +
+  theme_custom()
+
+g5 <- ggplot() +
+  geom_spatraster(data = srtm |> mask(zion, inverse = TRUE)) +
+  geom_sf(data = zion, fill = NA) +
+  labs(title = "mask(inverse = TRUE)") +
+  scale_fill_whitebox_c() +
+  coord_sf(
+    xlim = c(-113.25, -112.85),
+    ylim = c(37.14, 37.51),
+    default_crs = 4326
+  ) +
+  theme_custom()
+
+g <- g1 + g2 + g3 + g4 + g5 + 
+  patchwork::plot_layout(
+    nrow = 1,
+    guides = "collect"
+  ) +
+  patchwork::plot_annotation(
+    title = "Cropping and masking rasters with vectors",
+    theme = theme(
+      plot.title = element_text(
+        family = "body_font",
+        size = 36, 
+        lineheight = 0.3,
+        hjust = 0.5,
+        face = "bold"
+      )
+    )
+  )
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter6_2_1.png"),
+  plot = g,
+  height = 800,
+  width = 2200,
+  units = "px",
+  bg = "white"
+)
+```
+
+![The workflows and outputs when cropping and masking rasters with vectors.](images/chapter6_2_1.png){#fig-6-2-1}
