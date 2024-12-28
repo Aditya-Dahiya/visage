@@ -1,0 +1,156 @@
+---
+title: "Cropping and Masking rasters with vectors using {sf} and {terra}"
+author: "Aditya Dahiya"
+subtitle: "Showing maps of various boroughs of London using rasters from open source Stadia Maps, and london boroughs from {spData}."
+date: "2024-12-29"
+bibliography: references.bib
+format:
+  html:
+    code-fold: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: false
+categories:
+  - "{sf}"
+  - "{terra}"
+  - "Raster"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/geocomputation/crs_projections.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+Getting required libraries
+
+```{r}
+library(sf)            # Simple Features and Vectors in R
+library(terra)         # Handling rasters
+library(tidyterra)     # Tidyverse workflows with rasters
+library(tidyverse)     # Wrangling and plotting
+library(spData)        # London Boroughs data
+```
+
+Get data on London Boroughs as vector data, results shown in @fig-1
+
+```{r}
+#| eval: false
+
+london <- spData::lnd |> 
+  janitor::clean_names() |> 
+  select(name, hectares, geometry)
+
+g <- london |> 
+  ggplot(
+    mapping = aes(
+      fill = name,
+      label = name
+    )
+  ) +
+  geom_sf(
+    alpha = 0.8,
+    linewidth = 0.1
+  ) +
+  geom_sf_text(
+    size = 1,
+    check_overlap = TRUE
+  ) +
+  labs(
+    x = NULL, y = NULL,
+    title = "Vector data, plotted with {sf}",
+    subtitle = "Boroughs of London"
+  ) +
+  theme_minimal(
+    base_size = 6
+  ) +
+  theme(
+    legend.position = "none"
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "crop_mask_rasters_1.png"),
+  height = 800,
+  width = 1000,
+  units = "px",
+  bg = "white"
+)
+```
+
+![Vector data on London Boroughs' boundaries, plotted using {sf}](images/crop_mask_rasters_1.png){#fig-1 fig-align="center" width="500"}
+
+Getting `bbox` and other parameters for getting rasters
+
+```{r}
+
+# A bounding box in the format c(lowerleftlon, lowerleftlat, upperrightlon, upperrightlat)
+london_bbox <- st_bbox(london)
+names(london_bbox) <- c("left", "bottom", "right", "top")
+london_bbox
+
+```
+
+Get raster map data for entire London Area
+
+```{r}
+
+# Getting the map tiles
+london_base1 <- get_stadiamap(
+  bbox = london_bbox,
+  zoom = 10,
+  maptype = "stamen_toner_lines"
+)
+
+# Credits: https://stackoverflow.com/questions/47749078/how-to-put-a-geom-sf-produced-map-on-top-of-a-ggmap-produced-raster by andyteucher on StackOverFlow (https://stackoverflow.com/users/1736291/andyteucher)
+
+# Define a function to fix the bbox to be in CRS EPSG:3857
+ggmap_bbox <- function(map) {
+  # Extract the bounding box (in lat/lon) from the ggmap
+  # to a numeric vector, and set the names to what
+  # sf::st_bbox expects:
+  map_bbox <- setNames(
+    unlist(attr(map, "bb")),
+    c("ymin", "xmin", "ymax", "xmax")
+  )
+
+  # Coonvert the bbox to an sf polygon, transform it to 3857,
+  # and convert back to a bbox (convoluted, but it works)
+  bbox_3857 <- st_bbox(
+    st_transform(
+      st_as_sfc(
+        st_bbox(map_bbox, crs = 4326)
+        ), 
+      3857
+    )
+  )
+
+  # Overwrite the bbox of the ggmap object with the transformed coordinates
+  attr(map, "bb")$ll.lat <- bbox_3857["ymin"]
+  attr(map, "bb")$ll.lon <- bbox_3857["xmin"]
+  attr(map, "bb")$ur.lat <- bbox_3857["ymax"]
+  attr(map, "bb")$ur.lon <- bbox_3857["xmax"]
+  map
+}
+
+# Use the function to convert our downloaded Raster Files into 
+# the new CRS and new bounding box CRS
+london_base2 <- ggmap_bbox(london_base1)
+
+```
+
+Cropping and Masking
+
+Compiling layout
