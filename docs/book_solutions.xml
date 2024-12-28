@@ -10,7 +10,897 @@
 <atom:link href="https://aditya-dahiya.github.io/visage/index.html/book_solutions.xml" rel="self" type="application/rss+xml"/>
 <description>Visualizing Information and Spatial Analysis with ggplot2 Extensions</description>
 <generator>quarto-1.5.57</generator>
-<lastBuildDate>Sun, 15 Dec 2024 18:30:00 GMT</lastBuildDate>
+<lastBuildDate>Thu, 26 Dec 2024 18:30:00 GMT</lastBuildDate>
+<item>
+  <title>Chapter 6: Raster-vector interactions</title>
+  <dc:creator>Aditya Dahiya</dc:creator>
+  <link>https://aditya-dahiya.github.io/visage/index.html/book_solutions/chapter6.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">6.1 Introduction</h2>
+<ul>
+<li>Focuses on <strong>interactions</strong> between <a href="https://r-spatial.github.io/raster">raster</a> and <a href="https://r-spatial.github.io/sf/">vector</a> data models, first introduced in <a href="https://r.geocompx.org/">Chapter 2</a>.</li>
+<li>Covers three main techniques:
+<ul>
+<li>Raster cropping and masking using vector objects (<a href="https://r.geocompx.org/">Section 6.2</a>).</li>
+<li>Extracting raster values based on vector data (<a href="https://r.geocompx.org/">Section 6.3</a>).</li>
+<li>Raster-vector conversions, explained in <a href="https://r.geocompx.org/">Sections 6.4</a> and <a href="https://r.geocompx.org/">6.5</a>.</li>
+</ul></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(sf)        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Simple Features in R</span></span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(terra)     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Handling rasters in R</span></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyterra) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># For plotting rasters in ggplot2</span></span>
+<span id="cb1-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(magrittr)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Using pipes with raster objects</span></span>
+<span id="cb1-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># All things tidy; Data Wrangling</span></span>
+<span id="cb1-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(spData)    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Spatial Datasets</span></span>
+<span id="cb1-7"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(patchwork) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Composing plots</span></span></code></pre></div>
+</details>
+</div>
+</section>
+<section id="raster-cropping" class="level2">
+<h2 class="anchored" data-anchor-id="raster-cropping">6.2 Raster Cropping</h2>
+<ul>
+<li><p>Raster cropping and masking unify spatial extents of data, reduce memory use, and optimize computational resources, especially for <strong>remote sensing rasters</strong> and <strong>vector boundaries</strong> integration.</p></li>
+<li><p><strong>Applications</strong>:</p>
+<ul>
+<li>Crop rasters to fit an area of interest.</li>
+<li>Mask values outside specified bounds.</li>
+<li>Essential preprocessing for creating maps and analyses.</li>
+</ul></li>
+<li><p><strong>Projection Alignment</strong>:</p>
+<ul>
+<li>Rasters and vectors must share the same projection.</li>
+<li>Use <code>st_transform()</code> from <strong>sf</strong> for re-projection.</li>
+</ul></li>
+<li><p><strong>Typical Workflow</strong>: shown in Figure&nbsp;1</p>
+<ol type="1">
+<li>Crop raster to the area of interest: <code>terra::crop()</code>.</li>
+<li>Mask values outside the area: <code>terra::mask()</code>.</li>
+<li>Combined operation ensures raster extent fits the area and external values are replaced with <code>NA</code>.</li>
+</ol></li>
+<li><p><strong><code>terra::crop()</code></strong></p>
+<ul>
+<li><p><strong>Purpose</strong>: Reduces the extent of a raster object to match a defined area of interest.</p></li>
+<li><p><strong>Key Arguments</strong>:</p>
+<ul>
+<li><strong><code>x</code></strong>: The raster object to be cropped (e.g., a <code>SpatRaster</code>).</li>
+<li><strong><code>y</code></strong>: The spatial object (e.g., <code>SpatRaster</code>, <code>sf</code>, or extent) defining the cropping area.</li>
+<li><strong><code>snap</code></strong>: Adjusts alignment of the cropped raster to match the target (options: <code>"near"</code>, <code>"out"</code>, <code>"in"</code>).</li>
+</ul></li>
+<li><p><strong>Output</strong>: A cropped raster limited to the extent defined by <code>y</code>.</p></li>
+</ul></li>
+<li><p><strong><code>terra::mask()</code></strong></p>
+<ul>
+<li><p><strong>Purpose</strong>: Sets raster cell values outside the defined spatial object to <code>NA</code> or a specified value.</p></li>
+<li><p><strong>Key Arguments</strong>:</p>
+<ul>
+<li><strong><code>x</code></strong>: The raster object to be masked.</li>
+<li><strong><code>mask</code></strong>: The spatial object (e.g., <code>SpatRaster</code>, <code>sf</code>, or extent) defining the masking bounds.</li>
+<li><strong><code>inverse</code></strong>: If <code>TRUE</code>, masks values <em>inside</em> the bounds instead of outside.</li>
+<li><strong><code>updatevalue</code></strong>: Sets a custom value (e.g., <code>0</code>) for masked areas instead of <code>NA</code>.</li>
+</ul></li>
+<li><p><strong>Output</strong>: A raster with specified cells masked based on the spatial bounds of the second argument.</p></li>
+</ul></li>
+</ul>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 37%">
+<col style="width: 37%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Aspect</th>
+<th><code>crop() |&gt; mask()</code></th>
+<th><code>mask()</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Extent Modification</strong></td>
+<td>Reduces raster extent to vector’s bounding box</td>
+<td>Retains original raster extent</td>
+</tr>
+<tr class="even">
+<td><strong>Output Size</strong></td>
+<td>Smaller raster (optimized for memory)</td>
+<td>Larger raster (original extent retained)</td>
+</tr>
+<tr class="odd">
+<td><strong>Use Case</strong></td>
+<td>When reducing raster size is desired</td>
+<td>When full raster extent is needed but irrelevant cells must be excluded</td>
+</tr>
+</tbody>
+</table>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">sysfonts<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">font_add_google</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Saira Condensed"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>)</span>
+<span id="cb2-2">showtext<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">showtext_auto</span>()</span>
+<span id="cb2-3"></span>
+<span id="cb2-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_set</span>(</span>
+<span id="cb2-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>(</span>
+<span id="cb2-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>,</span>
+<span id="cb2-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span></span>
+<span id="cb2-8">  )</span>
+<span id="cb2-9">)</span>
+<span id="cb2-10"></span>
+<span id="cb2-11">theme_custom <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(...){</span>
+<span id="cb2-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb2-13">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">panel.grid =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_line</span>(</span>
+<span id="cb2-14">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>,</span>
+<span id="cb2-15">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linetype =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span></span>
+<span id="cb2-16">    ),</span>
+<span id="cb2-17">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb2-18">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb2-19">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span></span>
+<span id="cb2-20">    ),</span>
+<span id="cb2-21">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.ticks =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_blank</span>(),</span>
+<span id="cb2-22">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.ticks.length =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb2-23">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_blank</span>(),</span>
+<span id="cb2-24">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.key.width =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb2-25">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb2-26">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)</span>
+<span id="cb2-27">    ),</span>
+<span id="cb2-28">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb2-29">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.box.margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)</span>
+<span id="cb2-30">  )</span>
+<span id="cb2-31">}</span>
+<span id="cb2-32"></span>
+<span id="cb2-33">srtm <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rast</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">system.file</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"raster/srtm.tif"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">package =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"spDataLarge"</span>))</span>
+<span id="cb2-34">zion <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">read_sf</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">system.file</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"vector/zion.gpkg"</span>, </span>
+<span id="cb2-35">                            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">package =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"spDataLarge"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-36">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_transform</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(srtm))</span>
+<span id="cb2-37"></span>
+<span id="cb2-38">g1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-39">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> srtm) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-40">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> zion, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-41">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Base Map: Raster and Vector"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-42">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_whitebox_c</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-43">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb2-44">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xlim =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">113.25</span>, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">112.85</span>),</span>
+<span id="cb2-45">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ylim =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">37.14</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">37.51</span>),</span>
+<span id="cb2-46">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">default_crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span></span>
+<span id="cb2-47">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-48">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>()</span>
+<span id="cb2-49"></span>
+<span id="cb2-50">g2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-51">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> srtm <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">crop</span>(zion)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-52">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> zion, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-53">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"terra::crop()"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-54">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_whitebox_c</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-55">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb2-56">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xlim =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">113.25</span>, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">112.85</span>),</span>
+<span id="cb2-57">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ylim =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">37.14</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">37.51</span>),</span>
+<span id="cb2-58">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">default_crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span></span>
+<span id="cb2-59">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-60">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>()</span>
+<span id="cb2-61"></span>
+<span id="cb2-62">g3 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-63">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> srtm <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">crop</span>(zion) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mask</span>(zion)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-64">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> zion, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-65">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"crop() |&gt; mask()"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-66">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_whitebox_c</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-67">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb2-68">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xlim =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">113.25</span>, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">112.85</span>),</span>
+<span id="cb2-69">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ylim =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">37.14</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">37.51</span>),</span>
+<span id="cb2-70">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">default_crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span></span>
+<span id="cb2-71">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-72">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>()</span>
+<span id="cb2-73"></span>
+<span id="cb2-74">g4 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-75">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> srtm <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mask</span>(zion)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-76">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> zion, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-77">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mask()"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-78">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_whitebox_c</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-79">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb2-80">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xlim =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">113.25</span>, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">112.85</span>),</span>
+<span id="cb2-81">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ylim =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">37.14</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">37.51</span>),</span>
+<span id="cb2-82">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">default_crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span></span>
+<span id="cb2-83">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-84">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>()</span>
+<span id="cb2-85"></span>
+<span id="cb2-86">g5 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-87">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> srtm <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mask</span>(zion, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">inverse =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-88">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> zion, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-89">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mask(inverse = TRUE)"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-90">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_whitebox_c</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-91">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(</span>
+<span id="cb2-92">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xlim =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">113.25</span>, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">112.85</span>),</span>
+<span id="cb2-93">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ylim =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">37.14</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">37.51</span>),</span>
+<span id="cb2-94">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">default_crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span></span>
+<span id="cb2-95">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-96">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>()</span>
+<span id="cb2-97"></span>
+<span id="cb2-98">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> g1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g2 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g3 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g4 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g5 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb2-99">  patchwork<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_layout</span>(</span>
+<span id="cb2-100">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb2-101">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">guides =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"collect"</span></span>
+<span id="cb2-102">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-103">  patchwork<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_annotation</span>(</span>
+<span id="cb2-104">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Cropping and masking rasters with vectors"</span>,</span>
+<span id="cb2-105">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">theme =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb2-106">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb2-107">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>,</span>
+<span id="cb2-108">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">36</span>, </span>
+<span id="cb2-109">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lineheight =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>,</span>
+<span id="cb2-110">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">hjust =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>,</span>
+<span id="cb2-111">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">face =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span></span>
+<span id="cb2-112">      )</span>
+<span id="cb2-113">    )</span>
+<span id="cb2-114">  )</span>
+<span id="cb2-115"></span>
+<span id="cb2-116"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb2-117">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"book_solutions"</span>, </span>
+<span id="cb2-118">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>, </span>
+<span id="cb2-119">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"chapter6_2_1.png"</span>),</span>
+<span id="cb2-120">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb2-121">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">800</span>,</span>
+<span id="cb2-122">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2200</span>,</span>
+<span id="cb2-123">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span>,</span>
+<span id="cb2-124">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bg =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span></span>
+<span id="cb2-125">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-6-2-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-6-2-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/chapter6_2_1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;1: The workflows and outputs when cropping and masking rasters with vectors."><img src="https://aditya-dahiya.github.io/visage/index.html/book_solutions/images/chapter6_2_1.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-6-2-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: The workflows and outputs when cropping and masking rasters with vectors.
+</figcaption>
+</figure>
+</div>
+
+
+</section>
+
+ ]]></description>
+  <category>Geocomputation with R</category>
+  <category>Textbook Solutions</category>
+  <guid>https://aditya-dahiya.github.io/visage/index.html/book_solutions/chapter6.html</guid>
+  <pubDate>Thu, 26 Dec 2024 18:30:00 GMT</pubDate>
+</item>
 <item>
   <title>Chapter 5: Geometry operations</title>
   <dc:creator>Aditya Dahiya</dc:creator>
@@ -5737,27 +6627,27 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
 </figcaption>
 <div aria-describedby="tbl-st-types-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="uepuauqcxv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="rvsgmbysku" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Cairo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#uepuauqcxv table {
+#rvsgmbysku table {
   font-family: Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#uepuauqcxv thead, #uepuauqcxv tbody, #uepuauqcxv tfoot, #uepuauqcxv tr, #uepuauqcxv td, #uepuauqcxv th {
+#rvsgmbysku thead, #rvsgmbysku tbody, #rvsgmbysku tfoot, #rvsgmbysku tr, #rvsgmbysku td, #rvsgmbysku th {
   border-style: none;
 }
 
-#uepuauqcxv p {
+#rvsgmbysku p {
   margin: 0;
   padding: 0;
 }
 
-#uepuauqcxv .gt_table {
+#rvsgmbysku .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -5783,12 +6673,12 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   border-left-color: #D3D3D3;
 }
 
-#uepuauqcxv .gt_caption {
+#rvsgmbysku .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#uepuauqcxv .gt_title {
+#rvsgmbysku .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -5800,7 +6690,7 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   border-bottom-width: 0;
 }
 
-#uepuauqcxv .gt_subtitle {
+#rvsgmbysku .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -5812,7 +6702,7 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   border-top-width: 0;
 }
 
-#uepuauqcxv .gt_heading {
+#rvsgmbysku .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -5824,13 +6714,13 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   border-right-color: #D3D3D3;
 }
 
-#uepuauqcxv .gt_bottom_border {
+#rvsgmbysku .gt_bottom_border {
   border-bottom-style: none;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#uepuauqcxv .gt_col_headings {
+#rvsgmbysku .gt_col_headings {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -5845,7 +6735,7 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   border-right-color: #D3D3D3;
 }
 
-#uepuauqcxv .gt_col_heading {
+#rvsgmbysku .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -5865,7 +6755,7 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   overflow-x: hidden;
 }
 
-#uepuauqcxv .gt_column_spanner_outer {
+#rvsgmbysku .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -5877,15 +6767,15 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   padding-right: 4px;
 }
 
-#uepuauqcxv .gt_column_spanner_outer:first-child {
+#rvsgmbysku .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#uepuauqcxv .gt_column_spanner_outer:last-child {
+#rvsgmbysku .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#uepuauqcxv .gt_column_spanner {
+#rvsgmbysku .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #000000;
@@ -5897,11 +6787,11 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   width: 100%;
 }
 
-#uepuauqcxv .gt_spanner_row {
+#rvsgmbysku .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#uepuauqcxv .gt_group_heading {
+#rvsgmbysku .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5927,7 +6817,7 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   text-align: left;
 }
 
-#uepuauqcxv .gt_empty_group_heading {
+#rvsgmbysku .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -5942,15 +6832,15 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   vertical-align: middle;
 }
 
-#uepuauqcxv .gt_from_md > :first-child {
+#rvsgmbysku .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#uepuauqcxv .gt_from_md > :last-child {
+#rvsgmbysku .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#uepuauqcxv .gt_row {
+#rvsgmbysku .gt_row {
   padding-top: 3px;
   padding-bottom: 3px;
   padding-left: 5px;
@@ -5969,7 +6859,7 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   overflow-x: hidden;
 }
 
-#uepuauqcxv .gt_stub {
+#rvsgmbysku .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -5982,7 +6872,7 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   padding-right: 5px;
 }
 
-#uepuauqcxv .gt_stub_row_group {
+#rvsgmbysku .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -5996,15 +6886,15 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   vertical-align: top;
 }
 
-#uepuauqcxv .gt_row_group_first td {
+#rvsgmbysku .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#uepuauqcxv .gt_row_group_first th {
+#rvsgmbysku .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#uepuauqcxv .gt_summary_row {
+#rvsgmbysku .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -6014,16 +6904,16 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   padding-right: 5px;
 }
 
-#uepuauqcxv .gt_first_summary_row {
+#rvsgmbysku .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#uepuauqcxv .gt_first_summary_row.thick {
+#rvsgmbysku .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#uepuauqcxv .gt_last_summary_row {
+#rvsgmbysku .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -6033,7 +6923,7 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   border-bottom-color: #D3D3D3;
 }
 
-#uepuauqcxv .gt_grand_summary_row {
+#rvsgmbysku .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -6043,7 +6933,7 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   padding-right: 5px;
 }
 
-#uepuauqcxv .gt_first_grand_summary_row {
+#rvsgmbysku .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -6053,7 +6943,7 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   border-top-color: #D3D3D3;
 }
 
-#uepuauqcxv .gt_last_grand_summary_row_top {
+#rvsgmbysku .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -6063,11 +6953,11 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   border-bottom-color: #D3D3D3;
 }
 
-#uepuauqcxv .gt_striped {
+#rvsgmbysku .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#uepuauqcxv .gt_table_body {
+#rvsgmbysku .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -6076,7 +6966,7 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   border-bottom-color: #D3D3D3;
 }
 
-#uepuauqcxv .gt_footnotes {
+#rvsgmbysku .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -6090,7 +6980,7 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   border-right-color: #D3D3D3;
 }
 
-#uepuauqcxv .gt_footnote {
+#rvsgmbysku .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -6099,7 +6989,7 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   padding-right: 5px;
 }
 
-#uepuauqcxv .gt_sourcenotes {
+#rvsgmbysku .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -6113,7 +7003,7 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   border-right-color: #D3D3D3;
 }
 
-#uepuauqcxv .gt_sourcenote {
+#rvsgmbysku .gt_sourcenote {
   font-size: 12px;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -6121,72 +7011,72 @@ Table&nbsp;1: All possible combinations of Geometry type transformations for Sim
   padding-right: 5px;
 }
 
-#uepuauqcxv .gt_left {
+#rvsgmbysku .gt_left {
   text-align: left;
 }
 
-#uepuauqcxv .gt_center {
+#rvsgmbysku .gt_center {
   text-align: center;
 }
 
-#uepuauqcxv .gt_right {
+#rvsgmbysku .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#uepuauqcxv .gt_font_normal {
+#rvsgmbysku .gt_font_normal {
   font-weight: normal;
 }
 
-#uepuauqcxv .gt_font_bold {
+#rvsgmbysku .gt_font_bold {
   font-weight: bold;
 }
 
-#uepuauqcxv .gt_font_italic {
+#rvsgmbysku .gt_font_italic {
   font-style: italic;
 }
 
-#uepuauqcxv .gt_super {
+#rvsgmbysku .gt_super {
   font-size: 65%;
 }
 
-#uepuauqcxv .gt_footnote_marks {
+#rvsgmbysku .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#uepuauqcxv .gt_asterisk {
+#rvsgmbysku .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#uepuauqcxv .gt_indent_1 {
+#rvsgmbysku .gt_indent_1 {
   text-indent: 5px;
 }
 
-#uepuauqcxv .gt_indent_2 {
+#rvsgmbysku .gt_indent_2 {
   text-indent: 10px;
 }
 
-#uepuauqcxv .gt_indent_3 {
+#rvsgmbysku .gt_indent_3 {
   text-indent: 15px;
 }
 
-#uepuauqcxv .gt_indent_4 {
+#rvsgmbysku .gt_indent_4 {
   text-indent: 20px;
 }
 
-#uepuauqcxv .gt_indent_5 {
+#rvsgmbysku .gt_indent_5 {
   text-indent: 25px;
 }
 
-#uepuauqcxv .katex-display {
+#rvsgmbysku .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#uepuauqcxv div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#rvsgmbysku div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 
@@ -7126,9 +8016,9 @@ font-style: inherit;">"white"</span></span>
 </ul>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 25%">
-<col style="width: 34%">
-<col style="width: 40%">
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -9895,24 +10785,24 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
 </figcaption>
 <div aria-describedby="tbl-resample1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="gbgldiscfx" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="ceqqvrykkc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#gbgldiscfx table {
+#ceqqvrykkc table {
   font-family: Lato, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#gbgldiscfx thead, #gbgldiscfx tbody, #gbgldiscfx tfoot, #gbgldiscfx tr, #gbgldiscfx td, #gbgldiscfx th {
+#ceqqvrykkc thead, #ceqqvrykkc tbody, #ceqqvrykkc tfoot, #ceqqvrykkc tr, #ceqqvrykkc td, #ceqqvrykkc th {
   border-style: none;
 }
 
-#gbgldiscfx p {
+#ceqqvrykkc p {
   margin: 0;
   padding: 0;
 }
 
-#gbgldiscfx .gt_table {
+#ceqqvrykkc .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -9938,12 +10828,12 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   border-left-color: #D3D3D3;
 }
 
-#gbgldiscfx .gt_caption {
+#ceqqvrykkc .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#gbgldiscfx .gt_title {
+#ceqqvrykkc .gt_title {
   color: #333333;
   font-size: 24px;
   font-weight: initial;
@@ -9955,7 +10845,7 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   border-bottom-width: 0;
 }
 
-#gbgldiscfx .gt_subtitle {
+#ceqqvrykkc .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -9967,7 +10857,7 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   border-top-width: 0;
 }
 
-#gbgldiscfx .gt_heading {
+#ceqqvrykkc .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -9979,13 +10869,13 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   border-right-color: #D3D3D3;
 }
 
-#gbgldiscfx .gt_bottom_border {
+#ceqqvrykkc .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#gbgldiscfx .gt_col_headings {
+#ceqqvrykkc .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -10000,7 +10890,7 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   border-right-color: #D3D3D3;
 }
 
-#gbgldiscfx .gt_col_heading {
+#ceqqvrykkc .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 80%;
@@ -10020,7 +10910,7 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   overflow-x: hidden;
 }
 
-#gbgldiscfx .gt_column_spanner_outer {
+#ceqqvrykkc .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 80%;
@@ -10032,15 +10922,15 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   padding-right: 4px;
 }
 
-#gbgldiscfx .gt_column_spanner_outer:first-child {
+#ceqqvrykkc .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#gbgldiscfx .gt_column_spanner_outer:last-child {
+#ceqqvrykkc .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#gbgldiscfx .gt_column_spanner {
+#ceqqvrykkc .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -10052,11 +10942,11 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   width: 100%;
 }
 
-#gbgldiscfx .gt_spanner_row {
+#ceqqvrykkc .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#gbgldiscfx .gt_group_heading {
+#ceqqvrykkc .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -10082,7 +10972,7 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   text-align: left;
 }
 
-#gbgldiscfx .gt_empty_group_heading {
+#ceqqvrykkc .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -10097,15 +10987,15 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   vertical-align: middle;
 }
 
-#gbgldiscfx .gt_from_md > :first-child {
+#ceqqvrykkc .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#gbgldiscfx .gt_from_md > :last-child {
+#ceqqvrykkc .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#gbgldiscfx .gt_row {
+#ceqqvrykkc .gt_row {
   padding-top: 7px;
   padding-bottom: 7px;
   padding-left: 5px;
@@ -10124,7 +11014,7 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   overflow-x: hidden;
 }
 
-#gbgldiscfx .gt_stub {
+#ceqqvrykkc .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 80%;
@@ -10137,7 +11027,7 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   padding-right: 5px;
 }
 
-#gbgldiscfx .gt_stub_row_group {
+#ceqqvrykkc .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -10151,15 +11041,15 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   vertical-align: top;
 }
 
-#gbgldiscfx .gt_row_group_first td {
+#ceqqvrykkc .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#gbgldiscfx .gt_row_group_first th {
+#ceqqvrykkc .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#gbgldiscfx .gt_summary_row {
+#ceqqvrykkc .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -10169,16 +11059,16 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   padding-right: 5px;
 }
 
-#gbgldiscfx .gt_first_summary_row {
+#ceqqvrykkc .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#gbgldiscfx .gt_first_summary_row.thick {
+#ceqqvrykkc .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#gbgldiscfx .gt_last_summary_row {
+#ceqqvrykkc .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -10188,7 +11078,7 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   border-bottom-color: #D3D3D3;
 }
 
-#gbgldiscfx .gt_grand_summary_row {
+#ceqqvrykkc .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -10198,7 +11088,7 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   padding-right: 5px;
 }
 
-#gbgldiscfx .gt_first_grand_summary_row {
+#ceqqvrykkc .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -10208,7 +11098,7 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   border-top-color: #D3D3D3;
 }
 
-#gbgldiscfx .gt_last_grand_summary_row_top {
+#ceqqvrykkc .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -10218,11 +11108,11 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   border-bottom-color: #D3D3D3;
 }
 
-#gbgldiscfx .gt_striped {
+#ceqqvrykkc .gt_striped {
   background-color: #FAFAFA;
 }
 
-#gbgldiscfx .gt_table_body {
+#ceqqvrykkc .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -10231,7 +11121,7 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   border-bottom-color: #D3D3D3;
 }
 
-#gbgldiscfx .gt_footnotes {
+#ceqqvrykkc .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -10245,7 +11135,7 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   border-right-color: #D3D3D3;
 }
 
-#gbgldiscfx .gt_footnote {
+#ceqqvrykkc .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -10254,7 +11144,7 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   padding-right: 5px;
 }
 
-#gbgldiscfx .gt_sourcenotes {
+#ceqqvrykkc .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -10268,7 +11158,7 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   border-right-color: #D3D3D3;
 }
 
-#gbgldiscfx .gt_sourcenote {
+#ceqqvrykkc .gt_sourcenote {
   font-size: 12px;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -10276,72 +11166,72 @@ Table&nbsp;2: Comparison of Resampling Methods for rasters in
   padding-right: 5px;
 }
 
-#gbgldiscfx .gt_left {
+#ceqqvrykkc .gt_left {
   text-align: left;
 }
 
-#gbgldiscfx .gt_center {
+#ceqqvrykkc .gt_center {
   text-align: center;
 }
 
-#gbgldiscfx .gt_right {
+#ceqqvrykkc .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#gbgldiscfx .gt_font_normal {
+#ceqqvrykkc .gt_font_normal {
   font-weight: normal;
 }
 
-#gbgldiscfx .gt_font_bold {
+#ceqqvrykkc .gt_font_bold {
   font-weight: bold;
 }
 
-#gbgldiscfx .gt_font_italic {
+#ceqqvrykkc .gt_font_italic {
   font-style: italic;
 }
 
-#gbgldiscfx .gt_super {
+#ceqqvrykkc .gt_super {
   font-size: 65%;
 }
 
-#gbgldiscfx .gt_footnote_marks {
+#ceqqvrykkc .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#gbgldiscfx .gt_asterisk {
+#ceqqvrykkc .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#gbgldiscfx .gt_indent_1 {
+#ceqqvrykkc .gt_indent_1 {
   text-indent: 5px;
 }
 
-#gbgldiscfx .gt_indent_2 {
+#ceqqvrykkc .gt_indent_2 {
   text-indent: 10px;
 }
 
-#gbgldiscfx .gt_indent_3 {
+#ceqqvrykkc .gt_indent_3 {
   text-indent: 15px;
 }
 
-#gbgldiscfx .gt_indent_4 {
+#ceqqvrykkc .gt_indent_4 {
   text-indent: 20px;
 }
 
-#gbgldiscfx .gt_indent_5 {
+#ceqqvrykkc .gt_indent_5 {
   text-indent: 25px;
 }
 
-#gbgldiscfx .katex-display {
+#ceqqvrykkc .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#gbgldiscfx div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#ceqqvrykkc div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -11191,27 +12081,1973 @@ Figure&nbsp;15
 </section>
 <section id="e3." class="level3">
 <h3 class="anchored" data-anchor-id="e3.">E3.</h3>
-<p>Find the geographic centroid of New Zealand. How far is it from the geographic centroid of Canterbury?</p>
+<p><strong>Find the geographic centroid of New Zealand. How far is it from the geographic centroid of Canterbury?</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data</span>(nz)</span>
+<span id="cb38-2"></span>
+<span id="cb38-3">nz_centre <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> nz <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb38-4">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Combining entire New Zealand into a geometry</span></span>
+<span id="cb38-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_union</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb38-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_centroid</span>()</span>
+<span id="cb38-7"></span>
+<span id="cb38-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Geographic Centroid of New Zealand</span></span>
+<span id="cb38-9">nz_centre <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb38-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_transform</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb38-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_vector</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb38-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">digits =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb38-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">" Longitude;  "</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">" Latitude"</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">collapse =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "172.842 Longitude;  -41.684 Latitude"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb40" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1">canterbury_centre <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> nz <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb40-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(Name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Canterbury"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb40-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_centroid</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb40-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_as_sfc</span>()</span>
+<span id="cb40-5"></span>
+<span id="cb40-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Geographic Centroid of Canterbury</span></span>
+<span id="cb40-7">canterbury_centre <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb40-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_transform</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb40-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_vector</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb40-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">digits =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb40-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">" Longitude;  "</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">" Latitude"</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">collapse =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>)  </span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "171.572 Longitude;  -43.573 Latitude"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Distance between the two centroid</span></span>
+<span id="cb42-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_distance</span>(nz_centre, canterbury_centre) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb42-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.vector</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb42-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">multiply_by</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.001</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb42-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">digits =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb42-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">" km"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "234.19 km"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb44" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1">line_centres <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_union</span>(</span>
+<span id="cb44-2">  nz_centre,</span>
+<span id="cb44-3">  canterbury_centre</span>
+<span id="cb44-4">) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb44-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_cast</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"LINESTRING"</span>)</span>
+<span id="cb44-6"></span>
+<span id="cb44-7"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb44-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb44-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> nz, </span>
+<span id="cb44-10">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> Name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Canterbury"</span>),</span>
+<span id="cb44-11">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span></span>
+<span id="cb44-12">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb44-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_manual</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">alpha</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"blue"</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>), </span>
+<span id="cb44-14">                               <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">alpha</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>))) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb44-15">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> nz_centre, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"blue"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb44-16">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> canterbury_centre, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb44-17">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> line_centres, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linetype =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb44-18">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb44-19">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Distance = "</span>,</span>
+<span id="cb44-20">                   <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_distance</span>(nz_centre, canterbury_centre) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb44-21">                      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.vector</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb44-22">                      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">multiply_by</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.001</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb44-23">                      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">digits =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb44-24">                      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">" km"</span>)</span>
+<span id="cb44-25">                  )</span>
+<span id="cb44-26">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb44-27">  ggthemes<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_map</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb44-28">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb44-29">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"none"</span></span>
+<span id="cb44-30">  )</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="chapter5_files/figure-html/unnamed-chunk-25-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-31"><img src="https://aditya-dahiya.github.io/visage/index.html/book_solutions/chapter5_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="e4." class="level3">
 <h3 class="anchored" data-anchor-id="e4.">E4.</h3>
-<p>Most world maps have a north-up orientation. A world map with a south-up orientation could be created by a reflection (one of the affine transformations not mentioned in this chapter) of the <code>world</code> object’s geometry. Write code to do so. Hint: you can to use the <code>rotation()</code> function from this chapter for this transformation. Bonus: create an upside-down map of your country.</p>
+<p><strong>Most world maps have a north-up orientation. A world map with a south-up orientation could be created by a reflection (one of the affine transformations not mentioned in this chapter) of the <code>world</code> object’s geometry. Write code to do so. Hint: you can to use the <code>rotation()</code> function from this chapter for this transformation. Bonus: create an upside-down map of your country.</strong></p>
+<p>The multiplication of an <code>sfc</code> object with custom function <code>rotation(180)</code> can be used to create a world map with south-up orientation, as shown in Figure&nbsp;16 (b)</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb45" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use the rotation function from the textbook</span></span>
+<span id="cb45-2">rotation <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(a){</span>
+<span id="cb45-3">  r <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> a <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> pi <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">180</span> <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#degrees to radians</span></span>
+<span id="cb45-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cos</span>(r), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sin</span>(r), <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sin</span>(r), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cos</span>(r)), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ncol =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span>
+<span id="cb45-5">} </span>
+<span id="cb45-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"world"</span>)</span>
+<span id="cb45-7">world_up <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> world <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb45-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_geometry</span>()</span>
+<span id="cb45-9"></span>
+<span id="cb45-10">world_rotate <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> (world_up <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rotation</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">180</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb45-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_set_crs</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(world_up))</span>
+<span id="cb45-12"></span>
+<span id="cb45-13"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb45-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> world_up) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb45-15">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ESRI:54009"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb45-16">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>()</span>
+<span id="cb45-17"></span>
+<span id="cb45-18"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb45-19">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> world_rotate) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb45-20">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ESRI:54009"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb45-21">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>()</span></code></pre></div>
+</details>
+<div id="fig-world-rotate" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-world-rotate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="fig-world-rotate-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-world-rotate-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter5_files/figure-html/fig-world-rotate-1.png" class="lightbox" data-gallery="fig-world-rotate" title="Figure&nbsp;16&nbsp;(a): World map upright"><img src="https://aditya-dahiya.github.io/visage/index.html/book_solutions/chapter5_files/figure-html/fig-world-rotate-1.png" class="img-fluid figure-img" data-ref-parent="fig-world-rotate" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-world-rotate-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) World map upright
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-world-rotate-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-world-rotate-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter5_files/figure-html/fig-world-rotate-2.png" class="lightbox" data-gallery="fig-world-rotate" title="Figure&nbsp;16&nbsp;(b): World map upside-down"><img src="https://aditya-dahiya.github.io/visage/index.html/book_solutions/chapter5_files/figure-html/fig-world-rotate-2.png" class="img-fluid figure-img" data-ref-parent="fig-world-rotate" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-world-rotate-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) World map upside-down
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-world-rotate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;16: Using a custom rotation() and multiplying the sfc object with rotation(180)
+</figcaption>
+</figure>
+</div>
+</div>
 </section>
 <section id="e5." class="level3">
 <h3 class="anchored" data-anchor-id="e5.">E5.</h3>
-<p>Run the code in Section <a href="https://r.geocompx.org/geometry-operations#subsetting-and-clipping">5.2.6</a>. With reference to the objects created in that section, subset the point in <code>p</code> that is contained within <code>x</code> <em>and</em> <code>y</code>.</p>
+<p><strong>Run the code in Section <a href="https://r.geocompx.org/geometry-operations#subsetting-and-clipping">5.2.6</a>. With reference to the objects created in that section, subset the point in <code>p</code> that is contained within <code>x</code><em>and</em><code>y</code>.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create the two points</span></span>
+<span id="cb46-2">b <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_sfc</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_point</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_point</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>))) </span>
+<span id="cb46-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create circles around those points</span></span>
+<span id="cb46-4">b <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_buffer</span>(b, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dist =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb46-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Name x and y -- the two circles</span></span>
+<span id="cb46-6">x <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> b[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]</span>
+<span id="cb46-7">y <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> b[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>]</span>
+<span id="cb46-8">x_and_y <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersection</span>(x, y)</span>
+<span id="cb46-9"></span>
+<span id="cb46-10"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Bounding box of x and y</span></span>
+<span id="cb46-11">bb <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_bbox</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_union</span>(x, y))</span>
+<span id="cb46-12"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Covert bounding box into a polygon</span></span>
+<span id="cb46-13">box <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_as_sfc</span>(bb)</span>
+<span id="cb46-14"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2024</span>)</span>
+<span id="cb46-15">p <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_sample</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> box, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+</div>
 <ul>
-<li><p>Using base subsetting operators.</p></li>
-<li><p>Using an intermediary object created with <a href="https://r-spatial.github.io/sf/reference/geos_binary_ops.html"><code>st_intersection()</code></a>.</p></li>
+<li><p><strong>Using base subsetting operators.</strong> Answer is shown in Figure&nbsp;17</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1">p_xy1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> p[x_and_y]</span>
+<span id="cb47-2"></span>
+<span id="cb47-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb47-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> b, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb47-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> p, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.75</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb47-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> p_xy1, </span>
+<span id="cb47-7">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>,</span>
+<span id="cb47-8">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span>,</span>
+<span id="cb47-9">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pch =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb47-10">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>,</span>
+<span id="cb47-11">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">stroke =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div id="fig-e5-a" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-e5-a-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter5_files/figure-html/fig-e5-a-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-34" title="Figure&nbsp;17: Using base r [] operator"><img src="https://aditya-dahiya.github.io/visage/index.html/book_solutions/chapter5_files/figure-html/fig-e5-a-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-e5-a-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;17: Using base r [] operator
+</figcaption>
+</figure>
+</div>
+</div>
+</div></li>
+<li><p><strong>Using an intermediary object created with <a href="https://r-spatial.github.io/sf/reference/geos_binary_ops.html"><code>st_intersection()</code></a>.</strong> Answer is shown in Figure&nbsp;18</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1">p1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> p <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb48-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_as_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb48-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">highlight =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersects</span>(x, x_and_y, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sparse =</span> F))</span>
+<span id="cb48-4"></span>
+<span id="cb48-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb48-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> b, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb48-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb48-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> p1,</span>
+<span id="cb48-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb48-10">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> highlight</span>
+<span id="cb48-11">    ),</span>
+<span id="cb48-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span></span>
+<span id="cb48-13">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb48-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"none"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div id="fig-e5-b" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-e5-b-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter5_files/figure-html/fig-e5-b-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-35" title="Figure&nbsp;18: Using sf::st_intersection()"><img src="https://aditya-dahiya.github.io/visage/index.html/book_solutions/chapter5_files/figure-html/fig-e5-b-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-e5-b-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;18: Using sf::st_intersection()
+</figcaption>
+</figure>
+</div>
+</div>
+</div></li>
 </ul>
 </section>
 <section id="e6." class="level3">
 <h3 class="anchored" data-anchor-id="e6.">E6.</h3>
-<p>Calculate the length of the boundary lines of US states in meters. Which state has the longest border and which has the shortest? Hint: The <code>st_length</code> function computes the length of a <code>LINESTRING</code> or <code>MULTILINESTRING</code> geometry.</p>
+<p><strong>Calculate the length of the boundary lines of US states in meters. Which state has the longest border and which has the shortest? Hint: The <code>st_length</code> function computes the length of a <code>LINESTRING</code> or <code>MULTILINESTRING</code> geometry.</strong></p>
+<p>The longest border is of Texas (4,959.8 km) and the shortest border is of District of Columbia (60.2 km). The complete list is at Table&nbsp;3 .</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb49" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"us_states"</span>)</span>
+<span id="cb49-2"></span>
+<span id="cb49-3">us_states <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb49-4">  janitor<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">clean_names</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb49-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_cast</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"MULTILINESTRING"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb49-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">border =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.numeric</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_length</span>(geometry))<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb49-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_drop_geometry</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb49-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(name, region, border) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb49-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">arrange</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">desc</span>(border)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb49-10">  gt<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">gt</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb49-11">  gt<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cols_label</span>(</span>
+<span id="cb49-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">name =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"State Name"</span>,</span>
+<span id="cb49-13">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">region =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Region"</span>,</span>
+<span id="cb49-14">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">border =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Length of Border (km)"</span></span>
+<span id="cb49-15">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb49-16">  gt<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fmt_number</span>(</span>
+<span id="cb49-17">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">columns =</span> border</span>
+<span id="cb49-18">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb49-19">  gt<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">opt_interactive</span>()</span></code></pre></div>
+</details>
+<div id="tbl-e6" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-e6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: The border length of the different states in USA
+</figcaption>
+<div aria-describedby="tbl-e6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="zlrzuakcin" class=".gt_table" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#zlrzuakcin table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#zlrzuakcin thead, #zlrzuakcin tbody, #zlrzuakcin tfoot, #zlrzuakcin tr, #zlrzuakcin td, #zlrzuakcin th {
+  border-style: none;
+}
+
+#zlrzuakcin p {
+  margin: 0;
+  padding: 0;
+}
+
+#zlrzuakcin .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#zlrzuakcin .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#zlrzuakcin .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#zlrzuakcin .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#zlrzuakcin .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#zlrzuakcin .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zlrzuakcin .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#zlrzuakcin .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#zlrzuakcin .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#zlrzuakcin .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#zlrzuakcin .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#zlrzuakcin .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#zlrzuakcin .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#zlrzuakcin .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#zlrzuakcin .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#zlrzuakcin .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#zlrzuakcin .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#zlrzuakcin .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#zlrzuakcin .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zlrzuakcin .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#zlrzuakcin .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#zlrzuakcin .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#zlrzuakcin .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zlrzuakcin .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#zlrzuakcin .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#zlrzuakcin .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zlrzuakcin .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zlrzuakcin .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#zlrzuakcin .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zlrzuakcin .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#zlrzuakcin .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zlrzuakcin .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#zlrzuakcin .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zlrzuakcin .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#zlrzuakcin .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zlrzuakcin .gt_left {
+  text-align: left;
+}
+
+#zlrzuakcin .gt_center {
+  text-align: center;
+}
+
+#zlrzuakcin .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#zlrzuakcin .gt_font_normal {
+  font-weight: normal;
+}
+
+#zlrzuakcin .gt_font_bold {
+  font-weight: bold;
+}
+
+#zlrzuakcin .gt_font_italic {
+  font-style: italic;
+}
+
+#zlrzuakcin .gt_super {
+  font-size: 65%;
+}
+
+#zlrzuakcin .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#zlrzuakcin .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#zlrzuakcin .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#zlrzuakcin .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#zlrzuakcin .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#zlrzuakcin .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#zlrzuakcin .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#zlrzuakcin .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#zlrzuakcin div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<div id="zlrzuakcin" class="reactable html-widget" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="zlrzuakcin">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"name":["Texas","California","Michigan","Florida","Montana","Idaho","Minnesota","Virginia","New Mexico","Washington","Oklahoma","Nevada","Arizona","New York","North Carolina","Louisiana","Oregon","Missouri","Colorado","Nebraska","Wyoming","South Dakota","Utah","Kansas","Wisconsin","Illinois","Tennessee","Kentucky","North Dakota","Georgia","Alabama","Mississippi","Arkansas","Iowa","Maryland","West Virginia","Maine","Pennsylvania","Ohio","Indiana","South Carolina","Massachusetts","New Hampshire","Vermont","New Jersey","Connecticut","Delaware","Rhode Island","District of Columbia"],"region":["South","West","Midwest","South","West","West","Midwest","South","West","West","South","West","West","Norteast","South","South","West","Midwest","West","Midwest","West","Midwest","West","Midwest","Midwest","Midwest","South","South","Midwest","South","South","South","South","Midwest","South","South","Norteast","Norteast","Midwest","Midwest","South","Norteast","Norteast","Norteast","Norteast","Norteast","South","Norteast","South"],"border":[4959.81874658822,3793.17201646086,3574.84957190436,2960.4406890895,2822.8241029301,2565.82076325025,2564.43095489498,2404.68799904349,2378.95434200069,2342.54213460324,2332.53714283736,2332.38154944118,2295.91745725585,2295.06529363318,2219.88206030273,2214.43802940279,2196.78120122941,2111.17542663295,2100.12497958159,2047.92744776933,2026.78410503188,1995.13126715839,1971.65371753135,1954.65952964274,1898.42176751743,1858.99309026842,1850.72933092888,1833.81325441367,1767.64966326135,1750.96398103635,1714.13548193582,1712.41738831247,1679.29198017816,1654.72639825455,1637.78934559927,1588.96595991424,1562.27635218519,1499.49912928411,1465.72700317163,1434.64409493977,1277.64472597993,1021.36097348429,777.298423112844,775.321526974667,744.327441244202,514.424488795117,407.266100223944,303.444550643989,60.2621212662005]},"columns":[{"id":"name","name":"State Name","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"region","name":"Region","type":"factor","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"center","headerStyle":{"font-weight":"normal"}},{"id":"border","name":"Length of Border (km)","type":"numeric","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","cell":["4,959.82","3,793.17","3,574.85","2,960.44","2,822.82","2,565.82","2,564.43","2,404.69","2,378.95","2,342.54","2,332.54","2,332.38","2,295.92","2,295.07","2,219.88","2,214.44","2,196.78","2,111.18","2,100.12","2,047.93","2,026.78","1,995.13","1,971.65","1,954.66","1,898.42","1,858.99","1,850.73","1,833.81","1,767.65","1,750.96","1,714.14","1,712.42","1,679.29","1,654.73","1,637.79","1,588.97","1,562.28","1,499.50","1,465.73","1,434.64","1,277.64","1,021.36","777.30","775.32","744.33","514.42","407.27","303.44","60.26"],"html":true,"align":"right","headerStyle":{"font-weight":"normal"}}],"defaultPageSize":10,"showPageSizeOptions":false,"pageSizeOptions":[10,25,50,100],"paginationType":"numbers","showPagination":true,"showPageInfo":true,"minRows":1,"height":"auto","theme":{"color":"#333333","backgroundColor":"#FFFFFF","stripedColor":"rgba(128,128,128,0.05)","style":{"fontFamily":"system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"},"tableStyle":{"borderTopStyle":"solid","borderTopWidth":"2px","borderTopColor":"#D3D3D3"},"headerStyle":{"borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"#D3D3D3"}},"elementId":"zlrzuakcin","dataKey":"90047578a1752020ce753c133dd8de97"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.style","tag.attribs.columns.1.style","tag.attribs.columns.2.style"],"jsHooks":[]}</script>
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
 </section>
 <section id="e7." class="level3">
 <h3 class="anchored" data-anchor-id="e7.">E7.</h3>
-<p>Read the srtm.tif file into R (<code>srtm = rast(system.file("raster/srtm.tif", package = "spDataLarge"))</code>). This raster has a resolution of 0.00083 * 0.00083 degrees. Change its resolution to 0.01 * 0.01 degrees using all of the methods available in the <strong>terra</strong> package. Visualize the results. Can you notice any differences between the results of these resampling methods?</p>
+<p><strong>Read the srtm.tif file into R (<code>srtm = rast(system.file("raster/srtm.tif", package = "spDataLarge"))</code>). This raster has a resolution of 0.00083 * 0.00083 degrees. Change its resolution to 0.01 * 0.01 degrees using all of the methods available in the <code>terra</code> package. Visualize the results. Can you notice any differences between the results of these re-sampling methods?</strong></p>
+<p>The different methods of resampling rasters and their demonstration is in Figure&nbsp;19</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb50" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1">sysfonts<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">font_add_google</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Encode Sans Condensed"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>)</span>
+<span id="cb50-2">showtext<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">showtext_auto</span>()</span>
+<span id="cb50-3">srtm <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rast</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">system.file</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"raster/srtm.tif"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">package =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"spDataLarge"</span>))</span>
+<span id="cb50-4"></span>
+<span id="cb50-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a target raster on which to re-sample</span></span>
+<span id="cb50-6">target_rast <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rast</span>(</span>
+<span id="cb50-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xmin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">xmin</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ext</span>(srtm)), </span>
+<span id="cb50-8">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xmax =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">xmax</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ext</span>(srtm)), </span>
+<span id="cb50-9">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ymin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymin</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ext</span>(srtm)), </span>
+<span id="cb50-10">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ymax =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymax</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ext</span>(srtm)),</span>
+<span id="cb50-11">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># resolution = res(srtm), </span></span>
+<span id="cb50-12">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">resolution =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.01</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.01</span>),</span>
+<span id="cb50-13">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">crs</span>(srtm)</span>
+<span id="cb50-14">  )</span>
+<span id="cb50-15"></span>
+<span id="cb50-16">original_raster <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> srtm</span>
+<span id="cb50-17"></span>
+<span id="cb50-18">resampling_methods_tbl <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tibble</span>(</span>
+<span id="cb50-19">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">name =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(</span>
+<span id="cb50-20">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bilinear"</span>,</span>
+<span id="cb50-21">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"cubic"</span>,</span>
+<span id="cb50-22">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lanczos"</span>,</span>
+<span id="cb50-23">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"min"</span>,</span>
+<span id="cb50-24">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"average"</span>,</span>
+<span id="cb50-25">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mode"</span></span>
+<span id="cb50-26">  ),</span>
+<span id="cb50-27">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">description =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(</span>
+<span id="cb50-28">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Bilinear Interpolation"</span>,</span>
+<span id="cb50-29">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Cubic Interpolation"</span>,</span>
+<span id="cb50-30">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Lanczos Resampling"</span>,</span>
+<span id="cb50-31">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Minimum"</span>,</span>
+<span id="cb50-32">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Average (Mean)"</span>,</span>
+<span id="cb50-33">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Mode"</span></span>
+<span id="cb50-34">  )</span>
+<span id="cb50-35">)</span>
+<span id="cb50-36"></span>
+<span id="cb50-37">theme_custom <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(...){</span>
+<span id="cb50-38">  ggthemes<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_map</span>(</span>
+<span id="cb50-39">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>,</span>
+<span id="cb50-40">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">36</span></span>
+<span id="cb50-41">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb50-42">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb50-43">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb50-44">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">45</span>, </span>
+<span id="cb50-45">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)</span>
+<span id="cb50-46">      ),</span>
+<span id="cb50-47">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bottom"</span>,</span>
+<span id="cb50-48">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb50-49">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)</span>
+<span id="cb50-50">      ),</span>
+<span id="cb50-51">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb50-52">      ...</span>
+<span id="cb50-53">    )</span>
+<span id="cb50-54">}</span>
+<span id="cb50-55"></span>
+<span id="cb50-56">g1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb50-57">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> original_raster) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb50-58">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_wiki_c</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb50-59">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">expand =</span> F) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb50-60">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb50-61">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Original Raster"</span></span>
+<span id="cb50-62">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb50-63">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">guides</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"none"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb50-64">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>()</span>
+<span id="cb50-65"></span>
+<span id="cb50-66"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>) {</span>
+<span id="cb50-67">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">assign</span>(</span>
+<span id="cb50-68">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"g"</span>, i<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>),</span>
+<span id="cb50-69">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb50-70">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(</span>
+<span id="cb50-71">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> terra<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">resample</span>(</span>
+<span id="cb50-72">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> original_raster,</span>
+<span id="cb50-73">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> target_rast,</span>
+<span id="cb50-74">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">method =</span> resampling_methods_tbl<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>name[i]</span>
+<span id="cb50-75">        )</span>
+<span id="cb50-76">      ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb50-77">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_wiki_c</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb50-78">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">expand =</span> F) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb50-79">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb50-80">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(resampling_methods_tbl<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>description[i]),</span>
+<span id="cb50-81">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span></span>
+<span id="cb50-82">      ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb50-83">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>(</span>
+<span id="cb50-84">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.key.height =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb50-85">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.key.width =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)</span>
+<span id="cb50-86">      )</span>
+<span id="cb50-87">  )</span>
+<span id="cb50-88">}</span>
+<span id="cb50-89"></span>
+<span id="cb50-90">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> g1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g2 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g3 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g4 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g5 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g6 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb50-91">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_layout</span>(</span>
+<span id="cb50-92">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">guides =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"collect"</span>,</span>
+<span id="cb50-93">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb50-94">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_annotation</span>(</span>
+<span id="cb50-95">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Methods for Re-sampling rasters with {terra}"</span>,</span>
+<span id="cb50-96">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">theme =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb50-97">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_blank</span>(),</span>
+<span id="cb50-98">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb50-99">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">60</span>,</span>
+<span id="cb50-100">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb50-101">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">hjust =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span></span>
+<span id="cb50-102">      ),</span>
+<span id="cb50-103">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bottom"</span></span>
+<span id="cb50-104">    )</span>
+<span id="cb50-105">  )</span>
+<span id="cb50-106"></span>
+<span id="cb50-107"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb50-108">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"book_solutions"</span>, </span>
+<span id="cb50-109">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>, </span>
+<span id="cb50-110">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"chapter5-e7.png"</span>),</span>
+<span id="cb50-111">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb50-112">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2400</span>,</span>
+<span id="cb50-113">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2400</span>,</span>
+<span id="cb50-114">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span>,</span>
+<span id="cb50-115">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bg =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span></span>
+<span id="cb50-116">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-e7-a" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-e7-a-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/chapter5-e7.png" class="lightbox" data-gallery="quarto-lightbox-gallery-36" title="Figure&nbsp;19: The various methods of resampling in the {terra} for rasters."><img src="https://aditya-dahiya.github.io/visage/index.html/book_solutions/images/chapter5-e7.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-e7-a-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;19: The various methods of resampling in the {terra} for rasters.
+</figcaption>
+</figure>
+</div>
+<p>Another method for converting into the resolution of (0.01, 0.01) is to use <code>terra::aggregate()</code> with <code>fact = 0.01 / 0.00083</code>.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb51" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1">srtm <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rast</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">system.file</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"raster/srtm.tif"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">package =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"spDataLarge"</span>))</span>
+<span id="cb51-2"></span>
+<span id="cb51-3">temp <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> srtm <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb51-4">  terra<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aggregate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fact =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.01</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.0008333333</span>)</span>
+<span id="cb51-5"></span>
+<span id="cb51-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb51-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> temp) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb51-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_wiki_c</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb51-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">expand =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb51-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>()</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-e8" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-e8-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="chapter5_files/figure-html/fig-e8-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-37" title="Figure&nbsp;20: Using terra::aggregate() to make resolution of 0.01"><img src="https://aditya-dahiya.github.io/visage/index.html/book_solutions/chapter5_files/figure-html/fig-e8-1.png" class="img-fluid figure-img" width="384"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-e8-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;20: Using terra::aggregate() to make resolution of 0.01
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 
 
 
