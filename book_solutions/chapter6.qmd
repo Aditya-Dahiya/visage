@@ -101,7 +101,7 @@ library(patchwork) # Composing plots
     -   **Output**: A raster with specified cells masked based on the spatial bounds of the second argument.
 
 | Aspect | `crop() |> mask()` | `mask()` |
-|------------------|---------------------------|---------------------------|
+|-------------------|---------------------------|---------------------------|
 | **Extent Modification** | Reduces raster extent to vector's bounding box | Retains original raster extent |
 | **Output Size** | Smaller raster (optimized for memory) | Larger raster (original extent retained) |
 | **Use Case** | When reducing raster size is desired | When full raster extent is needed but irrelevant cells must be excluded |
@@ -236,3 +236,759 @@ ggsave(
 ```
 
 ![The workflows and outputs when cropping and masking rasters with vectors.](images/chapter6_2_1.png){#fig-6-2-1}
+
+## 6.3 Raster Extraction
+
+-   Raster extraction retrieves raster values at specified locations using a geographic selector (typically vector objects like points, lines, or polygons). Uses the `terra::extract()` function ([`terra` package](https://rspatial.org/terra/)).
+
+-   **Point Selector**: Extracts raster cell values for specified points. Example: Extracting elevation values for 20 sample points in Zion National Park using `st_sample()` as shown in @fig-6-3-1
+
+```{r}
+sysfonts::font_add_google("Saira Condensed", "body_font")
+showtext::showtext_auto()
+theme_set(
+  theme_minimal(
+    base_family = "body_font"
+  )
+)
+# Elevation Raster for Zion National Park and nearby areas
+srtm <- rast(system.file("raster/srtm.tif", package = "spDataLarge"))
+
+# Zion National Park Boundaries, converted into CRS of `srtm`
+zion <- read_sf(
+  system.file(
+    "vector/zion.gpkg", 
+    package = "spDataLarge"
+    )
+  ) |> 
+  st_transform(st_crs(srtm))
+# ----------------------------------------------------------------
+# Basic data display
+g1 <- ggplot() +
+  geom_spatraster(data = srtm) +
+  geom_sf(
+    data = zion, 
+    linewidth = 0.4, 
+    fill = "transparent"
+  ) +
+  scale_fill_wiki_c(
+    name = "Elevation (m)",
+    labels = scales::label_number(big.mark = ",")
+  ) +
+  coord_sf(expand = FALSE) +
+  labs(
+    title = "Raw Data",
+    subtitle = "Elevation Raster and Zion National Park boundaries"
+  ) +
+  theme(
+    legend.key.width = unit(2, "mm"),
+    axis.text = element_text(
+      size = 8,
+      margin = margin(0,0,0,0, "mm")
+    ),
+    plot.title = element_text(
+      margin = margin(0,0,1,0, "mm"),
+      hjust = 0.5,
+      size = 18
+    ),
+    plot.subtitle = element_text(
+      margin = margin(0,0,1,0, "mm"),
+      hjust = 0.5,
+      size = 14
+    ),
+    axis.ticks.length = unit(0, "mm"),
+    plot.margin = margin(0,2,0,2, "mm")
+  )
+
+# ----------------------------------------------------------------
+# Mask to display only Zion National Park, and
+# Display the elevations of randomly selected 20 points
+
+# Get 20 random points inside Zion National Park
+set.seed(21)
+random_points <- st_sample(zion, size = 20) |> 
+  st_sf()
+
+g2 <- ggplot() +
+  geom_spatraster(data = srtm |> mask(zion)) +
+  geom_sf(
+    data = zion, 
+    linewidth = 0.4, 
+    fill = "transparent"
+  ) +
+  geom_sf(
+    data = random_points,
+    size = 1,
+    alpha = 0.5,
+    pch = 19
+  ) +
+  scale_fill_wiki_c(
+    name = "Elevation (m)",
+    labels = scales::label_number(big.mark = ",")
+  ) +
+  coord_sf(expand = FALSE) +
+  labs(
+    title = "Sampling 20 Random Points",
+    subtitle = "Getting rndom poitns from sf::st_sample()"
+  ) +
+  theme(
+    legend.key.width = unit(2, "mm"),
+    axis.text = element_text(
+      size = 8,
+      margin = margin(0,0,0,0, "mm")
+    ),
+    plot.title = element_text(
+      margin = margin(0,0,1,0, "mm"),
+      hjust = 0.5,
+      size = 18
+    ),
+    plot.subtitle = element_text(
+      margin = margin(0,0,1,0, "mm"),
+      hjust = 0.5,
+      size = 14
+    ),
+    axis.ticks.length = unit(0, "mm"),
+    plot.margin = margin(0,2,0,2, "mm")
+  )
+
+# --------------------------------------------------------------
+# Extract heights for these 20 points
+random_points <- random_points |> 
+  mutate(
+    elevation = terra::extract(srtm, random_points) |> pull(srtm)
+  )
+
+g3 <- ggplot() +
+  geom_spatraster(data = srtm |> mask(zion)) +
+  geom_sf(
+    data = zion, 
+    linewidth = 0.4, 
+    fill = "transparent"
+  ) +
+  geom_sf(
+    data = random_points,
+    mapping = aes(colour = elevation),
+    stroke = 0.5,
+    size = 1,
+    alpha = 1,
+    pch = 1
+  ) +
+  geom_sf_text(
+    data = random_points,
+    mapping = aes(label = elevation),
+    size = 4,
+    alpha = 1,
+    family = "body_font",
+    hjust = 0,
+    vjust = 1,
+    nudge_y = -0.002
+  ) +
+  scale_fill_wiki_c(
+    name = "Elevation (m)",
+    labels = scales::label_number(big.mark = ",")
+  ) +
+  paletteer::scale_colour_paletteer_c("ggthemes::Red") +
+  coord_sf(expand = FALSE) +
+  guides(colour = "none") +
+  labs(
+    title = "Extracting elevation on points from rasters",
+    subtitle = "Using terra::extract() to get elevations on 20 points",
+    x = NULL, y = NULL
+  ) +
+  theme(
+    legend.key.width = unit(2, "mm"),
+    axis.text = element_text(
+      size = 8,
+      margin = margin(0,0,0,0, "mm")
+    ),
+    plot.title = element_text(
+      margin = margin(0,0,1,0, "mm"),
+      hjust = 0.5,
+      size = 18
+    ),
+    plot.subtitle = element_text(
+      margin = margin(0,0,1,0, "mm"),
+      hjust = 0.5,
+      size = 14
+    ),
+    axis.ticks.length = unit(0, "mm"),
+    plot.margin = margin(0,2,0,2, "mm")
+  )
+
+g <- g1 + g2 + g3 +
+  plot_layout(
+    nrow = 1,
+    guides = "collect"
+  )
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter6_3_1.png"),
+  plot = g,
+  height = 600,
+  width = 1500,
+  units = "px",
+  bg = "white"
+)
+
+rm(g, g1, g2, g3)
+```
+
+![Using {sf} and {terra} to get 20 random points in Zion National Park, and displaying their elevation (above sea level, in metres).](images/chapter6_3_1.png){#fig-6-3-1}
+
+-   **Line Selector**: Extracts raster values for each cell touched by a line. Recommendation: Split lines into points (using `st_segmentize()` and `st_cast()` from [sf package](https://r-spatial.github.io/sf/)) for accurate extraction along transects, such as creating elevation profiles for hiking routes, as shown in @fig-6-3-2
+
+```{r}
+
+# Get Latitude and Longitude of these random points
+df1 <- random_points |>
+  st_as_sfc() |> 
+  st_as_sf() |>
+  rename(geometry = x) |> 
+  cbind(st_coordinates(random_points))
+
+# Tibble of northern, sourthern, eastern and western-most points
+df2 <- bind_rows(
+  df1[which.min(df1$X), ] |> mutate(dir = "west"),
+  df1[which.max(df1$X), ] |> mutate(dir = "east"),
+  df1[which.min(df1$Y), ] |> mutate(dir = "south"),
+  df1[which.max(df1$Y), ] |> mutate(dir = "north"),
+)
+
+# Get two paths: east to west, north to south
+paths <- bind_rows(
+  df2 |> 
+    filter(dir %in% c("west", "east")) |> 
+    st_union() |> 
+    st_cast("LINESTRING") |> 
+    st_as_sf() |> 
+    mutate(path = "West to East"),
+
+  df2 |> 
+    filter(dir %in% c("south", "north")) |> 
+    st_union() |> 
+    st_cast("LINESTRING") |> 
+    st_as_sf() |> 
+    mutate(path = "South to North")
+)
+rm(df1, df2)
+
+# Mid-point Check: Whether the CRS'es match
+st_crs(srtm) == st_crs(paths)
+
+# Plot of the paths
+g1 <- ggplot() +
+  geom_spatraster(data = srtm |> mask(zion)) +
+  geom_sf(
+    data = zion, 
+    linewidth = 0.4, 
+    fill = "transparent"
+  ) +
+  geom_sf(
+    data = paths,
+    mapping = aes(colour = path),
+    linewidth = 0.5,
+    arrow = arrow(length = unit(2, "mm"))
+  ) +
+  geom_sf(
+    data = random_points,
+    size = 0.5
+  ) +
+  scale_fill_wiki_c(
+    name = "Elevation (m)",
+    labels = scales::label_number(big.mark = ",")
+  ) +
+  paletteer::scale_colour_paletteer_d(
+    "nbapalettes::cavaliers_retro"
+  ) +
+  coord_sf(expand = FALSE) +
+  guides(colour = "none") +
+  labs(
+    title = "Selecting 2 Paths",
+    subtitle = "sing st_cast() and st_coordinates()",
+    x = NULL, y = NULL
+  ) +
+  theme(
+    legend.key.width = unit(2, "mm"),
+    axis.text = element_text(
+      size = 8,
+      margin = margin(0,0,0,0, "mm")
+    ),
+    plot.title = element_text(
+      margin = margin(0,0,2,0, "mm"),
+      hjust = 0.5,
+      size = 18
+    ),
+    plot.subtitle = element_text(
+      margin = margin(0,0,0,0, "mm"),
+      hjust = 0.5,
+      size = 18
+    ),
+    axis.ticks.length = unit(0, "mm"),
+    plot.margin = margin(0,0,0,0, "mm")
+  )
+
+# A {sf} object of various waypoints along the paths
+# to be able to extract elevation
+path_points <- paths |> 
+  # Break into line segments of 100 metres each
+  st_segmentize(dfMaxLength = 100) |> 
+  
+  # Convert each line segment into a central point
+  # to be able to extract its elevation
+  st_cast("POINT") |> 
+  
+  # Group by path to be able to calculate distance
+  # along the path
+  group_by(path) |> 
+  
+  # Extract only the first column (i.e. the distance from
+  # first point alone). Otherwise, st_distance() 
+  # returns a distance matrix As expected, distance grows 
+  # by approx. less than dfMaxLength amount per points
+  mutate(dist = st_distance(x)[, 1]) |> 
+  ungroup()
+
+# Extract the actual elevation using terra::extract
+path_points <- path_points |> 
+  mutate(
+    elevation = terra::extract(srtm, path_points) |> 
+      pull(srtm),
+    dist = as.numeric(dist)
+  )
+
+g2 <- path_points |> 
+  ggplot(
+    mapping = aes(
+      x = dist,
+      y = elevation,
+      colour = path
+    )
+  ) +
+  geom_point(
+    size = 0.1
+  ) +
+  geom_line(
+    linewidth = 0.2
+  ) +
+  facet_wrap(~path, nrow = 1) +
+  scale_x_continuous(
+    labels = scales::label_number(
+      scale = 0.001
+    )
+  ) +
+  scale_y_continuous(
+    labels = scales::label_number(
+      big.mark = ","
+    )
+  ) +
+  paletteer::scale_colour_paletteer_d(
+    "nbapalettes::cavaliers_retro"
+  ) +
+  labs(
+    x = "Distance along the path (km)",
+    y = "Elevation (m)",
+    title = "Elevation Profile along two paths",
+    subtitle = "Using st_segmentize() & terra::extract()"
+  ) +
+  guides(colour = "none") +
+  theme(
+    axis.text = element_text(
+      size = 12,
+      margin = margin(0,0,0,0, "mm")
+    ),
+    plot.title = element_text(
+      margin = margin(0,0,2,0, "mm"),
+      hjust = 0.5,
+      size = 18
+    ),
+    plot.subtitle = element_text(
+      margin = margin(0,0,0,0, "mm"),
+      hjust = 0.5,
+      size = 18
+    ),
+    axis.ticks.length = unit(0, "mm"),
+    plot.margin = margin(0,0,0,0, "mm"),
+    axis.title.y = element_text(
+      margin = margin(0,0,0,5, "mm")
+    )
+  )
+
+my_design = "ABB"
+
+g <- wrap_plots(g1, g2) +
+  plot_layout(design = my_design, guides = "collect") 
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter6_3_2.png"),
+  plot = g,
+  height = 600,
+  width = 1500,
+  units = "px",
+  bg = "white"
+)
+
+rm(g, g1, g2, paths, path_points)
+```
+
+![Creating elevation profiles along routes using st_segmentize() and terra::extract() from Northern most to Southernmost point; and from Westernmost to Easternmost point (amongst the 20 random points generated).](images/chapter6_3_2.png){#fig-6-3-2}
+
+-   **Polygon Selector**: Extracts multiple raster values per polygon. Example: Summarizing elevation statistics (min, mean, max) for Zion National Park polygons using `group_by()` and `summarize()` from [dplyr](https://dplyr.tidyverse.org/) as shown in @fig-6-3-3
+
+```{r}
+# Creating circles around the 20 random points
+# Each circle of 1.5 km radius
+circles <- random_points |> 
+  st_buffer(dist = 1500) |> 
+  mutate(ID = row_number())
+
+
+g1 <- ggplot() +
+  geom_spatraster(data = srtm |> mask(zion)) +
+  geom_sf(
+    data = zion, 
+    linewidth = 0.4, 
+    fill = "transparent"
+  ) +
+  geom_sf(
+    data = circles, 
+    fill = alpha("white", 0.2)
+  ) +
+  scale_fill_wiki_c(
+    name = "Elevation (m)",
+    labels = scales::label_number(big.mark = ",")
+  ) +
+  coord_sf(expand = FALSE) +
+  guides(colour = "none") +
+  labs(
+    title = "Circles of 3 km diameter",
+    subtitle = "Around 20 random points with st_buffer()",
+    x = NULL, y = NULL
+  ) +
+  theme(
+    legend.key.width = unit(2, "mm"),
+    axis.text = element_text(
+      size = 8,
+      margin = margin(0,0,0,0, "mm")
+    ),
+    plot.title = element_text(
+      margin = margin(0,0,2,0, "mm"),
+      hjust = 0.5,
+      size = 18
+    ),
+    plot.subtitle = element_text(
+      margin = margin(0,0,0,0, "mm"),
+      hjust = 0.5,
+      size = 18
+    ),
+    axis.ticks.length = unit(0, "mm"),
+    plot.margin = margin(0,2,0,2, "mm")
+  )
+
+# A custom function for rounded off mean
+mean_r <- function(x){round(mean(x), 0)}
+
+# Getting minimum, mean and maximum height for each area
+circles <- circles |> 
+  
+  # Add minimum maximum and mean heights for each circle
+  left_join(
+    terra::extract(srtm, circles) |> 
+      as_tibble() |> 
+      # Grouping by each polygon / circle
+      group_by(ID) |> 
+      summarise(across(srtm, list(min = min, 
+                                  mean = mean_r, 
+                                  max = max)))
+  )
+
+g2 <- ggplot() +
+  geom_spatraster(data = srtm |> mask(zion)) +
+  geom_sf(
+    data = zion, 
+    linewidth = 0.4, 
+    fill = "transparent"
+  ) +
+  geom_sf(
+    data = circles, 
+    fill = alpha("white", 0.5)
+  ) +
+  geom_sf_text(
+    data = circles,
+    mapping = aes(
+      label = paste0(
+        srtm_max, "\n", srtm_min
+      )
+    ),
+    lineheight = 0.3,
+    family = "body_font",
+    size = 1.5,
+    check_overlap = TRUE
+  ) +
+  scale_fill_wiki_c(
+    name = "Elevation (m)",
+    labels = scales::label_number(big.mark = ",")
+  ) +
+  coord_sf(expand = FALSE) +
+  guides(colour = "none") +
+  labs(
+    title = "Maximum and Minimum elevations for each circle",
+    subtitle = "Using st_buffer(), terra::extract() and dplyr::summarize()",
+    x = NULL, y = NULL
+  ) +
+  theme(
+    legend.key.width = unit(2, "mm"),
+    axis.text = element_text(
+      size = 8,
+      margin = margin(0,0,0,0, "mm")
+    ),
+    plot.title = element_text(
+      margin = margin(0,0,2,0, "mm"),
+      hjust = 0.5,
+      size = 18
+    ),
+    plot.subtitle = element_text(
+      margin = margin(0,0,0,0, "mm"),
+      hjust = 0.5,
+      size = 18
+    ),
+    axis.ticks.length = unit(0, "mm"),
+    plot.margin = margin(0,2,0,2, "mm")
+  )
+
+g3 <- ggplot() +
+  geom_spatraster(data = srtm |> mask(zion)) +
+  geom_sf(
+    data = zion, 
+    linewidth = 0.4, 
+    fill = "transparent"
+  ) +
+  geom_sf(
+    data = circles, 
+    fill = alpha("white", 0.5)
+  ) +
+  geom_sf_text(
+    data = circles,
+    mapping = aes(
+      label = paste0(scales::number(srtm_mean, big.mark = ","), " m")
+    ),
+    lineheight = 0.3,
+    family = "body_font",
+    size = 3,
+    check_overlap = TRUE
+  ) +
+  scale_fill_wiki_c(
+    name = "Elevation (m)",
+    labels = scales::label_number(big.mark = ",")
+  ) +
+  coord_sf(expand = FALSE) +
+  guides(colour = "none") +
+  labs(
+    title = "Average elevation for each circle",
+    subtitle = "Using summarise()",
+    x = NULL, y = NULL
+  ) +
+  theme(
+    legend.key.width = unit(2, "mm"),
+    axis.text = element_text(
+      size = 8,
+      margin = margin(0,0,0,0, "mm")
+    ),
+    plot.title = element_text(
+      margin = margin(0,0,2,0, "mm"),
+      hjust = 0.5,
+      size = 18
+    ),
+    plot.subtitle = element_text(
+      margin = margin(0,0,0,0, "mm"),
+      hjust = 0.5,
+      size = 18
+    ),
+    axis.ticks.length = unit(0, "mm"),
+    plot.margin = margin(0,2,0,2, "mm")
+  )
+
+g <- g1 + g2 + g3 +
+  plot_layout(
+    guides = "collect"
+  )
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter6_3_3.png"),
+  plot = g,
+  height = 600,
+  width = 1500,
+  units = "px",
+  bg = "white"
+)
+```
+
+![Computing average elevation, minimum and maximum elevations within specified areas, like polygons, or in this case circles of diameter 3 km each around the 20 random points.](images/chapter6_3_3.png){#fig-6-3-3}
+
+-   **Categorical Raster Extraction**: Counts occurrences of raster categories (e.g., land cover) within polygons. Example: Analyzing land cover types in Zion National Park using `terra::extract()` as shown in @fig-6-3-4
+
+```{r}
+nlcd <- rast(system.file("raster/nlcd.tif", package = "spDataLarge"))
+
+# Get Zion Park Boundary transformed into CRS of NLCD Raster
+zion <- zion |> st_transform(crs = st_crs(nlcd))
+
+# Get polygons (circles) transformed into CRS of NLCD Raster
+circles1 <- circles |> 
+  select(ID) |> 
+  st_transform(crs = st_crs(nlcd))
+
+cat_circles <- terra::extract(nlcd, circles1) |> 
+  as_tibble() |> 
+  group_by(ID) |> 
+  count(levels) |> 
+  mutate(perc = n / sum(n))
+
+g1 <- ggplot() +
+  geom_spatraster(data = nlcd |> mask(zion)) +
+  geom_sf(
+    data = zion, 
+    linewidth = 0.4, 
+    fill = "transparent"
+  ) +
+  geom_sf(
+    data = circles, 
+    fill = alpha("white", 0.2)
+  ) +
+  geom_sf_text(
+    data = circles, 
+    mapping = aes(label = ID),
+    size = 5,
+    family = "body_font"
+  ) +
+  paletteer::scale_fill_paletteer_d("MoMAColors::VanGogh") +
+  coord_sf(expand = FALSE) +
+  guides(colour = "none", fill = "none") +
+  labs(
+    title = "Circles of 3 km diameter",
+    subtitle = "Around 20 random points with st_buffer()",
+    x = NULL, y = NULL
+  ) +
+  theme(
+    axis.text = element_text(
+      size = 8,
+      margin = margin(0,0,0,0, "mm")
+    ),
+    plot.title = element_text(
+      margin = margin(0,0,2,0, "mm"),
+      hjust = 0.5,
+      size = 18
+    ),
+    plot.subtitle = element_text(
+      margin = margin(0,0,0,0, "mm"),
+      hjust = 0.5,
+      size = 18
+    ),
+    axis.ticks.length = unit(0, "mm"),
+    plot.margin = margin(0,2,0,2, "mm")
+  )
+
+g4 <- cat_circles |> 
+  ggplot(aes(x = 0, y = n, fill = levels)) +
+  geom_col(
+    position = position_stack(),
+    colour = "white",
+    linewidth = 0.05
+  ) +
+  facet_wrap(~ ID) +
+  coord_polar(theta = "y") +
+  theme_void(
+    base_family = "body_font"
+  ) +
+  labs(
+    fill = NULL,
+    title = "Land Cover Pie charts for 20 zones",
+    subtitle = "Each zone of diameter 3 km, identified by an ID"
+  ) +
+  paletteer::scale_fill_paletteer_d("MoMAColors::VanGogh") +
+  theme(
+    plot.title = element_text(
+      margin = margin(0,0,2,0, "mm"),
+      hjust = 0.5,
+      size = 18
+    ),
+    plot.subtitle = element_text(
+      margin = margin(0,0,0,0, "mm"),
+      hjust = 0.5,
+      size = 14
+    ),
+    axis.ticks.length = unit(0, "mm"),
+    plot.margin = margin(0,2,0,2, "mm"),
+    legend.text = element_text(
+      margin = margin(0,0,0,1, "mm"),
+      size = 14
+    ),
+    legend.margin = margin(0,0,0,0, "mm"),
+    legend.box.margin = margin(0,0,0,0, "mm"),
+    strip.text = element_text(
+      size = 18,
+      margin = margin(0,0,0,0, "mm")
+    )
+  )
+
+g <- g1 + g4 +
+  plot_layout(
+    design = "ABB"
+  )
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter6_3_4.png"),
+  plot = g,
+  height = 600,
+  width = 1500,
+  units = "px",
+  bg = "white"
+)
+```
+
+![Computing pie charts of different land use types in circles of diameter 3 km around the 20 random points, and using st_transform() for rasters and vectors while performing raster extraction.](images/chapter6_3_4.png){#fig-6-3-4}
+
+Combining the work done in this section to produce a composite graphic shown in @fig-6-3-5 for publishing a code demonstration
+
+```{r}
+library(magick)
+
+i1 <- image_read(here::here("book_solutions", "images",
+                            "chapter6_3_1.png"))
+i2 <- image_read(here::here("book_solutions", "images",
+                            "chapter6_3_2.png"))
+i3 <- image_read(here::here("book_solutions", "images",
+                            "chapter6_3_3.png"))
+i4 <- image_read(here::here("book_solutions", "images",
+                            "chapter6_3_4.png"))
+
+
+c_imgs <- c(i1, i2, i3, i4)
+
+image_append(
+  image_scale(c_imgs, "1500x"),
+  stack = TRUE
+) |> 
+  image_write(
+    path = here::here("book_solutions", "images",
+                            "chapter6_3_5.png")
+  )
+```
+
+![A composite image of all the work done: extracting raster values from vector points with {terra} and {sf} for points (locations), linestrings (along journey paths) and within polygons (areas) and compiling results with {magick}](images/chapter6_3_5.png){#fig-6-3-5 fig-align="center" width="750"}
+
+-   Further details: —
+
+    -   `exactextractr::exact_extract()` ([exactextractr package](https://github.com/isciences/exactextractr)):
+
+        -   Faster than `terra::extract()` for large datasets.
+        -   Computes precise polygon overlap fractions for weighted statistics.
+
+    -   `terra::extract(exact = TRUE)` adds a `fraction` column for detailed overlap calculations. Useful for weighted means or precise coverage estimates but computationally intensive.
