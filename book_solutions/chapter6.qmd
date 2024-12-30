@@ -101,7 +101,7 @@ library(patchwork) # Composing plots
     -   **Output**: A raster with specified cells masked based on the spatial bounds of the second argument.
 
 | Aspect | `crop() |> mask()` | `mask()` |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | **Extent Modification** | Reduces raster extent to vector's bounding box | Retains original raster extent |
 | **Output Size** | Smaller raster (optimized for memory) | Larger raster (original extent retained) |
 | **Use Case** | When reducing raster size is desired | When full raster extent is needed but irrelevant cells must be excluded |
@@ -993,16 +993,14 @@ image_append(
 
     -   `terra::extract(exact = TRUE)` adds a `fraction` column for detailed overlap calculations. Useful for weighted means or precise coverage estimates but computationally intensive.
 
-### 6.4 Rasterization
+## 6.4 Rasterization
 
 -   Rasterization converts vector objects into raster format, often for analysis (e.g., terrain) or modeling. It simplifies data by standardizing spatial resolution, serving as geographic data aggregation.
 
--   **Key Function**: [`rasterize()`](https://rspatial.github.io/terra/reference/rasterize.html) in the {terra} package handles rasterization.
+-   **Key Function**: [`rasterize()`](https://rspatial.github.io/terra/reference/rasterize.html) in the `{terra}` package handles rasterization.
 
 ::: callout-note
-### `terra::rasterize()`
-
-Converts vector data into raster format by transferring values from vector geometries to raster cells.
+`terra::rasterize()`: **Converts vector data into raster format by transferring values from vector geometries to raster cells.**
 
 **Key Arguments**:
 
@@ -1048,7 +1046,7 @@ Converts vector data into raster format by transferring values from vector geome
     2.  Input vector type (points, polygons).
     3.  Function arguments (e.g., `fun`, `field`).
 
--   **Points Rasterization:** can be done in three further methods: —
+-   **Points Rasterization:** can be done in three further methods depicted in @fig-6-4-1: —
 
     1.  **Presence/Absence Raster**:
         -   Raster indicates whether cells contain cycle hire points.
@@ -1067,6 +1065,32 @@ theme_set(
     base_size = 12
   )
 )
+
+theme_custom <- function(...){
+  theme(
+    legend.key.height = unit(1, "mm"),
+    legend.key.width = unit(6, "mm"),
+    plot.title = element_text(
+      size = 24,
+      margin = margin(0,0,2,0, "mm")
+    ),
+    plot.subtitle = element_text(
+      size = 18,
+      margin = margin(0,0,1,0, "mm")
+    ),
+    axis.ticks.length = unit(0, "mm"),
+    axis.text = element_text(
+      margin = margin(0,0,0,0, "mm")
+    ),
+    panel.grid = element_line(linewidth = 0.2),
+    legend.position = "bottom",
+    legend.title.position = "top",
+    legend.text = element_text(margin = margin(1,0,0,0, "mm")),
+    legend.title = element_text(margin = margin(2,0,1,0, "mm")),
+    legend.margin = margin(0,0,0,0, "mm"),
+    legend.box.margin = margin(0,0,0,0, "mm")
+  )
+}
 
 # Get cycle hiring points data for London
 cycles <- spData::cycle_hire_osm |> 
@@ -1089,7 +1113,9 @@ g1 <- ggplot() +
     mapping = aes(
       fill = capacity
     ),
-    pch = 21
+    pch = 21,
+    size = 0.5,
+    linewidth = 0.001
   ) +
   paletteer::scale_fill_paletteer_c(
     "ggthemes::Red",
@@ -1099,9 +1125,7 @@ g1 <- ggplot() +
     title = "Cycle Hire Points (London)",
     subtitle = "OSM Vector data, plotted with {sf}"
   ) +
-  theme(
-    legend.position = "bottom"
-  )
+  theme_custom()
 
 g2 <- ggplot() +
   geom_spatraster(
@@ -1116,9 +1140,7 @@ g2 <- ggplot() +
     title = "Presence / Absence Raster",
     subtitle = "Default rasterization output; rasterize()"
   ) +
-  theme(
-    legend.position = "bottom"
-  )
+  theme_custom()
 
 g3 <- ggplot() +
   geom_spatraster(
@@ -1135,9 +1157,7 @@ g3 <- ggplot() +
     title = "Count raster (vector points per cell)",
     subtitle = "rasterize(fun = \"length\")"
   ) +
-  theme(
-    legend.position = "bottom"
-  )
+  theme_custom()
 
 g4 <- ggplot() +
   geom_spatraster(
@@ -1155,12 +1175,18 @@ g4 <- ggplot() +
     title = "Summary Statistic raster",
     subtitle = "rasterize(field = \"capacity\", fun = \"length\")"
   ) +
-  theme(
-    legend.position = "bottom"
-  )
+  theme_custom()
 
 g <- g1 + g2 + g3 + g4 +
-  plot_layout(nrow = 1)
+  plot_layout(nrow = 1) +
+  plot_annotation(tag_levels = "a") &
+  theme(
+    plot.tag = element_text(
+      size = 24,
+      margin = margin(0,0,-5,0, "mm"),
+      face = "bold"
+    )
+  )
 
 
 ggsave(
@@ -1168,16 +1194,162 @@ ggsave(
                         "images", 
                         "chapter6_4_1.png"),
   plot = g,
-  height = 1000,
-  width = 2500,
+  height = 800,
+  width = 2200,
   units = "px",
   bg = "white"
 )
 ```
 
-![](images/chapter6_4_1.png)
+![Rasterizing points geometry of {sf} with `terra::rasterize()` with three methods. (a) Base vector object, (b) Presence-Absence Raster, (c) Count Raster - number of objects per cell, and, (d) Summary Statistic Raster - a summary statistic calculated for each cell, using a field (of sf object) and function.](images/chapter6_4_1.png){#fig-6-4-1}
 
--   **Line and Polygon Rasterization**: depends on the argument `touches = TRUE / FALSE`
+-   **Line and Polygon Rasterization** is shown in @fig-6-4-2. The polygon rasterization can proceed in two ways, depending on the argument `touches = TRUE / FALSE` as shown in @fig-6-4-2 .
 
     -   `touches = TRUE`: Includes all cells touched by lines/polygons.
     -   Default (`touches = FALSE`): Selects cells where centroids fall inside polygons.
+
+```{r}
+
+sysfonts::font_add_google("Saira Condensed", "body_font")
+showtext::showtext_auto()
+
+theme_set(
+  theme_minimal(
+    base_family = "body_font",
+    base_size = 12
+  )
+)
+
+theme_custom <- function(...){
+  theme(
+    legend.key.height = unit(1, "mm"),
+    legend.key.width = unit(6, "mm"),
+    plot.title = element_text(
+      size = 24,
+      margin = margin(0,0,2,0, "mm"),
+      lineheight = 0.3
+    ),
+    plot.subtitle = element_text(
+      size = 18,
+      margin = margin(0,0,1,0, "mm"),
+      lineheight = 0.3
+    ),
+    axis.ticks.length = unit(0, "mm"),
+    axis.text = element_text(
+      margin = margin(0,0,0,0, "mm")
+    ),
+    panel.grid = element_line(linewidth = 0.2),
+    legend.position = "none"
+  )
+}
+
+#----------------------------------------------------------------
+# Get vector data on State of California from `us_states` data
+california <- us_states |> 
+  filter(NAME == "California")
+
+california_border <- california |> 
+  st_cast("MULTILINESTRING")
+
+template_raster <- rast(
+  ext(california),
+  crs = st_crs(california)$wkt, # Use crs(california) or st_crs(california)$wkt
+  resolution = 0.25  # Give resolution in degrees
+)
+
+crs(california)
+st_crs(california)$wkt
+
+g1 <- ggplot() +
+  geom_sf(data = california) +
+  labs(title = "California Map (vector)\nplotted with {sf}") +
+  theme_custom()
+
+g2 <- ggplot() +
+  geom_spatraster(
+    data = california_border |> rasterize(template_raster)
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "ggthemes::Classic Red",
+    na.value = "transparent"
+  ) +
+  labs(title = "Multi-Linestring\nwith terra::rasterize()",
+       subtitle = "Cells touched by Linestring are coloured") +
+  theme_custom()
+
+g3 <- ggplot() +
+  geom_spatraster(
+    data = california |> rasterize(template_raster,
+                                   touches = FALSE)
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "ggthemes::Classic Red",
+    na.value = "transparent"
+  ) +
+  labs(title = "Multipolygon\nterra::rasterize(touches = FALSE)",
+       subtitle = "Only colours raster cells whose\ncentroids are inside multi-polygon") +
+  theme_custom()
+
+g4 <- ggplot() +
+  geom_spatraster(
+    data = california |> rasterize(template_raster,
+                                   touches = FALSE)
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "ggthemes::Classic Red",
+    na.value = "transparent"
+  ) +
+  labs(title = "Multipolygon\nterra::rasterize(touches = TRUE)",
+       subtitle = "Colours all raster cells which\nare touched by the multi-polygon") +
+  theme_custom()
+
+rast1 <- california |> rasterize(
+  template_raster,
+  touches = FALSE
+  )
+
+rast2 <- california_border |> 
+  rasterize(
+    (rast1 * 0.5),
+    update = TRUE
+  )
+
+g5 <- ggplot() +
+  geom_spatraster(
+    data = rast2
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "ggthemes::Classic Red",
+    na.value = "transparent"
+  ) +
+  labs(title = "Polygon & Linestring\nterra::rasterize(update = TRUE)",
+       subtitle = "Rasterized polygon updated with a rasterized linestring") +
+  theme_custom()
+
+
+g <- g1 + g2 + g3 + g4 + g5 +
+  plot_layout(nrow = 1, guides = "collect") +
+  plot_annotation(tag_levels = "a") &
+  theme(
+    plot.tag = element_text(
+      size = 24,
+      margin = margin(0,0,-5,4, "mm"),
+      face = "bold"
+    ),
+    plot.margin = margin(0,0,0,0, "mm")
+  )
+
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter6_4_2.png"),
+  plot = g,
+  height = 800,
+  width = 2200,
+  units = "px",
+  bg = "white"
+)
+```
+
+![Rasterizing Multi-Linestrings and Multi-Polygons from `{sf}` using `terra::rasterize()`. The figure show: (a) The base vector map of California, (b) Rasterization of California's borders (LINESTRING) generated from map using `sf::st_cast()`, (c) A multi-polygon (map of California) rasterized using `terra::rasterize(touches = FALSE)` colours only the cells whose centroids fall within the multi-polygon, (d) Using `terra::rasterize(touches = TRUE)` colours all cells which are touched by the multi-polygon, and, (e) Using `terra::rasterize(update = TRUE)` to compile and update a previous raster of multi-polygon (values halved to maintain colour levels) with a border multi-linestring.](images/chapter6_4_2.png){#fig-6-4-2}
