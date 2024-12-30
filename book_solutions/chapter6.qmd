@@ -101,7 +101,7 @@ library(patchwork) # Composing plots
     -   **Output**: A raster with specified cells masked based on the spatial bounds of the second argument.
 
 | Aspect | `crop() |> mask()` | `mask()` |
-|-------------------|---------------------------|---------------------------|
+|----|----|----|
 | **Extent Modification** | Reduces raster extent to vector's bounding box | Retains original raster extent |
 | **Output Size** | Smaller raster (optimized for memory) | Larger raster (original extent retained) |
 | **Use Case** | When reducing raster size is desired | When full raster extent is needed but irrelevant cells must be excluded |
@@ -992,3 +992,192 @@ image_append(
         -   Computes precise polygon overlap fractions for weighted statistics.
 
     -   `terra::extract(exact = TRUE)` adds a `fraction` column for detailed overlap calculations. Useful for weighted means or precise coverage estimates but computationally intensive.
+
+### 6.4 Rasterization
+
+-   Rasterization converts vector objects into raster format, often for analysis (e.g., terrain) or modeling. It simplifies data by standardizing spatial resolution, serving as geographic data aggregation.
+
+-   **Key Function**: [`rasterize()`](https://rspatial.github.io/terra/reference/rasterize.html) in the {terra} package handles rasterization.
+
+::: callout-note
+### `terra::rasterize()`
+
+Converts vector data into raster format by transferring values from vector geometries to raster cells.
+
+**Key Arguments**:
+
+1.  **`x`**: Input vector data: A `SpatVector` or a two-column matrix (coordinates for points). Defines the geometries to be rasterized.
+2.  **`y`**: Template raster: A `SpatRaster` that determines the extent, resolution, and CRS of the output raster.
+3.  **`field`**: Specifies the values to transfer to raster:
+    -   As a **character**: Variable name from `x` (e.g., a column in the vector dataset).
+    -   As a **numeric**: Direct values or indices recycled to match `nrow(x)`.
+4.  **`values`** (for matrix input `x`): Numeric values used for rasterization, recycled if fewer than `nrow(x)`. Can also be a matrix or data frame.
+5.  **`fun`**: Summarizing function for overlapping geometries in a cell:
+    -   For **lines and polygons**: "`min`", "`max`", "`mean`", "`count`", "`sum`".
+    -   For **points**: Any function returning a single value (e.g., `mean`, `length`, `min`). The `fun = "length"` means a count of the number of points in that cell.
+6.  **`background`**: Default cell value for areas not covered by any features in `x`. Default: `NA`.
+7.  **`touches`**: **Logical**: If `TRUE`, includes all cells touched by a feature (lines/polygons), not just those where centroids fall.
+8.  **`update`**: **Logical**: If `TRUE`, updates existing values in the template raster.
+9.  **`cover`**: **Logical**: For polygons, returns the fraction of a cell covered by a feature. Uses sub-cell presence/absence checks.
+10. **`by`**: Groups vector data into layers:
+    -   For `SpatVector`: Column name or index.
+    -   For matrices: Vector defining group membership.
+
+------------------------------------------------------------------------
+
+-   **Default Behaviour of `rasterize()`**:
+    -   If no `fun` is specified, the last value is used in case of overlaps.
+    -   When `field` is empty, raster cells reflect presence/absence of geometries.
+
+**Common Use Cases**:
+
+1.  Presence/absence rasters: Determine where features exist.
+2.  Summary statistics: Aggregate multiple values in a single cell (e.g., `sum`, `mean`).
+3.  Fractional coverage: Estimate the proportion of a raster cell covered by polygons.
+:::
+
+-   **Resolution Considerations**:
+
+    -   Low resolution (large cells): Misses geographic variability.
+    -   High resolution (small cells): Increases computation time.
+    -   Resolution choice depends on intended use or alignment with other rasters.
+
+-   **Flexibility**: Rasterization varies by:
+
+    1.  Template raster properties (extent, resolution, CRS).
+    2.  Input vector type (points, polygons).
+    3.  Function arguments (e.g., `fun`, `field`).
+
+-   **Points Rasterization:** can be done in three further methods: —
+
+    1.  **Presence/Absence Raster**:
+        -   Raster indicates whether cells contain cycle hire points.
+    2.  **Count Raster**:
+        -   Uses `fun = "length"` to count cycle hire points per grid cell.
+    3.  **Summary Statistic Raster**:
+        -   Calculates sum of a variable (e.g., `capacity`) using `field` and `fun = sum`.
+
+```{r}
+sysfonts::font_add_google("Saira Condensed", "body_font")
+showtext::showtext_auto()
+
+theme_set(
+  theme_minimal(
+    base_family = "body_font",
+    base_size = 12
+  )
+)
+
+# Get cycle hiring points data for London
+cycles <- spData::cycle_hire_osm |> 
+  # Transform into CRS of EPSG:27700 - British National Grid
+  st_transform("EPSG:27700")
+
+# Create a template raster for using in rasterization
+template_raster <- rast(
+  # Spat Extent of the Vector data
+  terra::ext(cycles),
+  # Required resolution of the raster
+  resolution = 500,
+  # CRS for the raster
+  crs = crs(cycles)
+)
+
+g1 <- ggplot() +
+  geom_sf(
+    data = cycles,
+    mapping = aes(
+      fill = capacity
+    ),
+    pch = 21
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "ggthemes::Red",
+    na.value = "transparent"
+  ) +
+  labs(
+    title = "Cycle Hire Points (London)",
+    subtitle = "OSM Vector data, plotted with {sf}"
+  ) +
+  theme(
+    legend.position = "bottom"
+  )
+
+g2 <- ggplot() +
+  geom_spatraster(
+    data = cycles |> terra::rasterize(template_raster)
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "ggthemes::Red",
+    na.value = "transparent",
+    name = "Hiring points present?"
+  ) +
+  labs(
+    title = "Presence / Absence Raster",
+    subtitle = "Default rasterization output; rasterize()"
+  ) +
+  theme(
+    legend.position = "bottom"
+  )
+
+g3 <- ggplot() +
+  geom_spatraster(
+    data = cycles |> terra::rasterize(template_raster,
+                                      fun = "length")
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "ggthemes::Red",
+    na.value = "transparent",
+    breaks = seq(0, 10, 2),
+    name = "Number of hiring points"
+  ) +
+  labs(
+    title = "Count raster (vector points per cell)",
+    subtitle = "rasterize(fun = \"length\")"
+  ) +
+  theme(
+    legend.position = "bottom"
+  )
+
+g4 <- ggplot() +
+  geom_spatraster(
+    data = cycles |> terra::rasterize(
+      template_raster,
+      field = "capacity",
+      fun = "sum")
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "ggthemes::Red",
+    na.value = "transparent",
+    name = "Cycles Capacity"
+  ) +
+  labs(
+    title = "Summary Statistic raster",
+    subtitle = "rasterize(field = \"capacity\", fun = \"length\")"
+  ) +
+  theme(
+    legend.position = "bottom"
+  )
+
+g <- g1 + g2 + g3 + g4 +
+  plot_layout(nrow = 1)
+
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter6_4_1.png"),
+  plot = g,
+  height = 1000,
+  width = 2500,
+  units = "px",
+  bg = "white"
+)
+```
+
+![](images/chapter6_4_1.png)
+
+-   **Line and Polygon Rasterization**: depends on the argument `touches = TRUE / FALSE`
+
+    -   `touches = TRUE`: Includes all cells touched by lines/polygons.
+    -   Default (`touches = FALSE`): Selects cells where centroids fall inside polygons.
