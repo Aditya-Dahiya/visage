@@ -101,7 +101,7 @@ library(patchwork) # Composing plots
     -   **Output**: A raster with specified cells masked based on the spatial bounds of the second argument.
 
 | Aspect | `crop() |> mask()` | `mask()` |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | **Extent Modification** | Reduces raster extent to vector's bounding box | Retains original raster extent |
 | **Output Size** | Smaller raster (optimized for memory) | Larger raster (original extent retained) |
 | **Use Case** | When reducing raster size is desired | When full raster extent is needed but irrelevant cells must be excluded |
@@ -1005,7 +1005,7 @@ image_append(
 **Key Arguments**:
 
 1.  **`x`**: Input vector data: A `SpatVector` or a two-column matrix (coordinates for points). Defines the geometries to be rasterized.
-2.  **`y`**: Template raster: A `SpatRaster` that determines the extent, resolution, and CRS of the output raster.
+2.  **`y`**: **Template raster**: A `SpatRaster` that determines the extent, resolution, and CRS of the output raster.
 3.  **`field`**: Specifies the values to transfer to raster:
     -   As a **character**: Variable name from `x` (e.g., a column in the vector dataset).
     -   As a **numeric**: Direct values or indices recycled to match `nrow(x)`.
@@ -1024,7 +1024,7 @@ image_append(
 ------------------------------------------------------------------------
 
 -   **Default Behaviour of `rasterize()`**:
-    -   If no `fun` is specified, the last value is used in case of overlaps.
+    -   If no `fun` is specified, the last value is used in case of overlaps (`fun = "last"`).
     -   When `field` is empty, raster cells reflect presence/absence of geometries.
 
 **Common Use Cases**:
@@ -1138,7 +1138,7 @@ g2 <- ggplot() +
   ) +
   labs(
     title = "Presence / Absence Raster",
-    subtitle = "Default rasterization output; rasterize()"
+    subtitle = "Default rasterize(); i.e. (fun = \"last\")"
   ) +
   theme_custom()
 
@@ -1353,3 +1353,55 @@ ggsave(
 ```
 
 ![Rasterizing Multi-Linestrings and Multi-Polygons from `{sf}` using `terra::rasterize()`. The figure show: (a) The base vector map of California, (b) Rasterization of California's borders (LINESTRING) generated from map using `sf::st_cast()`, (c) A multi-polygon (map of California) rasterized using `terra::rasterize(touches = FALSE)` colours only the cells whose centroids fall within the multi-polygon, (d) Using `terra::rasterize(touches = TRUE)` colours all cells which are touched by the multi-polygon, and, (e) Using `terra::rasterize(update = TRUE)` to compile and update a previous raster of multi-polygon (values halved to maintain colour levels) with a border multi-linestring.](images/chapter6_4_2.png){#fig-6-4-2}
+
+## 6.5 Spatial Vectorization
+
+-   Converts raster data (spatially continuous) into vector data (spatially discrete: points, lines, polygons). Opposite process of rasterization. It can be of three types – (1) points, (2) lines, and (3) polygons.
+-   **(1) Points from Raster Centroids**:
+    -   Use `terra::as.points()` [@terra] for converting raster cells (non-NA) to points.
+    -   Then, convert to `sf` objects with `sf::st_as_sf()`. [@sf-4]
+    -   Example: Elevation raster visualized as points in @fig-6-5-1.
+
+```{r}
+elev = rast(system.file("raster/elev.tif", package = "spData"))
+elev_point = as.points(elev) |> 
+  st_as_sf()
+plot(elev)
+plot(elev_point)
+```
+
+-   **(2) Contour Lines (Isolines)**:
+    -   Represent lines of constant values (e.g., elevation, temperature).
+    -   Use `terra::as.contour()` or `rasterVis::contourplot()` for creating and overlaying contours. For example, visualize DEMs with hillshading and contours in @fig-6-5-2
+
+```{r}
+dem = rast(system.file("raster/dem.tif", package = "spDataLarge"))
+cl = as.contour(dem) |> 
+  st_as_sf()
+plot(dem)
+plot(cl)
+     
+rasterVis::contourplot(dem)
+```
+
+-   **(3) Polygons from Rasters**:
+    -   Use `terra::as.polygons()` to convert raster cells to polygons with five coordinates per cell.
+    -   Aggregation: Dissolve boundaries with the same attribute values (`aggregate` argument). Example: Grain raster converted to polygons in @fig-6-5-3.
+-   **Further enhacement: Polygon Smoothing**: Use `smoothr::smooth()` [@smoothr-3] (with method = `"chaikin"`, `"ksmooth"` or `"spline"`) to remove sharp edges. But remember, Smoothing alters spatial coverage; analyse cautiously.
+
+```{r}
+grain = rast(system.file("raster/grain.tif", package = "spData"))
+grain_poly = as.polygons(grain, aggregate = FALSE) |> 
+  st_as_sf()
+grain_poly1 = as.polygons(grain, aggregate = TRUE) |> 
+  st_as_sf()
+
+grain_poly2 <- grain_poly1 |> 
+  smoothr::smooth(method = "spline")
+
+
+plot(grain)
+plot(grain_poly)
+plot(grain_poly1)
+plot(grain_poly2)
+```

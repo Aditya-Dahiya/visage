@@ -119,9 +119,9 @@ font-style: inherit;"># Composing plots</span></span></code></pre></div>
 </ul>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 26%">
-<col style="width: 36%">
-<col style="width: 36%">
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -4680,11 +4680,1722 @@ Figure&nbsp;6: A composite image of all the work done: extracting raster values 
 <li><p><code>terra::extract(exact = TRUE)</code> adds a <code>fraction</code> column for detailed overlap calculations. Useful for weighted means or precise coverage estimates but computationally intensive.</p></li>
 </ul></li>
 </ul>
+</section>
+<section id="rasterization" class="level2">
+<h2 class="anchored" data-anchor-id="rasterization">6.4 Rasterization</h2>
+<ul>
+<li><p>Rasterization converts vector objects into raster format, often for analysis (e.g., terrain) or modeling. It simplifies data by standardizing spatial resolution, serving as geographic data aggregation.</p></li>
+<li><p><strong>Key Function</strong>: <a href="https://rspatial.github.io/terra/reference/rasterize.html"><code>rasterize()</code></a> in the <code>{terra}</code> package handles rasterization.</p></li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>terra::rasterize()</code>: <strong>Converts vector data into raster format by transferring values from vector geometries to raster cells.</strong></p>
+<p><strong>Key Arguments</strong>:</p>
+<ol type="1">
+<li><strong><code>x</code></strong>: Input vector data: A <code>SpatVector</code> or a two-column matrix (coordinates for points). Defines the geometries to be rasterized.</li>
+<li><strong><code>y</code></strong>: <strong>Template raster</strong>: A <code>SpatRaster</code> that determines the extent, resolution, and CRS of the output raster.</li>
+<li><strong><code>field</code></strong>: Specifies the values to transfer to raster:
+<ul>
+<li>As a <strong>character</strong>: Variable name from <code>x</code> (e.g., a column in the vector dataset).</li>
+<li>As a <strong>numeric</strong>: Direct values or indices recycled to match <code>nrow(x)</code>.</li>
+</ul></li>
+<li><strong><code>values</code></strong> (for matrix input <code>x</code>): Numeric values used for rasterization, recycled if fewer than <code>nrow(x)</code>. Can also be a matrix or data frame.</li>
+<li><strong><code>fun</code></strong>: Summarizing function for overlapping geometries in a cell:
+<ul>
+<li>For <strong>lines and polygons</strong>: “<code>min</code>”, “<code>max</code>”, “<code>mean</code>”, “<code>count</code>”, “<code>sum</code>”.</li>
+<li>For <strong>points</strong>: Any function returning a single value (e.g., <code>mean</code>, <code>length</code>, <code>min</code>). The <code>fun = "length"</code> means a count of the number of points in that cell.</li>
+</ul></li>
+<li><strong><code>background</code></strong>: Default cell value for areas not covered by any features in <code>x</code>. Default: <code>NA</code>.</li>
+<li><strong><code>touches</code></strong>: <strong>Logical</strong>: If <code>TRUE</code>, includes all cells touched by a feature (lines/polygons), not just those where centroids fall.</li>
+<li><strong><code>update</code></strong>: <strong>Logical</strong>: If <code>TRUE</code>, updates existing values in the template raster.</li>
+<li><strong><code>cover</code></strong>: <strong>Logical</strong>: For polygons, returns the fraction of a cell covered by a feature. Uses sub-cell presence/absence checks.</li>
+<li><strong><code>by</code></strong>: Groups vector data into layers:
+<ul>
+<li>For <code>SpatVector</code>: Column name or index.</li>
+<li>For matrices: Vector defining group membership.</li>
+</ul></li>
+</ol>
+<hr>
+<ul>
+<li><strong>Default Behaviour of <code>rasterize()</code></strong>:
+<ul>
+<li>If no <code>fun</code> is specified, the last value is used in case of overlaps (<code>fun = "last"</code>).</li>
+<li>When <code>field</code> is empty, raster cells reflect presence/absence of geometries.</li>
+</ul></li>
+</ul>
+<p><strong>Common Use Cases</strong>:</p>
+<ol type="1">
+<li>Presence/absence rasters: Determine where features exist.</li>
+<li>Summary statistics: Aggregate multiple values in a single cell (e.g., <code>sum</code>, <code>mean</code>).</li>
+<li>Fractional coverage: Estimate the proportion of a raster cell covered by polygons.</li>
+</ol>
+</div>
+</div>
+<ul>
+<li><p><strong>Resolution Considerations</strong>:</p>
+<ul>
+<li>Low resolution (large cells): Misses geographic variability.</li>
+<li>High resolution (small cells): Increases computation time.</li>
+<li>Resolution choice depends on intended use or alignment with other rasters.</li>
+</ul></li>
+<li><p><strong>Flexibility</strong>: Rasterization varies by:</p>
+<ol type="1">
+<li>Template raster properties (extent, resolution, CRS).</li>
+<li>Input vector type (points, polygons).</li>
+<li>Function arguments (e.g., <code>fun</code>, <code>field</code>).</li>
+</ol></li>
+<li><p><strong>Points Rasterization:</strong> can be done in three further methods depicted in Figure&nbsp;7: —</p>
+<ol type="1">
+<li><strong>Presence/Absence Raster</strong>:
+<ul>
+<li>Raster indicates whether cells contain cycle hire points.</li>
+</ul></li>
+<li><strong>Count Raster</strong>:
+<ul>
+<li>Uses <code>fun = "length"</code> to count cycle hire points per grid cell.</li>
+</ul></li>
+<li><strong>Summary Statistic Raster</strong>:
+<ul>
+<li>Calculates sum of a variable (e.g., <code>capacity</code>) using <code>field</code> and <code>fun = sum</code>.</li>
+</ul></li>
+</ol></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">sysfonts<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">font_add_google</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Saira Condensed"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>)</span>
+<span id="cb8-2">showtext<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">showtext_auto</span>()</span>
+<span id="cb8-3"></span>
+<span id="cb8-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_set</span>(</span>
+<span id="cb8-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>(</span>
+<span id="cb8-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>,</span>
+<span id="cb8-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span></span>
+<span id="cb8-8">  )</span>
+<span id="cb8-9">)</span>
+<span id="cb8-10"></span>
+<span id="cb8-11">theme_custom <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(...){</span>
+<span id="cb8-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb8-13">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.key.height =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb8-14">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.key.width =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb8-15">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb8-16">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">24</span>,</span>
+<span id="cb8-17">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)</span>
+<span id="cb8-18">    ),</span>
+<span id="cb8-19">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.subtitle =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb8-20">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">18</span>,</span>
+<span id="cb8-21">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)</span>
+<span id="cb8-22">    ),</span>
+<span id="cb8-23">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.ticks.length =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb8-24">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb8-25">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)</span>
+<span id="cb8-26">    ),</span>
+<span id="cb8-27">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">panel.grid =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_line</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>),</span>
+<span id="cb8-28">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bottom"</span>,</span>
+<span id="cb8-29">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.title.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"top"</span>,</span>
+<span id="cb8-30">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)),</span>
+<span id="cb8-31">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)),</span>
+<span id="cb8-32">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb8-33">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.box.margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)</span>
+<span id="cb8-34">  )</span>
+<span id="cb8-35">}</span>
+<span id="cb8-36"></span>
+<span id="cb8-37"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Get cycle hiring points data for London</span></span>
+<span id="cb8-38">cycles <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> spData<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span>cycle_hire_osm <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb8-39">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Transform into CRS of EPSG:27700 - British National Grid</span></span>
+<span id="cb8-40">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_transform</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:27700"</span>)</span>
+<span id="cb8-41"></span>
+<span id="cb8-42"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a template raster for using in rasterization</span></span>
+<span id="cb8-43">template_raster <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rast</span>(</span>
+<span id="cb8-44">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Spat Extent of the Vector data</span></span>
+<span id="cb8-45">  terra<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ext</span>(cycles),</span>
+<span id="cb8-46">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Required resolution of the raster</span></span>
+<span id="cb8-47">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">resolution =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>,</span>
+<span id="cb8-48">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># CRS for the raster</span></span>
+<span id="cb8-49">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">crs</span>(cycles)</span>
+<span id="cb8-50">)</span>
+<span id="cb8-51"></span>
+<span id="cb8-52">g1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-53">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb8-54">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> cycles,</span>
+<span id="cb8-55">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(</span>
+<span id="cb8-56">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> capacity</span>
+<span id="cb8-57">    ),</span>
+<span id="cb8-58">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pch =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">21</span>,</span>
+<span id="cb8-59">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>,</span>
+<span id="cb8-60">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.001</span></span>
+<span id="cb8-61">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-62">  paletteer<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_paletteer_c</span>(</span>
+<span id="cb8-63">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ggthemes::Red"</span>,</span>
+<span id="cb8-64">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.value =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span></span>
+<span id="cb8-65">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-66">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb8-67">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Cycle Hire Points (London)"</span>,</span>
+<span id="cb8-68">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"OSM Vector data, plotted with {sf}"</span></span>
+<span id="cb8-69">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-70">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>()</span>
+<span id="cb8-71"></span>
+<span id="cb8-72">g2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-73">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(</span>
+<span id="cb8-74">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> cycles <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> terra<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rasterize</span>(template_raster)</span>
+<span id="cb8-75">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-76">  paletteer<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_paletteer_c</span>(</span>
+<span id="cb8-77">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ggthemes::Red"</span>,</span>
+<span id="cb8-78">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.value =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span>,</span>
+<span id="cb8-79">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">name =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Hiring points present?"</span></span>
+<span id="cb8-80">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-81">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb8-82">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Presence / Absence Raster"</span>,</span>
+<span id="cb8-83">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Default rasterize(); i.e. (fun = </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\"</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">last</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\"</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">)"</span></span>
+<span id="cb8-84">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-85">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>()</span>
+<span id="cb8-86"></span>
+<span id="cb8-87">g3 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-88">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(</span>
+<span id="cb8-89">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> cycles <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> terra<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rasterize</span>(template_raster,</span>
+<span id="cb8-90">                                      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fun =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"length"</span>)</span>
+<span id="cb8-91">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-92">  paletteer<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_paletteer_c</span>(</span>
+<span id="cb8-93">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ggthemes::Red"</span>,</span>
+<span id="cb8-94">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.value =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span>,</span>
+<span id="cb8-95">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">breaks =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>),</span>
+<span id="cb8-96">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">name =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Number of hiring points"</span></span>
+<span id="cb8-97">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-98">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb8-99">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Count raster (vector points per cell)"</span>,</span>
+<span id="cb8-100">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rasterize(fun = </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\"</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">length</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\"</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">)"</span></span>
+<span id="cb8-101">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-102">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>()</span>
+<span id="cb8-103"></span>
+<span id="cb8-104">g4 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-105">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(</span>
+<span id="cb8-106">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> cycles <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> terra<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rasterize</span>(</span>
+<span id="cb8-107">      template_raster,</span>
+<span id="cb8-108">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">field =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"capacity"</span>,</span>
+<span id="cb8-109">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fun =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sum"</span>)</span>
+<span id="cb8-110">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-111">  paletteer<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_paletteer_c</span>(</span>
+<span id="cb8-112">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ggthemes::Red"</span>,</span>
+<span id="cb8-113">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.value =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span>,</span>
+<span id="cb8-114">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">name =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Cycles Capacity"</span></span>
+<span id="cb8-115">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-116">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb8-117">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Summary Statistic raster"</span>,</span>
+<span id="cb8-118">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rasterize(field = </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\"</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">capacity</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\"</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">, fun = </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\"</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">length</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\"</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">)"</span></span>
+<span id="cb8-119">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-120">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>()</span>
+<span id="cb8-121"></span>
+<span id="cb8-122">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> g1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g2 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g3 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g4 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-123">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_layout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-124">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_annotation</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_levels =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"a"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span></span>
+<span id="cb8-125">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb8-126">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.tag =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb8-127">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">24</span>,</span>
+<span id="cb8-128">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb8-129">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">face =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span></span>
+<span id="cb8-130">    )</span>
+<span id="cb8-131">  )</span>
+<span id="cb8-132"></span>
+<span id="cb8-133"></span>
+<span id="cb8-134"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb8-135">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"book_solutions"</span>, </span>
+<span id="cb8-136">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>, </span>
+<span id="cb8-137">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"chapter6_4_1.png"</span>),</span>
+<span id="cb8-138">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb8-139">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">800</span>,</span>
+<span id="cb8-140">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2200</span>,</span>
+<span id="cb8-141">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span>,</span>
+<span id="cb8-142">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bg =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span></span>
+<span id="cb8-143">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-6-4-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-6-4-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/chapter6_4_1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7" title="Figure&nbsp;7: Rasterizing points geometry of {sf} with terra::rasterize() with three methods. (a) Base vector object, (b) Presence-Absence Raster, (c) Count Raster - number of objects per cell, and, (d) Summary Statistic Raster - a summary statistic calculated for each cell, using a field (of sf object) and function."><img src="https://aditya-dahiya.github.io/visage/index.html/book_solutions/images/chapter6_4_1.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-6-4-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Rasterizing points geometry of {sf} with <code>terra::rasterize()</code> with three methods. (a) Base vector object, (b) Presence-Absence Raster, (c) Count Raster - number of objects per cell, and, (d) Summary Statistic Raster - a summary statistic calculated for each cell, using a field (of sf object) and function.
+</figcaption>
+</figure>
+</div>
+<ul>
+<li><p><strong>Line and Polygon Rasterization</strong> is shown in Figure&nbsp;8. The polygon rasterization can proceed in two ways, depending on the argument <code>touches = TRUE / FALSE</code> as shown in Figure&nbsp;8 .</p>
+<ul>
+<li><code>touches = TRUE</code>: Includes all cells touched by lines/polygons.</li>
+<li>Default (<code>touches = FALSE</code>): Selects cells where centroids fall inside polygons.</li>
+</ul></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">sysfonts<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">font_add_google</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Saira Condensed"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>)</span>
+<span id="cb9-2">showtext<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">showtext_auto</span>()</span>
+<span id="cb9-3"></span>
+<span id="cb9-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_set</span>(</span>
+<span id="cb9-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>(</span>
+<span id="cb9-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>,</span>
+<span id="cb9-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span></span>
+<span id="cb9-8">  )</span>
+<span id="cb9-9">)</span>
+<span id="cb9-10"></span>
+<span id="cb9-11">theme_custom <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(...){</span>
+<span id="cb9-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb9-13">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.key.height =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb9-14">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.key.width =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb9-15">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb9-16">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">24</span>,</span>
+<span id="cb9-17">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb9-18">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lineheight =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span></span>
+<span id="cb9-19">    ),</span>
+<span id="cb9-20">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.subtitle =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb9-21">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">18</span>,</span>
+<span id="cb9-22">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb9-23">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lineheight =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span></span>
+<span id="cb9-24">    ),</span>
+<span id="cb9-25">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.ticks.length =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb9-26">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb9-27">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)</span>
+<span id="cb9-28">    ),</span>
+<span id="cb9-29">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">panel.grid =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_line</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>),</span>
+<span id="cb9-30">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"none"</span></span>
+<span id="cb9-31">  )</span>
+<span id="cb9-32">}</span>
+<span id="cb9-33"></span>
+<span id="cb9-34"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#----------------------------------------------------------------</span></span>
+<span id="cb9-35"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Get vector data on State of California from `us_states` data</span></span>
+<span id="cb9-36">california <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> us_states <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-37">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(NAME <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"California"</span>)</span>
+<span id="cb9-38"></span>
+<span id="cb9-39">california_border <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> california <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-40">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_cast</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"MULTILINESTRING"</span>)</span>
+<span id="cb9-41"></span>
+<span id="cb9-42">template_raster <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rast</span>(</span>
+<span id="cb9-43">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ext</span>(california),</span>
+<span id="cb9-44">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(california)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>wkt, <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use crs(california) or st_crs(california)$wkt</span></span>
+<span id="cb9-45">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">resolution =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.25</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Give resolution in degrees</span></span>
+<span id="cb9-46">)</span>
+<span id="cb9-47"></span>
+<span id="cb9-48"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">crs</span>(california)</span>
+<span id="cb9-49"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(california)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>wkt</span>
+<span id="cb9-50"></span>
+<span id="cb9-51">g1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-52">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> california) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-53">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"California Map (vector)</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">plotted with {sf}"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-54">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>()</span>
+<span id="cb9-55"></span>
+<span id="cb9-56">g2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-57">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(</span>
+<span id="cb9-58">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> california_border <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rasterize</span>(template_raster)</span>
+<span id="cb9-59">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-60">  paletteer<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_paletteer_c</span>(</span>
+<span id="cb9-61">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ggthemes::Classic Red"</span>,</span>
+<span id="cb9-62">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.value =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span></span>
+<span id="cb9-63">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-64">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Multi-Linestring</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">with terra::rasterize()"</span>,</span>
+<span id="cb9-65">       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Cells touched by Linestring are coloured"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-66">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>()</span>
+<span id="cb9-67"></span>
+<span id="cb9-68">g3 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-69">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(</span>
+<span id="cb9-70">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> california <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rasterize</span>(template_raster,</span>
+<span id="cb9-71">                                   <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">touches =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span>
+<span id="cb9-72">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-73">  paletteer<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_paletteer_c</span>(</span>
+<span id="cb9-74">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ggthemes::Classic Red"</span>,</span>
+<span id="cb9-75">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.value =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span></span>
+<span id="cb9-76">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-77">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Multipolygon</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">terra::rasterize(touches = FALSE)"</span>,</span>
+<span id="cb9-78">       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Only colours raster cells whose</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">centroids are inside multi-polygon"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-79">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>()</span>
+<span id="cb9-80"></span>
+<span id="cb9-81">g4 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-82">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(</span>
+<span id="cb9-83">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> california <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rasterize</span>(template_raster,</span>
+<span id="cb9-84">                                   <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">touches =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span>
+<span id="cb9-85">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-86">  paletteer<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_paletteer_c</span>(</span>
+<span id="cb9-87">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ggthemes::Classic Red"</span>,</span>
+<span id="cb9-88">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.value =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span></span>
+<span id="cb9-89">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-90">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Multipolygon</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">terra::rasterize(touches = TRUE)"</span>,</span>
+<span id="cb9-91">       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Colours all raster cells which</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">are touched by the multi-polygon"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-92">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>()</span>
+<span id="cb9-93"></span>
+<span id="cb9-94">rast1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> california <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rasterize</span>(</span>
+<span id="cb9-95">  template_raster,</span>
+<span id="cb9-96">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">touches =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span></span>
+<span id="cb9-97">  )</span>
+<span id="cb9-98"></span>
+<span id="cb9-99">rast2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> california_border <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-100">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rasterize</span>(</span>
+<span id="cb9-101">    (rast1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>),</span>
+<span id="cb9-102">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">update =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span></span>
+<span id="cb9-103">  )</span>
+<span id="cb9-104"></span>
+<span id="cb9-105">g5 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-106">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(</span>
+<span id="cb9-107">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> rast2</span>
+<span id="cb9-108">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-109">  paletteer<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_paletteer_c</span>(</span>
+<span id="cb9-110">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ggthemes::Classic Red"</span>,</span>
+<span id="cb9-111">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.value =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span></span>
+<span id="cb9-112">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-113">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Polygon &amp; Linestring</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">terra::rasterize(update = TRUE)"</span>,</span>
+<span id="cb9-114">       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Rasterized polygon updated with a rasterized linestring"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-115">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>()</span>
+<span id="cb9-116"></span>
+<span id="cb9-117"></span>
+<span id="cb9-118">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> g1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g2 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g3 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g4 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g5 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-119">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_layout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">guides =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"collect"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-120">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_annotation</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_levels =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"a"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span></span>
+<span id="cb9-121">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb9-122">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.tag =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb9-123">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">24</span>,</span>
+<span id="cb9-124">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb9-125">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">face =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span></span>
+<span id="cb9-126">    ),</span>
+<span id="cb9-127">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)</span>
+<span id="cb9-128">  )</span>
+<span id="cb9-129"></span>
+<span id="cb9-130"></span>
+<span id="cb9-131"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb9-132">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"book_solutions"</span>, </span>
+<span id="cb9-133">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>, </span>
+<span id="cb9-134">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"chapter6_4_2.png"</span>),</span>
+<span id="cb9-135">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb9-136">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">800</span>,</span>
+<span id="cb9-137">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2200</span>,</span>
+<span id="cb9-138">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span>,</span>
+<span id="cb9-139">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bg =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span></span>
+<span id="cb9-140">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-6-4-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-6-4-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/chapter6_4_2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8" title="Figure&nbsp;8: Rasterizing Multi-Linestrings and Multi-Polygons from {sf} using terra::rasterize(). The figure show: (a) The base vector map of California, (b) Rasterization of California’s borders (LINESTRING) generated from map using sf::st_cast(), (c) A multi-polygon (map of California) rasterized using terra::rasterize(touches = FALSE) colours only the cells whose centroids fall within the multi-polygon, (d) Using terra::rasterize(touches = TRUE) colours all cells which are touched by the multi-polygon, and, (e) Using terra::rasterize(update = TRUE) to compile and update a previous raster of multi-polygon (values halved to maintain colour levels) with a border multi-linestring."><img src="https://aditya-dahiya.github.io/visage/index.html/book_solutions/images/chapter6_4_2.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-6-4-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8: Rasterizing Multi-Linestrings and Multi-Polygons from <code>{sf}</code> using <code>terra::rasterize()</code>. The figure show: (a) The base vector map of California, (b) Rasterization of California’s borders (LINESTRING) generated from map using <code>sf::st_cast()</code>, (c) A multi-polygon (map of California) rasterized using <code>terra::rasterize(touches = FALSE)</code> colours only the cells whose centroids fall within the multi-polygon, (d) Using <code>terra::rasterize(touches = TRUE)</code> colours all cells which are touched by the multi-polygon, and, (e) Using <code>terra::rasterize(update = TRUE)</code> to compile and update a previous raster of multi-polygon (values halved to maintain colour levels) with a border multi-linestring.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="spatial-vectorization" class="level2">
+<h2 class="anchored" data-anchor-id="spatial-vectorization">6.5 Spatial Vectorization</h2>
+<ul>
+<li>Converts raster data (spatially continuous) into vector data (spatially discrete: points, lines, polygons). Opposite process of rasterization. It can be of three types – (1) points, (2) lines, and (3) polygons.</li>
+<li><strong>(1) Points from Raster Centroids</strong>:
+<ul>
+<li>Use <code>terra::as.points()</code> <span class="citation" data-cites="terra">(Hijmans 2024)</span> for converting raster cells (non-NA) to points.</li>
+<li>Then, convert to <code>sf</code> objects with <code>sf::st_as_sf()</code>. <span class="citation" data-cites="sf-4">(Pebesma and Bivand 2023)</span></li>
+<li>Example: Elevation raster visualized as points in <strong>?@fig-6-5-1</strong>.</li>
+</ul></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1">elev <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rast</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">system.file</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"raster/elev.tif"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">package =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"spData"</span>))</span>
+<span id="cb10-2">elev_point <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.points</span>(elev) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb10-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_as_sf</span>()</span>
+<span id="cb10-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(elev)</span>
+<span id="cb10-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(elev_point)</span></code></pre></div>
+</details>
+</div>
+<ul>
+<li><strong>(2) Contour Lines (Isolines)</strong>:
+<ul>
+<li>Represent lines of constant values (e.g., elevation, temperature).</li>
+<li>Use <code>terra::as.contour()</code> or <code>rasterVis::contourplot()</code> for creating and overlaying contours. For example, visualize DEMs with hillshading and contours in <strong>?@fig-6-5-2</strong></li>
+</ul></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1">dem <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rast</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">system.file</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"raster/dem.tif"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">package =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"spDataLarge"</span>))</span>
+<span id="cb11-2">cl <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.contour</span>(dem) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb11-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_as_sf</span>()</span>
+<span id="cb11-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(dem)</span>
+<span id="cb11-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(cl)</span>
+<span id="cb11-6">     </span>
+<span id="cb11-7">rasterVis<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">contourplot</span>(dem)</span></code></pre></div>
+</details>
+</div>
+<ul>
+<li><strong>(3) Polygons from Rasters</strong>:
+<ul>
+<li>Use <code>terra::as.polygons()</code> to convert raster cells to polygons with five coordinates per cell.</li>
+<li>Aggregation: Dissolve boundaries with the same attribute values (<code>aggregate</code> argument). Example: Grain raster converted to polygons in <strong>?@fig-6-5-3</strong>.</li>
+</ul></li>
+<li><strong>Further enhacement: Polygon Smoothing</strong>: Use <code>smoothr::smooth()</code> <span class="citation" data-cites="smoothr-3">(Strimas-Mackey 2023)</span> (with method = <code>"chaikin"</code>, <code>"ksmooth"</code> or <code>"spline"</code>) to remove sharp edges. But remember, Smoothing alters spatial coverage; analyse cautiously.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1">grain <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rast</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">system.file</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"raster/grain.tif"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">package =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"spData"</span>))</span>
+<span id="cb12-2">grain_poly <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.polygons</span>(grain, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">aggregate =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb12-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_as_sf</span>()</span>
+<span id="cb12-4">grain_poly1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.polygons</span>(grain, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">aggregate =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb12-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_as_sf</span>()</span>
+<span id="cb12-6"></span>
+<span id="cb12-7">grain_poly2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> grain_poly1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb12-8">  smoothr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">smooth</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">method =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"spline"</span>)</span>
+<span id="cb12-9"></span>
+<span id="cb12-10"></span>
+<span id="cb12-11"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(grain)</span>
+<span id="cb12-12"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(grain_poly)</span>
+<span id="cb12-13"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(grain_poly1)</span>
+<span id="cb12-14"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(grain_poly2)</span></code></pre></div>
+</details>
+</div>
+
 
 
 </section>
 
- ]]></description>
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0">
+<div id="ref-terra" class="csl-entry">
+Hijmans, Robert J. 2024. <span>“Terra: Spatial Data Analysis.”</span> <a href="https://CRAN.R-project.org/package=terra">https://CRAN.R-project.org/package=terra</a>.
+</div>
+<div id="ref-sf-4" class="csl-entry">
+Pebesma, Edzer, and Roger Bivand. 2023. <span>“<span></span>Spatial Data Science: With Applications in r<span></span>.”</span> <a href="https://doi.org/10.1201/9780429459016">https://doi.org/10.1201/9780429459016</a>.
+</div>
+<div id="ref-smoothr-3" class="csl-entry">
+Strimas-Mackey, Matthew. 2023. <span>“Smoothr: Smooth and Tidy Spatial Features.”</span> <a href="https://CRAN.R-project.org/package=smoothr">https://CRAN.R-project.org/package=smoothr</a>.
+</div>
+</div></section></div> ]]></description>
   <category>Geocomputation with R</category>
   <category>Textbook Solutions</category>
   <guid>https://aditya-dahiya.github.io/visage/index.html/book_solutions/chapter6.html</guid>
