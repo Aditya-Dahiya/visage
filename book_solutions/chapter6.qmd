@@ -1807,3 +1807,151 @@ c(img1, img2, img3, img4, img5) |>
 A compilation plot of the techniques in the last two sections is shown in @fig-6-5
 
 ![A compiled image for all the techniques of raster-vector interaction: Rasterization and Vectorization.](images/chapter6_5.png){#fig-6-5}
+
+## Exercise Solutions
+
+```{r}
+#| label: exercises-setup
+
+
+library(sf)             # Simple Features in R
+library(terra)          # Rasters in R (with tidy workflow)
+library(tidyterra)      # Tidy workflow and ggplot2 with rasters
+library(spData)         # Getting data
+library(tidyverse)      # Data Wrangling and {ggplot2}
+
+zion_points_path <- system.file(
+  "vector/zion_points.gpkg", 
+  package = "spDataLarge"
+  )
+
+zion_points <- read_sf(zion_points_path)
+
+srtm <- rast(system.file("raster/srtm.tif", package = "spDataLarge"))
+
+ch <- st_combine(zion_points) |>
+  st_convex_hull() |> 
+  st_as_sf()
+
+sysfonts::font_add_google("Saira Condensed", "body_font")
+showtext::showtext_auto()
+
+theme_set(
+  theme_minimal(
+    base_family = "body_font",
+    base_size = 12
+  )
+)
+
+theme_custom <- function(...){
+  theme(
+    legend.key.height = unit(1, "mm"),
+    legend.key.width = unit(6, "mm"),
+    plot.title = element_text(
+      size = 24,
+      margin = margin(0,0,2,0, "mm")
+    ),
+    plot.subtitle = element_text(
+      size = 18,
+      margin = margin(0,0,1,0, "mm")
+    ),
+    axis.ticks.length = unit(0, "mm"),
+    axis.text = element_text(
+      margin = margin(0,0,0,0, "mm")
+    ),
+    panel.grid = element_line(linewidth = 0.2),
+    legend.position = "bottom",
+    legend.title.position = "top",
+    legend.text = element_text(margin = margin(1,0,0,0, "mm")),
+    legend.title = element_text(margin = margin(2,0,1,0, "mm")),
+    legend.margin = margin(0,0,0,0, "mm"),
+    legend.box.margin = margin(0,0,0,0, "mm")
+  )
+}
+
+```
+
+### E1.
+
+**Crop the `srtm` raster using (1) the `zion_points` dataset and (2) the `ch` dataset. Are there any differences in the output maps? Next, mask `srtm` using these two datasets. Can you see any difference now? How can you explain that?**
+
+```{r}
+ggplot() +
+  geom_spatraster(data = srtm) +
+  geom_sf(data = ch, alpha = 0.5, fill = "white") +
+  geom_sf(data = zion_points, colour = "blue") +
+  scale_fill_wiki_c() +
+  coord_sf(
+    expand = FALSE,
+    xlim = c(-113.25, -112.83),
+    ylim = c(37.11, 37.53)
+  ) +
+  labs(
+    title = "Base datasets",
+    subtitle = "srtm: Elevation Raster; ch: convex hull;\nzion_points: blue points"
+  ) +
+  theme_custom()
+
+ggplot() +
+  geom_spatraster(data = srtm |> crop(zion_points)) +
+  # geom_sf(data = ch, alpha = 0.5, fill = "white") +
+  geom_sf(data = zion_points, colour = "blue", alpha = 0.5) +
+  scale_fill_wiki_c() +
+  coord_sf(
+    expand = FALSE,
+    xlim = c(-113.25, -112.83),
+    ylim = c(37.11, 37.53)
+  ) +
+  labs(
+    title = "Cropping by points",
+    subtitle = "srtm |> crop(zion_points)"
+  ) +
+  theme_custom()
+
+ggplot() +
+  geom_spatraster(data = srtm |> crop(zion_points)) +
+  geom_sf(data = ch, alpha = 0.5, fill = "white", colour = "white") +
+  # geom_sf(data = zion_points, colour = "blue", alpha = 0.5) +
+  scale_fill_wiki_c() +
+  coord_sf(
+    expand = FALSE,
+    xlim = c(-113.25, -112.83),
+    ylim = c(37.11, 37.53)
+  ) +
+  labs(
+    title = "Cropping by Convex hull",
+    subtitle = "srtm |> crop(ch)"
+  ) +
+  theme_custom()
+
+```
+
+### E2.
+
+**Firstly, extract values from `srtm` at the points represented in `zion_points`. Next, extract average values of `srtm` using a 90 buffer around each point from `zion_points` and compare these two sets of values. When would extracting values by buffers be more suitable than by points alone?**
+
+**Bonus: Implement extraction using the `exactextractr` package and compare the results.**
+
+### E3.
+
+**Subset points higher than 3100 meters in New Zealand (the `nz_height` object) and create a template raster with a resolution of 3 km for the extent of the new point dataset. Using these two new objects:**
+
+-   **Count numbers of the highest points in each grid cell.**
+
+-   **Find the maximum elevation in each grid cell.**
+
+### E4.
+
+**Aggregate the raster counting high points in New Zealand (created in the previous exercise), reduce its geographic resolution by half (so cells are 6 x 6 km) and plot the result.**
+
+-   **Resample the lower resolution raster back to the original resolution of 3 km. How have the results changed?**
+
+-   **Name two advantages and disadvantages of reducing raster resolution.**
+
+### E5.
+
+**Polygonize the `grain` dataset and filter all squares representing clay.**
+
+-   **Name two advantages and disadvantages of vector data over raster data.**
+
+-   **When would it be useful to convert rasters to vectors in your work?**
