@@ -1179,7 +1179,17 @@ g4 <- ggplot() +
 
 g <- g1 + g2 + g3 + g4 +
   plot_layout(nrow = 1) +
-  plot_annotation(tag_levels = "a") &
+  plot_annotation(
+    tag_levels = "a",
+    title = "Vectorizing rasters into points - 3 types",
+    theme = theme(
+      plot.title = element_text(
+      size = 48,
+      margin = margin(2,0,2,0, "mm"),
+      hjust = 0.5
+      )
+    )
+  ) &
   theme(
     plot.tag = element_text(
       size = 24,
@@ -1194,7 +1204,7 @@ ggsave(
                         "images", 
                         "chapter6_4_1.png"),
   plot = g,
-  height = 800,
+  height = 700,
   width = 2200,
   units = "px",
   bg = "white"
@@ -1329,7 +1339,17 @@ g5 <- ggplot() +
 
 g <- g1 + g2 + g3 + g4 + g5 +
   plot_layout(nrow = 1, guides = "collect") +
-  plot_annotation(tag_levels = "a") &
+  plot_annotation(
+    tag_levels = "a",
+    title = "Techniques for Rasterizing lines and polygons with {terra}",
+    theme = theme(
+      plot.title = element_text(
+      size = 48,
+      margin = margin(2,0,2,0, "mm"),
+      hjust = 0.5
+      )
+    )
+  ) &
   theme(
     plot.tag = element_text(
       size = 24,
@@ -1345,7 +1365,7 @@ ggsave(
                         "images", 
                         "chapter6_4_2.png"),
   plot = g,
-  height = 800,
+  height = 700,
   width = 2200,
   units = "px",
   bg = "white"
@@ -1432,14 +1452,24 @@ g12 <- ggplot() +
 
 g <- g10 + g11 + g12 +
   plot_layout(nrow = 1) +
-  plot_annotation(tag_levels = "a") &
+  plot_annotation(
+    tag_levels = "a",
+    title = "Vectorizing rasters into points, with or without values",
+    theme = theme(
+      plot.title = element_text(
+      size = 48,
+      margin = margin(1,0,1,0, "mm"),
+      hjust = 0.5
+      )
+    )
+  ) &
   theme(
     plot.tag = element_text(
       size = 24,
       margin = margin(0,0,-5,4, "mm"),
       face = "bold"
     ),
-    plot.margin = margin(2,0,2,0, "mm")
+    plot.margin = margin(0,0,0,0, "mm")
   )
 
 
@@ -1448,7 +1478,7 @@ ggsave(
                         "images", 
                         "chapter6_5_1.png"),
   plot = g,
-  height = 800,
+  height = 700,
   width = 2200,
   units = "px",
   bg = "white"
@@ -1535,8 +1565,20 @@ g15 <- ggplot() +
   )
 
 g <- g13 + g14 + g15 +
-  plot_layout(nrow = 1) +
-  plot_annotation(tag_levels = "a") &
+  plot_layout(
+    nrow = 1
+  ) +
+  plot_annotation(
+    tag_levels = "a",
+    title = "Vectorizing rasters into lines - Contour Lines",
+    theme = theme(
+      plot.title = element_text(
+      size = 48,
+      margin = margin(2,0,2,0, "mm"),
+      hjust = 0.9
+      )
+    )
+  ) &
   theme(
     plot.tag = element_text(
       size = 24,
@@ -1597,7 +1639,7 @@ unlink(here::here("book_solutions",
                   "chapter6_5_2_2.png"))
 ```
 
-![](images/chapter6_5_2.png)
+![](images/chapter6_5_2.png){#fig-6-5-2}
 
 -   **(3) Polygons from Rasters**:
     -   Use `terra::as.polygons()` to convert raster cells to polygons with five coordinates per cell.
@@ -1605,18 +1647,163 @@ unlink(here::here("book_solutions",
 -   **Further enhacement: Polygon Smoothing**: Use `smoothr::smooth()` [@smoothr-3] (with method = `"chaikin"`, `"ksmooth"` or `"spline"`) to remove sharp edges. But remember, Smoothing alters spatial coverage; analyse cautiously.
 
 ```{r}
-grain = rast(system.file("raster/grain.tif", package = "spData"))
-grain_poly = as.polygons(grain, aggregate = FALSE) |> 
-  st_as_sf()
-grain_poly1 = as.polygons(grain, aggregate = TRUE) |> 
-  st_as_sf()
 
-grain_poly2 <- grain_poly1 |> 
-  smoothr::smooth(method = "spline")
+grain <- rast(system.file("raster/grain.tif", package = "spData"))
+
+g16 <- ggplot() +
+  geom_spatraster(dat = grain) +
+  scale_fill_princess_d() +
+  labs(
+    title = "Base raster; Qualitative",
+    subtitle = "With three discrete values",
+    fill = NULL
+  ) +
+  coord_sf(expand = FALSE) +
+  theme_custom() +
+  theme(legend.position = "none")
+
+g17 <- ggplot() +
+  geom_sf(
+    data = grain |> as.polygons(aggregate = T) |> st_as_sf(),
+    mapping = aes(fill = grain),
+    colour = "white",
+    linewidth = 1
+  ) +
+  scale_fill_princess_d() +
+  labs(
+    title = "Vectorized as aggregated polygons",
+    subtitle = "Using terra::as.polygons(aggregate = TRUE)",
+    fill = NULL
+  ) +
+  coord_sf(expand = FALSE) +
+  theme_custom() +
+  theme(legend.position = "none")
+
+g18 <- ggplot() +
+  geom_sf(
+    data = grain |> as.polygons(aggregate = F) |> st_as_sf(),
+    mapping = aes(fill = grain),
+    colour = "white",
+    linewidth = 0.5
+  ) +
+  scale_fill_princess_d() +
+  labs(
+    title = "Vectorized as polygons",
+    subtitle = "Using terra::as.polygons(aggregate = FALSE)",
+    fill = NULL
+  ) +
+  coord_sf(expand = FALSE) +
+  theme_custom() +
+  theme(legend.position = "none")
+
+g19 <- ggplot() +
+  geom_sf(
+    data = grain |> 
+            as.polygons(aggregate = T) |> 
+            st_as_sf() |> 
+            smoothr::smooth(),
+    mapping = aes(fill = grain),
+    colour = "white",
+    linewidth = 0.5
+  ) +
+  scale_fill_princess_d() +
+  labs(
+    title = "Vectorized as smoothed polygons",
+    subtitle = "terra::as.polygons() & smoothr::smooth()",
+    fill = NULL
+  ) +
+  coord_sf(expand = FALSE) +
+  theme_custom() +
+  theme(legend.position = "none")
+
+g20 <- ggplot() +
+  geom_sf(
+    data = grain |> 
+            as.polygons(aggregate = T) |> 
+            st_as_sf() |> 
+            smoothr::smooth(method = "spline"),
+    mapping = aes(fill = grain),
+    colour = "white",
+    linewidth = 0.5
+  ) +
+  scale_fill_princess_d() +
+  labs(
+    title = "Vectorized as smoothed polygons",
+    subtitle = "smoothr::smooth(method = \"spline\")",
+    fill = NULL
+  ) +
+  coord_sf(expand = FALSE, clip = "off") +
+  theme_custom() +
+  theme(legend.position = "none")
+
+g <- g16 + g17 + g18 + g19 + g20 +
+  plot_layout(nrow = 1) +
+  plot_annotation(
+    title = "Vectorizing rasters into polygons (aggregation)",
+    tag_levels = "a",
+    theme = theme(
+      plot.title = element_text(
+      size = 48,
+      margin = margin(2,0,2,0, "mm"),
+      hjust = 0.5
+      )
+    )
+  ) &
+  theme(
+    plot.tag = element_text(
+      size = 24,
+      margin = margin(0,-1,-5,4, "mm"),
+      face = "bold"
+    ),
+    plot.margin = margin(2,0,2,0, "mm")
+  )
 
 
-plot(grain)
-plot(grain_poly)
-plot(grain_poly1)
-plot(grain_poly2)
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter6_5_3.png"),
+  plot = g,
+  height = 700,
+  width = 2200,
+  units = "px",
+  bg = "white"
+)
 ```
+
+![](images/chapter6_5_3.png){#fig-6-5-3}
+
+```{r}
+library(magick)
+
+# Read the two images
+img1 <- image_read(here::here("book_solutions", 
+                        "images", 
+                        "chapter6_4_1.png"))
+img2 <- image_read(here::here("book_solutions", 
+                        "images", 
+                        "chapter6_4_2.png"))
+img3 <- image_read(here::here("book_solutions", 
+                        "images", 
+                        "chapter6_5_1.png"))
+img4 <- image_read(here::here("book_solutions", 
+                        "images", 
+                        "chapter6_5_2.png"))
+img5 <- image_read(here::here("book_solutions", 
+                        "images", 
+                        "chapter6_5_3.png"))
+
+c(img1, img2, img3, img4, img5) |> 
+  image_append(stack = TRUE) |> 
+  image_write(
+    here::here("book_solutions",
+               "images",
+               "chapter6_5.png")
+  )
+```
+
+### Compilation Plot with {magick}
+
+A compilation plot of the techniques in the last two sections is shown in @fig-6-5
+
+![A compiled image for all the techniques of raster-vector interaction: Rasterization and Vectorization.](images/chapter6_5.png){#fig-6-5}
