@@ -1358,31 +1358,246 @@ ggsave(
 
 -   Converts raster data (spatially continuous) into vector data (spatially discrete: points, lines, polygons). Opposite process of rasterization. It can be of three types – (1) points, (2) lines, and (3) polygons.
 -   **(1) Points from Raster Centroids**:
-    -   Use `terra::as.points()` [@terra] for converting raster cells (non-NA) to points.
-    -   Then, convert to `sf` objects with `sf::st_as_sf()`. [@sf-4]
+    -   Use `terra::as.points()` [@terra] for converting raster cells (non-NA) to points. It produces a `SpatVector` class of object, which can then be converted into an {sf} [@sf-4] object using `sf::st_as_sf()` .
     -   Example: Elevation raster visualized as points in @fig-6-5-1.
 
 ```{r}
-elev = rast(system.file("raster/elev.tif", package = "spData"))
-elev_point = as.points(elev) |> 
-  st_as_sf()
-plot(elev)
-plot(elev_point)
+
+theme_custom <- function(...){
+  theme(
+    legend.key.height = unit(1, "mm"),
+    legend.key.width = unit(5, "mm"),
+    plot.title = element_text(
+      size = 24,
+      margin = margin(0,0,2,0, "mm")
+    ),
+    plot.subtitle = element_text(
+      size = 18,
+      margin = margin(0,0,1,0, "mm")
+    ),
+    axis.ticks.length = unit(0, "mm"),
+    axis.text = element_text(
+      margin = margin(0,0,0,0, "mm")
+    ),
+    panel.grid = element_line(linewidth = 0.2),
+    legend.position = "bottom",
+    legend.title.position = "top",
+    legend.text = element_text(margin = margin(1,0,0,0, "mm")),
+    legend.title = element_text(margin = margin(2,0,1,0, "mm")),
+    legend.margin = margin(0,0,0,0, "mm"),
+    legend.box.margin = margin(0,0,0,0, "mm"),
+    ...
+  )
+}
+
+elev <- rast(system.file("raster/elev.tif", package = "spData"))
+
+g10 <- ggplot() +
+  geom_spatraster(data = elev) +
+  scale_fill_princess_c() +
+  labs(
+    title = "Base raster",
+    subtitle = "Class SpatRaster (elev)",
+    fill = NULL
+  ) +
+  theme_custom()
+
+g11 <- ggplot() +
+  geom_sf(
+    data = elev |> as.points(values = F) |> st_as_sf(),
+    size = 3
+  ) +
+  scale_colour_princess_c() +
+  labs(
+    title = "Vectorization without raster values",
+    subtitle = "Using terra::as.points(values = FALSE)",
+    colour = NULL
+  ) +
+  theme_custom()
+
+g12 <- ggplot() +
+  geom_sf(
+    data = elev |> as.points() |> st_as_sf(),
+    mapping = aes(colour = elev),
+    size = 3
+  ) +
+  scale_colour_princess_c() +
+  labs(
+    title = "Vectorization, retaining values as attributes",
+    subtitle = "Using terra::as.points() [default behaviour]",
+    colour = NULL
+  ) +
+  theme_custom()
+
+
+g <- g10 + g11 + g12 +
+  plot_layout(nrow = 1) +
+  plot_annotation(tag_levels = "a") &
+  theme(
+    plot.tag = element_text(
+      size = 24,
+      margin = margin(0,0,-5,4, "mm"),
+      face = "bold"
+    ),
+    plot.margin = margin(2,0,2,0, "mm")
+  )
+
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter6_5_1.png"),
+  plot = g,
+  height = 800,
+  width = 2200,
+  units = "px",
+  bg = "white"
+)
 ```
+
+![Vectorization of raster into points using `terra::as_points()` with or without retention of raster values.](images/chapter6_5_1.png){#fig-6-5-1}
 
 -   **(2) Contour Lines (Isolines)**:
     -   Represent lines of constant values (e.g., elevation, temperature).
-    -   Use `terra::as.contour()` or `rasterVis::contourplot()` for creating and overlaying contours. For example, visualize DEMs with hillshading and contours in @fig-6-5-2
+    -   Use `terra::as.contour()` which creates a `SpatVector`, which then is converted into an {sf} object using `sf::st_as_sf()` which shows contour lines as `LINESTRING` or `MULTILINESTRING` geometry featuers, with an additional column on `level` (every 100 metres)
+    -   Or, `rasterVis::contourplot()` for creating and overlaying contours. For example, visualize DEMs with hillshading and contours in @fig-6-5-2
 
 ```{r}
-dem = rast(system.file("raster/dem.tif", package = "spDataLarge"))
-cl = as.contour(dem) |> 
+
+# Digital elevation showing the southern flank of Mt. Mongón.
+dem <- rast(system.file("raster/dem.tif", package = "spDataLarge"))
+
+g13 <- ggplot() +
+  geom_spatraster(data = dem) +
+  scale_fill_wiki_c() +
+  labs(
+    title = "Base raster",
+    subtitle = "Class SpatRaster (dem)",
+    fill = NULL
+  ) +
+  theme_custom()
+
+
+dem_contour <- terra::as.contour(dem, nlevels = 10) |> 
   st_as_sf()
-plot(dem)
-plot(cl)
-     
-rasterVis::contourplot(dem)
+
+g14 <- ggplot() +
+  geom_sf(
+    data = dem_contour,
+    mapping = aes(colour = level),
+    linewidth = 1
+  ) +
+  geom_sf_label(
+    data = dem_contour,
+    mapping = aes(
+      colour = level,
+      label = level
+    ),
+    fill = alpha("white", 0.7),
+    fontface = "bold",
+    family = "body_font",
+    size = 7,
+    label.padding = unit(0.1, "lines")
+  ) +
+  scale_colour_wiki_c(
+    breaks = unique(dem_contour$level)
+  ) +
+  labs(
+    title = "Contour Lines with {sf}",
+    subtitle = "Using terra::as.contour(nlevels = 10)",
+    colour = NULL, x = NULL, y = NULL
+  ) +
+  theme_custom() +
+  theme(
+    legend.key.width = unit(7, "mm")
+  )
+
+dem_contour <- terra::as.contour(dem, nlevels = 30) |> 
+  st_as_sf()
+
+g15 <- ggplot() +
+  geom_sf(
+    data = dem_contour,
+    mapping = aes(colour = level),
+    linewidth = 0.5
+  ) +
+  scale_colour_wiki_c(
+    breaks = unique(dem_contour$level)
+  ) +
+  labs(
+    title = "Contour Lines with {sf}",
+    subtitle = "Using terra::as.contour(nlevels = 30)",
+    fill = NULL, colour = NULL
+  ) +
+  theme_custom() +
+  theme(
+    legend.key.width = unit(7, "mm")
+  )
+
+g <- g13 + g14 + g15 +
+  plot_layout(nrow = 1) +
+  plot_annotation(tag_levels = "a") &
+  theme(
+    plot.tag = element_text(
+      size = 24,
+      margin = margin(0,0,-5,4, "mm"),
+      face = "bold"
+    ),
+    plot.margin = margin(2,0,2,0, "mm")
+  )
+
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "chapter6_5_2_1.png"),
+  plot = g,
+  height = 800,
+  width = 1600,
+  units = "px",
+  bg = "white"
+)
+
+# File name to save the PNG
+output_file <- here::here("book_solutions", 
+                        "images", 
+                        "chapter6_5_2_2.png")
+
+png(filename = output_file, 
+    width = 600, 
+    height = 800,
+    units = "px")
+
+# Generate the contour plot
+rasterVis::contourplot(dem, main = "rasterVis::contourplot()")
+
+# Close the graphics device
+dev.off()
+library(magick)
+# Read the two images
+img1 <- image_read(here::here("book_solutions", 
+                        "images", 
+                        "chapter6_5_2_1.png"))
+img2 <- image_read(here::here("book_solutions", 
+                        "images", 
+                        "chapter6_5_2_2.png"))
+
+c(img1, img2) |> 
+  image_append() |> 
+  image_write(here::here("book_solutions", 
+                        "images", 
+                        "chapter6_5_2.png"))
+
+unlink(here::here("book_solutions", 
+                  "images", 
+                  "chapter6_5_2_1.png"))
+
+unlink(here::here("book_solutions", 
+                  "images", 
+                  "chapter6_5_2_2.png"))
 ```
+
+![](images/chapter6_5_2.png)
 
 -   **(3) Polygons from Rasters**:
     -   Use `terra::as.polygons()` to convert raster cells to polygons with five coordinates per cell.
