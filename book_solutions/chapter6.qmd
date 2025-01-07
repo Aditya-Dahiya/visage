@@ -101,7 +101,7 @@ library(patchwork) # Composing plots
     -   **Output**: A raster with specified cells masked based on the spatial bounds of the second argument.
 
 | Aspect | `crop() |> mask()` | `mask()` |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | **Extent Modification** | Reduces raster extent to vector's bounding box | Retains original raster extent |
 | **Output Size** | Smaller raster (optimized for memory) | Larger raster (original extent retained) |
 | **Use Case** | When reducing raster size is desired | When full raster extent is needed but irrelevant cells must be excluded |
@@ -1812,6 +1812,7 @@ A compilation plot of the techniques in the last two sections is shown in @fig-6
 
 ```{r}
 #| label: exercises-setup
+#| eval: true
 
 
 library(sf)             # Simple Features in R
@@ -1849,11 +1850,13 @@ theme_custom <- function(...){
     legend.key.width = unit(6, "mm"),
     plot.title = element_text(
       size = 24,
-      margin = margin(0,0,2,0, "mm")
+      margin = margin(0,0,2,0, "mm"),
+      lineheight = 0.3
     ),
     plot.subtitle = element_text(
       size = 18,
-      margin = margin(0,0,1,0, "mm")
+      margin = margin(0,0,1,0, "mm"),
+      lineheight = 0.3
     ),
     axis.ticks.length = unit(0, "mm"),
     axis.text = element_text(
@@ -1875,8 +1878,11 @@ theme_custom <- function(...){
 
 **Crop the `srtm` raster using (1) the `zion_points` dataset and (2) the `ch` dataset. Are there any differences in the output maps? Next, mask `srtm` using these two datasets. Can you see any difference now? How can you explain that?**
 
+The @fig-e1 (b) shows the `srtm` raster cropped using `zion_points` dataset. The @fig-e1 (c) shows the raster `srtm` cropped using `ch` dataset. There seem to be no differences between the two output cropped maps.
+
 ```{r}
-ggplot() +
+
+g1 <- ggplot() +
   geom_spatraster(data = srtm) +
   geom_sf(data = ch, alpha = 0.5, fill = "white") +
   geom_sf(data = zion_points, colour = "blue") +
@@ -1892,7 +1898,7 @@ ggplot() +
   ) +
   theme_custom()
 
-ggplot() +
+g2 <- ggplot() +
   geom_spatraster(data = srtm |> crop(zion_points)) +
   # geom_sf(data = ch, alpha = 0.5, fill = "white") +
   geom_sf(data = zion_points, colour = "blue", alpha = 0.5) +
@@ -1908,7 +1914,7 @@ ggplot() +
   ) +
   theme_custom()
 
-ggplot() +
+g3 <- ggplot() +
   geom_spatraster(data = srtm |> crop(zion_points)) +
   geom_sf(data = ch, alpha = 0.5, fill = "white", colour = "white") +
   # geom_sf(data = zion_points, colour = "blue", alpha = 0.5) +
@@ -1924,13 +1930,157 @@ ggplot() +
   ) +
   theme_custom()
 
+
+g <- g1 + g2 + g3 +
+  plot_layout(nrow = 1) +
+  plot_annotation(tag_levels = "a")
+
+ggsave(
+  filename = here::here("book_solutions", "images",
+                        "chapter6-e1-1.png"),
+  height = 1000,
+  width = 2000,
+  units = "px"
+)
 ```
+
+![](images/chapter6-e1-1.png){#fig-e1}
+
+However, the @fig-e1a (a) shows masking of the raster with points - showing that masking by points results in selected points on the raster, thus resulting in no visible result. The @fig-e1a (b) shows masking of a raster by a polygon, a more expected result.
+
+```{r}
+
+g1 <- ggplot() +
+  geom_spatraster(data = srtm |> mask(zion_points)) +
+  # geom_sf(data = ch, alpha = 0.5, fill = "white") +
+  geom_sf(data = zion_points, colour = "blue", 
+          alpha = 0.5, size = 0.5) +
+  scale_fill_wiki_c() +
+  coord_sf(
+    expand = FALSE,
+    xlim = c(-113.25, -112.83),
+    ylim = c(37.11, 37.53)
+  ) +
+  labs(
+    title = "Masking a raster by points",
+    subtitle = "srtm |> mask(zion_points)"
+  ) +
+  theme_custom()
+
+g2 <- ggplot() +
+  geom_spatraster(data = srtm |> mask(ch)) +
+  # geom_sf(data = ch, alpha = 0.5, fill = "white") +
+  geom_sf(data = zion_points, 
+          colour = "blue", alpha = 0.5,
+          size = 0.5) +
+  scale_fill_wiki_c() +
+  coord_sf(
+    expand = FALSE,
+    xlim = c(-113.25, -112.83),
+    ylim = c(37.11, 37.53)
+  ) +
+  labs(
+    title = "Masking a raster by a polygon",
+    subtitle = "srtm |> mask(ch)"
+  ) +
+  theme_custom()
+
+
+g <- g1 + g2 +
+  plot_layout(nrow = 1) +
+  plot_annotation(tag_levels = "a")
+
+ggsave(
+  filename = here::here("book_solutions", "images",
+                        "chapter6-e1-2.png"),
+  height = 800,
+  width = 1600,
+  units = "px"
+)
+```
+
+![](images/chapter6-e1-2.png){#fig-e1a}
+
+The distinction between masking and cropping can be better understood by examining how they interact with polygons and points:
+
+1.  **Masking**: When masking with a **polygon**, the output includes all the raster cells that fall within the interior or lie on the boundaries of the polygon. In contrast, masking with **points** produces an output that includes only the specific raster cells that align directly with those points, without considering the area around them.
+
+2.  **Cropping**: Cropping, whether by points or polygons, yields the same result. This is because cropping considers the **bounding box**, which is the smallest rectangle that can enclose the given geometry. For a set of points and their convex hull (a polygon that encloses the points), the bounding box remains identical. Consequently, the raster output produced by cropping is consistent regardless of whether the input geometry is a polygon or a set of points.
 
 ### E2.
 
 **Firstly, extract values from `srtm` at the points represented in `zion_points`. Next, extract average values of `srtm` using a 90 buffer around each point from `zion_points` and compare these two sets of values. When would extracting values by buffers be more suitable than by points alone?**
 
 **Bonus: Implement extraction using the `exactextractr` package and compare the results.**
+
+The @tbl-e2 compares the two values from rasters - extracted from the points and extracted from the buffer zone (90 metres) around the points. It would be better to use the buffer around the points, since it removes the chance error or randomness.
+
+Further, the use of `exactextractr` package helps us calculate even better weighted mean of the buffer zone, by calculating how much of a raster cell's proportion fall within the buffer zone.
+
+```{r}
+
+df1 <- srtm |> 
+  terra::extract(zion_points) |> 
+  as_tibble() |> 
+  rename(height_on_points = srtm)
+
+df2 <- srtm |> 
+  terra::extract(st_buffer(zion_points, dist = 90)) |> 
+  group_by(ID) |> 
+  summarise(
+    mean_height_in_buffer_zone = mean(srtm, na.rm = T)
+  )
+
+df3 <- srtm |> 
+  exactextractr::exact_extract(st_buffer(zion_points, dist = 90)) |> 
+  purrr::imap_dfr(~ .x %>% mutate(ID = .y)) |> 
+  as_tibble() |> 
+  group_by(ID) |> 
+  summarise(
+    mean_with_exact_fractions = weighted.mean(value, w = coverage_fraction)
+  ) |> 
+  mutate(ID = parse_number(as.character(ID)))
+
+```
+
+```{r}
+#| eval: true
+#| label: tbl-e2
+#| tbl-cap: "A table on the height of points, mean height inside the buffer zone and difference between the two"
+
+df_all <- structure(list(ID = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 
+13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 
+29, 30), height_on_points = c(1802L, 2433L, 1886L, 1370L, 1452L, 
+1635L, 1380L, 2032L, 1830L, 1860L, 1440L, 2145L, 1942L, 1691L, 
+1776L, 2198L, 1820L, 1349L, 1758L, 1424L, 2159L, 1809L, 1826L, 
+1550L, 1799L, 2102L, 2118L, 1372L, 1905L, 1574L), mean_height_in_buffer_zone = c(1803.5, 
+2418.75, 1875, 1385.66666666667, 1411.33333333333, 1629, 1378.25, 
+2040.25, 1812.5, 1863, 1485, 2163.25, 1930, 1689.25, 1770.6, 
+2197.75, 1820.25, 1342.25, 1755.5, 1432.25, 2163, 1799.25, 1815.5, 
+1557.25, 1818.75, 2084, 2112.75, 1381, 1906.5, 1568.75), mean_with_exact_fractions = c(1802.00133958487, 
+2424.45674770282, 1876.08426481862, 1392.71469762041, 1418.32776902309, 
+1634.65560885957, 1382.29661439712, 2036.58308765316, 1820.0303014567, 
+1862.25146840549, 1474.00216389597, 2156.26597640816, 1928.10327037732, 
+1690.96565049072, 1772.48742394502, 2199.49153660086, 1814.37498800353, 
+1346.31074580787, 1750.9561283278, 1432.07177081194, 2162.75811241747, 
+1799.24374331498, 1818.16628377294, 1555.46331837623, 1815.26746442256, 
+2084.60258183394, 2114.31006688883, 1382.04095054598, 1907.24485439106, 
+1568.26154119403), difference = c(1.5, -14.25, -11, 15.6666666666667, 
+-40.6666666666667, -6, -1.75, 8.25, -17.5, 3, 45, 18.25, -12, 
+-1.75, -5.40000000000009, -0.25, 0.25, -6.75, -2.5, 8.25, 4, 
+-9.75, -10.5, 7.25, 19.75, -18, -5.25, 9, 1.5, -5.25)), row.names = c(NA, 
+-30L), class = c("tbl_df", "tbl", "data.frame"))
+
+df_all |> 
+  gt::gt() |> 
+  gt::fmt_number(
+    columns = -ID,
+    decimals = 0
+  ) |> 
+  gt::cols_label_with(fn = snakecase::to_title_case) |> 
+  gt::opt_interactive()
+
+```
 
 ### E3.
 
