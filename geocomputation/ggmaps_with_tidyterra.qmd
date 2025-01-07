@@ -1,0 +1,170 @@
+---
+title: "Combining {ggmaps}, {terra} and {tidyterra} to produce raster maps."
+author: "Aditya Dahiya"
+subtitle: "Using {tidyverse} methods on images from Stadia Maps and Stamen Maps using {ggmap} by functions from {terra} and {tidyterra}"
+date: "2025-01-07"
+bibliography: references.bib
+format:
+  html:
+    code-fold: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: false
+categories:
+  - "Background Map"
+  - "{terra}"
+  - "Raster Map"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/geocomputation/ggmaps_with_tidyterra.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+### Background
+
+.....................................
+
+```{r}
+#| label: setup
+#| eval: true
+
+# Load spatial and environmental datasets.
+library(ggmap)
+
+# Handle, analyze, and visualize raster and vector data.
+library(terra)
+
+# Handling simple features in R
+library(sf)
+
+# Tidy data workflows with 'terra' objects.
+library(tidyterra)
+
+# Data manipulation, visualization, and wrangling.
+library(tidyverse)
+
+# Compiling plots
+library(patchwork)
+
+
+sysfonts::font_add_google("Fira Sans", "body_font")
+showtext::showtext_auto()
+theme_set(
+  theme_minimal(
+    base_family = "body_font",
+    base_size = 14
+  ) +
+    theme(
+      plot.title = element_text(
+        size = 18
+      )
+    )
+)
+```
+
+### Getting a raster map from {ggmap}
+
+```{r}
+
+# Register your Stadia Maps key and enter it here
+# register_stadiamaps("you-key-here")
+
+# Get basic data on Boroughs of London
+london_sf_map <- spData::lnd |> 
+  janitor::clean_names() |> 
+  select(name, geometry)
+
+g1 <- london_sf_map |> 
+  ggplot(aes(fill = name)) +
+  geom_sf(colour = "white") +
+  labs(
+    title = "Basic Map of London Boroughs",
+    subtitle = "From {spData} object `lnd`"
+  ) +
+  theme(
+    legend.position = "none"
+  )
+
+london_sf_boundary <- london_sf_map |> 
+  st_union()
+
+g2 <- london_sf_boundary |> 
+  ggplot() +
+  geom_sf() +
+  labs(
+    title = "Outer boundary map of London",
+    subtitle = "Using sf::st_union()"
+  )
+
+g <- g1 + g2 +
+  plot_annotation(
+    tag_levels = "a"
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "ggmaps_with_tidyterra_1.png"),
+  width = 1200,
+  height = 600,
+  units = "px"
+)
+```
+
+![Displaying the basic data (a) Boroughs of London and (b) Outer boundary map of London](images/ggmaps_with_tidyterra_1.png)
+
+### Getting {ggmap} data on the boroughs of london
+
+```{r}
+# Bounding Box of London Boundary Map
+london_bbox <- st_bbox(london_sf_boundary)
+
+# Convert bbox to a format the {ggmap} understands
+names(london_bbox) <- c("left", "bottom", "right", "top")
+
+raw_raster_map <- get_stadiamap(
+  bbox = london_bbox,
+  zoom = 10,
+  maptype = "stamen_toner_lines"
+)
+
+class(raw_raster_map)
+
+bbox_raster <- raw_raster_map |> 
+  terra::as.raster() |> 
+  rast()
+
+g1 <- ggmap(raw_raster_map) +
+  labs(
+    x = NULL, y = NULL,
+    title = "{ggmap} raster: `Stamen Toner Lines` Maptype",
+    subtitle = "Using ggmap::ggmap()"
+  )
+
+g1
+
+ggplot() +
+  geom_spatraster_rgb(data = bbox_raster)
+
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "ggmaps_with_tidyterra_1.png"),
+  width = 1200,
+  height = 600,
+  units = "px"
+)
+```
