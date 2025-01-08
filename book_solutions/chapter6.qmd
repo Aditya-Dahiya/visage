@@ -1820,6 +1820,7 @@ library(terra)          # Rasters in R (with tidy workflow)
 library(tidyterra)      # Tidy workflow and ggplot2 with rasters
 library(spData)         # Getting data
 library(tidyverse)      # Data Wrangling and {ggplot2}
+library(patchwork)      # Compiling Plots
 
 zion_points_path <- system.file(
   "vector/zion_points.gpkg", 
@@ -2090,7 +2091,7 @@ df_all |>
 
 -   **Find the maximum elevation in each grid cell.**
 
-The object `above_3100` contains the 19 peaks which are above 3100 metres. Further, the `template_raster` is a template raster with a resolution of 3 km and the extent of the new point dataset.
+The object `above_3100` contains the 19 peaks which are above 3100 metres. Further, the `template_raster` is a template raster with a resolution of 3 km and the extent of the new point dataset. The results for count and maximum height in each cell os new raster are shown in @fig-e3.
 
 ```{r}
 #| eval: true
@@ -2139,27 +2140,76 @@ df2 <- elevation_raster_2 |>
     cell_ID = cell_id
   )
 
+g1 <- ggplot() +
+  geom_spatraster(data = elevation_raster_1) +
+  scale_fill_viridis_c(
+    direction = -1,
+    na.value = "transparent"
+  ) +
+  labs(
+    title = "Maximum height per cell",
+    subtitle = "Raster created using rasterize(fun = `length`)"
+  ) +
+  theme_custom() +
+  theme(
+    legend.position = "bottom"
+  ) 
 
-elevation_raster_2 |> plot()
+g2 <- ggplot() +
+  geom_spatraster(data = elevation_raster_2) +
+  scale_fill_princess_c(
+    na.value = "transparent"
+  ) +
+  labs(
+    title = "Number of peaks per cell",
+    subtitle = "Using rasterize(field = `elevation`, fun = `max`)"
+  ) +
+  theme_custom() +
+  theme(
+    legend.position = "bottom"
+  )
+
+g <- g1 + g2 +
+  plot_layout(nrow = 1) +
+  plot_annotation(
+    tag_levels = "a"
+  ) &
+  theme(
+    plot.tag = element_text(
+      size = 24,
+      face = "bold"
+    )
+  )
+
+ggsave(
+  filename = here::here("book_solutions", "images",
+                        "chapter6-e3.png"),
+  height = 800,
+  width = 1600,
+  units = "px"
+)
 ```
 
-The count of the number of highest points in each grid cell is shown in @tbl-e3
+![Exercise E3 Solutions](images/chapter6-e3.png){#fig-e3}
+
+The count of the number of highest points in each grid cell, and the maximum height in each grid cell is shown in @tbl-e3
 
 ```{r}
 #| eval: true
 #| label: tbl-e3
 #| tbl-cap: "Number of highest points in each grid cell."
 
-df1 <- structure(list(numer_of_peaks = c(7, 2, 1, 6, 1, 1), cell_ID = c(24L, 25L, 28L, 31L, 38L, 50L)), class = c("tbl_df", "tbl", "data.frame"
+# dput(full_join(df1, df2))
+
+df12 <- structure(list(numer_of_peaks = c(7, 2, 1, 6, 1, 1), cell_ID = c(24L, 
+25L, 28L, 31L, 38L, 50L), maximum_height_of_peaks = c(3497, 3194, 
+3199, 3724, 3593, 3151)), class = c("tbl_df", "tbl", "data.frame"
 ), row.names = c(NA, -6L))
 
-df1 |> 
+df12 |> 
+  relocate(cell_ID) |> 
   gt::gt() |> 
   gt::cols_label_with(fn = snakecase::to_title_case)
-```
-
-```{r}
-
 ```
 
 ### E4.
