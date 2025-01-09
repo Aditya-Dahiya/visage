@@ -2147,7 +2147,7 @@ g1 <- ggplot() +
     na.value = "transparent"
   ) +
   labs(
-    title = "Maximum height per cell",
+    title = "Number of peaks per cell",
     subtitle = "Raster created using rasterize(fun = `length`)"
   ) +
   theme_custom() +
@@ -2161,7 +2161,7 @@ g2 <- ggplot() +
     na.value = "transparent"
   ) +
   labs(
-    title = "Number of peaks per cell",
+    title = "Maximum height per cell",
     subtitle = "Using rasterize(field = `elevation`, fun = `max`)"
   ) +
   theme_custom() +
@@ -2172,11 +2172,13 @@ g2 <- ggplot() +
 g <- g1 + g2 +
   plot_layout(nrow = 1) +
   plot_annotation(
-    tag_levels = "a"
+    tag_levels = "a",
+    tag_prefix = "(",
+    tag_suffix = ")"
   ) &
   theme(
     plot.tag = element_text(
-      size = 24,
+      size = 36,
       face = "bold"
     )
   )
@@ -2190,7 +2192,7 @@ ggsave(
 )
 ```
 
-![Exercise E3 Solutions](images/chapter6-e3.png){#fig-e3}
+![Figure showing the two rasters (a) Raster with each cell of resolution of 3 km, and colour (fill) depicting the count of peaks, i.e., the number of peaks above 3100 metres within that cell. (b) Raster with each cell of same resolution, where each cell's colour (fill) depicts the maximum elevation (height) within that each cell.](images/chapter6-e3.png){#fig-e3}
 
 The count of the number of highest points in each grid cell, and the maximum height in each grid cell is shown in @tbl-e3
 
@@ -2220,6 +2222,111 @@ df12 |>
 
 -   **Name two advantages and disadvantages of reducing raster resolution.**
 
+The code below aggregates the raster showing the count of high points into a resolution of 6 km, using `terra::resample()` with a `template_raster_2` of resolution 6 km. The results are shown in @fig-e4.\
+**Advantage****s of Reducing Raster Resolution**
+
+1.  Improved Computation Efficiency: Fewer cells reduce the data size, speeding up processing and analysis.
+
+2.  Simplification: Provides a coarser overview for large-scale analysis, which may be sufficient for specific applications like regional studies.
+
+**Disadvantages of Reducing Raster Resolution**
+
+1.  Loss of Detail: Fine spatial variations and features are lost, potentially affecting precision in applications requiring high detail.
+
+2.  Accuracy Trade-Off: Aggregated data may misrepresent localized phenomena, leading to potential inaccuracies in spatial analyses.
+
+```{r}
+
+# Create a template raster for using in rasterization
+template_raster_2 <- rast(
+  # Spat Extent of the Vector data
+  terra::ext(above_3100),
+  # Required resolution of the raster
+  resolution = 6000,
+  # CRS for the raster
+  crs = crs(above_3100)
+)
+
+
+g1 <- ggplot() +
+  geom_spatraster(data = elevation_raster_1) +
+  scale_fill_viridis_c(
+    direction = -1,
+    na.value = "transparent"
+  ) +
+  labs(
+    title = "Number of peaks per cell",
+    subtitle = "Raster created using rasterize(fun = `length`)"
+  ) +
+  theme_custom() +
+  theme(
+    legend.position = "bottom"
+  ) 
+
+
+g2 <- ggplot() +
+  geom_spatraster(
+    data = elevation_raster_1 |> 
+      # terra::aggregate(fact = 2, fun = mean)
+      resample(template_raster_2, method = "bilinear")
+  ) +
+  scale_fill_viridis_c(
+    direction = -1,
+    na.value = "transparent"
+  ) +
+  labs(
+    title = "Aggregated raster (res = 6 km)",
+    subtitle = "Using resample(method = `bilinear`)"
+  ) +
+  theme_custom() +
+  theme(
+    legend.position = "bottom"
+  )
+
+g3 <- ggplot() +
+  geom_spatraster(
+    data = elevation_raster_1 |> 
+      resample(template_raster_2, method = "bilinear") |> 
+      resample(template_raster, method = "bilinear")
+  ) +
+  scale_fill_viridis_c(
+    direction = -1,
+    na.value = "transparent"
+  ) +
+  labs(
+    title = "Disaggregated raster (res = 3 km)",
+    subtitle = "Reverting back to high res. leads to loss of data"
+  ) +
+  theme_custom() +
+  theme(
+    legend.position = "bottom"
+  )
+
+g <- g1 + g2 + g3 +
+  plot_layout(nrow = 1) +
+  plot_annotation(
+    tag_levels = "a",
+    tag_prefix = "(",
+    tag_suffix = ")"
+  ) &
+  theme(
+    plot.tag = element_text(
+      size = 36,
+      face = "bold"
+    )
+  )
+
+ggsave(
+  filename = here::here("book_solutions", "images",
+                        "chapter6-e4.png"),
+  height = 800,
+  width = 1800,
+  units = "px"
+)
+```
+
+![Figures showing the (a) Original raster of resolution 3 km, showing number of peaks above 3100 meters in each cell, (b) The raster aggregated to resolution of 6 km, (c) The same aggregted raster disaggregated back to resolution of 3 km, with considerable loss of information and data.](images/chapter6-e4.png){#fig-e4}
+
 ### E5.
 
 **Polygonize the `grain` dataset and filter all squares representing clay.**
@@ -2227,3 +2334,99 @@ df12 |>
 -   **Name two advantages and disadvantages of vector data over raster data.**
 
 -   **When would it be useful to convert rasters to vectors in your work?**
+
+The code chunks below show the polygonization, and filtered data of all squares representing clay (using `as.polygon(aggregate = FALSE)`). The @fig-e5 shows the `grain` dataset and the polygonized `grain_sf` where each row represents a \<POLYGON\> (aggregated).
+
+```{r}
+#| eval: true
+
+grain <- rast(system.file("raster/grain.tif", package = "spData"))
+
+grain |>
+  terra::as.polygons(aggregate = FALSE) |>
+  st_as_sf() |>
+  st_cast("POLYGON") |>
+  filter(grain == "clay")
+```
+
+```{r}
+grain <- rast(system.file("raster/grain.tif", package = "spData"))
+
+grain_sf <- grain |> 
+  terra::as.polygons() |> 
+  st_as_sf() |> 
+  st_cast("POLYGON")
+
+g1 <- ggplot() +
+  geom_spatraster(data = grain) +
+  scale_fill_princess_d() +
+  labs(
+    title = "Base raster; Qualitative",
+    subtitle = "With three discrete values",
+    fill = NULL
+  ) +
+  coord_sf(expand = FALSE) +
+  theme_custom() +
+  theme(legend.position = "none")
+
+g2 <- ggplot() +
+  geom_sf(
+    data = grain_sf,
+    mapping = aes(fill = grain),
+    colour = "white",
+    linewidth = 1
+  ) +
+  scale_fill_princess_d() +
+  labs(
+    title = "Vectorized as aggregated polygons",
+    subtitle = "terra::as.polygons() |> st_as_sf() |> st_cast(`POLYGON`)",
+    fill = NULL
+  ) +
+  coord_sf(expand = FALSE) +
+  theme_custom() +
+  theme(legend.position = "none")
+
+g <- g1 + g2 +
+  plot_layout(nrow = 1) +
+  plot_annotation(
+    tag_levels = "a",
+    tag_prefix = "(",
+    tag_suffix = ")"
+  ) &
+  theme(
+    plot.tag = element_text(
+      size = 36,
+      face = "bold"
+    )
+  )
+
+ggsave(
+  filename = here::here("book_solutions", "images",
+                        "chapter6-e5.png"),
+  height = 800,
+  width = 1700,
+  units = "px"
+)
+```
+
+![Figure showing the (a) raster data for \`grain\`, and (b) the polygonized data with `as.polygons(aggregate = FALSE)`](images/chapter6-e5.png){#fig-e5}
+
+**Advantages of Vector Data Over Raster Data**
+
+1.  Precision in Representation: Vector data precisely represents geographic features such as points, lines, and polygons. It is ideal for applications requiring exact boundaries (e.g., property lines, administrative borders).
+2.  Efficient Storage for Sparse Data: Vectors store only the coordinates of features, making them more efficient for sparse or irregularly distributed data compared to rasters, which store values for all cells, even those with no data.
+
+**Disadvantages of Vector Data Over Raster Data**
+
+1.  Complex Analysis: Performing spatial operations (e.g., overlay, buffering) is computationally more complex with vectors, especially with large datasets.
+2.  Inefficient for Continuous Data: Vector data struggles to efficiently represent continuous phenomena (e.g., elevation, temperature) that vary over space, for which raster data is better suited.
+
+**When to Convert Rasters to Vectors in Your Work**
+
+1.  Feature Extraction: If you need to delineate specific features (e.g., contours from a Digital Elevation Model (DEM) or boundaries of high-value areas), converting a raster to vector allows for precise representation and further analysis.
+
+2.  Integration with Vector Data: For projects requiring alignment or combination with existing vector datasets (e.g., administrative boundaries or transportation networks), converting rasters to vectors ensures compatibility.
+
+3.  Visual Clarity in Maps: Vectors are preferred for creating clear and professional maps where discrete features need labeling or editing.
+
+4.  Custom Analysis: If detailed geometric operations like buffering or intersection analysis are needed, converting rasters into vectors (e.g., polygons of land cover classes) enables such workflows.
