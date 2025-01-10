@@ -1,0 +1,173 @@
+---
+title: "Chapter 7: Reprojecting geographic data"
+subtitle: "Key Learnings from, and Solutions to the exercises in Chapter 7 of the book Geocomputation with R by Robin Lovelace, Jakub Nowosad and Jannes Muenchow."
+date: "2025-01-10"
+author: "Aditya Dahiya"
+bibliography: references.bib
+format:
+  html:
+    code-fold: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: false
+  cache: false
+categories:
+  - "Geocomputation with R"
+  - "Textbook Solutions"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/book_solutions/chapter7.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+```{r}
+#| label: setup
+#| eval: true
+
+library(sf)        # Simple Features in R
+library(terra)     # Handling rasters in R
+library(tidyterra) # For plotting rasters in ggplot2
+library(magrittr)  # Using pipes with raster objects
+library(tidyverse) # All things tidy; Data Wrangling
+library(spData)    # Spatial Datasets
+library(patchwork) # Composing plots
+```
+
+### 7.1 Introduction
+
+-   Coordinate Reference Systems (CRSs): Two main types:
+    -   **Geographic CRS**: A reference system that defines locations on the Earth using a spherical or ellipsoidal model. It specifies positions in terms of latitude and longitude, with angular measurements relative to the Earth's center. Uses longitude/latitude (units in degrees)
+    -   **Projected CRS**: A reference system that transforms the Earth's curved surface into a flat map. It uses linear units like meters and focuses on minimizing distortions in specific aspects such as distance, area, or shape, depending on the map's purpose. Uses meters from a datum (projected system).
+
+| **Aspect** | **Geographic CRS** | **Projected CRS** |
+|------------------|---------------------------|---------------------------|
+| **Definition** | Represents locations on the Earth's surface using a spherical or ellipsoidal model. | Represents locations on a flat, two-dimensional surface using a projected system. |
+| **Units of Measurement** | Uses angular units (degrees of longitude and latitude). | Uses linear units (meters, feet, etc.). |
+| **Coordinate Axes** | Longitude (x-axis) and Latitude (y-axis). | X (east-west) and Y (north-south) in a flat plane. |
+| **Purpose** | Ideal for global-scale mapping and geodetic calculations. | Ideal for local or regional mapping, where accurate distances, angles, and areas are required. |
+| **Accuracy** | Retains accurate angular relationships but distorts distances and areas. | Distorts angular relationships but preserves distances, areas, or shapes (depending on projection). |
+| **Examples** | WGS84 (used in GPS), NAD83. | UTM (Universal Transverse Mercator), State Plane. |
+| **Key Feature** | Geocentric, based on Earth's shape as an ellipsoid. | Flat, derived by projecting the Earth onto a 2D surface using a mathematical formula. |
+| **Applications** | Satellite data, GPS, global navigation systems. | Engineering projects, land use planning, local/regional maps. |
+
+-   **Focus of the Chapter:**
+
+    -   Setting and transforming CRSs in geographic data.
+    -   Highlighting issues caused by ignoring CRSs, especially with lon/lat data.
+
+-   **Practical Relevance:**
+
+    -   Many projects don't require conversion between CRSs but knowing whether your data is in a projected or geographic CRS is critical.
+    -   Understanding CRSs prevents errors and ensures smooth handling of geographic data.
+
+### 7.2 Coordinate Reference Systems
+
+-   **CRS**: Used to transform coordinates between systems.
+-   **PROJ**: Core library for CRS transformations; integrated into R-spatial packages and QGIS.
+-   **Ways to Describe CRSs**:
+    1.  Simple statements: E.g., "lon/lat coordinates" (ambiguous).
+    2.  Proj4 strings: E.g., `+proj=longlat +datum=WGS84` (outdated).
+    3.  Authority:Code strings: E.g., `EPSG:4326` (recommended).
+-   **Preferred Method**: Authority:Code, e.g., **EPSG:4326**:
+    -   Understood by `sf`, `terra`, and other tools.
+    -   Easy to remember and search online (e.g., [epsg.io](https://epsg.io/4326)).
+    -   Machine-readable and unambiguous.
+-   **Detailed CRS Representation**: WKT (Well-Known Text):
+    -   Comprehensive format for CRS description (based on ISO 19111:2019).
+    -   Used for precision and includes all CRS details (datum, ellipsoid, units, etc.).
+    -   Example: `st_crs("EPSG:4326")` outputs full WKT string.
+-   **Authority Identifiers**:
+    -   **EPSG**: Most common authority; standardized CRSs list.
+    -   Other authorities: E.g., `ESRI:54030` (Robinson projection).
+    -   Identifiers are linked to detailed WKT strings for unambiguous use.
+-   WKT vs Identifiers: **WKT Precedence**: In case of conflict, WKT values override identifiers.
+
+::: callout-note
+From the [INBO blog](https://inbo.github.io/tutorials/tutorials/spatial_crs_coding/) tutorial "***Goodbye PROJ.4! How to specify a coordinate reference system in R?***"
+
+-   **Understanding CRS**:
+    -   A CRS interprets numeric coordinates as actual point locations on Earth.
+    -   Two main types:
+        -   *Geodetic CRSs*: Locate coordinates relative to a 3D model of Earth's surface.
+        -   *Projected CRSs*: Convert geodetic coordinates to a 2D map.
+-   **Components of a CRS**:
+    -   Coordinate system.
+    -   Datum: Defines the position relative to Earth, including the ellipsoid.
+    -   For projected CRSs: Parameters for converting geodetic to projected coordinates.
+-   **CRS Identification**: CRSs are cataloged globally, notably in the EPSG dataset, with each assigned a unique EPSG code.
+-   **Best Practices**:
+    -   Adopt WKT representations for CRS definitions to ensure compatibility and future-proofing.
+    -   Familiarize with the EPSG dataset for accurate CRS identification.
+    -   Utilize R's `sf` package for handling spatial data and CRS specifications.
+:::
+
+### 7.3 Querying and Setting Coordinate Systems
+
+-   **CRS in R spatial objects:** Coordinate Reference Systems (CRS) are queried and set in vector and raster geographic data using functions from the `sf` [@sf] and `terra` [@terra-2] packages.
+
+-   **Vector data CRS handling:**
+
+    -   Use [`st_crs()`](https://r-spatial.github.io/sf/reference/st_crs.html) to query CRS in vector objects (e.g., EPSG:4326 for WGS 84).
+    -   CRS metadata includes `User input` (e.g., EPSG code, proj-string) and `wkt` (WKT string with complete CRS details).
+
+-   Additional CRS details can be retrieved: The `st_crs()` function from the **sf** package in R provides detailed information about the Coordinate Reference System (CRS) of spatial objects.
+
+| Attribute | Description | Example Usage |
+|------------------|----------------------------------|--------------------|
+| **IsGeographic** | Indicates if the CRS is geographic (TRUE) or projected (FALSE). | `st_crs(new_vector)$IsGeographic` |
+| **units_gdal** | Specifies the units of measurement used in the CRS, as recognized by GDAL. | `st_crs(new_vector)$units_gdal` |
+| **srid** | Provides the Spatial Reference System Identifier (SRID) associated with the CRS, if available. | `st_crs(new_vector)$srid` |
+| **proj4string** | Returns the PROJ.4 string representation of the CRS, offering a concise textual description. | `st_crs(new_vector)$proj4string` |
+| **WktPretty** | Provides a formatted Well-Known Text (WKT) representation of the CRS for easier readability. | `st_crs(new_vector)$WktPretty` |
+| **InvFlattening** | Provides the inverse flattening value of the ellipsoid, indicating its compression. | `st_crs(new_vector)$InvFlattening` |
+| **Name** | Retrieves the official name of the CRS. | `st_crs(new_vector)$Name` |
+| **epsg** | Returns the EPSG code associated with the CRS, if available. | `st_crs(new_vector)$epsg` |
+| **yx** | Indicates whether the axis order is latitude-longitude (TRUE) or longitude-latitude (FALSE). | `st_crs(new_vector)$yx` |
+| **ud_unit** | Returns the units object associated with the CRS, or NULL if units are missing. | `st_crs(new_vector)$ud_unit` |
+| **axes** | Provides information about the axes of the CRS, including their names and units. | `st_crs(new_vector)$axes` |
+
+-   **Use [`st_set_crs()`](https://r-spatial.github.io/sf/reference/st_set_crs.html) to manually set or correct a CRS.** Both `st_set_crs()` and the assignment method `st_crs(object) <- value` are used to define or modify the Coordinate Reference System (CRS) of spatial objects.
+
+    -   `st_set_crs()` is a function call, which can be advantageous when using pipes (`|>`) in a workflow.
+
+    -   Both methods assign CRS metadata to the spatial object without altering the actual coordinate values or geometries.
+
+    -   To transform the coordinates to a different CRS, the `st_transform()` function should be used.
+
+    -   Assigning a CRS is akin to labeling data with its existing coordinate system, whereas transforming reprojects the data into a new coordinate system.
+
+-   **Validate CRS with `st_is_longlat()`.**
+
+    -   The function **`st_is_longlat()`** in the **sf** package is used to check whether the Coordinate Reference System (CRS) of a spatial object is based on a geographic coordinate system (latitude and longitude). It's Return Value can be: —
+
+        -   TRUE: The object has a geographic CRS (e.g., EPSG:4326).
+
+        -   FALSE: The object has a projected CRS.
+
+        -   NA: The CRS is undefined (e.g., no metadata about the coordinate system is set).
+
+-   **Raster data CRS handling:**
+
+    -   Use [`crs()`](https://rspatial.org/terra/reference/crs.html) from the {terra} package to query and set CRS for raster objects.
+    -   Outputs CRS as a WKT string.
+    -   Set CRS with EPSG codes, WKT strings, or CRSs from other objects (e.g., `crs(my_raster) = "EPSG:26912"`).
+
+-   **Important considerations:**
+
+    -   `st_crs()` and `crs()` only set metadata; they do not modify coordinate values or geometries.
+    -   Missing CRS in datasets (e.g., `NA` output in `st_is_longlat()`) indicates that CRS must be explicitly defined (e.g., using `st_set_crs()`).
+
+-   CRS assumptions: R avoids assumptions about CRS (e.g., unlike GeoJSON which defaults to EPSG:4326).

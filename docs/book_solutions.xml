@@ -10,7 +10,333 @@
 <atom:link href="https://aditya-dahiya.github.io/visage/index.html/book_solutions.xml" rel="self" type="application/rss+xml"/>
 <description>Visualizing Information and Spatial Analysis with ggplot2 Extensions</description>
 <generator>quarto-1.5.57</generator>
-<lastBuildDate>Thu, 26 Dec 2024 18:30:00 GMT</lastBuildDate>
+<lastBuildDate>Thu, 09 Jan 2025 18:30:00 GMT</lastBuildDate>
+<item>
+  <title>Chapter 7: Reprojecting geographic data</title>
+  <dc:creator>Aditya Dahiya</dc:creator>
+  <link>https://aditya-dahiya.github.io/visage/index.html/book_solutions/chapter7.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(sf)        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Simple Features in R</span></span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(terra)     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Handling rasters in R</span></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyterra) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># For plotting rasters in ggplot2</span></span>
+<span id="cb1-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(magrittr)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Using pipes with raster objects</span></span>
+<span id="cb1-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># All things tidy; Data Wrangling</span></span>
+<span id="cb1-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(spData)    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Spatial Datasets</span></span>
+<span id="cb1-7"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(patchwork) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Composing plots</span></span></code></pre></div>
+</details>
+</div>
+<section id="introduction" class="level3">
+<h3 class="anchored" data-anchor-id="introduction">7.1 Introduction</h3>
+<ul>
+<li>Coordinate Reference Systems (CRSs): Two main types:
+<ul>
+<li><strong>Geographic CRS</strong>: A reference system that defines locations on the Earth using a spherical or ellipsoidal model. It specifies positions in terms of latitude and longitude, with angular measurements relative to the Earth’s center. Uses longitude/latitude (units in degrees)</li>
+<li><strong>Projected CRS</strong>: A reference system that transforms the Earth’s curved surface into a flat map. It uses linear units like meters and focuses on minimizing distortions in specific aspects such as distance, area, or shape, depending on the map’s purpose. Uses meters from a datum (projected system).</li>
+</ul></li>
+</ul>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 37%">
+<col style="width: 37%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Aspect</strong></th>
+<th><strong>Geographic CRS</strong></th>
+<th><strong>Projected CRS</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Definition</strong></td>
+<td>Represents locations on the Earth’s surface using a spherical or ellipsoidal model.</td>
+<td>Represents locations on a flat, two-dimensional surface using a projected system.</td>
+</tr>
+<tr class="even">
+<td><strong>Units of Measurement</strong></td>
+<td>Uses angular units (degrees of longitude and latitude).</td>
+<td>Uses linear units (meters, feet, etc.).</td>
+</tr>
+<tr class="odd">
+<td><strong>Coordinate Axes</strong></td>
+<td>Longitude (x-axis) and Latitude (y-axis).</td>
+<td>X (east-west) and Y (north-south) in a flat plane.</td>
+</tr>
+<tr class="even">
+<td><strong>Purpose</strong></td>
+<td>Ideal for global-scale mapping and geodetic calculations.</td>
+<td>Ideal for local or regional mapping, where accurate distances, angles, and areas are required.</td>
+</tr>
+<tr class="odd">
+<td><strong>Accuracy</strong></td>
+<td>Retains accurate angular relationships but distorts distances and areas.</td>
+<td>Distorts angular relationships but preserves distances, areas, or shapes (depending on projection).</td>
+</tr>
+<tr class="even">
+<td><strong>Examples</strong></td>
+<td>WGS84 (used in GPS), NAD83.</td>
+<td>UTM (Universal Transverse Mercator), State Plane.</td>
+</tr>
+<tr class="odd">
+<td><strong>Key Feature</strong></td>
+<td>Geocentric, based on Earth’s shape as an ellipsoid.</td>
+<td>Flat, derived by projecting the Earth onto a 2D surface using a mathematical formula.</td>
+</tr>
+<tr class="even">
+<td><strong>Applications</strong></td>
+<td>Satellite data, GPS, global navigation systems.</td>
+<td>Engineering projects, land use planning, local/regional maps.</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p><strong>Focus of the Chapter:</strong></p>
+<ul>
+<li>Setting and transforming CRSs in geographic data.</li>
+<li>Highlighting issues caused by ignoring CRSs, especially with lon/lat data.</li>
+</ul></li>
+<li><p><strong>Practical Relevance:</strong></p>
+<ul>
+<li>Many projects don’t require conversion between CRSs but knowing whether your data is in a projected or geographic CRS is critical.</li>
+<li>Understanding CRSs prevents errors and ensures smooth handling of geographic data.</li>
+</ul></li>
+</ul>
+</section>
+<section id="coordinate-reference-systems" class="level3">
+<h3 class="anchored" data-anchor-id="coordinate-reference-systems">7.2 Coordinate Reference Systems</h3>
+<ul>
+<li><strong>CRS</strong>: Used to transform coordinates between systems.</li>
+<li><strong>PROJ</strong>: Core library for CRS transformations; integrated into R-spatial packages and QGIS.</li>
+<li><strong>Ways to Describe CRSs</strong>:
+<ol type="1">
+<li>Simple statements: E.g., “lon/lat coordinates” (ambiguous).</li>
+<li>Proj4 strings: E.g., <code>+proj=longlat +datum=WGS84</code> (outdated).</li>
+<li>Authority:Code strings: E.g., <code>EPSG:4326</code> (recommended).</li>
+</ol></li>
+<li><strong>Preferred Method</strong>: Authority:Code, e.g., <strong>EPSG:4326</strong>:
+<ul>
+<li>Understood by <code>sf</code>, <code>terra</code>, and other tools.</li>
+<li>Easy to remember and search online (e.g., <a href="https://epsg.io/4326">epsg.io</a>).</li>
+<li>Machine-readable and unambiguous.</li>
+</ul></li>
+<li><strong>Detailed CRS Representation</strong>: WKT (Well-Known Text):
+<ul>
+<li>Comprehensive format for CRS description (based on ISO 19111:2019).</li>
+<li>Used for precision and includes all CRS details (datum, ellipsoid, units, etc.).</li>
+<li>Example: <code>st_crs("EPSG:4326")</code> outputs full WKT string.</li>
+</ul></li>
+<li><strong>Authority Identifiers</strong>:
+<ul>
+<li><strong>EPSG</strong>: Most common authority; standardized CRSs list.</li>
+<li>Other authorities: E.g., <code>ESRI:54030</code> (Robinson projection).</li>
+<li>Identifiers are linked to detailed WKT strings for unambiguous use.</li>
+</ul></li>
+<li>WKT vs Identifiers: <strong>WKT Precedence</strong>: In case of conflict, WKT values override identifiers.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>From the <a href="https://inbo.github.io/tutorials/tutorials/spatial_crs_coding/">INBO blog</a> tutorial “<strong><em>Goodbye PROJ.4! How to specify a coordinate reference system in R?</em></strong>”</p>
+<ul>
+<li><strong>Understanding CRS</strong>:
+<ul>
+<li>A CRS interprets numeric coordinates as actual point locations on Earth.</li>
+<li>Two main types:
+<ul>
+<li><em>Geodetic CRSs</em>: Locate coordinates relative to a 3D model of Earth’s surface.</li>
+<li><em>Projected CRSs</em>: Convert geodetic coordinates to a 2D map.</li>
+</ul></li>
+</ul></li>
+<li><strong>Components of a CRS</strong>:
+<ul>
+<li>Coordinate system.</li>
+<li>Datum: Defines the position relative to Earth, including the ellipsoid.</li>
+<li>For projected CRSs: Parameters for converting geodetic to projected coordinates.</li>
+</ul></li>
+<li><strong>CRS Identification</strong>: CRSs are cataloged globally, notably in the EPSG dataset, with each assigned a unique EPSG code.</li>
+<li><strong>Best Practices</strong>:
+<ul>
+<li>Adopt WKT representations for CRS definitions to ensure compatibility and future-proofing.</li>
+<li>Familiarize with the EPSG dataset for accurate CRS identification.</li>
+<li>Utilize R’s <code>sf</code> package for handling spatial data and CRS specifications.</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="querying-and-setting-coordinate-systems" class="level3">
+<h3 class="anchored" data-anchor-id="querying-and-setting-coordinate-systems">7.3 Querying and Setting Coordinate Systems</h3>
+<ul>
+<li><p><strong>CRS in R spatial objects:</strong> Coordinate Reference Systems (CRS) are queried and set in vector and raster geographic data using functions from the <code>sf</code> <span class="citation" data-cites="sf">(Pebesma and Bivand 2023)</span> and <code>terra</code> <span class="citation" data-cites="terra-2">(Hijmans 2024)</span> packages.</p></li>
+<li><p><strong>Vector data CRS handling:</strong></p>
+<ul>
+<li>Use <a href="https://r-spatial.github.io/sf/reference/st_crs.html"><code>st_crs()</code></a> to query CRS in vector objects (e.g., EPSG:4326 for WGS 84).</li>
+<li>CRS metadata includes <code>User input</code> (e.g., EPSG code, proj-string) and <code>wkt</code> (WKT string with complete CRS details).</li>
+</ul></li>
+<li><p>Additional CRS details can be retrieved: The <code>st_crs()</code> function from the <strong>sf</strong> package in R provides detailed information about the Coordinate Reference System (CRS) of spatial objects.</p></li>
+</ul>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 47%">
+<col style="width: 27%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Attribute</th>
+<th>Description</th>
+<th>Example Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>IsGeographic</strong></td>
+<td>Indicates if the CRS is geographic (TRUE) or projected (FALSE).</td>
+<td><code>st_crs(new_vector)$IsGeographic</code></td>
+</tr>
+<tr class="even">
+<td><strong>units_gdal</strong></td>
+<td>Specifies the units of measurement used in the CRS, as recognized by GDAL.</td>
+<td><code>st_crs(new_vector)$units_gdal</code></td>
+</tr>
+<tr class="odd">
+<td><strong>srid</strong></td>
+<td>Provides the Spatial Reference System Identifier (SRID) associated with the CRS, if available.</td>
+<td><code>st_crs(new_vector)$srid</code></td>
+</tr>
+<tr class="even">
+<td><strong>proj4string</strong></td>
+<td>Returns the PROJ.4 string representation of the CRS, offering a concise textual description.</td>
+<td><code>st_crs(new_vector)$proj4string</code></td>
+</tr>
+<tr class="odd">
+<td><strong>WktPretty</strong></td>
+<td>Provides a formatted Well-Known Text (WKT) representation of the CRS for easier readability.</td>
+<td><code>st_crs(new_vector)$WktPretty</code></td>
+</tr>
+<tr class="even">
+<td><strong>InvFlattening</strong></td>
+<td>Provides the inverse flattening value of the ellipsoid, indicating its compression.</td>
+<td><code>st_crs(new_vector)$InvFlattening</code></td>
+</tr>
+<tr class="odd">
+<td><strong>Name</strong></td>
+<td>Retrieves the official name of the CRS.</td>
+<td><code>st_crs(new_vector)$Name</code></td>
+</tr>
+<tr class="even">
+<td><strong>epsg</strong></td>
+<td>Returns the EPSG code associated with the CRS, if available.</td>
+<td><code>st_crs(new_vector)$epsg</code></td>
+</tr>
+<tr class="odd">
+<td><strong>yx</strong></td>
+<td>Indicates whether the axis order is latitude-longitude (TRUE) or longitude-latitude (FALSE).</td>
+<td><code>st_crs(new_vector)$yx</code></td>
+</tr>
+<tr class="even">
+<td><strong>ud_unit</strong></td>
+<td>Returns the units object associated with the CRS, or NULL if units are missing.</td>
+<td><code>st_crs(new_vector)$ud_unit</code></td>
+</tr>
+<tr class="odd">
+<td><strong>axes</strong></td>
+<td>Provides information about the axes of the CRS, including their names and units.</td>
+<td><code>st_crs(new_vector)$axes</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p><strong>Use <a href="https://r-spatial.github.io/sf/reference/st_set_crs.html"><code>st_set_crs()</code></a> to manually set or correct a CRS.</strong> Both <code>st_set_crs()</code> and the assignment method <code>st_crs(object) &lt;- value</code> are used to define or modify the Coordinate Reference System (CRS) of spatial objects.</p>
+<ul>
+<li><p><code>st_set_crs()</code> is a function call, which can be advantageous when using pipes (<code>|&gt;</code>) in a workflow.</p></li>
+<li><p>Both methods assign CRS metadata to the spatial object without altering the actual coordinate values or geometries.</p></li>
+<li><p>To transform the coordinates to a different CRS, the <code>st_transform()</code> function should be used.</p></li>
+<li><p>Assigning a CRS is akin to labeling data with its existing coordinate system, whereas transforming reprojects the data into a new coordinate system.</p></li>
+</ul></li>
+<li><p><strong>Validate CRS with <code>st_is_longlat()</code>.</strong></p>
+<ul>
+<li><p>The function <strong><code>st_is_longlat()</code></strong> in the <strong>sf</strong> package is used to check whether the Coordinate Reference System (CRS) of a spatial object is based on a geographic coordinate system (latitude and longitude). It’s Return Value can be: —</p>
+<ul>
+<li><p>TRUE: The object has a geographic CRS (e.g., EPSG:4326).</p></li>
+<li><p>FALSE: The object has a projected CRS.</p></li>
+<li><p>NA: The CRS is undefined (e.g., no metadata about the coordinate system is set).</p></li>
+</ul></li>
+</ul></li>
+<li><p><strong>Raster data CRS handling:</strong></p>
+<ul>
+<li>Use <a href="https://rspatial.org/terra/reference/crs.html"><code>crs()</code></a> from the {terra} package to query and set CRS for raster objects.</li>
+<li>Outputs CRS as a WKT string.</li>
+<li>Set CRS with EPSG codes, WKT strings, or CRSs from other objects (e.g., <code>crs(my_raster) = "EPSG:26912"</code>).</li>
+</ul></li>
+<li><p><strong>Important considerations:</strong></p>
+<ul>
+<li><code>st_crs()</code> and <code>crs()</code> only set metadata; they do not modify coordinate values or geometries.</li>
+<li>Missing CRS in datasets (e.g., <code>NA</code> output in <code>st_is_longlat()</code>) indicates that CRS must be explicitly defined (e.g., using <code>st_set_crs()</code>).</li>
+</ul></li>
+<li><p>CRS assumptions: R avoids assumptions about CRS (e.g., unlike GeoJSON which defaults to EPSG:4326).</p></li>
+</ul>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0">
+<div id="ref-terra-2" class="csl-entry">
+Hijmans, Robert J. 2024. <span>“Terra: Spatial Data Analysis.”</span> <a href="https://CRAN.R-project.org/package=terra">https://CRAN.R-project.org/package=terra</a>.
+</div>
+<div id="ref-sf" class="csl-entry">
+Pebesma, Edzer, and Roger Bivand. 2023. <span>“<span></span>Spatial Data Science: With Applications in r<span></span>.”</span> <a href="https://doi.org/10.1201/9780429459016">https://doi.org/10.1201/9780429459016</a>.
+</div>
+</div></section></div> ]]></description>
+  <category>Geocomputation with R</category>
+  <category>Textbook Solutions</category>
+  <guid>https://aditya-dahiya.github.io/visage/index.html/book_solutions/chapter7.html</guid>
+  <pubDate>Thu, 09 Jan 2025 18:30:00 GMT</pubDate>
+</item>
 <item>
   <title>Chapter 6: Raster-vector interactions</title>
   <dc:creator>Aditya Dahiya</dc:creator>
@@ -9934,23 +10260,23 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
 </figcaption>
 <div aria-describedby="tbl-e2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="ivgaxmdwzz" class=".gt_table" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ivgaxmdwzz table {
+<div id="stmvqkrnfm" class=".gt_table" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#stmvqkrnfm table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ivgaxmdwzz thead, #ivgaxmdwzz tbody, #ivgaxmdwzz tfoot, #ivgaxmdwzz tr, #ivgaxmdwzz td, #ivgaxmdwzz th {
+#stmvqkrnfm thead, #stmvqkrnfm tbody, #stmvqkrnfm tfoot, #stmvqkrnfm tr, #stmvqkrnfm td, #stmvqkrnfm th {
   border-style: none;
 }
 
-#ivgaxmdwzz p {
+#stmvqkrnfm p {
   margin: 0;
   padding: 0;
 }
 
-#ivgaxmdwzz .gt_table {
+#stmvqkrnfm .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -9976,12 +10302,12 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   border-left-color: #D3D3D3;
 }
 
-#ivgaxmdwzz .gt_caption {
+#stmvqkrnfm .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ivgaxmdwzz .gt_title {
+#stmvqkrnfm .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -9993,7 +10319,7 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   border-bottom-width: 0;
 }
 
-#ivgaxmdwzz .gt_subtitle {
+#stmvqkrnfm .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -10005,7 +10331,7 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   border-top-width: 0;
 }
 
-#ivgaxmdwzz .gt_heading {
+#stmvqkrnfm .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -10017,13 +10343,13 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   border-right-color: #D3D3D3;
 }
 
-#ivgaxmdwzz .gt_bottom_border {
+#stmvqkrnfm .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ivgaxmdwzz .gt_col_headings {
+#stmvqkrnfm .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -10038,7 +10364,7 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   border-right-color: #D3D3D3;
 }
 
-#ivgaxmdwzz .gt_col_heading {
+#stmvqkrnfm .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -10058,7 +10384,7 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   overflow-x: hidden;
 }
 
-#ivgaxmdwzz .gt_column_spanner_outer {
+#stmvqkrnfm .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -10070,15 +10396,15 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   padding-right: 4px;
 }
 
-#ivgaxmdwzz .gt_column_spanner_outer:first-child {
+#stmvqkrnfm .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ivgaxmdwzz .gt_column_spanner_outer:last-child {
+#stmvqkrnfm .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ivgaxmdwzz .gt_column_spanner {
+#stmvqkrnfm .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -10090,11 +10416,11 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   width: 100%;
 }
 
-#ivgaxmdwzz .gt_spanner_row {
+#stmvqkrnfm .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ivgaxmdwzz .gt_group_heading {
+#stmvqkrnfm .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -10120,7 +10446,7 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   text-align: left;
 }
 
-#ivgaxmdwzz .gt_empty_group_heading {
+#stmvqkrnfm .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -10135,15 +10461,15 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   vertical-align: middle;
 }
 
-#ivgaxmdwzz .gt_from_md > :first-child {
+#stmvqkrnfm .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ivgaxmdwzz .gt_from_md > :last-child {
+#stmvqkrnfm .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ivgaxmdwzz .gt_row {
+#stmvqkrnfm .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -10162,7 +10488,7 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   overflow-x: hidden;
 }
 
-#ivgaxmdwzz .gt_stub {
+#stmvqkrnfm .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -10175,7 +10501,7 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   padding-right: 5px;
 }
 
-#ivgaxmdwzz .gt_stub_row_group {
+#stmvqkrnfm .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -10189,15 +10515,15 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   vertical-align: top;
 }
 
-#ivgaxmdwzz .gt_row_group_first td {
+#stmvqkrnfm .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ivgaxmdwzz .gt_row_group_first th {
+#stmvqkrnfm .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ivgaxmdwzz .gt_summary_row {
+#stmvqkrnfm .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -10207,16 +10533,16 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   padding-right: 5px;
 }
 
-#ivgaxmdwzz .gt_first_summary_row {
+#stmvqkrnfm .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ivgaxmdwzz .gt_first_summary_row.thick {
+#stmvqkrnfm .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ivgaxmdwzz .gt_last_summary_row {
+#stmvqkrnfm .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -10226,7 +10552,7 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   border-bottom-color: #D3D3D3;
 }
 
-#ivgaxmdwzz .gt_grand_summary_row {
+#stmvqkrnfm .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -10236,7 +10562,7 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   padding-right: 5px;
 }
 
-#ivgaxmdwzz .gt_first_grand_summary_row {
+#stmvqkrnfm .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -10246,7 +10572,7 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   border-top-color: #D3D3D3;
 }
 
-#ivgaxmdwzz .gt_last_grand_summary_row_top {
+#stmvqkrnfm .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -10256,11 +10582,11 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   border-bottom-color: #D3D3D3;
 }
 
-#ivgaxmdwzz .gt_striped {
+#stmvqkrnfm .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ivgaxmdwzz .gt_table_body {
+#stmvqkrnfm .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -10269,7 +10595,7 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   border-bottom-color: #D3D3D3;
 }
 
-#ivgaxmdwzz .gt_footnotes {
+#stmvqkrnfm .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -10283,7 +10609,7 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   border-right-color: #D3D3D3;
 }
 
-#ivgaxmdwzz .gt_footnote {
+#stmvqkrnfm .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -10292,7 +10618,7 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   padding-right: 5px;
 }
 
-#ivgaxmdwzz .gt_sourcenotes {
+#stmvqkrnfm .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -10306,7 +10632,7 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   border-right-color: #D3D3D3;
 }
 
-#ivgaxmdwzz .gt_sourcenote {
+#stmvqkrnfm .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -10314,77 +10640,68 @@ Table&nbsp;1: A table on the height of points, mean height inside the buffer zon
   padding-right: 5px;
 }
 
-#ivgaxmdwzz .gt_left {
+#stmvqkrnfm .gt_left {
   text-align: left;
 }
 
-#ivgaxmdwzz .gt_center {
+#stmvqkrnfm .gt_center {
   text-align: center;
 }
 
-#ivgaxmdwzz .gt_right {
+#stmvqkrnfm .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ivgaxmdwzz .gt_font_normal {
+#stmvqkrnfm .gt_font_normal {
   font-weight: normal;
 }
 
-#ivgaxmdwzz .gt_font_bold {
+#stmvqkrnfm .gt_font_bold {
   font-weight: bold;
 }
 
-#ivgaxmdwzz .gt_font_italic {
+#stmvqkrnfm .gt_font_italic {
   font-style: italic;
 }
 
-#ivgaxmdwzz .gt_super {
+#stmvqkrnfm .gt_super {
   font-size: 65%;
 }
 
-#ivgaxmdwzz .gt_footnote_marks {
+#stmvqkrnfm .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ivgaxmdwzz .gt_asterisk {
+#stmvqkrnfm .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ivgaxmdwzz .gt_indent_1 {
+#stmvqkrnfm .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ivgaxmdwzz .gt_indent_2 {
+#stmvqkrnfm .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ivgaxmdwzz .gt_indent_3 {
+#stmvqkrnfm .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ivgaxmdwzz .gt_indent_4 {
+#stmvqkrnfm .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ivgaxmdwzz .gt_indent_5 {
+#stmvqkrnfm .gt_indent_5 {
   text-indent: 25px;
 }
-
-#ivgaxmdwzz .katex-display {
-  display: inline-flex !important;
-  margin-bottom: 0.75em !important;
-}
-
-#ivgaxmdwzz div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
-  height: 0px !important;
-}
 </style>
-<div id="ivgaxmdwzz" class="reactable html-widget" style="width:auto;height:auto;"></div>
-<script type="application/json" data-for="ivgaxmdwzz">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"ID":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30],"height_on_points":[1802,2433,1886,1370,1452,1635,1380,2032,1830,1860,1440,2145,1942,1691,1776,2198,1820,1349,1758,1424,2159,1809,1826,1550,1799,2102,2118,1372,1905,1574],"mean_height_in_buffer_zone":[1803.5,2418.75,1875,1385.66666666667,1411.33333333333,1629,1378.25,2040.25,1812.5,1863,1485,2163.25,1930,1689.25,1770.6,2197.75,1820.25,1342.25,1755.5,1432.25,2163,1799.25,1815.5,1557.25,1818.75,2084,2112.75,1381,1906.5,1568.75],"mean_with_exact_fractions":[1802.00133958487,2424.45674770282,1876.08426481862,1392.71469762041,1418.32776902309,1634.65560885957,1382.29661439712,2036.58308765316,1820.0303014567,1862.25146840549,1474.00216389597,2156.26597640816,1928.10327037732,1690.96565049072,1772.48742394502,2199.49153660086,1814.37498800353,1346.31074580787,1750.9561283278,1432.07177081194,2162.75811241747,1799.24374331498,1818.16628377294,1555.46331837623,1815.26746442256,2084.60258183394,2114.31006688883,1382.04095054598,1907.24485439106,1568.26154119403],"difference":[1.5,-14.25,-11,15.6666666666667,-40.6666666666667,-6,-1.75,8.25,-17.5,3,45,18.25,-12,-1.75,-5.40000000000009,-0.25,0.25,-6.75,-2.5,8.25,4,-9.75,-10.5,7.25,19.75,-18,-5.25,9,1.5,-5.25]},"columns":[{"id":"ID","name":"Id","type":"numeric","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right","headerStyle":{"font-weight":"normal"}},{"id":"height_on_points","name":"Height on Points","type":"numeric","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","cell":["1,802","2,433","1,886","1,370","1,452","1,635","1,380","2,032","1,830","1,860","1,440","2,145","1,942","1,691","1,776","2,198","1,820","1,349","1,758","1,424","2,159","1,809","1,826","1,550","1,799","2,102","2,118","1,372","1,905","1,574"],"html":true,"align":"right","headerStyle":{"font-weight":"normal"}},{"id":"mean_height_in_buffer_zone","name":"Mean Height in Buffer Zone","type":"numeric","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","cell":["1,804","2,419","1,875","1,386","1,411","1,629","1,378","2,040","1,812","1,863","1,485","2,163","1,930","1,689","1,771","2,198","1,820","1,342","1,756","1,432","2,163","1,799","1,816","1,557","1,819","2,084","2,113","1,381","1,906","1,569"],"html":true,"align":"right","headerStyle":{"font-weight":"normal"}},{"id":"mean_with_exact_fractions","name":"Mean with Exact Fractions","type":"numeric","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","cell":["1,802","2,424","1,876","1,393","1,418","1,635","1,382","2,037","1,820","1,862","1,474","2,156","1,928","1,691","1,772","2,199","1,814","1,346","1,751","1,432","2,163","1,799","1,818","1,555","1,815","2,085","2,114","1,382","1,907","1,568"],"html":true,"align":"right","headerStyle":{"font-weight":"normal"}},{"id":"difference","name":"Difference","type":"numeric","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","cell":["2","−14","−11","16","−41","−6","−2","8","−18","3","45","18","−12","−2","−5","0","0","−7","−2","8","4","−10","−10","7","20","−18","−5","9","2","−5"],"html":true,"align":"right","headerStyle":{"font-weight":"normal"}}],"defaultPageSize":10,"showPageSizeOptions":false,"pageSizeOptions":[10,25,50,100],"paginationType":"numbers","showPagination":true,"showPageInfo":true,"minRows":1,"height":"auto","theme":{"color":"#333333","backgroundColor":"#FFFFFF","stripedColor":"rgba(128,128,128,0.05)","style":{"fontFamily":"system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"},"tableStyle":{"borderTopStyle":"solid","borderTopWidth":"2px","borderTopColor":"#D3D3D3"},"headerStyle":{"borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"#D3D3D3"}},"elementId":"ivgaxmdwzz","dataKey":"2e7de38d2c31c60d603a0df08a98d12a"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.style","tag.attribs.columns.1.style","tag.attribs.columns.2.style","tag.attribs.columns.3.style","tag.attribs.columns.4.style"],"jsHooks":[]}</script>
+<div id="stmvqkrnfm" class="reactable html-widget" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="stmvqkrnfm">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"ID":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30],"height_on_points":[1802,2433,1886,1370,1452,1635,1380,2032,1830,1860,1440,2145,1942,1691,1776,2198,1820,1349,1758,1424,2159,1809,1826,1550,1799,2102,2118,1372,1905,1574],"mean_height_in_buffer_zone":[1803.5,2418.75,1875,1385.66666666667,1411.33333333333,1629,1378.25,2040.25,1812.5,1863,1485,2163.25,1930,1689.25,1770.6,2197.75,1820.25,1342.25,1755.5,1432.25,2163,1799.25,1815.5,1557.25,1818.75,2084,2112.75,1381,1906.5,1568.75],"mean_with_exact_fractions":[1802.00133958487,2424.45674770282,1876.08426481862,1392.71469762041,1418.32776902309,1634.65560885957,1382.29661439712,2036.58308765316,1820.0303014567,1862.25146840549,1474.00216389597,2156.26597640816,1928.10327037732,1690.96565049072,1772.48742394502,2199.49153660086,1814.37498800353,1346.31074580787,1750.9561283278,1432.07177081194,2162.75811241747,1799.24374331498,1818.16628377294,1555.46331837623,1815.26746442256,2084.60258183394,2114.31006688883,1382.04095054598,1907.24485439106,1568.26154119403],"difference":[1.5,-14.25,-11,15.6666666666667,-40.6666666666667,-6,-1.75,8.25,-17.5,3,45,18.25,-12,-1.75,-5.40000000000009,-0.25,0.25,-6.75,-2.5,8.25,4,-9.75,-10.5,7.25,19.75,-18,-5.25,9,1.5,-5.25]},"columns":[{"id":"ID","name":"Id","type":"numeric","style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","cell":["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30"],"html":true,"align":"right","headerStyle":{"font-weight":"normal"}},{"id":"height_on_points","name":"Height on Points","type":"numeric","style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","cell":["1,802","2,433","1,886","1,370","1,452","1,635","1,380","2,032","1,830","1,860","1,440","2,145","1,942","1,691","1,776","2,198","1,820","1,349","1,758","1,424","2,159","1,809","1,826","1,550","1,799","2,102","2,118","1,372","1,905","1,574"],"html":true,"align":"right","headerStyle":{"font-weight":"normal"}},{"id":"mean_height_in_buffer_zone","name":"Mean Height in Buffer Zone","type":"numeric","style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","cell":["1,804","2,419","1,875","1,386","1,411","1,629","1,378","2,040","1,812","1,863","1,485","2,163","1,930","1,689","1,771","2,198","1,820","1,342","1,756","1,432","2,163","1,799","1,816","1,557","1,819","2,084","2,113","1,381","1,906","1,569"],"html":true,"align":"right","headerStyle":{"font-weight":"normal"}},{"id":"mean_with_exact_fractions","name":"Mean with Exact Fractions","type":"numeric","style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","cell":["1,802","2,424","1,876","1,393","1,418","1,635","1,382","2,037","1,820","1,862","1,474","2,156","1,928","1,691","1,772","2,199","1,814","1,346","1,751","1,432","2,163","1,799","1,818","1,555","1,815","2,085","2,114","1,382","1,907","1,568"],"html":true,"align":"right","headerStyle":{"font-weight":"normal"}},{"id":"difference","name":"Difference","type":"numeric","style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","cell":["2","−14","−11","16","−41","−6","−2","8","−18","3","45","18","−12","−2","−5","0","0","−7","−2","8","4","−10","−10","7","20","−18","−5","9","2","−5"],"html":true,"align":"right","headerStyle":{"font-weight":"normal"}}],"defaultPageSize":10,"showPageSizeOptions":false,"pageSizeOptions":[10,25,50,100],"paginationType":"numbers","showPagination":true,"showPageInfo":true,"minRows":1,"showSortable":true,"height":"auto","theme":{"color":"#333333","backgroundColor":"#FFFFFF","stripedColor":"rgba(128,128,128,0.05)","style":{"fontFamily":"system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"},"headerStyle":{"borderTopStyle":"solid","borderTopWidth":"2px","borderTopColor":"#D3D3D3","borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"#D3D3D3"}},"elementId":"stmvqkrnfm","dataKey":"08154326de97edd4c81e2f1339dae33b"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.style","tag.attribs.columns.1.style","tag.attribs.columns.2.style","tag.attribs.columns.3.style","tag.attribs.columns.4.style"],"jsHooks":[]}</script>
 </div>
 </div>
 </div>
@@ -10614,7 +10931,7 @@ font-style: inherit;">labs</span>(</span>
 background-color: null;
 font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"Maximum height per cell"</span>,</span>
+font-style: inherit;">"Number of peaks per cell"</span>,</span>
 <span id="cb19-53">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
@@ -10670,7 +10987,7 @@ font-style: inherit;">labs</span>(</span>
 background-color: null;
 font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"Number of peaks per cell"</span>,</span>
+font-style: inherit;">"Maximum height per cell"</span>,</span>
 <span id="cb19-67">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
@@ -10717,35 +11034,45 @@ font-style: inherit;">plot_annotation</span>(</span>
 background-color: null;
 font-style: inherit;">tag_levels =</span> <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"a"</span></span>
-<span id="cb19-78">  ) <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">"a"</span>,</span>
+<span id="cb19-78">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_prefix =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"("</span>,</span>
+<span id="cb19-79">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_suffix =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">")"</span></span>
+<span id="cb19-80">  ) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">&amp;</span></span>
-<span id="cb19-79">  <span class="fu" style="color: #4758AB;
+<span id="cb19-81">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">theme</span>(</span>
-<span id="cb19-80">    <span class="at" style="color: #657422;
+<span id="cb19-82">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">plot.tag =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">element_text</span>(</span>
-<span id="cb19-81">      <span class="at" style="color: #657422;
+<span id="cb19-83">      <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">24</span>,</span>
-<span id="cb19-82">      <span class="at" style="color: #657422;
+font-style: inherit;">36</span>,</span>
+<span id="cb19-84">      <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">face =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"bold"</span></span>
-<span id="cb19-83">    )</span>
-<span id="cb19-84">  )</span>
-<span id="cb19-85"></span>
-<span id="cb19-86"><span class="fu" style="color: #4758AB;
+<span id="cb19-85">    )</span>
+<span id="cb19-86">  )</span>
+<span id="cb19-87"></span>
+<span id="cb19-88"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggsave</span>(</span>
-<span id="cb19-87">  <span class="at" style="color: #657422;
+<span id="cb19-89">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -10756,34 +11083,34 @@ background-color: null;
 font-style: inherit;">"book_solutions"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"images"</span>,</span>
-<span id="cb19-88">                        <span class="st" style="color: #20794D;
+<span id="cb19-90">                        <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"chapter6-e3.png"</span>),</span>
-<span id="cb19-89">  <span class="at" style="color: #657422;
+<span id="cb19-91">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">800</span>,</span>
-<span id="cb19-90">  <span class="at" style="color: #657422;
+<span id="cb19-92">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1600</span>,</span>
-<span id="cb19-91">  <span class="at" style="color: #657422;
+<span id="cb19-93">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"px"</span></span>
-<span id="cb19-92">)</span></code></pre></div>
+<span id="cb19-94">)</span></code></pre></div>
 </details>
 </div>
 <div id="fig-e3" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-e3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<a href="images/chapter6-e3.png" class="lightbox" data-gallery="quarto-lightbox-gallery-15" title="Figure&nbsp;15: Exercise E3 Solutions"><img src="https://aditya-dahiya.github.io/visage/index.html/book_solutions/images/chapter6-e3.png" class="img-fluid figure-img"></a>
+<a href="images/chapter6-e3.png" class="lightbox" data-gallery="quarto-lightbox-gallery-15" title="Figure&nbsp;15: Figure showing the two rasters (a) Raster with each cell of resolution of 3 km, and colour (fill) depicting the count of peaks, i.e., the number of peaks above 3100 metres within that cell. (b) Raster with each cell of same resolution, where each cell’s colour (fill) depicts the maximum elevation (height) within that each cell."><img src="https://aditya-dahiya.github.io/visage/index.html/book_solutions/images/chapter6-e3.png" class="img-fluid figure-img"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-e3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;15: Exercise E3 Solutions
+Figure&nbsp;15: Figure showing the two rasters (a) Raster with each cell of resolution of 3 km, and colour (fill) depicting the count of peaks, i.e., the number of peaks above 3100 metres within that cell. (b) Raster with each cell of same resolution, where each cell’s colour (fill) depicts the maximum elevation (height) within that each cell.
 </figcaption>
 </figure>
 </div>
@@ -10906,23 +11233,23 @@ Table&nbsp;2: Number of highest points in each grid cell.
 </figcaption>
 <div aria-describedby="tbl-e3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="krdomrwivd" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#krdomrwivd table {
+<div id="scvpqluxkr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#scvpqluxkr table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#krdomrwivd thead, #krdomrwivd tbody, #krdomrwivd tfoot, #krdomrwivd tr, #krdomrwivd td, #krdomrwivd th {
+#scvpqluxkr thead, #scvpqluxkr tbody, #scvpqluxkr tfoot, #scvpqluxkr tr, #scvpqluxkr td, #scvpqluxkr th {
   border-style: none;
 }
 
-#krdomrwivd p {
+#scvpqluxkr p {
   margin: 0;
   padding: 0;
 }
 
-#krdomrwivd .gt_table {
+#scvpqluxkr .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -10948,12 +11275,12 @@ Table&nbsp;2: Number of highest points in each grid cell.
   border-left-color: #D3D3D3;
 }
 
-#krdomrwivd .gt_caption {
+#scvpqluxkr .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#krdomrwivd .gt_title {
+#scvpqluxkr .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -10965,7 +11292,7 @@ Table&nbsp;2: Number of highest points in each grid cell.
   border-bottom-width: 0;
 }
 
-#krdomrwivd .gt_subtitle {
+#scvpqluxkr .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -10977,7 +11304,7 @@ Table&nbsp;2: Number of highest points in each grid cell.
   border-top-width: 0;
 }
 
-#krdomrwivd .gt_heading {
+#scvpqluxkr .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -10989,13 +11316,13 @@ Table&nbsp;2: Number of highest points in each grid cell.
   border-right-color: #D3D3D3;
 }
 
-#krdomrwivd .gt_bottom_border {
+#scvpqluxkr .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#krdomrwivd .gt_col_headings {
+#scvpqluxkr .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -11010,7 +11337,7 @@ Table&nbsp;2: Number of highest points in each grid cell.
   border-right-color: #D3D3D3;
 }
 
-#krdomrwivd .gt_col_heading {
+#scvpqluxkr .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -11030,7 +11357,7 @@ Table&nbsp;2: Number of highest points in each grid cell.
   overflow-x: hidden;
 }
 
-#krdomrwivd .gt_column_spanner_outer {
+#scvpqluxkr .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -11042,15 +11369,15 @@ Table&nbsp;2: Number of highest points in each grid cell.
   padding-right: 4px;
 }
 
-#krdomrwivd .gt_column_spanner_outer:first-child {
+#scvpqluxkr .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#krdomrwivd .gt_column_spanner_outer:last-child {
+#scvpqluxkr .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#krdomrwivd .gt_column_spanner {
+#scvpqluxkr .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -11062,11 +11389,11 @@ Table&nbsp;2: Number of highest points in each grid cell.
   width: 100%;
 }
 
-#krdomrwivd .gt_spanner_row {
+#scvpqluxkr .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#krdomrwivd .gt_group_heading {
+#scvpqluxkr .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -11092,7 +11419,7 @@ Table&nbsp;2: Number of highest points in each grid cell.
   text-align: left;
 }
 
-#krdomrwivd .gt_empty_group_heading {
+#scvpqluxkr .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -11107,15 +11434,15 @@ Table&nbsp;2: Number of highest points in each grid cell.
   vertical-align: middle;
 }
 
-#krdomrwivd .gt_from_md > :first-child {
+#scvpqluxkr .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#krdomrwivd .gt_from_md > :last-child {
+#scvpqluxkr .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#krdomrwivd .gt_row {
+#scvpqluxkr .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -11134,7 +11461,7 @@ Table&nbsp;2: Number of highest points in each grid cell.
   overflow-x: hidden;
 }
 
-#krdomrwivd .gt_stub {
+#scvpqluxkr .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -11147,7 +11474,7 @@ Table&nbsp;2: Number of highest points in each grid cell.
   padding-right: 5px;
 }
 
-#krdomrwivd .gt_stub_row_group {
+#scvpqluxkr .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -11161,15 +11488,15 @@ Table&nbsp;2: Number of highest points in each grid cell.
   vertical-align: top;
 }
 
-#krdomrwivd .gt_row_group_first td {
+#scvpqluxkr .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#krdomrwivd .gt_row_group_first th {
+#scvpqluxkr .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#krdomrwivd .gt_summary_row {
+#scvpqluxkr .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -11179,16 +11506,16 @@ Table&nbsp;2: Number of highest points in each grid cell.
   padding-right: 5px;
 }
 
-#krdomrwivd .gt_first_summary_row {
+#scvpqluxkr .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#krdomrwivd .gt_first_summary_row.thick {
+#scvpqluxkr .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#krdomrwivd .gt_last_summary_row {
+#scvpqluxkr .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -11198,7 +11525,7 @@ Table&nbsp;2: Number of highest points in each grid cell.
   border-bottom-color: #D3D3D3;
 }
 
-#krdomrwivd .gt_grand_summary_row {
+#scvpqluxkr .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -11208,7 +11535,7 @@ Table&nbsp;2: Number of highest points in each grid cell.
   padding-right: 5px;
 }
 
-#krdomrwivd .gt_first_grand_summary_row {
+#scvpqluxkr .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -11218,7 +11545,7 @@ Table&nbsp;2: Number of highest points in each grid cell.
   border-top-color: #D3D3D3;
 }
 
-#krdomrwivd .gt_last_grand_summary_row_top {
+#scvpqluxkr .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -11228,11 +11555,11 @@ Table&nbsp;2: Number of highest points in each grid cell.
   border-bottom-color: #D3D3D3;
 }
 
-#krdomrwivd .gt_striped {
+#scvpqluxkr .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#krdomrwivd .gt_table_body {
+#scvpqluxkr .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -11241,7 +11568,7 @@ Table&nbsp;2: Number of highest points in each grid cell.
   border-bottom-color: #D3D3D3;
 }
 
-#krdomrwivd .gt_footnotes {
+#scvpqluxkr .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -11255,7 +11582,7 @@ Table&nbsp;2: Number of highest points in each grid cell.
   border-right-color: #D3D3D3;
 }
 
-#krdomrwivd .gt_footnote {
+#scvpqluxkr .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -11264,7 +11591,7 @@ Table&nbsp;2: Number of highest points in each grid cell.
   padding-right: 5px;
 }
 
-#krdomrwivd .gt_sourcenotes {
+#scvpqluxkr .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -11278,7 +11605,7 @@ Table&nbsp;2: Number of highest points in each grid cell.
   border-right-color: #D3D3D3;
 }
 
-#krdomrwivd .gt_sourcenote {
+#scvpqluxkr .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -11286,73 +11613,64 @@ Table&nbsp;2: Number of highest points in each grid cell.
   padding-right: 5px;
 }
 
-#krdomrwivd .gt_left {
+#scvpqluxkr .gt_left {
   text-align: left;
 }
 
-#krdomrwivd .gt_center {
+#scvpqluxkr .gt_center {
   text-align: center;
 }
 
-#krdomrwivd .gt_right {
+#scvpqluxkr .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#krdomrwivd .gt_font_normal {
+#scvpqluxkr .gt_font_normal {
   font-weight: normal;
 }
 
-#krdomrwivd .gt_font_bold {
+#scvpqluxkr .gt_font_bold {
   font-weight: bold;
 }
 
-#krdomrwivd .gt_font_italic {
+#scvpqluxkr .gt_font_italic {
   font-style: italic;
 }
 
-#krdomrwivd .gt_super {
+#scvpqluxkr .gt_super {
   font-size: 65%;
 }
 
-#krdomrwivd .gt_footnote_marks {
+#scvpqluxkr .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#krdomrwivd .gt_asterisk {
+#scvpqluxkr .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#krdomrwivd .gt_indent_1 {
+#scvpqluxkr .gt_indent_1 {
   text-indent: 5px;
 }
 
-#krdomrwivd .gt_indent_2 {
+#scvpqluxkr .gt_indent_2 {
   text-indent: 10px;
 }
 
-#krdomrwivd .gt_indent_3 {
+#scvpqluxkr .gt_indent_3 {
   text-indent: 15px;
 }
 
-#krdomrwivd .gt_indent_4 {
+#scvpqluxkr .gt_indent_4 {
   text-indent: 20px;
 }
 
-#krdomrwivd .gt_indent_5 {
+#scvpqluxkr .gt_indent_5 {
   text-indent: 25px;
-}
-
-#krdomrwivd .katex-display {
-  display: inline-flex !important;
-  margin-bottom: 0.75em !important;
-}
-
-#krdomrwivd div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
-  height: 0px !important;
 }
 </style>
 
@@ -11412,6 +11730,384 @@ Table&nbsp;2: Number of highest points in each grid cell.
 <li><p><strong>Resample the lower resolution raster back to the original resolution of 3 km. How have the results changed?</strong></p></li>
 <li><p><strong>Name two advantages and disadvantages of reducing raster resolution.</strong></p></li>
 </ul>
+<p>The code below aggregates the raster showing the count of high points into a resolution of 6 km, using <code>terra::resample()</code> with a <code>template_raster_2</code> of resolution 6 km. The results are shown in Figure&nbsp;16.<br>
+<strong>Advantages of Reducing Raster Resolution</strong></p>
+<ol type="1">
+<li><p>Improved Computation Efficiency: Fewer cells reduce the data size, speeding up processing and analysis.</p></li>
+<li><p>Simplification: Provides a coarser overview for large-scale analysis, which may be sufficient for specific applications like regional studies.</p></li>
+</ol>
+<p><strong>Disadvantages of Reducing Raster Resolution</strong></p>
+<ol type="1">
+<li><p>Loss of Detail: Fine spatial variations and features are lost, potentially affecting precision in applications requiring high detail.</p></li>
+<li><p>Accuracy Trade-Off: Aggregated data may misrepresent localized phenomena, leading to potential inaccuracies in spatial analyses.</p></li>
+</ol>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a template raster for using in rasterization</span></span>
+<span id="cb21-2">template_raster_2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rast</span>(</span>
+<span id="cb21-3">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Spat Extent of the Vector data</span></span>
+<span id="cb21-4">  terra<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ext</span>(above_3100),</span>
+<span id="cb21-5">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Required resolution of the raster</span></span>
+<span id="cb21-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">resolution =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6000</span>,</span>
+<span id="cb21-7">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># CRS for the raster</span></span>
+<span id="cb21-8">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">crs</span>(above_3100)</span>
+<span id="cb21-9">)</span>
+<span id="cb21-10"></span>
+<span id="cb21-11"></span>
+<span id="cb21-12">g1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> elevation_raster_1) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_viridis_c</span>(</span>
+<span id="cb21-15">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">direction =</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb21-16">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.value =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span></span>
+<span id="cb21-17">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-18">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb21-19">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Number of peaks per cell"</span>,</span>
+<span id="cb21-20">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Raster created using rasterize(fun = `length`)"</span></span>
+<span id="cb21-21">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-22">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-23">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb21-24">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bottom"</span></span>
+<span id="cb21-25">  ) </span>
+<span id="cb21-26"></span>
+<span id="cb21-27"></span>
+<span id="cb21-28">g2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-29">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(</span>
+<span id="cb21-30">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> elevation_raster_1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb21-31">      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># terra::aggregate(fact = 2, fun = mean)</span></span>
+<span id="cb21-32">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">resample</span>(template_raster_2, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">method =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bilinear"</span>)</span>
+<span id="cb21-33">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-34">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_viridis_c</span>(</span>
+<span id="cb21-35">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">direction =</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb21-36">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.value =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span></span>
+<span id="cb21-37">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-38">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb21-39">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Aggregated raster (res = 6 km)"</span>,</span>
+<span id="cb21-40">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Using resample(method = `bilinear`)"</span></span>
+<span id="cb21-41">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-42">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-43">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb21-44">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bottom"</span></span>
+<span id="cb21-45">  )</span>
+<span id="cb21-46"></span>
+<span id="cb21-47">g3 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-48">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(</span>
+<span id="cb21-49">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> elevation_raster_1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb21-50">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">resample</span>(template_raster_2, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">method =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bilinear"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb21-51">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">resample</span>(template_raster, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">method =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bilinear"</span>)</span>
+<span id="cb21-52">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-53">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_viridis_c</span>(</span>
+<span id="cb21-54">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">direction =</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb21-55">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.value =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span></span>
+<span id="cb21-56">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-57">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb21-58">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Disaggregated raster (res = 3 km)"</span>,</span>
+<span id="cb21-59">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Reverting back to high res. leads to loss of data"</span></span>
+<span id="cb21-60">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-61">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-62">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb21-63">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bottom"</span></span>
+<span id="cb21-64">  )</span>
+<span id="cb21-65"></span>
+<span id="cb21-66">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> g1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g2 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g3 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-67">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_layout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-68">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_annotation</span>(</span>
+<span id="cb21-69">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_levels =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"a"</span>,</span>
+<span id="cb21-70">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_prefix =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"("</span>,</span>
+<span id="cb21-71">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_suffix =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">")"</span></span>
+<span id="cb21-72">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span></span>
+<span id="cb21-73">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb21-74">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.tag =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb21-75">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">36</span>,</span>
+<span id="cb21-76">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">face =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span></span>
+<span id="cb21-77">    )</span>
+<span id="cb21-78">  )</span>
+<span id="cb21-79"></span>
+<span id="cb21-80"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb21-81">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"book_solutions"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb21-82">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"chapter6-e4.png"</span>),</span>
+<span id="cb21-83">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">800</span>,</span>
+<span id="cb21-84">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1800</span>,</span>
+<span id="cb21-85">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span></span>
+<span id="cb21-86">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-e4" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-e4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/chapter6-e4.png" class="lightbox" data-gallery="quarto-lightbox-gallery-16" title="Figure&nbsp;16: Figures showing the (a) Original raster of resolution 3 km, showing number of peaks above 3100 meters in each cell, (b) The raster aggregated to resolution of 6 km, (c) The same aggregted raster disaggregated back to resolution of 3 km, with considerable loss of information and data."><img src="https://aditya-dahiya.github.io/visage/index.html/book_solutions/images/chapter6-e4.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-e4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;16: Figures showing the (a) Original raster of resolution 3 km, showing number of peaks above 3100 meters in each cell, (b) The raster aggregated to resolution of 6 km, (c) The same aggregted raster disaggregated back to resolution of 3 km, with considerable loss of information and data.
+</figcaption>
+</figure>
+</div>
 </section>
 <section id="e5." class="level3">
 <h3 class="anchored" data-anchor-id="e5.">E5.</h3>
@@ -11420,6 +12116,380 @@ Table&nbsp;2: Number of highest points in each grid cell.
 <li><p><strong>Name two advantages and disadvantages of vector data over raster data.</strong></p></li>
 <li><p><strong>When would it be useful to convert rasters to vectors in your work?</strong></p></li>
 </ul>
+<p>The code chunks below show the polygonization, and filtered data of all squares representing clay (using <code>as.polygon(aggregate = FALSE)</code>). The Figure&nbsp;17 shows the <code>grain</code> dataset and the polygonized <code>grain_sf</code> where each row represents a &lt;POLYGON&gt; (aggregated).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1">grain <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rast</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">system.file</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"raster/grain.tif"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">package =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"spData"</span>))</span>
+<span id="cb22-2"></span>
+<span id="cb22-3">grain <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb22-4">  terra<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.polygons</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">aggregate =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb22-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_as_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb22-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_cast</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"POLYGON"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb22-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(grain <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"clay"</span>)</span></code></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 10 features and 1 field
+Geometry type: POLYGON
+Dimension:     XY
+Bounding box:  xmin: -1.5 ymin: -1.5 xmax: 1 ymax: 1.5
+Geodetic CRS:  WGS 84
+   grain                       geometry
+1   clay POLYGON ((-1 1, -1 1.5, -0....
+2   clay POLYGON ((-1.5 0.5, -1.5 1,...
+3   clay POLYGON ((-0.5 0.5, -0.5 1,...
+4   clay POLYGON ((0 0.5, 0 1, 0.5 1...
+5   clay POLYGON ((-1.5 0, -1.5 0.5,...
+6   clay POLYGON ((0 0, 0 0.5, 0.5 0...
+7   clay POLYGON ((0.5 0, 0.5 0.5, 1...
+8   clay POLYGON ((-1.5 -0.5, -1.5 0...
+9   clay POLYGON ((-1 -0.5, -1 0, -0...
+10  clay POLYGON ((0.5 -1.5, 0.5 -1,...</code></pre>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1">grain <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rast</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">system.file</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"raster/grain.tif"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">package =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"spData"</span>))</span>
+<span id="cb24-2"></span>
+<span id="cb24-3">grain_sf <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> grain <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb24-4">  terra<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.polygons</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb24-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_as_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb24-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_cast</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"POLYGON"</span>)</span>
+<span id="cb24-7"></span>
+<span id="cb24-8">g1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb24-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_spatraster</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> grain) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb24-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_princess_d</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb24-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb24-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Base raster; Qualitative"</span>,</span>
+<span id="cb24-13">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"With three discrete values"</span>,</span>
+<span id="cb24-14">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span></span>
+<span id="cb24-15">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb24-16">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">expand =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb24-17">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb24-18">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"none"</span>)</span>
+<span id="cb24-19"></span>
+<span id="cb24-20">g2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb24-21">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb24-22">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> grain_sf,</span>
+<span id="cb24-23">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> grain),</span>
+<span id="cb24-24">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>,</span>
+<span id="cb24-25">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb24-26">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb24-27">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_princess_d</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb24-28">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb24-29">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Vectorized as aggregated polygons"</span>,</span>
+<span id="cb24-30">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"terra::as.polygons() |&gt; st_as_sf() |&gt; st_cast(`POLYGON`)"</span>,</span>
+<span id="cb24-31">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span></span>
+<span id="cb24-32">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb24-33">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">expand =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb24-34">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_custom</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb24-35">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"none"</span>)</span>
+<span id="cb24-36"></span>
+<span id="cb24-37">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> g1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g2 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb24-38">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_layout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb24-39">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_annotation</span>(</span>
+<span id="cb24-40">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_levels =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"a"</span>,</span>
+<span id="cb24-41">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_prefix =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"("</span>,</span>
+<span id="cb24-42">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_suffix =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">")"</span></span>
+<span id="cb24-43">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span></span>
+<span id="cb24-44">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb24-45">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.tag =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb24-46">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">36</span>,</span>
+<span id="cb24-47">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">face =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span></span>
+<span id="cb24-48">    )</span>
+<span id="cb24-49">  )</span>
+<span id="cb24-50"></span>
+<span id="cb24-51"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb24-52">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"book_solutions"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb24-53">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"chapter6-e5.png"</span>),</span>
+<span id="cb24-54">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">800</span>,</span>
+<span id="cb24-55">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1700</span>,</span>
+<span id="cb24-56">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span></span>
+<span id="cb24-57">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-e5" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-e5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/chapter6-e5.png" class="lightbox" data-gallery="quarto-lightbox-gallery-17" title="Figure&nbsp;17: Figure showing the (a) raster data for `grain`, and (b) the polygonized data with as.polygons(aggregate = FALSE)"><img src="https://aditya-dahiya.github.io/visage/index.html/book_solutions/images/chapter6-e5.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-e5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;17: Figure showing the (a) raster data for `grain`, and (b) the polygonized data with <code>as.polygons(aggregate = FALSE)</code>
+</figcaption>
+</figure>
+</div>
+<p><strong>Advantages of Vector Data Over Raster Data</strong></p>
+<ol type="1">
+<li>Precision in Representation: Vector data precisely represents geographic features such as points, lines, and polygons. It is ideal for applications requiring exact boundaries (e.g., property lines, administrative borders).</li>
+<li>Efficient Storage for Sparse Data: Vectors store only the coordinates of features, making them more efficient for sparse or irregularly distributed data compared to rasters, which store values for all cells, even those with no data.</li>
+</ol>
+<p><strong>Disadvantages of Vector Data Over Raster Data</strong></p>
+<ol type="1">
+<li>Complex Analysis: Performing spatial operations (e.g., overlay, buffering) is computationally more complex with vectors, especially with large datasets.</li>
+<li>Inefficient for Continuous Data: Vector data struggles to efficiently represent continuous phenomena (e.g., elevation, temperature) that vary over space, for which raster data is better suited.</li>
+</ol>
+<p><strong>When to Convert Rasters to Vectors in Your Work</strong></p>
+<ol type="1">
+<li><p>Feature Extraction: If you need to delineate specific features (e.g., contours from a Digital Elevation Model (DEM) or boundaries of high-value areas), converting a raster to vector allows for precise representation and further analysis.</p></li>
+<li><p>Integration with Vector Data: For projects requiring alignment or combination with existing vector datasets (e.g., administrative boundaries or transportation networks), converting rasters to vectors ensures compatibility.</p></li>
+<li><p>Visual Clarity in Maps: Vectors are preferred for creating clear and professional maps where discrete features need labeling or editing.</p></li>
+<li><p>Custom Analysis: If detailed geometric operations like buffering or intersection analysis are needed, converting rasters into vectors (e.g., polygons of land cover classes) enables such workflows.</p></li>
+</ol>
 
 
 
