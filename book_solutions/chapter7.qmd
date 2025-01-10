@@ -44,7 +44,18 @@ library(magrittr)  # Using pipes with raster objects
 library(tidyverse) # All things tidy; Data Wrangling
 library(spData)    # Spatial Datasets
 library(patchwork) # Composing plots
+
+greenland <- rnaturalearth::ne_countries(
+  geounit = "Greenland",
+  scale = "medium",
+  returnclass = "sf"
+  ) |> 
+  select(admin, name, iso_a3, geometry)
 ```
+
+::: callout-note
+For the first few sections, I will use the map of Greenland as an example, since it is an extreme case (far away from equator, so a good use for CRS projections examples).
+:::
 
 ### 7.1 Introduction
 
@@ -72,6 +83,40 @@ library(patchwork) # Composing plots
 
     -   Many projects don't require conversion between CRSs but knowing whether your data is in a projected or geographic CRS is critical.
     -   Understanding CRSs prevents errors and ensures smooth handling of geographic data.
+
+```{r}
+
+st_crs(greenland)
+
+greenland |> 
+  ggplot() +
+  geom_sf() +
+  labs(title = "WGS84 / EPSG:4326", subtitle = "Default geographic projection")
+
+greenland |> 
+  ggplot() +
+  geom_sf() +
+  coord_sf(crs = "EPSG:3857") +
+  labs(title = "EPSG:3857", subtitle = "Web Mercator projection")
+
+greenland |> 
+  ggplot() +
+  geom_sf() +
+  coord_sf(crs = "ESRI:102004") +
+  labs(title = "ESRI:102004", subtitle = "Lambert Conformal Conic")
+
+greenland |> 
+  ggplot() +
+  geom_sf() +
+  coord_sf(crs = "ESRI:54030") +
+  labs(title = "ESRI:54030", subtitle = "Robinson projection")
+
+greenland |> 
+  ggplot() +
+  geom_sf() +
+  coord_sf(crs = "EPSG:3413") +
+  labs(title = "EPSG:3413", subtitle = "North Pole Stereographic")
+```
 
 ### 7.2 Coordinate Reference Systems
 
