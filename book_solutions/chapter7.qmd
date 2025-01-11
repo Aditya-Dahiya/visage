@@ -51,10 +51,33 @@ greenland <- rnaturalearth::ne_countries(
   returnclass = "sf"
   ) |> 
   select(admin, name, iso_a3, geometry)
+
+sysfonts::font_add_google("Saira Condensed", "body_font")
+showtext::showtext_auto()
+theme_set(
+  theme_minimal(
+    base_family = "body_font",
+    base_size = 14,
+    base_line_size = 0.2
+  ) +
+    theme(
+      text = element_text(
+        colour = "grey20"
+      ),
+      plot.title = element_text(
+        size = 24,
+        margin = margin(0.1, 0.1, 0.1, 0.1, "lines")
+      ),
+      plot.subtitle = element_text(
+        size = 16,
+        margin = margin(0.1, 0.1, 0.1, 0.1, "lines")
+      )
+    )
+)
 ```
 
 ::: callout-note
-For the first few sections, I will use the map of Greenland as an example, since it is an extreme case (far away from equator, so a good use for CRS projections examples).
+For the first few sections, I will use the map of Greenland as an example, since it is an extreme case (far away from equator, so a good use for CRS projections examples), as shown in @fig-7-1_1.
 :::
 
 ### 7.1 Introduction
@@ -86,37 +109,60 @@ For the first few sections, I will use the map of Greenland as an example, since
 
 ```{r}
 
-st_crs(greenland)
-
-greenland |> 
+g1 <- greenland |> 
   ggplot() +
   geom_sf() +
   labs(title = "WGS84 / EPSG:4326", subtitle = "Default geographic projection")
 
-greenland |> 
+g2 <- greenland |> 
   ggplot() +
   geom_sf() +
   coord_sf(crs = "EPSG:3857") +
   labs(title = "EPSG:3857", subtitle = "Web Mercator projection")
 
-greenland |> 
+g3 <- greenland |> 
   ggplot() +
   geom_sf() +
   coord_sf(crs = "ESRI:102004") +
   labs(title = "ESRI:102004", subtitle = "Lambert Conformal Conic")
 
-greenland |> 
+g4 <- greenland |> 
   ggplot() +
   geom_sf() +
   coord_sf(crs = "ESRI:54030") +
   labs(title = "ESRI:54030", subtitle = "Robinson projection")
 
-greenland |> 
+g5 <- greenland |> 
   ggplot() +
   geom_sf() +
   coord_sf(crs = "EPSG:3413") +
   labs(title = "EPSG:3413", subtitle = "North Pole Stereographic")
+
+g <- g1 + g2 + g3 + g4 + g5 +
+  plot_layout(nrow = 1) +
+  plot_annotation(
+    tag_levels = "a",
+    tag_prefix = "(",
+    tag_suffix = ")"
+    ) &
+  theme(
+    plot.tag = element_text(
+      size = 40,
+      face = "bold"
+    )
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("book_solutions", "images", "chapter7-1_1.png"),
+  height = 600,
+  width = 2400,
+  unit = "px",
+  bg = "white"
+)
 ```
+
+![Map of Greenland, with different projections from (a) to (e)](images/chapter7-1_1.png){#fig-7-1_1}
 
 ### 7.2 Coordinate Reference Systems
 
@@ -159,6 +205,14 @@ From the [INBO blog](https://inbo.github.io/tutorials/tutorials/spatial_crs_codi
     -   Utilize R's `sf` package for handling spatial data and CRS specifications.
 :::
 
+```{r}
+#| eval: true
+
+st_crs("EPSG:4326")$WktPretty |> str_view()
+
+st_crs("ESRI:102004")$WktPretty |> str_view()
+```
+
 ### 7.3 Querying and Setting Coordinate Systems
 
 -   **CRS in R spatial objects:** Coordinate Reference Systems (CRS) are queried and set in vector and raster geographic data using functions from the `sf` [@sf] and `terra` [@terra-2] packages.
@@ -171,7 +225,7 @@ From the [INBO blog](https://inbo.github.io/tutorials/tutorials/spatial_crs_codi
 -   Additional CRS details can be retrieved: The `st_crs()` function from the **sf** package in R provides detailed information about the Coordinate Reference System (CRS) of spatial objects.
 
 | Attribute | Description | Example Usage |
-|------------------|----------------------------------|--------------------|
+|------------------|------------------------------|---------------------------------|
 | **IsGeographic** | Indicates if the CRS is geographic (TRUE) or projected (FALSE). | `st_crs(new_vector)$IsGeographic` |
 | **units_gdal** | Specifies the units of measurement used in the CRS, as recognized by GDAL. | `st_crs(new_vector)$units_gdal` |
 | **srid** | Provides the Spatial Reference System Identifier (SRID) associated with the CRS, if available. | `st_crs(new_vector)$srid` |
@@ -184,6 +238,29 @@ From the [INBO blog](https://inbo.github.io/tutorials/tutorials/spatial_crs_codi
 | **ud_unit** | Returns the units object associated with the CRS, or NULL if units are missing. | `st_crs(new_vector)$ud_unit` |
 | **axes** | Provides information about the axes of the CRS, including their names and units. | `st_crs(new_vector)$axes` |
 
+```{r}
+#| eval: true
+#| collapse: true
+
+# The WGS 84 / EPSG 4326 projection (default projection in {rnaturalearth})
+st_crs("EPSG:4326")$units_gdal
+st_crs("EPSG:4326")$IsGeographic
+st_crs("EPSG:4326")$proj4string
+st_crs("EPSG:4326")$axes
+
+# The EPSG:3857 Web Mercator Projection (used for maps and distances)
+st_crs("EPSG:3857")$units_gdal
+st_crs("EPSG:3857")$IsGeographic
+st_crs("EPSG:3857")$proj4string
+st_crs("EPSG:3857")$axes
+
+# Robinson Projection ESRI:54030 
+st_crs("ESRI:54030")$units_gdal
+st_crs("ESRI:54030")$IsGeographic
+st_crs("ESRI:54030")$proj4string
+st_crs("ESRI:54030")$axes
+```
+
 -   **Use [`st_set_crs()`](https://r-spatial.github.io/sf/reference/st_set_crs.html) to manually set or correct a CRS.** Both `st_set_crs()` and the assignment method `st_crs(object) <- value` are used to define or modify the Coordinate Reference System (CRS) of spatial objects.
 
     -   `st_set_crs()` is a function call, which can be advantageous when using pipes (`|>`) in a workflow.
@@ -193,6 +270,61 @@ From the [INBO blog](https://inbo.github.io/tutorials/tutorials/spatial_crs_codi
     -   To transform the coordinates to a different CRS, the `st_transform()` function should be used.
 
     -   Assigning a CRS is akin to labeling data with its existing coordinate system, whereas transforming reprojects the data into a new coordinate system.
+
+```{r}
+
+g1 <- greenland |> 
+  st_set_crs("EPSG:4326") |> 
+  ggplot() +
+  geom_sf() +
+  labs(
+    title = "EPSG:4326",
+    subtitle = "The default CRS: a geographic CRS"
+  )
+
+g2 <- greenland |> 
+  st_transform("EPSG:3857") |> 
+  ggplot() +
+  geom_sf() +
+  labs(
+    title = "st_transform(`EPSG:3857`)",
+    subtitle = "Correct usage; EPSG:3857 CRS: a projected CRS"
+  )
+
+g3 <- greenland |> 
+  st_set_crs("EPSG:3857") |> 
+  ggplot() +
+  geom_sf() +
+  labs(
+    title = "st_set_crs(`EPSG:3857`)",
+    subtitle = "Wrong usage; distorts and assigns CRS values"
+  )
+
+g <- g1 + g2 + g3 +
+  plot_layout(nrow = 1) +
+  plot_annotation(
+    tag_levels = "a",
+    tag_prefix = "(",
+    tag_suffix = ")"
+    ) &
+  theme(
+    plot.tag = element_text(
+      size = 40,
+      face = "bold"
+    ),
+    plot.margin = margin(0,7,0,7, "mm")
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("book_solutions", "images", "chapter7-3_1.png"),
+  height = 600,
+  width = 2400,
+  unit = "px"
+)
+```
+
+![Explaining the difference between the st_set_crs() and st_transform(). The figures show (a) The default map of Greenland as obtained from {rnaturalearth} with the CRS WGS84 (i.e. EPSG:4326). (b) The transformation using `st_transform()` which produces correct transformation. (c) The incorrect method using `st_set_crs()` which simply retains all data, but assumes them to be in the new assigned CRS. This leads to wrong latitude and longitude numbers. Thus, the only use of `st_set_crs()` is for assigning a CRS to a raw data, which we know for sure from outside sources.](images/chapter7-3_1.png)
 
 -   **Validate CRS with `st_is_longlat()`.**
 
@@ -206,7 +338,7 @@ From the [INBO blog](https://inbo.github.io/tutorials/tutorials/spatial_crs_codi
 
 -   **Raster data CRS handling:**
 
-    -   Use [`crs()`](https://rspatial.org/terra/reference/crs.html) from the {terra} package to query and set CRS for raster objects.
+    -   Use `crs()` from the {terra} package to query and set CRS for raster objects.
     -   Outputs CRS as a WKT string.
     -   Set CRS with EPSG codes, WKT strings, or CRSs from other objects (e.g., `crs(my_raster) = "EPSG:26912"`).
 
@@ -215,4 +347,4 @@ From the [INBO blog](https://inbo.github.io/tutorials/tutorials/spatial_crs_codi
     -   `st_crs()` and `crs()` only set metadata; they do not modify coordinate values or geometries.
     -   Missing CRS in datasets (e.g., `NA` output in `st_is_longlat()`) indicates that CRS must be explicitly defined (e.g., using `st_set_crs()`).
 
--   CRS assumptions: R avoids assumptions about CRS (e.g., unlike GeoJSON which defaults to EPSG:4326).
+-   CRS assumptions: R avoids assumptions about CRS (e.g., unlike GeoJSON which defaults to `EPSG:4326`).
