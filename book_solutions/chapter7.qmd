@@ -225,7 +225,7 @@ st_crs("ESRI:102004")$WktPretty |> str_view()
 -   Additional CRS details can be retrieved: The `st_crs()` function from the **sf** package in R provides detailed information about the Coordinate Reference System (CRS) of spatial objects.
 
 | Attribute | Description | Example Usage |
-|------------------|------------------------------|---------------------------------|
+|------------------|--------------------------|-----------------------------|
 | **IsGeographic** | Indicates if the CRS is geographic (TRUE) or projected (FALSE). | `st_crs(new_vector)$IsGeographic` |
 | **units_gdal** | Specifies the units of measurement used in the CRS, as recognized by GDAL. | `st_crs(new_vector)$units_gdal` |
 | **srid** | Provides the Spatial Reference System Identifier (SRID) associated with the CRS, if available. | `st_crs(new_vector)$srid` |
@@ -348,3 +348,194 @@ ggsave(
     -   Missing CRS in datasets (e.g., `NA` output in `st_is_longlat()`) indicates that CRS must be explicitly defined (e.g., using `st_set_crs()`).
 
 -   CRS assumptions: R avoids assumptions about CRS (e.g., unlike GeoJSON which defaults to `EPSG:4326`).
+
+```{r}
+#| eval: true
+
+# Load the required package
+library(geosphere)
+
+# 1. Distance between two meridians (longitude lines) at the equator (0° latitude)
+# From (0°E, 0°N) to (1°E, 0°N)
+distance_meridian_equator <- distGeo(c(0, 0), c(1, 0)) 
+
+# 2. Distance between two meridians at the latitude of London (51.5°N)
+# From (0°E, 51.5°N) to (1°E, 51.5°N)
+distance_meridian_london <- distGeo(c(0, 51.5), c(1, 51.5)) 
+
+# 3. Distance between two parallels (latitude lines) at any latitude
+# From (0°E, 0°N) to (0°E, 1°N)
+distance_latitude <- distGeo(c(0, 0), c(0, 1)) 
+cat("Distance between meridians at the equator:", round(distance_meridian_equator/1000, 2), "km\n")
+cat("Distance between meridians at London's latitude:", round(distance_meridian_london/1e3, 2), "km\n")
+cat("Distance between latitudes:", round(distance_latitude/1e3, 2), "meters\n")
+
+```
+
+```{r}
+
+theme_set(
+  theme_minimal(
+    base_family = "body_font",
+    base_size = 14,
+    base_line_size = 0.2
+  ) +
+    theme(
+      text = element_text(
+        colour = "grey20"
+      ),
+      plot.title = element_text(
+        size = 24,
+        margin = margin(0.1, 0.1, 0.1, 0.1, "lines")
+      ),
+      plot.subtitle = element_text(
+        size = 16,
+        margin = margin(0.1, 0.1, 0.1, 0.1, "lines")
+      ),
+      plot.margin = margin(0,0,0,0, "mm"),
+      axis.text = element_text(
+        size = 6
+      ),
+      axis.ticks.length = unit(0, "mm")
+    )
+)
+
+# Create a London data point - the coordiantes in Latitude
+# and Longitude of London, UK
+london_sans_crs <- data.frame(lon = -0.1, lat = 51.5) |> 
+  st_as_sf(coords = c("lon", "lat"))
+
+# Adding the CRS to London data point: values stay same
+london_with_crs <- london_sans_crs |> 
+  st_set_crs("EPSG:4326")
+
+# British National Grid
+# st_crs("EPSG:27700")
+
+# Using the British National Grid CRS: values get changed
+london_british_crs <- london_sans_crs |> 
+  st_set_crs("EPSG:4326") |> 
+  st_transform("EPSG:27700")
+
+
+# Create an approximate bounding box around 200 km around London
+bbox_near_london <- london_sans_crs |> 
+  st_set_crs("EPSG:4326") |> 
+  st_buffer(dist = 200000) |> 
+  st_bbox()
+
+# Crop and keep coastline map around London
+outline_map <- rnaturalearth::ne_coastline(
+  returnclass = "sf",
+  scale = "large"
+  ) |> 
+  st_union() |> 
+  st_as_sf() |> 
+  st_crop(bbox_near_london)
+
+
+base_plot <- ggplot() +
+  geom_sf(
+    data = outline_map,
+    linewidth = 0.1
+  ) +
+  geom_sf(
+    data = london_with_crs,
+    size = 3,
+    colour = "darkred"
+  ) +
+  coord_sf(expand = FALSE)
+
+row_1_title <- "Without any CRS"
+row_1_subtitle <- "Using London data interpreted as Geographic Projection, i.e. as Longitude and Latitude"
+sf_use_s2(TRUE)
+g1 <- base_plot +
+  geom_sf(
+    data = st_buffer(london_sans_crs, 
+                     dist = 1) |> 
+            st_set_crs("EPSG:4326"),
+    fill = alpha("grey", 0.2)
+  ) +
+  labs(
+    title = "Buffer of 1 degree",
+    subtitle = "Using S2 engine"
+  )
+
+sf_use_s2(FALSE)
+g2 <- base_plot +
+  geom_sf(
+    data = st_buffer(london_sans_crs, 
+                     dist = 1) |> 
+            st_set_crs("EPSG:4326"),
+    fill = alpha("grey", 0.2)
+  ) +
+  labs(
+    title = "Buffer of 1 degree (S2 disabled)",
+    subtitle = "Using GEOS engine"
+  )
+
+sf_use_s2(TRUE)
+g3 <- base_plot +
+  geom_sf(
+    data = st_buffer(london_sans_crs, 
+                     dist = 1,
+                     nQuadSegs = 2) |> 
+            st_set_crs("EPSG:4326"),
+    fill = alpha("grey", 0.2)
+  ) +
+  labs(
+    title = "Buffer of 1 degree",
+    subtitle = "Using S2 engine with nQuadSegs = 2"
+  )
+
+
+row_2_title <- "London with EPSG:4326, Long-Lat, but distance in metres"
+row_2_subtitle <- "Using London data in a Geographic CRS, i.e. World Geodetic System 1984 ensemble"
+sf_use_s2(TRUE)
+
+london_with_crs |> 
+  st_crs()
+
+g4 <- base_plot +
+  geom_sf(
+    data = st_buffer(london_with_crs, 
+                     dist = 1),
+    colour = "black",
+    linewidth = 1
+  ) +
+  labs(
+    title = "Buffer of 1 - interpreted as 1 metre",
+    subtitle = "Using S2 engine"
+  )
+
+sf_use_s2(FALSE)
+g5 <- base_plot +
+  geom_sf(
+    data = st_buffer(london_with_crs, 
+                     dist = 1),
+    fill = alpha("grey", 0.2),
+    colour = "black"
+  ) +
+  labs(
+    title = "Buffer of 1 (without S2 engine)",
+    subtitle = "Used GEOS. Interpreted as degrees; Again incorrect."
+  )
+
+sf_use_s2(TRUE)
+g6 <- base_plot +
+  geom_sf(
+    data = st_buffer(london_with_crs, 
+                     dist = 1e5,
+                     max_cells = 100),
+    fill = alpha("grey", 0.2),
+    colour = "black"
+  ) +
+  labs(
+    title = "Buffer of 100,000 (in metres)",
+    subtitle = "With max_cells = 100 in st_buffer()"
+  )
+
+row_3_title <- "Without British Grid Projected CRS"
+row_3_subtitle <- "Using London data in Projected CRS"
+
+```
