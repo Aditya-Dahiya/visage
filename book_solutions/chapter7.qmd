@@ -225,7 +225,7 @@ st_crs("ESRI:102004")$WktPretty |> str_view()
 -   Additional CRS details can be retrieved: The `st_crs()` function from the **sf** package in R provides detailed information about the Coordinate Reference System (CRS) of spatial objects.
 
 | Attribute | Description | Example Usage |
-|------------------|--------------------------|-----------------------------|
+|------------------|--------------------------|----------------------------|
 | **IsGeographic** | Indicates if the CRS is geographic (TRUE) or projected (FALSE). | `st_crs(new_vector)$IsGeographic` |
 | **units_gdal** | Specifies the units of measurement used in the CRS, as recognized by GDAL. | `st_crs(new_vector)$units_gdal` |
 | **srid** | Provides the Spatial Reference System Identifier (SRID) associated with the CRS, if available. | `st_crs(new_vector)$srid` |
@@ -349,35 +349,53 @@ ggsave(
 
 -   CRS assumptions: R avoids assumptions about CRS (e.g., unlike GeoJSON which defaults to `EPSG:4326`).
 
+### 7.4 Geometry Operations on Projected and Unprojected Data
+
+-   The `sf` package integrates with:
+
+    -   The [S2 spherical geometry engine](https://cran.r-project.org/web/packages/s2/) for **geographic CRS data** with longitude/latitude (lon/lat) CRSs.
+    -   [GEOS](https://libgeos.org/) is used for **projected CRS or CRS-absent data**.
+    -   **Default Behavior**: S2 is enabled by default for geographic data but can be disabled using [`sf::sf_use_s2(FALSE)`](https://r-spatial.github.io/sf/reference/sf_use_s2.html).
+
+-   **CRS Importance in Buffers**: Buffers created on unprojected data (e.g., lon/lat) can result in distorted outputs (for example A.1 in @fig-7-4) unless spherical geometry (S2) is used. Better still, always use a projected CRS for accurate distance / buffers calculation (as C.1 in @fig-7-4).
+
+-   Key Learnings:
+
+    1.  **Incorrect buffer creation:** Buffers on geographic data (Long / Lat data) without a specified CRS (thus, using GEOS) result in outputs in degrees (as A.1 & A.3 in @fig-7-4). *Note: Lon/lat buffers without S2 or projection may appear elongated (e.g., along the north-south axis).*
+
+    2.  **Correct buffer creation:** S2 buffers (with Geographic CRS, i.e. Long / Lat data) calculate accurate distances (as B.1 in @fig-7-4) but may create jagged boundaries (as B.3 in @fig-7-4) (this can be tuned with `max_cells` or `nQuadSegs`).
+
+    3.  **Ideal buffer creation:** Use projected CRSs (as in C.1, C.2 & C.3 in @fig-7-4)) like British National Grid (`EPSG:27700`) for consistent distance-based operations, for example, in metres (m).
+
+::: callout-note
+*Note: S2 buffers improve results but remain less precise than using projected CRSs and GEOS.*
+:::
+
+-   **Visual Outcomes**:
+
+    -   Buffers based on S2 and projected CRSs produce more accurate, equidistant boundaries compared to lon/lat inputs without S2.
+    -   S2-derived buffers differ from projected GEOS buffers, and resolution depends on `max_cells` (default: 1000). (as B.3 in @fig-7-4)
+
+-   **Best Practices**:
+
+    -   Use `sf::st_crs()` to check the CRS and **verify units (e.g., degrees vs. meters) of the CRS**. Reproject data to a projected CRS using suitable EPSG codes for precise geometric operations.
+    -   For distance-based operations like buffering, reproject data to a projected CRS.
+    -   Adjust `max_cells` in S2 for performance versus resolution trade-offs. (as B.1 in @fig-7-4)
+
+#### @fig-7-4 shows an example (buffer zone around London)
+
 ```{r}
-#| eval: true
 
-# Load the required package
-library(geosphere)
+overall_title <- "When and How to Use S2 and GEOS Engines for Spatial Operations"
+overall_subtitle <- "GEOS handles projected or CRS-absent data; S2 defaults for geographic data but is optional."
 
-# 1. Distance between two meridians (longitude lines) at the equator (0° latitude)
-# From (0°E, 0°N) to (1°E, 0°N)
-distance_meridian_equator <- distGeo(c(0, 0), c(1, 0)) 
 
-# 2. Distance between two meridians at the latitude of London (51.5°N)
-# From (0°E, 51.5°N) to (1°E, 51.5°N)
-distance_meridian_london <- distGeo(c(0, 51.5), c(1, 51.5)) 
-
-# 3. Distance between two parallels (latitude lines) at any latitude
-# From (0°E, 0°N) to (0°E, 1°N)
-distance_latitude <- distGeo(c(0, 0), c(0, 1)) 
-cat("Distance between meridians at the equator:", round(distance_meridian_equator/1000, 2), "km\n")
-cat("Distance between meridians at London's latitude:", round(distance_meridian_london/1e3, 2), "km\n")
-cat("Distance between latitudes:", round(distance_latitude/1e3, 2), "meters\n")
-
-```
-
-```{r}
+bts <- 16     # Base Text Size
 
 theme_set(
   theme_minimal(
     base_family = "body_font",
-    base_size = 14,
+    base_size = bts,
     base_line_size = 0.2
   ) +
     theme(
@@ -385,18 +403,27 @@ theme_set(
         colour = "grey20"
       ),
       plot.title = element_text(
-        size = 24,
-        margin = margin(0.1, 0.1, 0.1, 0.1, "lines")
+        size = 1.9 * bts,
+        margin = margin(0.2, 0.1, 0.1, 0.1, "lines")
       ),
       plot.subtitle = element_text(
-        size = 16,
+        size = 1.3 * bts,
         margin = margin(0.1, 0.1, 0.1, 0.1, "lines")
       ),
       plot.margin = margin(0,0,0,0, "mm"),
       axis.text = element_text(
-        size = 6
+        size = bts * 0.5
       ),
-      axis.ticks.length = unit(0, "mm")
+      axis.ticks.length = unit(0, "mm"),
+      panel.background = element_rect(
+        fill = "#caf0f8",
+        colour = "#caf0f8"
+      ),
+      panel.grid = element_line(
+        linewidth = 0.2,
+        colour = "white",
+        linetype = 3
+      )
     )
 )
 
@@ -425,7 +452,8 @@ bbox_near_london <- london_sans_crs |>
   st_bbox()
 
 # Crop and keep coastline map around London
-outline_map <- rnaturalearth::ne_coastline(
+outline_map <- rnaturalearth::ne_countries(
+  continent = "Europe",
   returnclass = "sf",
   scale = "large"
   ) |> 
@@ -437,88 +465,93 @@ outline_map <- rnaturalearth::ne_coastline(
 base_plot <- ggplot() +
   geom_sf(
     data = outline_map,
-    linewidth = 0.1
+    linewidth = 0.1,
+    fill = alpha("white", 1)
   ) +
   geom_sf(
     data = london_with_crs,
     size = 3,
-    colour = "darkred"
+    colour = "#fb8500"
   ) +
   coord_sf(expand = FALSE)
 
-row_1_title <- "Without any CRS"
-row_1_subtitle <- "Using London data interpreted as Geographic Projection, i.e. as Longitude and Latitude"
-sf_use_s2(TRUE)
+# Without any CRS -------------------------------------------------
+
+row_1_title <- "London Data, without any CRS"
+row_1_subtitle <- "Data in Long / Lat, but without a specified CRS, leads {sf} to use GEOS engine, as in (a) and (c)"
+
 g1 <- base_plot +
   geom_sf(
     data = st_buffer(london_sans_crs, 
                      dist = 1) |> 
             st_set_crs("EPSG:4326"),
-    fill = alpha("grey", 0.2)
+    fill = alpha("#ffb703", 0.5),
+    colour = "#ffb703"
   ) +
   labs(
-    title = "Buffer of 1 degree",
-    subtitle = "Using S2 engine"
+    title = "Incorrect: Using GEOS on Long/Lat data",
+    subtitle = "st_buffer(london_sans_crs, dist = 1)"
   )
 
-sf_use_s2(FALSE)
 g2 <- base_plot +
   geom_sf(
-    data = st_buffer(london_sans_crs, 
-                     dist = 1) |> 
-            st_set_crs("EPSG:4326"),
-    fill = alpha("grey", 0.2)
+    data = london_sans_crs |> 
+            st_set_crs("EPSG:4326") |> 
+            st_buffer(dist = 1),
+    fill = alpha("#ffb703", 0.5),
+    colour = "#ffb703"
   ) +
   labs(
-    title = "Buffer of 1 degree (S2 disabled)",
-    subtitle = "Using GEOS engine"
+    title = "Incorrect: Using S2 but wrong Buffer units",
+    subtitle = "london_sans_crs |> st_set_crs(`EPSG:4326`) |> st_buffer(dist = 1)"
   )
 
-sf_use_s2(TRUE)
 g3 <- base_plot +
   geom_sf(
     data = st_buffer(london_sans_crs, 
                      dist = 1,
                      nQuadSegs = 2) |> 
             st_set_crs("EPSG:4326"),
-    fill = alpha("grey", 0.2)
+    fill = alpha("#ffb703", 0.5),
+    colour = "#ffb703"
   ) +
   labs(
-    title = "Buffer of 1 degree",
-    subtitle = "Using S2 engine with nQuadSegs = 2"
+    title = "Incorrect: Using GEOS with nQuadSegs",
+    subtitle = "st_buffer(london_sans_crs, dist = 1, nQuadSegs = 3)"
   )
 
 
-row_2_title <- "London with EPSG:4326, Long-Lat, but distance in metres"
-row_2_subtitle <- "Using London data in a Geographic CRS, i.e. World Geodetic System 1984 ensemble"
+row_2_title <- "London with a Geographic CRS `EPSG:4326`"
+row_2_subtitle <- "Data in Long/Lat, but with CRS speficied, leads {sf}to use S2 (spherical geometry). Distance is in metres, now."
+
 sf_use_s2(TRUE)
-
-london_with_crs |> 
-  st_crs()
-
 g4 <- base_plot +
   geom_sf(
     data = st_buffer(london_with_crs, 
-                     dist = 1),
-    colour = "black",
-    linewidth = 1
+                     dist = 1e5,
+                     max_cells = 300),
+    linewidth = 1,
+    fill = alpha("#ffb703", 0.5),
+    colour = "#ffb703"
   ) +
   labs(
-    title = "Buffer of 1 - interpreted as 1 metre",
-    subtitle = "Using S2 engine"
+    title = "Correct: Buffer of 100 km using S2",
+    subtitle = "Using S2 engine (spherical geometry); Notice jagged buffer line."
   )
 
 sf_use_s2(FALSE)
 g5 <- base_plot +
   geom_sf(
     data = st_buffer(london_with_crs, 
-                     dist = 1),
-    fill = alpha("grey", 0.2),
-    colour = "black"
+                     dist = 1,
+                     max_cells = 500),
+    linewidth = 1,
+    fill = alpha("#ffb703", 0.5),
+    colour = "#ffb703"
   ) +
   labs(
-    title = "Buffer of 1 (without S2 engine)",
-    subtitle = "Used GEOS. Interpreted as degrees; Again incorrect."
+    title = "Incorrect: Buffer of 1 degree with GEOS",
+    subtitle = "sf_use_s2(FALSE):  Using GEOS engine on geographic CRS."
   )
 
 sf_use_s2(TRUE)
@@ -527,15 +560,223 @@ g6 <- base_plot +
     data = st_buffer(london_with_crs, 
                      dist = 1e5,
                      max_cells = 100),
-    fill = alpha("grey", 0.2),
-    colour = "black"
+    linewidth = 1,
+    fill = alpha("#ffb703", 0.5),
+    colour = "#ffb703"
   ) +
   labs(
-    title = "Buffer of 100,000 (in metres)",
-    subtitle = "With max_cells = 100 in st_buffer()"
+    title = "Correct: Buffer of 100 km using S2",
+    subtitle = "Reducing max_cells = 100 to save computation time."
   )
 
-row_3_title <- "Without British Grid Projected CRS"
-row_3_subtitle <- "Using London data in Projected CRS"
+row_3_title <- "With a Projected CRS: British Grid (EPSG:27700)"
+row_3_subtitle <- "Using London data in Projected CRS results in ideal outputs. Accurate results with GEOS engine."
+
+g7 <- base_plot +
+  geom_sf(
+    data = st_buffer(london_british_crs, 
+                     dist = 1e5),
+    linewidth = 1,
+    fill = alpha("#ffb703", 0.5),
+    colour = "#ffb703"
+  ) +
+  labs(
+    title = "Ideal: 100 km Buffer on projected CRS",
+    subtitle = "london_british_crs |> st_buffer(dist = 1e5)"
+  )
+
+g8 <- base_plot +
+  geom_sf(
+    data = st_buffer(london_british_crs, 
+                     dist = 1e5,
+                     nQuadSegs = 1),
+    linewidth = 1,
+    fill = alpha("#ffb703", 0.5),
+    colour = "#ffb703"
+  ) +
+  labs(
+    title = "Distance in 4 directions only",
+    subtitle = "nQuadSegs = 1  (Number of segments per quadrant)."
+  )
+
+g9 <- base_plot +
+  geom_sf(
+    data = st_buffer(london_british_crs, 
+                     dist = 1e5,
+                     nQuadSegs = 2),
+    linewidth = 1,
+    fill = alpha("#ffb703", 0.5),
+    colour = "#ffb703"
+  ) +
+  labs(
+    title = "Save Computation Time: 100 km Buffer",
+    subtitle = "nQuadSegs = 2  (Number of segments per quadrant)."
+  )
+
+# A custom theme for each Row headings
+theme_row <- function(...){
+  theme(
+    plot.title = element_text(
+        margin = margin(5,0,1,0, "mm"),
+        size = bts * 3.5,
+        hjust = 0.5,
+        face = "bold"
+      ),
+      plot.subtitle = element_text(
+        margin = margin(0,0,1,0, "mm"),
+        size = bts * 2.5,
+        hjust = 0.5,
+        face = "bold"
+      ),
+    ...
+  )
+}
+
+theme_tag <- function(...){
+  theme(
+    plot.tag = element_text(
+      margin = margin(0,0,0,0, "mm"),
+      hjust = 0.5,
+      face = "bold",
+      size = bts * 1.5
+    ),
+    plot.tag.position = "top"
+  )
+}
+
+# Compiling Plots for London data without CRS
+ga <- g1 + g2 + g3 +
+  plot_annotation(
+    title = row_1_title,
+    subtitle = row_1_subtitle,
+    theme = theme_row(),
+    tag_levels = "1",
+    tag_prefix = "A."
+  ) &
+  theme_tag()
+
+# Save the 3 plots for 1st Row
+ggsave(
+  plot = ga,
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "temp_chapter7-4-1.png"),
+  height = 1050,
+  width = 2400,
+  unit = "px",
+  bg = "white"
+)
+
+# Compiling Plots for London data with a Geographic CRS
+gb <-  g4 + g5 + g6 +
+  plot_annotation(
+    title = row_2_title,
+    subtitle = row_2_subtitle,
+    theme = theme_row(),
+    tag_levels = "1",
+    tag_prefix = "B."
+  ) &
+  theme_tag()
+
+
+# Save the 3 plots for 2nd Row
+ggsave(
+  plot = gb,
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "temp_chapter7-4-2.png"),
+  height = 1050,
+  width = 2400,
+  unit = "px",
+  bg = "white"
+)
+
+
+# Compiling Plots for Projected (British Grid) CRS
+
+gc <-  g7 + g8 + g9 +
+  plot_layout(
+    tag_level = "new"
+  ) +
+  plot_annotation(
+    title = row_3_title,
+    subtitle = row_3_subtitle,
+    theme = theme_row(),
+    tag_levels = "1",
+    tag_prefix = "C."
+  ) &
+  theme_tag()
+
+
+# Save the 3 plots for 3rd Row
+ggsave(
+  plot = gc,
+  filename = here::here("book_solutions", 
+                        "images", 
+                        "temp_chapter7-4-3.png"),
+  height = 1050,
+  width = 2400,
+  unit = "px",
+  bg = "white"
+)
+
+# Compile the images
+library(magick)
+ga <- image_read(here::here("book_solutions", 
+                        "images", 
+                        "temp_chapter7-4-1.png"))
+gb <- image_read(here::here("book_solutions", 
+                        "images", 
+                        "temp_chapter7-4-2.png"))
+gc <- image_read(here::here("book_solutions", 
+                        "images", 
+                        "temp_chapter7-4-3.png"))
+
+image_append(c(ga, gb, gc), stack = TRUE) |> 
+  image_write(path = here::here("book_solutions", 
+                        "images", 
+                        "chapter7-4.png"))
+
+# Clean up the temporary file
+unlink(here::here("book_solutions","images",
+                  "temp_chapter7-4-1.png"))
+unlink(here::here("book_solutions","images",
+                  "temp_chapter7-4-2.png"))
+unlink(here::here("book_solutions","images",
+                  "temp_chapter7-4-3.png"))
+```
+
+![The different kinds of buffering - incorrect, correct and ideal using {sf} in R relying on two engines - Google's S2 spherical geometry, or GEOS engine.](images/chapter7-4.png){#fig-7-4}
+
+::: callout-note
+This code below calculates the distances between lines of longitude (meridians) and latitude at different geographic points to demonstrate the distortion inherent in geographic coordinate systems (lon/lat CRSs).
+
+```{r}
+#| eval: true
+#| code-fold: false
+#| collapse: true
+
+# Load the required package
+library(geosphere)
+
+# 1. Distance between two meridians (longitude lines) at the equator (0° latitude)
+# From (0°E, 0°N) to (1°E, 0°N)
+distance_meridian_equator <- distGeo(c(0, 0), c(1, 0)) 
+cat("Distance between meridians at the equator:", round(distance_meridian_equator/1000, 2), "km\n")
+
+
+# 2. Distance between two meridians at the latitude of London (51.5°N)
+# From (0°E, 51.5°N) to (1°E, 51.5°N)
+distance_meridian_london <- distGeo(c(0, 51.5), c(1, 51.5)) 
+cat("Distance between meridians at London's latitude:", round(distance_meridian_london/1e3, 2), "km\n")
+
+
+# 3. Distance between two parallels (latitude lines) at any latitude
+# From (0°E, 0°N) to (0°E, 1°N)
+distance_latitude <- distGeo(c(0, 0), c(0, 1)) 
+cat("Distance between latitudes:", round(distance_latitude/1e3, 2), "meters\n")
 
 ```
+
+Thus, the distance between meridians varies with latitude, shrinking from approximately 111 km at the equator to zero at the poles, while lines of latitude remain equidistant.
+:::

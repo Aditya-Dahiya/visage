@@ -57,8 +57,157 @@ font-style: inherit;"># Spatial Datasets</span></span>
 background-color: null;
 font-style: inherit;">library</span>(patchwork) <span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># Composing plots</span></span></code></pre></div>
+font-style: inherit;"># Composing plots</span></span>
+<span id="cb1-8"></span>
+<span id="cb1-9">greenland <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> rnaturalearth<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ne_countries</span>(</span>
+<span id="cb1-10">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">geounit =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Greenland"</span>,</span>
+<span id="cb1-11">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">scale =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"medium"</span>,</span>
+<span id="cb1-12">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">returnclass =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sf"</span></span>
+<span id="cb1-13">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb1-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(admin, name, iso_a3, geometry)</span>
+<span id="cb1-15"></span>
+<span id="cb1-16">sysfonts<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">font_add_google</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Saira Condensed"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>)</span>
+<span id="cb1-17">showtext<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">showtext_auto</span>()</span>
+<span id="cb1-18"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_set</span>(</span>
+<span id="cb1-19">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>(</span>
+<span id="cb1-20">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>,</span>
+<span id="cb1-21">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">14</span>,</span>
+<span id="cb1-22">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_line_size =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span></span>
+<span id="cb1-23">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb1-24">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb1-25">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb1-26">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"grey20"</span></span>
+<span id="cb1-27">      ),</span>
+<span id="cb1-28">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb1-29">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">24</span>,</span>
+<span id="cb1-30">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lines"</span>)</span>
+<span id="cb1-31">      ),</span>
+<span id="cb1-32">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.subtitle =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb1-33">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">16</span>,</span>
+<span id="cb1-34">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lines"</span>)</span>
+<span id="cb1-35">      )</span>
+<span id="cb1-36">    )</span>
+<span id="cb1-37">)</span></code></pre></div>
 </details>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>For the first few sections, I will use the map of Greenland as an example, since it is an extreme case (far away from equator, so a good use for CRS projections examples), as shown in Figure&nbsp;1.</p>
+</div>
 </div>
 <section id="introduction" class="level3">
 <h3 class="anchored" data-anchor-id="introduction">7.1 Introduction</h3>
@@ -137,6 +286,296 @@ font-style: inherit;"># Composing plots</span></span></code></pre></div>
 <li>Understanding CRSs prevents errors and ensures smooth handling of geographic data.</li>
 </ul></li>
 </ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">g1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> greenland <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"WGS84 / EPSG:4326"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Default geographic projection"</span>)</span>
+<span id="cb2-5"></span>
+<span id="cb2-6">g2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> greenland <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:3857"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:3857"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Web Mercator projection"</span>)</span>
+<span id="cb2-11"></span>
+<span id="cb2-12">g3 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> greenland <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-15">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ESRI:102004"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-16">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ESRI:102004"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Lambert Conformal Conic"</span>)</span>
+<span id="cb2-17"></span>
+<span id="cb2-18">g4 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> greenland <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-19">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-20">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-21">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ESRI:54030"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-22">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ESRI:54030"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Robinson projection"</span>)</span>
+<span id="cb2-23"></span>
+<span id="cb2-24">g5 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> greenland <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-25">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-26">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-27">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:3413"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-28">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:3413"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"North Pole Stereographic"</span>)</span>
+<span id="cb2-29"></span>
+<span id="cb2-30">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> g1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g2 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g3 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g4 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g5 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-31">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_layout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-32">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_annotation</span>(</span>
+<span id="cb2-33">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_levels =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"a"</span>,</span>
+<span id="cb2-34">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_prefix =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"("</span>,</span>
+<span id="cb2-35">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_suffix =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">")"</span></span>
+<span id="cb2-36">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span></span>
+<span id="cb2-37">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb2-38">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.tag =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb2-39">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>,</span>
+<span id="cb2-40">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">face =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span></span>
+<span id="cb2-41">    )</span>
+<span id="cb2-42">  )</span>
+<span id="cb2-43"></span>
+<span id="cb2-44"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb2-45">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb2-46">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"book_solutions"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"chapter7-1_1.png"</span>),</span>
+<span id="cb2-47">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">600</span>,</span>
+<span id="cb2-48">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2400</span>,</span>
+<span id="cb2-49">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">unit =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span>,</span>
+<span id="cb2-50">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bg =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span></span>
+<span id="cb2-51">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-7-1_1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-7-1_1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/chapter7-1_1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;1: Map of Greenland, with different projections from (a) to (e)"><img src="https://aditya-dahiya.github.io/visage/index.html/book_solutions/images/chapter7-1_1.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-7-1_1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Map of Greenland, with different projections from (a) to (e)
+</figcaption>
+</figure>
+</div>
 </section>
 <section id="coordinate-reference-systems" class="level3">
 <h3 class="anchored" data-anchor-id="coordinate-reference-systems">7.2 Coordinate Reference Systems</h3>
@@ -206,6 +645,68 @@ Note
 </ul>
 </div>
 </div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:4326"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>WktPretty <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">str_view</span>()</span></code></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] │ GEOGCS["WGS 84",
+    │     DATUM["WGS_1984",
+    │         SPHEROID["WGS 84",6378137,298.257223563]],
+    │     PRIMEM["Greenwich",0],
+    │     UNIT["degree",0.0174532925199433,
+    │         AUTHORITY["EPSG","9122"]],
+    │     AXIS["Latitude",NORTH],
+    │     AXIS["Longitude",EAST],
+    │     AUTHORITY["EPSG","4326"]]</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ESRI:102004"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>WktPretty <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">str_view</span>()</span></code></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] │ PROJCS["USA_Contiguous_Lambert_Conformal_Conic",
+    │     GEOGCS["NAD83",
+    │         DATUM["North_American_Datum_1983",
+    │             SPHEROID["GRS 1980",6378137,298.257222101]],
+    │         PRIMEM["Greenwich",0],
+    │         UNIT["degree",0.0174532925199433,
+    │             AUTHORITY["EPSG","9122"]],
+    │         AUTHORITY["EPSG","4269"]],
+    │     PROJECTION["Lambert_Conformal_Conic_2SP"],
+    │     PARAMETER["latitude_of_origin",39],
+    │     PARAMETER["central_meridian",-96],
+    │     PARAMETER["standard_parallel_1",33],
+    │     PARAMETER["standard_parallel_2",45],
+    │     PARAMETER["false_easting",0],
+    │     PARAMETER["false_northing",0],
+    │     UNIT["metre",1],
+    │     AXIS["Easting",EAST],
+    │     AXIS["Northing",NORTH],
+    │     AUTHORITY["ESRI","102004"]]</code></pre>
+</div>
+</div>
 </section>
 <section id="querying-and-setting-coordinate-systems" class="level3">
 <h3 class="anchored" data-anchor-id="querying-and-setting-coordinate-systems">7.3 Querying and Setting Coordinate Systems</h3>
@@ -221,8 +722,8 @@ Note
 <table class="caption-top table">
 <colgroup>
 <col style="width: 25%">
-<col style="width: 47%">
-<col style="width: 27%">
+<col style="width: 36%">
+<col style="width: 38%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -289,6 +790,160 @@ Note
 </tr>
 </tbody>
 </table>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The WGS 84 / EPSG 4326 projection (default projection in {rnaturalearth})</span></span>
+<span id="cb7-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:4326"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>units_gdal</span>
+<span id="cb7-3"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1] "degree"</span></span>
+<span id="cb7-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:4326"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>IsGeographic</span>
+<span id="cb7-5"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1] TRUE</span></span>
+<span id="cb7-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:4326"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>proj4string</span>
+<span id="cb7-7"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1] "+proj=longlat +datum=WGS84 +no_defs"</span></span>
+<span id="cb7-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:4326"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>axes</span>
+<span id="cb7-9"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##                 name orientation</span></span>
+<span id="cb7-10"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## 1  Geodetic latitude           1</span></span>
+<span id="cb7-11"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## 2 Geodetic longitude           3</span></span>
+<span id="cb7-12"></span>
+<span id="cb7-13"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The EPSG:3857 Web Mercator Projection (used for maps and distances)</span></span>
+<span id="cb7-14"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:3857"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>units_gdal</span>
+<span id="cb7-15"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1] "metre"</span></span>
+<span id="cb7-16"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:3857"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>IsGeographic</span>
+<span id="cb7-17"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1] FALSE</span></span>
+<span id="cb7-18"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:3857"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>proj4string</span>
+<span id="cb7-19"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1] "+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs"</span></span>
+<span id="cb7-20"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:3857"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>axes</span>
+<span id="cb7-21"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##       name orientation</span></span>
+<span id="cb7-22"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## 1  Easting           3</span></span>
+<span id="cb7-23"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## 2 Northing           1</span></span>
+<span id="cb7-24"></span>
+<span id="cb7-25"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Robinson Projection ESRI:54030 </span></span>
+<span id="cb7-26"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ESRI:54030"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>units_gdal</span>
+<span id="cb7-27"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1] "metre"</span></span>
+<span id="cb7-28"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ESRI:54030"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>IsGeographic</span>
+<span id="cb7-29"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1] FALSE</span></span>
+<span id="cb7-30"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ESRI:54030"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>proj4string</span>
+<span id="cb7-31"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## [1] "+proj=robin +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"</span></span>
+<span id="cb7-32"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ESRI:54030"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>axes</span>
+<span id="cb7-33"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">##       name orientation</span></span>
+<span id="cb7-34"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## 1  Easting           3</span></span>
+<span id="cb7-35"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## 2 Northing           1</span></span></code></pre></div>
+</details>
+</div>
 <ul>
 <li><p><strong>Use <a href="https://r-spatial.github.io/sf/reference/st_set_crs.html"><code>st_set_crs()</code></a> to manually set or correct a CRS.</strong> Both <code>st_set_crs()</code> and the assignment method <code>st_crs(object) &lt;- value</code> are used to define or modify the Coordinate Reference System (CRS) of spatial objects.</p>
 <ul>
@@ -297,6 +952,240 @@ Note
 <li><p>To transform the coordinates to a different CRS, the <code>st_transform()</code> function should be used.</p></li>
 <li><p>Assigning a CRS is akin to labeling data with its existing coordinate system, whereas transforming reprojects the data into a new coordinate system.</p></li>
 </ul></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">g1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> greenland <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb8-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_set_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:4326"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb8-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb8-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:4326"</span>,</span>
+<span id="cb8-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"The default CRS: a geographic CRS"</span></span>
+<span id="cb8-8">  )</span>
+<span id="cb8-9"></span>
+<span id="cb8-10">g2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> greenland <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb8-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_transform</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:3857"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb8-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb8-15">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"st_transform(`EPSG:3857`)"</span>,</span>
+<span id="cb8-16">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Correct usage; EPSG:3857 CRS: a projected CRS"</span></span>
+<span id="cb8-17">  )</span>
+<span id="cb8-18"></span>
+<span id="cb8-19">g3 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> greenland <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb8-20">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_set_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:3857"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb8-21">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-22">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-23">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb8-24">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"st_set_crs(`EPSG:3857`)"</span>,</span>
+<span id="cb8-25">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Wrong usage; distorts and assigns CRS values"</span></span>
+<span id="cb8-26">  )</span>
+<span id="cb8-27"></span>
+<span id="cb8-28">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> g1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g2 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g3 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-29">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_layout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-30">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_annotation</span>(</span>
+<span id="cb8-31">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_levels =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"a"</span>,</span>
+<span id="cb8-32">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_prefix =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"("</span>,</span>
+<span id="cb8-33">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_suffix =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">")"</span></span>
+<span id="cb8-34">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span></span>
+<span id="cb8-35">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb8-36">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.tag =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb8-37">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>,</span>
+<span id="cb8-38">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">face =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span></span>
+<span id="cb8-39">    ),</span>
+<span id="cb8-40">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>)</span>
+<span id="cb8-41">  )</span>
+<span id="cb8-42"></span>
+<span id="cb8-43"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb8-44">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb8-45">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"book_solutions"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"chapter7-3_1.png"</span>),</span>
+<span id="cb8-46">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">600</span>,</span>
+<span id="cb8-47">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2400</span>,</span>
+<span id="cb8-48">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">unit =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span></span>
+<span id="cb8-49">)</span></code></pre></div>
+</details>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/chapter7-3_1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Explaining the difference between the st_set_crs() and st_transform(). The figures show (a) The default map of Greenland as obtained from {rnaturalearth} with the CRS WGS84 (i.e.&nbsp;EPSG:4326). (b) The transformation using st_transform() which produces correct transformation. (c) The incorrect method using st_set_crs() which simply retains all data, but assumes them to be in the new assigned CRS. This leads to wrong latitude and longitude numbers. Thus, the only use of st_set_crs() is for assigning a CRS to a raw data, which we know for sure from outside sources."><img src="https://aditya-dahiya.github.io/visage/index.html/book_solutions/images/chapter7-3_1.png" class="img-fluid figure-img" alt="Explaining the difference between the st_set_crs() and st_transform(). The figures show (a) The default map of Greenland as obtained from {rnaturalearth} with the CRS WGS84 (i.e.&nbsp;EPSG:4326). (b) The transformation using st_transform() which produces correct transformation. (c) The incorrect method using st_set_crs() which simply retains all data, but assumes them to be in the new assigned CRS. This leads to wrong latitude and longitude numbers. Thus, the only use of st_set_crs() is for assigning a CRS to a raw data, which we know for sure from outside sources."></a></p>
+<figcaption>Explaining the difference between the st_set_crs() and st_transform(). The figures show (a) The default map of Greenland as obtained from {rnaturalearth} with the CRS WGS84 (i.e.&nbsp;EPSG:4326). (b) The transformation using <code>st_transform()</code> which produces correct transformation. (c) The incorrect method using <code>st_set_crs()</code> which simply retains all data, but assumes them to be in the new assigned CRS. This leads to wrong latitude and longitude numbers. Thus, the only use of <code>st_set_crs()</code> is for assigning a CRS to a raw data, which we know for sure from outside sources.</figcaption>
+</figure>
+</div>
+<ul>
 <li><p><strong>Validate CRS with <code>st_is_longlat()</code>.</strong></p>
 <ul>
 <li><p>The function <strong><code>st_is_longlat()</code></strong> in the <strong>sf</strong> package is used to check whether the Coordinate Reference System (CRS) of a spatial object is based on a geographic coordinate system (latitude and longitude). It’s Return Value can be: —</p>
@@ -308,7 +1197,7 @@ Note
 </ul></li>
 <li><p><strong>Raster data CRS handling:</strong></p>
 <ul>
-<li>Use <a href="https://rspatial.org/terra/reference/crs.html"><code>crs()</code></a> from the {terra} package to query and set CRS for raster objects.</li>
+<li>Use <code>crs()</code> from the {terra} package to query and set CRS for raster objects.</li>
 <li>Outputs CRS as a WKT string.</li>
 <li>Set CRS with EPSG codes, WKT strings, or CRSs from other objects (e.g., <code>crs(my_raster) = "EPSG:26912"</code>).</li>
 </ul></li>
@@ -317,11 +1206,1777 @@ Note
 <li><code>st_crs()</code> and <code>crs()</code> only set metadata; they do not modify coordinate values or geometries.</li>
 <li>Missing CRS in datasets (e.g., <code>NA</code> output in <code>st_is_longlat()</code>) indicates that CRS must be explicitly defined (e.g., using <code>st_set_crs()</code>).</li>
 </ul></li>
-<li><p>CRS assumptions: R avoids assumptions about CRS (e.g., unlike GeoJSON which defaults to EPSG:4326).</p></li>
+<li><p>CRS assumptions: R avoids assumptions about CRS (e.g., unlike GeoJSON which defaults to <code>EPSG:4326</code>).</p></li>
 </ul>
+</section>
+<section id="geometry-operations-on-projected-and-unprojected-data" class="level3">
+<h3 class="anchored" data-anchor-id="geometry-operations-on-projected-and-unprojected-data">7.4 Geometry Operations on Projected and Unprojected Data</h3>
+<ul>
+<li><p>The <code>sf</code> package integrates with:</p>
+<ul>
+<li>The <a href="https://cran.r-project.org/web/packages/s2/">S2 spherical geometry engine</a> for <strong>geographic CRS data</strong> with longitude/latitude (lon/lat) CRSs.</li>
+<li><a href="https://libgeos.org/">GEOS</a> is used for <strong>projected CRS or CRS-absent data</strong>.</li>
+<li><strong>Default Behavior</strong>: S2 is enabled by default for geographic data but can be disabled using <a href="https://r-spatial.github.io/sf/reference/sf_use_s2.html"><code>sf::sf_use_s2(FALSE)</code></a>.</li>
+</ul></li>
+<li><p><strong>CRS Importance in Buffers</strong>: Buffers created on unprojected data (e.g., lon/lat) can result in distorted outputs (for example A.1 in Figure&nbsp;2) unless spherical geometry (S2) is used. Better still, always use a projected CRS for accurate distance / buffers calculation (as C.1 in Figure&nbsp;2).</p></li>
+<li><p>Key Learnings:</p>
+<ol type="1">
+<li><p><strong>Incorrect buffer creation:</strong> Buffers on geographic data (Long / Lat data) without a specified CRS (thus, using GEOS) result in outputs in degrees (as A.1 &amp; A.3 in Figure&nbsp;2). <em>Note: Lon/lat buffers without S2 or projection may appear elongated (e.g., along the north-south axis).</em></p></li>
+<li><p><strong>Correct buffer creation:</strong> S2 buffers (with Geographic CRS, i.e.&nbsp;Long / Lat data) calculate accurate distances (as B.1 in Figure&nbsp;2) but may create jagged boundaries (as B.3 in Figure&nbsp;2) (this can be tuned with <code>max_cells</code> or <code>nQuadSegs</code>).</p></li>
+<li><p><strong>Ideal buffer creation:</strong> Use projected CRSs (as in C.1, C.2 &amp; C.3 in Figure&nbsp;2)) like British National Grid (<code>EPSG:27700</code>) for consistent distance-based operations, for example, in metres (m).</p></li>
+</ol></li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><em>Note: S2 buffers improve results but remain less precise than using projected CRSs and GEOS.</em></p>
+</div>
+</div>
+<ul>
+<li><p><strong>Visual Outcomes</strong>:</p>
+<ul>
+<li>Buffers based on S2 and projected CRSs produce more accurate, equidistant boundaries compared to lon/lat inputs without S2.</li>
+<li>S2-derived buffers differ from projected GEOS buffers, and resolution depends on <code>max_cells</code> (default: 1000). (as B.3 in Figure&nbsp;2)</li>
+</ul></li>
+<li><p><strong>Best Practices</strong>:</p>
+<ul>
+<li>Use <code>sf::st_crs()</code> to check the CRS and <strong>verify units (e.g., degrees vs.&nbsp;meters) of the CRS</strong>. Reproject data to a projected CRS using suitable EPSG codes for precise geometric operations.</li>
+<li>For distance-based operations like buffering, reproject data to a projected CRS.</li>
+<li>Adjust <code>max_cells</code> in S2 for performance versus resolution trade-offs. (as B.1 in Figure&nbsp;2)</li>
+</ul></li>
+</ul>
+<section id="fig-7-4-shows-an-example-buffer-zone-around-london" class="level4">
+<h4 class="anchored" data-anchor-id="fig-7-4-shows-an-example-buffer-zone-around-london">Figure&nbsp;2 shows an example (buffer zone around London)</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">overall_title <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"When and How to Use S2 and GEOS Engines for Spatial Operations"</span></span>
+<span id="cb9-2">overall_subtitle <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"GEOS handles projected or CRS-absent data; S2 defaults for geographic data but is optional."</span></span>
+<span id="cb9-3"></span>
+<span id="cb9-4"></span>
+<span id="cb9-5">bts <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">16</span>     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Base Text Size</span></span>
+<span id="cb9-6"></span>
+<span id="cb9-7"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_set</span>(</span>
+<span id="cb9-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>(</span>
+<span id="cb9-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_family =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"body_font"</span>,</span>
+<span id="cb9-10">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_size =</span> bts,</span>
+<span id="cb9-11">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_line_size =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span></span>
+<span id="cb9-12">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-13">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb9-14">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb9-15">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"grey20"</span></span>
+<span id="cb9-16">      ),</span>
+<span id="cb9-17">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb9-18">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.9</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> bts,</span>
+<span id="cb9-19">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lines"</span>)</span>
+<span id="cb9-20">      ),</span>
+<span id="cb9-21">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.subtitle =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb9-22">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.3</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> bts,</span>
+<span id="cb9-23">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lines"</span>)</span>
+<span id="cb9-24">      ),</span>
+<span id="cb9-25">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb9-26">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb9-27">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> bts <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span></span>
+<span id="cb9-28">      ),</span>
+<span id="cb9-29">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.ticks.length =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb9-30">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">panel.background =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_rect</span>(</span>
+<span id="cb9-31">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#caf0f8"</span>,</span>
+<span id="cb9-32">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#caf0f8"</span></span>
+<span id="cb9-33">      ),</span>
+<span id="cb9-34">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">panel.grid =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_line</span>(</span>
+<span id="cb9-35">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>,</span>
+<span id="cb9-36">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>,</span>
+<span id="cb9-37">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linetype =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span></span>
+<span id="cb9-38">      )</span>
+<span id="cb9-39">    )</span>
+<span id="cb9-40">)</span>
+<span id="cb9-41"></span>
+<span id="cb9-42"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a London data point - the coordiantes in Latitude</span></span>
+<span id="cb9-43"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># and Longitude of London, UK</span></span>
+<span id="cb9-44">london_sans_crs <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lon =</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lat =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">51.5</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-45">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_as_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">coords =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lon"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lat"</span>))</span>
+<span id="cb9-46"></span>
+<span id="cb9-47"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Adding the CRS to London data point: values stay same</span></span>
+<span id="cb9-48">london_with_crs <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> london_sans_crs <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-49">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_set_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:4326"</span>)</span>
+<span id="cb9-50"></span>
+<span id="cb9-51"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># British National Grid</span></span>
+<span id="cb9-52"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># st_crs("EPSG:27700")</span></span>
+<span id="cb9-53"></span>
+<span id="cb9-54"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Using the British National Grid CRS: values get changed</span></span>
+<span id="cb9-55">london_british_crs <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> london_sans_crs <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-56">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_set_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:4326"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-57">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_transform</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:27700"</span>)</span>
+<span id="cb9-58"></span>
+<span id="cb9-59"></span>
+<span id="cb9-60"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create an approximate bounding box around 200 km around London</span></span>
+<span id="cb9-61">bbox_near_london <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> london_sans_crs <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-62">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_set_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:4326"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-63">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_buffer</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dist =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">200000</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-64">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_bbox</span>()</span>
+<span id="cb9-65"></span>
+<span id="cb9-66"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Crop and keep coastline map around London</span></span>
+<span id="cb9-67">outline_map <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> rnaturalearth<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ne_countries</span>(</span>
+<span id="cb9-68">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">continent =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Europe"</span>,</span>
+<span id="cb9-69">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">returnclass =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sf"</span>,</span>
+<span id="cb9-70">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">scale =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"large"</span></span>
+<span id="cb9-71">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-72">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_union</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-73">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_as_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-74">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crop</span>(bbox_near_london)</span>
+<span id="cb9-75"></span>
+<span id="cb9-76"></span>
+<span id="cb9-77">base_plot <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-78">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb9-79">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> outline_map,</span>
+<span id="cb9-80">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>,</span>
+<span id="cb9-81">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">alpha</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb9-82">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-83">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb9-84">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> london_with_crs,</span>
+<span id="cb9-85">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>,</span>
+<span id="cb9-86">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#fb8500"</span></span>
+<span id="cb9-87">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-88">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_sf</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">expand =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span>
+<span id="cb9-89"></span>
+<span id="cb9-90"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Without any CRS -------------------------------------------------</span></span>
+<span id="cb9-91"></span>
+<span id="cb9-92">row_1_title <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"London Data, without any CRS"</span></span>
+<span id="cb9-93">row_1_subtitle <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Data in Long / Lat, but without a specified CRS, leads {sf} to use GEOS engine, as in (a) and (c)"</span></span>
+<span id="cb9-94"></span>
+<span id="cb9-95">g1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> base_plot <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-96">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb9-97">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_buffer</span>(london_sans_crs, </span>
+<span id="cb9-98">                     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dist =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-99">            <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_set_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:4326"</span>),</span>
+<span id="cb9-100">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">alpha</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ffb703"</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>),</span>
+<span id="cb9-101">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ffb703"</span></span>
+<span id="cb9-102">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-103">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb9-104">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Incorrect: Using GEOS on Long/Lat data"</span>,</span>
+<span id="cb9-105">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"st_buffer(london_sans_crs, dist = 1)"</span></span>
+<span id="cb9-106">  )</span>
+<span id="cb9-107"></span>
+<span id="cb9-108">g2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> base_plot <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-109">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb9-110">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> london_sans_crs <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-111">            <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_set_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:4326"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-112">            <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_buffer</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dist =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>),</span>
+<span id="cb9-113">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">alpha</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ffb703"</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>),</span>
+<span id="cb9-114">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ffb703"</span></span>
+<span id="cb9-115">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-116">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb9-117">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Incorrect: Using S2 but wrong Buffer units"</span>,</span>
+<span id="cb9-118">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"london_sans_crs |&gt; st_set_crs(`EPSG:4326`) |&gt; st_buffer(dist = 1)"</span></span>
+<span id="cb9-119">  )</span>
+<span id="cb9-120"></span>
+<span id="cb9-121">g3 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> base_plot <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-122">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb9-123">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_buffer</span>(london_sans_crs, </span>
+<span id="cb9-124">                     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dist =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb9-125">                     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nQuadSegs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-126">            <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_set_crs</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EPSG:4326"</span>),</span>
+<span id="cb9-127">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">alpha</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ffb703"</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>),</span>
+<span id="cb9-128">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ffb703"</span></span>
+<span id="cb9-129">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-130">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb9-131">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Incorrect: Using GEOS with nQuadSegs"</span>,</span>
+<span id="cb9-132">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"st_buffer(london_sans_crs, dist = 1, nQuadSegs = 3)"</span></span>
+<span id="cb9-133">  )</span>
+<span id="cb9-134"></span>
+<span id="cb9-135"></span>
+<span id="cb9-136">row_2_title <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"London with a Geographic CRS `EPSG:4326`"</span></span>
+<span id="cb9-137">row_2_subtitle <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Data in Long/Lat, but with CRS speficied, leads {sf}to use S2 (spherical geometry). Distance is in metres, now."</span></span>
+<span id="cb9-138"></span>
+<span id="cb9-139"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sf_use_s2</span>(<span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb9-140">g4 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> base_plot <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-141">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb9-142">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_buffer</span>(london_with_crs, </span>
+<span id="cb9-143">                     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dist =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1e5</span>,</span>
+<span id="cb9-144">                     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">max_cells =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">300</span>),</span>
+<span id="cb9-145">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb9-146">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">alpha</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ffb703"</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>),</span>
+<span id="cb9-147">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ffb703"</span></span>
+<span id="cb9-148">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-149">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb9-150">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Correct: Buffer of 100 km using S2"</span>,</span>
+<span id="cb9-151">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Using S2 engine (spherical geometry); Notice jagged buffer line."</span></span>
+<span id="cb9-152">  )</span>
+<span id="cb9-153"></span>
+<span id="cb9-154"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sf_use_s2</span>(<span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span>
+<span id="cb9-155">g5 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> base_plot <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-156">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb9-157">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_buffer</span>(london_with_crs, </span>
+<span id="cb9-158">                     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dist =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb9-159">                     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">max_cells =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>),</span>
+<span id="cb9-160">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb9-161">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">alpha</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ffb703"</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>),</span>
+<span id="cb9-162">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ffb703"</span></span>
+<span id="cb9-163">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-164">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb9-165">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Incorrect: Buffer of 1 degree with GEOS"</span>,</span>
+<span id="cb9-166">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sf_use_s2(FALSE):  Using GEOS engine on geographic CRS."</span></span>
+<span id="cb9-167">  )</span>
+<span id="cb9-168"></span>
+<span id="cb9-169"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sf_use_s2</span>(<span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb9-170">g6 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> base_plot <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-171">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb9-172">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_buffer</span>(london_with_crs, </span>
+<span id="cb9-173">                     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dist =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1e5</span>,</span>
+<span id="cb9-174">                     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">max_cells =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>),</span>
+<span id="cb9-175">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb9-176">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">alpha</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ffb703"</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>),</span>
+<span id="cb9-177">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ffb703"</span></span>
+<span id="cb9-178">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-179">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb9-180">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Correct: Buffer of 100 km using S2"</span>,</span>
+<span id="cb9-181">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Reducing max_cells = 100 to save computation time."</span></span>
+<span id="cb9-182">  )</span>
+<span id="cb9-183"></span>
+<span id="cb9-184">row_3_title <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"With a Projected CRS: British Grid (EPSG:27700)"</span></span>
+<span id="cb9-185">row_3_subtitle <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Using London data in Projected CRS results in ideal outputs. Accurate results with GEOS engine."</span></span>
+<span id="cb9-186"></span>
+<span id="cb9-187">g7 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> base_plot <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-188">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb9-189">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_buffer</span>(london_british_crs, </span>
+<span id="cb9-190">                     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dist =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1e5</span>),</span>
+<span id="cb9-191">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb9-192">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">alpha</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ffb703"</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>),</span>
+<span id="cb9-193">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ffb703"</span></span>
+<span id="cb9-194">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-195">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb9-196">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Ideal: 100 km Buffer on projected CRS"</span>,</span>
+<span id="cb9-197">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"london_british_crs |&gt; st_buffer(dist = 1e5)"</span></span>
+<span id="cb9-198">  )</span>
+<span id="cb9-199"></span>
+<span id="cb9-200">g8 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> base_plot <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-201">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb9-202">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_buffer</span>(london_british_crs, </span>
+<span id="cb9-203">                     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dist =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1e5</span>,</span>
+<span id="cb9-204">                     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nQuadSegs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>),</span>
+<span id="cb9-205">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb9-206">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">alpha</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ffb703"</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>),</span>
+<span id="cb9-207">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ffb703"</span></span>
+<span id="cb9-208">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-209">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb9-210">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Distance in 4 directions only"</span>,</span>
+<span id="cb9-211">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"nQuadSegs = 1  (Number of segments per quadrant)."</span></span>
+<span id="cb9-212">  )</span>
+<span id="cb9-213"></span>
+<span id="cb9-214">g9 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> base_plot <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-215">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb9-216">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_buffer</span>(london_british_crs, </span>
+<span id="cb9-217">                     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dist =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1e5</span>,</span>
+<span id="cb9-218">                     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nQuadSegs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>),</span>
+<span id="cb9-219">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb9-220">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">alpha</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ffb703"</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>),</span>
+<span id="cb9-221">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ffb703"</span></span>
+<span id="cb9-222">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-223">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb9-224">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Save Computation Time: 100 km Buffer"</span>,</span>
+<span id="cb9-225">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"nQuadSegs = 2  (Number of segments per quadrant)."</span></span>
+<span id="cb9-226">  )</span>
+<span id="cb9-227"></span>
+<span id="cb9-228"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># A custom theme for each Row headings</span></span>
+<span id="cb9-229">theme_row <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(...){</span>
+<span id="cb9-230">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb9-231">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb9-232">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb9-233">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> bts <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3.5</span>,</span>
+<span id="cb9-234">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">hjust =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>,</span>
+<span id="cb9-235">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">face =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span></span>
+<span id="cb9-236">      ),</span>
+<span id="cb9-237">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.subtitle =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb9-238">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb9-239">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> bts <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2.5</span>,</span>
+<span id="cb9-240">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">hjust =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>,</span>
+<span id="cb9-241">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">face =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span></span>
+<span id="cb9-242">      ),</span>
+<span id="cb9-243">    ...</span>
+<span id="cb9-244">  )</span>
+<span id="cb9-245">}</span>
+<span id="cb9-246"></span>
+<span id="cb9-247">theme_tag <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(...){</span>
+<span id="cb9-248">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb9-249">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.tag =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb9-250">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mm"</span>),</span>
+<span id="cb9-251">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">hjust =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>,</span>
+<span id="cb9-252">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">face =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span>,</span>
+<span id="cb9-253">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> bts <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span></span>
+<span id="cb9-254">    ),</span>
+<span id="cb9-255">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.tag.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"top"</span></span>
+<span id="cb9-256">  )</span>
+<span id="cb9-257">}</span>
+<span id="cb9-258"></span>
+<span id="cb9-259"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Compiling Plots for London data without CRS</span></span>
+<span id="cb9-260">ga <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> g1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g2 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g3 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-261">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_annotation</span>(</span>
+<span id="cb9-262">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> row_1_title,</span>
+<span id="cb9-263">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> row_1_subtitle,</span>
+<span id="cb9-264">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">theme =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_row</span>(),</span>
+<span id="cb9-265">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_levels =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"1"</span>,</span>
+<span id="cb9-266">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_prefix =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A."</span></span>
+<span id="cb9-267">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span></span>
+<span id="cb9-268">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_tag</span>()</span>
+<span id="cb9-269"></span>
+<span id="cb9-270"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Save the 3 plots for 1st Row</span></span>
+<span id="cb9-271"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb9-272">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> ga,</span>
+<span id="cb9-273">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"book_solutions"</span>, </span>
+<span id="cb9-274">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>, </span>
+<span id="cb9-275">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"temp_chapter7-4-1.png"</span>),</span>
+<span id="cb9-276">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1050</span>,</span>
+<span id="cb9-277">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2400</span>,</span>
+<span id="cb9-278">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">unit =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span>,</span>
+<span id="cb9-279">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bg =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span></span>
+<span id="cb9-280">)</span>
+<span id="cb9-281"></span>
+<span id="cb9-282"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Compiling Plots for London data with a Geographic CRS</span></span>
+<span id="cb9-283">gb <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span>  g4 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g5 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g6 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-284">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_annotation</span>(</span>
+<span id="cb9-285">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> row_2_title,</span>
+<span id="cb9-286">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> row_2_subtitle,</span>
+<span id="cb9-287">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">theme =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_row</span>(),</span>
+<span id="cb9-288">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_levels =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"1"</span>,</span>
+<span id="cb9-289">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_prefix =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B."</span></span>
+<span id="cb9-290">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span></span>
+<span id="cb9-291">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_tag</span>()</span>
+<span id="cb9-292"></span>
+<span id="cb9-293"></span>
+<span id="cb9-294"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Save the 3 plots for 2nd Row</span></span>
+<span id="cb9-295"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb9-296">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> gb,</span>
+<span id="cb9-297">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"book_solutions"</span>, </span>
+<span id="cb9-298">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>, </span>
+<span id="cb9-299">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"temp_chapter7-4-2.png"</span>),</span>
+<span id="cb9-300">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1050</span>,</span>
+<span id="cb9-301">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2400</span>,</span>
+<span id="cb9-302">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">unit =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span>,</span>
+<span id="cb9-303">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bg =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span></span>
+<span id="cb9-304">)</span>
+<span id="cb9-305"></span>
+<span id="cb9-306"></span>
+<span id="cb9-307"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Compiling Plots for Projected (British Grid) CRS</span></span>
+<span id="cb9-308"></span>
+<span id="cb9-309">gc <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span>  g7 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g8 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g9 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-310">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_layout</span>(</span>
+<span id="cb9-311">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_level =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"new"</span></span>
+<span id="cb9-312">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-313">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_annotation</span>(</span>
+<span id="cb9-314">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> row_3_title,</span>
+<span id="cb9-315">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> row_3_subtitle,</span>
+<span id="cb9-316">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">theme =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_row</span>(),</span>
+<span id="cb9-317">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_levels =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"1"</span>,</span>
+<span id="cb9-318">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_prefix =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"C."</span></span>
+<span id="cb9-319">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span></span>
+<span id="cb9-320">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_tag</span>()</span>
+<span id="cb9-321"></span>
+<span id="cb9-322"></span>
+<span id="cb9-323"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Save the 3 plots for 3rd Row</span></span>
+<span id="cb9-324"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb9-325">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> gc,</span>
+<span id="cb9-326">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"book_solutions"</span>, </span>
+<span id="cb9-327">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>, </span>
+<span id="cb9-328">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"temp_chapter7-4-3.png"</span>),</span>
+<span id="cb9-329">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1050</span>,</span>
+<span id="cb9-330">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2400</span>,</span>
+<span id="cb9-331">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">unit =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span>,</span>
+<span id="cb9-332">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bg =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span></span>
+<span id="cb9-333">)</span>
+<span id="cb9-334"></span>
+<span id="cb9-335"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Compile the images</span></span>
+<span id="cb9-336"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(magick)</span>
+<span id="cb9-337">ga <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">image_read</span>(here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"book_solutions"</span>, </span>
+<span id="cb9-338">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>, </span>
+<span id="cb9-339">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"temp_chapter7-4-1.png"</span>))</span>
+<span id="cb9-340">gb <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">image_read</span>(here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"book_solutions"</span>, </span>
+<span id="cb9-341">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>, </span>
+<span id="cb9-342">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"temp_chapter7-4-2.png"</span>))</span>
+<span id="cb9-343">gc <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">image_read</span>(here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"book_solutions"</span>, </span>
+<span id="cb9-344">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>, </span>
+<span id="cb9-345">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"temp_chapter7-4-3.png"</span>))</span>
+<span id="cb9-346"></span>
+<span id="cb9-347"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">image_append</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(ga, gb, gc), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">stack =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb9-348">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">image_write</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">path =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"book_solutions"</span>, </span>
+<span id="cb9-349">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>, </span>
+<span id="cb9-350">                        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"chapter7-4.png"</span>))</span>
+<span id="cb9-351"></span>
+<span id="cb9-352"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Clean up the temporary file</span></span>
+<span id="cb9-353"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unlink</span>(here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"book_solutions"</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb9-354">                  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"temp_chapter7-4-1.png"</span>))</span>
+<span id="cb9-355"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unlink</span>(here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"book_solutions"</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb9-356">                  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"temp_chapter7-4-2.png"</span>))</span>
+<span id="cb9-357"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unlink</span>(here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"book_solutions"</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>,</span>
+<span id="cb9-358">                  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"temp_chapter7-4-3.png"</span>))</span></code></pre></div>
+</details>
+</div>
+<div id="fig-7-4" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-7-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/chapter7-4.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Figure&nbsp;2: The different kinds of buffering - incorrect, correct and ideal using {sf} in R relying on two engines - Google’s S2 spherical geometry, or GEOS engine."><img src="https://aditya-dahiya.github.io/visage/index.html/book_solutions/images/chapter7-4.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-7-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: The different kinds of buffering - incorrect, correct and ideal using {sf} in R relying on two engines - Google’s S2 spherical geometry, or GEOS engine.
+</figcaption>
+</figure>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This code below calculates the distances between lines of longitude (meridians) and latitude at different geographic points to demonstrate the distortion inherent in geographic coordinate systems (lon/lat CRSs).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Load the required package</span></span>
+<span id="cb10-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(geosphere)</span>
+<span id="cb10-3"></span>
+<span id="cb10-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 1. Distance between two meridians (longitude lines) at the equator (0° latitude)</span></span>
+<span id="cb10-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># From (0°E, 0°N) to (1°E, 0°N)</span></span>
+<span id="cb10-6">distance_meridian_equator <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">distGeo</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)) </span>
+<span id="cb10-7"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cat</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Distance between meridians at the equator:"</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(distance_meridian_equator<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>), <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"km</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb10-8"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## Distance between meridians at the equator: 111.32 km</span></span>
+<span id="cb10-9"></span>
+<span id="cb10-10"></span>
+<span id="cb10-11"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 2. Distance between two meridians at the latitude of London (51.5°N)</span></span>
+<span id="cb10-12"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># From (0°E, 51.5°N) to (1°E, 51.5°N)</span></span>
+<span id="cb10-13">distance_meridian_london <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">distGeo</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">51.5</span>), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">51.5</span>)) </span>
+<span id="cb10-14"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cat</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Distance between meridians at London's latitude:"</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(distance_meridian_london<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1e3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>), <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"km</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb10-15"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## Distance between meridians at London's latitude: 69.44 km</span></span>
+<span id="cb10-16"></span>
+<span id="cb10-17"></span>
+<span id="cb10-18"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 3. Distance between two parallels (latitude lines) at any latitude</span></span>
+<span id="cb10-19"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># From (0°E, 0°N) to (0°E, 1°N)</span></span>
+<span id="cb10-20">distance_latitude <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">distGeo</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)) </span>
+<span id="cb10-21"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cat</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Distance between latitudes:"</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(distance_latitude<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1e3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>), <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"meters</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb10-22"><span class="do" style="color: #5E5E5E;
+background-color: null;
+font-style: italic;">## Distance between latitudes: 110.57 meters</span></span></code></pre></div>
+</div>
+<p>Thus, the distance between meridians varies with latitude, shrinking from approximately 111 km at the equator to zero at the poles, while lines of latitude remain equidistant.</p>
+</div>
+</div>
 
 
 
+</section>
 </section>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0">
