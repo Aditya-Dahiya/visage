@@ -220,9 +220,9 @@ Note
 </ul>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 25%">
-<col style="width: 37%">
-<col style="width: 37%">
+<col style="width: 12%">
+<col style="width: 39%">
+<col style="width: 47%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -721,9 +721,9 @@ font-style: inherit;">str_view</span>()</span></code></pre></div>
 </ul>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 25%">
-<col style="width: 36%">
-<col style="width: 38%">
+<col style="width: 12%">
+<col style="width: 62%">
+<col style="width: 23%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -2756,7 +2756,7 @@ font-style: inherit;">"chapter7-4.png"</span>))</span>
 <span id="cb9-351"></span>
 <span id="cb9-352"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># Clean up the temporary file</span></span>
+font-style: inherit;"># Clean up the temporary files</span></span>
 <span id="cb9-353"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">unlink</span>(here<span class="sc" style="color: #5E5E5E;
@@ -2973,18 +2973,261 @@ font-style: italic;">## Distance between latitudes: 110.57 meters</span></span><
 <p>Thus, the distance between meridians varies with latitude, shrinking from approximately 111 km at the equator to zero at the poles, while lines of latitude remain equidistant.</p>
 </div>
 </div>
-
-
-
 </section>
+</section>
+<section id="when-to-reproject" class="level3">
+<h3 class="anchored" data-anchor-id="when-to-reproject">7.5 When to Reproject?</h3>
+<ul>
+<li>CRS Assignment: In practical daily work, CRSs are typically set automatically when data is read; hoever, if required, manual setting can be done using <a href="https://r-spatial.github.io/sf/reference/st_set_crs.html"><code>st_set_crs()</code></a>.</li>
+<li>The main task, in daily work, involves transforming objects between CRSs to enable specific tasks. Transformation Necessity:
+<ul>
+<li><strong>Tranformation into a Geographic CRS</strong>
+<ul>
+<li>Essential when publishing online with packages like <a href="https://rstudio.github.io/leaflet/"><code>leaflet</code></a>. <span class="citation" data-cites="leaflet">(Cheng et al. 2024)</span></li>
+<li>For projects with web mapping, we need to use <code>EPSG:4326</code> (a geographic CRS).</li>
+<li>For projects needing Spherical Geometry operations, use Geographic CRS.</li>
+</ul></li>
+<li><strong>Tranformation into another Projected CRS</strong>
+<ul>
+<li>Projects needing planar geometry operations, like creating buffer zones with smooth edges.</li>
+<li>Required when comparing or combining objects with different CRSs (e.g., using <a href="https://r-spatial.github.io/sf/reference/st_distance.html"><code>st_distance()</code></a>).</li>
+</ul></li>
+</ul></li>
+<li><strong>CRS Selection</strong>: Geographic CRS is best for global and spherical geometry operations. Projected CRS is ideal for local/regional planar geometry operations and analyses requiring precise distance and area calculations. Here’s a simple table summarizing when to use geographic versus projected CRSs:</li>
+</ul>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th><strong>Scenario</strong></th>
+<th><strong>Use Geographic CRS</strong></th>
+<th><strong>Use Projected CRS</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Global Mapping</td>
+<td>Required for <strong>displaying data on web maps (e.g., with <a href="https://rstudio.github.io/leaflet/"><code>leaflet</code></a>).</strong></td>
+<td>Not recommended due to distortions at global scales.</td>
+</tr>
+<tr class="even">
+<td>Great Circle Distances</td>
+<td><strong>Use</strong> <strong>for accurate calculation of shortest paths on the Earth’s surface.</strong></td>
+<td>Distances may be inaccurate due to planar projections.</td>
+</tr>
+<tr class="odd">
+<td>Angular Bearings</td>
+<td><strong>Essential for computing directions or angles between points.</strong></td>
+<td>Distortions in angles make it unsuitable for such tasks.</td>
+</tr>
+<tr class="even">
+<td>Radius-based Proximity Queries (Spherical)</td>
+<td><strong>Use for radius-based queries or geofencing on a global scale.</strong></td>
+<td>Results can be distorted for large distances.</td>
+</tr>
+<tr class="odd">
+<td>Local Area Analysis</td>
+<td>Not typically recommended unless working with global-scale spherical models.</td>
+<td><strong>Ideal for small-to-medium-scale analyses with minimal distortions.</strong></td>
+</tr>
+<tr class="even">
+<td>Buffer Creation</td>
+<td>Not recommended for smooth edges.</td>
+<td><strong>Best for creating accurate and smooth planar buffers.</strong></td>
+</tr>
+<tr class="odd">
+<td>Overlay and Intersection Operations</td>
+<td>Limited to angular-based operations (e.g., great circle intersections).</td>
+<td><strong>Preferred for planar intersections and overlays for precise alignment.</strong></td>
+</tr>
+<tr class="even">
+<td>Planar Geometry Operations</td>
+<td>Not ideal for creating planar geometries like buffers or centroids.</td>
+<td><strong>Essential for tasks like buffering and centroids in local projections.</strong></td>
+</tr>
+<tr class="odd">
+<td>Area and Length Calculation</td>
+<td>Use for global-scale spherical areas (with corrections).</td>
+<td>Use for precise calculations in local or regional contexts.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="which-crs-to-use" class="level3">
+<h3 class="anchored" data-anchor-id="which-crs-to-use">7.6 Which CRS to use?</h3>
+<ul>
+<li>No single ‘best’ CRS: All projections involve distortions; the choice depends on the task.</li>
+<li>Switch CRSs for different tasks: Use a CRS that aligns with your analysis or visualization goals.</li>
+<li><strong>Geographic CRS: most commonly, use WGS84 (EPSG:4326):</strong>
+<ul>
+<li>Common for web mapping, GPS datasets, and most vector - raster datasets.</li>
+<li>EPSG code: 4326 (useful for converting to a universal CRS).</li>
+</ul></li>
+<li><strong>Projected CRS: Often dictated by local mapping agencies.</strong>
+<ul>
+<li>To ensure compatibility: Preferable to work in CRS (in which the data was provided)</li>
+<li><strong>UTM (Universal Transverse Mercator)</strong>: a set of Projected CRSs</li>
+</ul></li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The Universal Transverse Mercator (UTM) set of projections</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 83%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Feature</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Projection Name</td>
+<td>Universal Transverse Mercator (UTM)</td>
+</tr>
+<tr class="even">
+<td>Structure</td>
+<td>Divides the Earth into 60 longitudinal zones (6° wide each) and 20 latitudinal segments.</td>
+</tr>
+<tr class="odd">
+<td>CRS Type</td>
+<td>Projected CRS. Uses the Transverse Mercator projection for each zone.</td>
+</tr>
+<tr class="even">
+<td>EPSG Codes</td>
+<td><p><strong>Northern Hemisphere</strong>: 32601 to 32660.</p>
+<p><strong>Southern Hemisphere</strong>: 32701 to 32760.</p></td>
+</tr>
+<tr class="odd">
+<td>Zone Numbering</td>
+<td><p>Zones numbered 1 to 60 (<strong>longitude</strong>).</p>
+<p><strong>Latitude</strong> segments labeled A to V (excluding I and O).</p></td>
+</tr>
+<tr class="even">
+<td>Example Zones</td>
+<td><p>Zone 60H: Northern New Zealand, EPSG: 32760.</p>
+<p>Zone 30N: Covers London, EPSG: 32630.</p></td>
+</tr>
+<tr class="odd">
+<td>Key Features</td>
+<td><p><strong>Conformal projection</strong>: Preserves angles and shapes locally.</p>
+<p>Suitable for small areas.</p></td>
+</tr>
+<tr class="even">
+<td>Distortion</td>
+<td>Increases with distance from the zone’s central meridian.</td>
+</tr>
+<tr class="odd">
+<td>Use Cases</td>
+<td>Small-scale mapping, local surveys, engineering, and construction projects.</td>
+</tr>
+<tr class="even">
+<td>Limitations</td>
+<td>Not suitable for regions spanning multiple zones.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># A code to plot UTM zones over the World Map in R</span></span>
+<span id="cb11-2"></span>
+<span id="cb11-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Attempt to start here:--</span></span></code></pre></div>
+</details>
+</div>
+<ul>
+<li><strong>Selecting CRSs with tools</strong>:
+<ul>
+<li>Use <code>crsuggest::suggest_crs()</code> <span class="citation" data-cites="crsuggest">(Walker 2022)</span> for recommended CRSs based on spatial objects.</li>
+<li>Explore <a href="https://crs-explorer.proj.org/">CRS Explorer</a> by <a href="https://javier.jimenezshaw.com/">Javier Jimenez Shaw</a> for location-specific CRSs.</li>
+</ul></li>
+<li>Projection Recommendations Table</li>
+</ul>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 43%">
+<col style="width: 35%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Name of Projection Type</strong></th>
+<th><strong>When to Use</strong></th>
+<th><strong>When Not to Use</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Lambert Azimuthal Equal-Area (LAEA)</strong></td>
+<td>- For custom local projections.<br>
+- When preserving area is crucial, e.g., for statistical mapping.</td>
+<td><p>- When preserving shape or distance is critical.</p>
+<p>- For areas extending thousands of kilometers.</p></td>
+</tr>
+<tr class="even">
+<td><strong>Azimuthal Equidistant (AEQD)</strong></td>
+<td>- For accurate straight-line distances from a central point.<br>
+- Mapping distances for circular or radial features.</td>
+<td><p>- For large-scale mapping beyond the immediate region of the center.</p>
+<p>- When shape or area preservation matters.</p></td>
+</tr>
+<tr class="odd">
+<td><strong>Lambert Conformal Conic (LCC)</strong></td>
+<td>- For regions spanning thousands of kilometers (e.g., continents or large countries).<br>
+- When preserving shape is important.</td>
+<td><p>- For small-scale maps.</p>
+<p>- When precise area calculations are required.</p></td>
+</tr>
+<tr class="even">
+<td><strong>Stereographic (STERE)</strong></td>
+<td><p>- For polar regions.</p>
+<p>- When preserving shape for relatively small polar areas.</p></td>
+<td><p>- For large-scale maps extending thousands of kilometers.</p>
+<p>- For accurate area or distance calculations.</p></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Custom CRSs</strong>:
+<ul>
+<li>Suitable for local datasets, using center points for AEQD.</li>
+<li>Caution: Not compatible with other datasets; may lose accuracy for large areas.</li>
+</ul></li>
+<li>Advanced options: Use geodesic calculations for fallback if no CRS fits (<a href="https://proj.org/geodesic.html">proj.org</a>).</li>
+</ul>
+
+
+
 </section>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0">
+<div id="ref-leaflet" class="csl-entry">
+Cheng, Joe, Barret Schloerke, Bhaskar Karambelkar, and Yihui Xie. 2024. <span>“Leaflet: Create Interactive Web Maps with the JavaScript ’Leaflet’ Library.”</span> <a href="https://CRAN.R-project.org/package=leaflet">https://CRAN.R-project.org/package=leaflet</a>.
+</div>
 <div id="ref-terra-2" class="csl-entry">
 Hijmans, Robert J. 2024. <span>“Terra: Spatial Data Analysis.”</span> <a href="https://CRAN.R-project.org/package=terra">https://CRAN.R-project.org/package=terra</a>.
 </div>
 <div id="ref-sf" class="csl-entry">
 Pebesma, Edzer, and Roger Bivand. 2023. <span>“<span></span>Spatial Data Science: With Applications in r<span></span>.”</span> <a href="https://doi.org/10.1201/9780429459016">https://doi.org/10.1201/9780429459016</a>.
+</div>
+<div id="ref-crsuggest" class="csl-entry">
+Walker, Kyle. 2022. <span>“Crsuggest: Obtain Suggested Coordinate Reference System Information for Spatial Data.”</span> <a href="https://CRAN.R-project.org/package=crsuggest">https://CRAN.R-project.org/package=crsuggest</a>.
 </div>
 </div></section></div> ]]></description>
   <category>Geocomputation with R</category>

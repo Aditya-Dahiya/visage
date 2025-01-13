@@ -86,16 +86,25 @@ For the first few sections, I will use the map of Greenland as an example, since
     -   **Geographic CRS**: A reference system that defines locations on the Earth using a spherical or ellipsoidal model. It specifies positions in terms of latitude and longitude, with angular measurements relative to the Earth's center. Uses longitude/latitude (units in degrees)
     -   **Projected CRS**: A reference system that transforms the Earth's curved surface into a flat map. It uses linear units like meters and focuses on minimizing distortions in specific aspects such as distance, area, or shape, depending on the map's purpose. Uses meters from a datum (projected system).
 
-| **Aspect** | **Geographic CRS** | **Projected CRS** |
-|------------------|---------------------------|---------------------------|
-| **Definition** | Represents locations on the Earth's surface using a spherical or ellipsoidal model. | Represents locations on a flat, two-dimensional surface using a projected system. |
-| **Units of Measurement** | Uses angular units (degrees of longitude and latitude). | Uses linear units (meters, feet, etc.). |
-| **Coordinate Axes** | Longitude (x-axis) and Latitude (y-axis). | X (east-west) and Y (north-south) in a flat plane. |
-| **Purpose** | Ideal for global-scale mapping and geodetic calculations. | Ideal for local or regional mapping, where accurate distances, angles, and areas are required. |
-| **Accuracy** | Retains accurate angular relationships but distorts distances and areas. | Distorts angular relationships but preserves distances, areas, or shapes (depending on projection). |
-| **Examples** | WGS84 (used in GPS), NAD83. | UTM (Universal Transverse Mercator), State Plane. |
-| **Key Feature** | Geocentric, based on Earth's shape as an ellipsoid. | Flat, derived by projecting the Earth onto a 2D surface using a mathematical formula. |
-| **Applications** | Satellite data, GPS, global navigation systems. | Engineering projects, land use planning, local/regional maps. |
++--------------------------+-------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| **Aspect**               | **Geographic CRS**                                                                  | **Projected CRS**                                                                                   |
++==========================+=====================================================================================+=====================================================================================================+
+| **Definition**           | Represents locations on the Earth's surface using a spherical or ellipsoidal model. | Represents locations on a flat, two-dimensional surface using a projected system.                   |
++--------------------------+-------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| **Units of Measurement** | Uses angular units (degrees of longitude and latitude).                             | Uses linear units (meters, feet, etc.).                                                             |
++--------------------------+-------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| **Coordinate Axes**      | Longitude (x-axis) and Latitude (y-axis).                                           | X (east-west) and Y (north-south) in a flat plane.                                                  |
++--------------------------+-------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| **Purpose**              | Ideal for global-scale mapping and geodetic calculations.                           | Ideal for local or regional mapping, where accurate distances, angles, and areas are required.      |
++--------------------------+-------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| **Accuracy**             | Retains accurate angular relationships but distorts distances and areas.            | Distorts angular relationships but preserves distances, areas, or shapes (depending on projection). |
++--------------------------+-------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| **Examples**             | WGS84 (used in GPS), NAD83.                                                         | UTM (Universal Transverse Mercator), State Plane.                                                   |
++--------------------------+-------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| **Key Feature**          | Geocentric, based on Earth's shape as an ellipsoid.                                 | Flat, derived by projecting the Earth onto a 2D surface using a mathematical formula.               |
++--------------------------+-------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| **Applications**         | Satellite data, GPS, global navigation systems.                                     | Engineering projects, land use planning, local/regional maps.                                       |
++--------------------------+-------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------+
 
 -   **Focus of the Chapter:**
 
@@ -224,19 +233,31 @@ st_crs("ESRI:102004")$WktPretty |> str_view()
 
 -   Additional CRS details can be retrieved: The `st_crs()` function from the **sf** package in R provides detailed information about the Coordinate Reference System (CRS) of spatial objects.
 
-| Attribute | Description | Example Usage |
-|------------------|--------------------------|----------------------------|
-| **IsGeographic** | Indicates if the CRS is geographic (TRUE) or projected (FALSE). | `st_crs(new_vector)$IsGeographic` |
-| **units_gdal** | Specifies the units of measurement used in the CRS, as recognized by GDAL. | `st_crs(new_vector)$units_gdal` |
-| **srid** | Provides the Spatial Reference System Identifier (SRID) associated with the CRS, if available. | `st_crs(new_vector)$srid` |
-| **proj4string** | Returns the PROJ.4 string representation of the CRS, offering a concise textual description. | `st_crs(new_vector)$proj4string` |
-| **WktPretty** | Provides a formatted Well-Known Text (WKT) representation of the CRS for easier readability. | `st_crs(new_vector)$WktPretty` |
-| **InvFlattening** | Provides the inverse flattening value of the ellipsoid, indicating its compression. | `st_crs(new_vector)$InvFlattening` |
-| **Name** | Retrieves the official name of the CRS. | `st_crs(new_vector)$Name` |
-| **epsg** | Returns the EPSG code associated with the CRS, if available. | `st_crs(new_vector)$epsg` |
-| **yx** | Indicates whether the axis order is latitude-longitude (TRUE) or longitude-latitude (FALSE). | `st_crs(new_vector)$yx` |
-| **ud_unit** | Returns the units object associated with the CRS, or NULL if units are missing. | `st_crs(new_vector)$ud_unit` |
-| **axes** | Provides information about the axes of the CRS, including their names and units. | `st_crs(new_vector)$axes` |
++-------------------+------------------------------------------------------------------------------------------------+------------------------------------+
+| Attribute         | Description                                                                                    | Example Usage                      |
++===================+================================================================================================+====================================+
+| **IsGeographic**  | Indicates if the CRS is geographic (TRUE) or projected (FALSE).                                | `st_crs(new_vector)$IsGeographic`  |
++-------------------+------------------------------------------------------------------------------------------------+------------------------------------+
+| **units_gdal**    | Specifies the units of measurement used in the CRS, as recognized by GDAL.                     | `st_crs(new_vector)$units_gdal`    |
++-------------------+------------------------------------------------------------------------------------------------+------------------------------------+
+| **srid**          | Provides the Spatial Reference System Identifier (SRID) associated with the CRS, if available. | `st_crs(new_vector)$srid`          |
++-------------------+------------------------------------------------------------------------------------------------+------------------------------------+
+| **proj4string**   | Returns the PROJ.4 string representation of the CRS, offering a concise textual description.   | `st_crs(new_vector)$proj4string`   |
++-------------------+------------------------------------------------------------------------------------------------+------------------------------------+
+| **WktPretty**     | Provides a formatted Well-Known Text (WKT) representation of the CRS for easier readability.   | `st_crs(new_vector)$WktPretty`     |
++-------------------+------------------------------------------------------------------------------------------------+------------------------------------+
+| **InvFlattening** | Provides the inverse flattening value of the ellipsoid, indicating its compression.            | `st_crs(new_vector)$InvFlattening` |
++-------------------+------------------------------------------------------------------------------------------------+------------------------------------+
+| **Name**          | Retrieves the official name of the CRS.                                                        | `st_crs(new_vector)$Name`          |
++-------------------+------------------------------------------------------------------------------------------------+------------------------------------+
+| **epsg**          | Returns the EPSG code associated with the CRS, if available.                                   | `st_crs(new_vector)$epsg`          |
++-------------------+------------------------------------------------------------------------------------------------+------------------------------------+
+| **yx**            | Indicates whether the axis order is latitude-longitude (TRUE) or longitude-latitude (FALSE).   | `st_crs(new_vector)$yx`            |
++-------------------+------------------------------------------------------------------------------------------------+------------------------------------+
+| **ud_unit**       | Returns the units object associated with the CRS, or NULL if units are missing.                | `st_crs(new_vector)$ud_unit`       |
++-------------------+------------------------------------------------------------------------------------------------+------------------------------------+
+| **axes**          | Provides information about the axes of the CRS, including their names and units.               | `st_crs(new_vector)$axes`          |
++-------------------+------------------------------------------------------------------------------------------------+------------------------------------+
 
 ```{r}
 #| eval: true
@@ -737,7 +758,7 @@ image_append(c(ga, gb, gc), stack = TRUE) |>
                         "images", 
                         "chapter7-4.png"))
 
-# Clean up the temporary file
+# Clean up the temporary files
 unlink(here::here("book_solutions","images",
                   "temp_chapter7-4-1.png"))
 unlink(here::here("book_solutions","images",
@@ -780,3 +801,121 @@ cat("Distance between latitudes:", round(distance_latitude/1e3, 2), "meters\n")
 
 Thus, the distance between meridians varies with latitude, shrinking from approximately 111 km at the equator to zero at the poles, while lines of latitude remain equidistant.
 :::
+
+### 7.5 When to Reproject?
+
+-   CRS Assignment: In practical daily work, CRSs are typically set automatically when data is read; hoever, if required, manual setting can be done using [`st_set_crs()`](https://r-spatial.github.io/sf/reference/st_set_crs.html).
+-   The main task, in daily work, involves transforming objects between CRSs to enable specific tasks. Transformation Necessity:
+    -   **Tranformation into a Geographic CRS**
+        -   Essential when publishing online with packages like [`leaflet`](https://rstudio.github.io/leaflet/). [@leaflet]
+        -   For projects with web mapping, we need to use `EPSG:4326` (a geographic CRS).
+        -   For projects needing Spherical Geometry operations, use Geographic CRS.
+    -   **Tranformation into another Projected CRS**
+        -   Projects needing planar geometry operations, like creating buffer zones with smooth edges.
+        -   Required when comparing or combining objects with different CRSs (e.g., using [`st_distance()`](https://r-spatial.github.io/sf/reference/st_distance.html)).
+-   **CRS Selection**: Geographic CRS is best for global and spherical geometry operations. Projected CRS is ideal for local/regional planar geometry operations and analyses requiring precise distance and area calculations. Here’s a simple table summarizing when to use geographic versus projected CRSs:
+
++--------------------------------------------+------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
+| **Scenario**                               | **Use Geographic CRS**                                                                                     | **Use Projected CRS**                                                      |
++============================================+============================================================================================================+============================================================================+
+| Global Mapping                             | Required for **displaying data on web maps (e.g., with [`leaflet`](https://rstudio.github.io/leaflet/)).** | Not recommended due to distortions at global scales.                       |
++--------------------------------------------+------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
+| Great Circle Distances                     | **Use** **for accurate calculation of shortest paths on the Earth's surface.**                             | Distances may be inaccurate due to planar projections.                     |
++--------------------------------------------+------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
+| Angular Bearings                           | **Essential for computing directions or angles between points.**                                           | Distortions in angles make it unsuitable for such tasks.                   |
++--------------------------------------------+------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
+| Radius-based Proximity Queries (Spherical) | **Use for radius-based queries or geofencing on a global scale.**                                          | Results can be distorted for large distances.                              |
++--------------------------------------------+------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
+| Local Area Analysis                        | Not typically recommended unless working with global-scale spherical models.                               | **Ideal for small-to-medium-scale analyses with minimal distortions.**     |
++--------------------------------------------+------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
+| Buffer Creation                            | Not recommended for smooth edges.                                                                          | **Best for creating accurate and smooth planar buffers.**                  |
++--------------------------------------------+------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
+| Overlay and Intersection Operations        | Limited to angular-based operations (e.g., great circle intersections).                                    | **Preferred for planar intersections and overlays for precise alignment.** |
++--------------------------------------------+------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
+| Planar Geometry Operations                 | Not ideal for creating planar geometries like buffers or centroids.                                        | **Essential for tasks like buffering and centroids in local projections.** |
++--------------------------------------------+------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
+| Area and Length Calculation                | Use for global-scale spherical areas (with corrections).                                                   | Use for precise calculations in local or regional contexts.                |
++--------------------------------------------+------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
+
+### 7.6 Which CRS to use?
+
+-   No single 'best' CRS: All projections involve distortions; the choice depends on the task.
+-   Switch CRSs for different tasks: Use a CRS that aligns with your analysis or visualization goals.
+-   **Geographic CRS: most commonly, use WGS84 (EPSG:4326):**
+    -   Common for web mapping, GPS datasets, and most vector - raster datasets.
+    -   EPSG code: 4326 (useful for converting to a universal CRS).
+-   **Projected CRS: Often dictated by local mapping agencies.**
+    -   To ensure compatibility: Preferable to work in CRS (in which the data was provided)
+    -   **UTM (Universal Transverse Mercator)**: a set of Projected CRSs
+
+::: callout-note
+The Universal Transverse Mercator (UTM) set of projections
+
++-----------------+------------------------------------------------------------------------------------------+
+| **Feature**     | **Description**                                                                          |
++=================+==========================================================================================+
+| Projection Name | Universal Transverse Mercator (UTM)                                                      |
++-----------------+------------------------------------------------------------------------------------------+
+| Structure       | Divides the Earth into 60 longitudinal zones (6° wide each) and 20 latitudinal segments. |
++-----------------+------------------------------------------------------------------------------------------+
+| CRS Type        | Projected CRS. Uses the Transverse Mercator projection for each zone.                    |
++-----------------+------------------------------------------------------------------------------------------+
+| EPSG Codes      | **Northern Hemisphere**: 32601 to 32660.                                                 |
+|                 |                                                                                          |
+|                 | **Southern Hemisphere**: 32701 to 32760.                                                 |
++-----------------+------------------------------------------------------------------------------------------+
+| Zone Numbering  | Zones numbered 1 to 60 (**longitude**).                                                  |
+|                 |                                                                                          |
+|                 | **Latitude** segments labeled A to V (excluding I and O).                                |
++-----------------+------------------------------------------------------------------------------------------+
+| Example Zones   | Zone 60H: Northern New Zealand, EPSG: 32760.                                             |
+|                 |                                                                                          |
+|                 | Zone 30N: Covers London, EPSG: 32630.                                                    |
++-----------------+------------------------------------------------------------------------------------------+
+| Key Features    | **Conformal projection**: Preserves angles and shapes locally.                           |
+|                 |                                                                                          |
+|                 | Suitable for small areas.                                                                |
++-----------------+------------------------------------------------------------------------------------------+
+| Distortion      | Increases with distance from the zone's central meridian.                                |
++-----------------+------------------------------------------------------------------------------------------+
+| Use Cases       | Small-scale mapping, local surveys, engineering, and construction projects.              |
++-----------------+------------------------------------------------------------------------------------------+
+| Limitations     | Not suitable for regions spanning multiple zones.                                        |
++-----------------+------------------------------------------------------------------------------------------+
+:::
+
+```{r}
+# A code to plot UTM zones over the World Map in R
+
+# Attempt to start here:--
+```
+
+-   **Selecting CRSs with tools**:
+    -   Use `crsuggest::suggest_crs()` [@crsuggest] for recommended CRSs based on spatial objects.
+    -   Explore [CRS Explorer](https://crs-explorer.proj.org/) by [Javier Jimenez Shaw](https://javier.jimenezshaw.com/) for location-specific CRSs.
+-   Projection Recommendations Table
+
++-----------------------------------------+-----------------------------------------------------------------------------------------+-----------------------------------------------------------------------+
+| **Name of Projection Type**             | **When to Use**                                                                         | **When Not to Use**                                                   |
++=========================================+=========================================================================================+=======================================================================+
+| **Lambert Azimuthal Equal-Area (LAEA)** | \- For custom local projections.\                                                       | \- When preserving shape or distance is critical.                     |
+|                                         | - When preserving area is crucial, e.g., for statistical mapping.                       |                                                                       |
+|                                         |                                                                                         | \- For areas extending thousands of kilometers.                       |
++-----------------------------------------+-----------------------------------------------------------------------------------------+-----------------------------------------------------------------------+
+| **Azimuthal Equidistant (AEQD)**        | \- For accurate straight-line distances from a central point.\                          | \- For large-scale mapping beyond the immediate region of the center. |
+|                                         | - Mapping distances for circular or radial features.                                    |                                                                       |
+|                                         |                                                                                         | \- When shape or area preservation matters.                           |
++-----------------------------------------+-----------------------------------------------------------------------------------------+-----------------------------------------------------------------------+
+| **Lambert Conformal Conic (LCC)**       | \- For regions spanning thousands of kilometers (e.g., continents or large countries).\ | \- For small-scale maps.                                              |
+|                                         | - When preserving shape is important.                                                   |                                                                       |
+|                                         |                                                                                         | \- When precise area calculations are required.                       |
++-----------------------------------------+-----------------------------------------------------------------------------------------+-----------------------------------------------------------------------+
+| **Stereographic (STERE)**               | \- For polar regions.                                                                   | \- For large-scale maps extending thousands of kilometers.            |
+|                                         |                                                                                         |                                                                       |
+|                                         | \- When preserving shape for relatively small polar areas.                              | \- For accurate area or distance calculations.                        |
++-----------------------------------------+-----------------------------------------------------------------------------------------+-----------------------------------------------------------------------+
+
+-   **Custom CRSs**:
+    -   Suitable for local datasets, using center points for AEQD.
+    -   Caution: Not compatible with other datasets; may lose accuracy for large areas.
+-   Advanced options: Use geodesic calculations for fallback if no CRS fits ([proj.org](https://proj.org/geodesic.html)).
