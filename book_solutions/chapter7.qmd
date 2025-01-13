@@ -888,6 +888,89 @@ The Universal Transverse Mercator (UTM) set of projections
 # A code to plot UTM zones over the World Map in R
 
 # Attempt to start here:--
+
+world_map <- rnaturalearth::ne_countries(
+  scale = "small",
+  returnclass = "sf"
+) |> 
+  select(name, geometry)
+
+# Create a tibble for the UTM Zone breaks
+utm_long_breaks <- tibble(
+  Longitude_Start = seq(-180, 174, by = 6),
+  Longitude_End = seq(-174, 180, by = 6),
+  Zone_Number = seq(1, 60)
+) |> 
+  janitor::clean_names() |>
+  mutate(
+    mid_point_long = (longitude_start + longitude_end)/2
+  )
+
+utm_lat_breaks <- tibble(
+  Latitude_Start = c(seq(-80, 72, by = 8)),
+  Latitude_End = c(seq(-72, 72, by = 8), 84),
+  Zone_Letter = LETTERS[!(LETTERS %in% c("A", "B", "I", "O", "Y", "Z"))]
+) |> 
+  janitor::clean_names() |>
+  mutate(
+    mid_point_lat = (latitude_start + latitude_end)/2
+  )
+
+ggplot() +
+  geom_hline(
+    data = utm_lat_breaks,
+    mapping = aes(
+      yintercept = latitude_start
+    ),
+    linewidth = 0.1,
+    linetype = 1,
+    colour = "grey40",
+    alpha = 0.3
+  ) +
+  geom_vline(
+    data = utm_long_breaks,
+    mapping = aes(
+      xintercept = longitude_start
+    ),
+    linewidth = 0.1,
+    linetype = 1,
+    colour = "grey40",
+    alpha = 0.3
+  ) +
+  
+  # Longitude Labels
+  geom_text(
+    data = utm_long_breaks,
+    mapping = aes(
+      label = zone_number,
+      y = 90,
+      x = mid_point_long
+    ),
+    family = "body_font"
+  ) +
+  
+  # Latitude Labels
+  geom_text(
+    data = utm_lat_breaks,
+    mapping = aes(
+      label = zone_letter,
+      x = 184,
+      y = mid_point_lat
+    ),
+    family = "body_font"
+  ) +
+  geom_sf(
+    data = world_map,
+    alpha = 0.5,
+    colour = alpha("grey20", 0.5)
+  ) +
+  coord_sf(
+    expand = TRUE
+  ) +
+  labs(
+    x = NULL,
+    y = NULL
+  )
 ```
 
 -   **Selecting CRSs with tools**:
