@@ -882,12 +882,25 @@ The Universal Transverse Mercator (UTM) set of projections
 +-----------------+------------------------------------------------------------------------------------------+
 | Limitations     | Not suitable for regions spanning multiple zones.                                        |
 +-----------------+------------------------------------------------------------------------------------------+
+
+A mpa of the World with UTM projection Zones: —
+
+```{r}
+#| code-fold: false
+#| eval: false 
+lonlat2UTM = function(lonlat) {
+  utm = (floor((lonlat[1] + 180) / 6) %% 60) + 1
+  if (lonlat[2] > 0) {
+    utm + 32600
+  } else{
+    utm + 32700
+  }
+}
+```
 :::
 
 ```{r}
 # A code to plot UTM zones over the World Map in R
-
-# Attempt to start here:--
 
 world_map <- rnaturalearth::ne_countries(
   scale = "small",
@@ -916,13 +929,15 @@ utm_lat_breaks <- tibble(
     mid_point_lat = (latitude_start + latitude_end)/2
   )
 
-ggplot() +
+bts = 24 # Base Text Size
+
+g <- ggplot() +
   geom_hline(
     data = utm_lat_breaks,
     mapping = aes(
       yintercept = latitude_start
     ),
-    linewidth = 0.1,
+    linewidth = 0.2,
     linetype = 1,
     colour = "grey40",
     alpha = 0.3
@@ -932,12 +947,12 @@ ggplot() +
     mapping = aes(
       xintercept = longitude_start
     ),
-    linewidth = 0.1,
+    linewidth = 0.2,
     linetype = 1,
     colour = "grey40",
     alpha = 0.3
   ) +
-  
+
   # Longitude Labels
   geom_text(
     data = utm_long_breaks,
@@ -946,7 +961,9 @@ ggplot() +
       y = 90,
       x = mid_point_long
     ),
-    family = "body_font"
+    family = "body_font",
+    size = bts / 2,
+    colour = "grey20"
   ) +
   
   # Latitude Labels
@@ -957,20 +974,52 @@ ggplot() +
       x = 184,
       y = mid_point_lat
     ),
-    family = "body_font"
+    family = "body_font",
+    size = bts,
+    colour = "grey20"
   ) +
   geom_sf(
     data = world_map,
     alpha = 0.5,
-    colour = alpha("grey20", 0.5)
+    colour = alpha("#A8554EFF", 0.8),
+    fill = alpha("#A8554EFF", 0.4)
   ) +
-  coord_sf(
-    expand = TRUE
+  scale_x_continuous(
+    breaks = unique(utm_long_breaks$longitude_start,
+                    utm_long_breaks$longitude_end)
   ) +
   labs(
-    x = NULL,
-    y = NULL
+    x = "Longitudanal Zones",
+    y = "Latitudanal Segments",
+    title = "UTM Projection Zones"
+  ) +
+  theme_minimal(
+    base_family = "body_font",
+    base_size = bts
+  ) +
+  theme(
+    plot.title = element_text(
+      size = bts * 8, 
+      margin = margin(0,0,0,0, "mm"),
+      hjust = 0.5,
+      colour = "grey30"
+    ),
+    panel.background = element_rect(
+      fill = "#FEF7C7FF",
+      colour = "transparent"
+    ),
+    panel.grid = element_blank(),
+    
   )
+
+ggsave(
+  plot = g,
+  filename = here::here("book_solutions", "images", "chapter7-6.png"),
+  height = 240,
+  width = 400,
+  unit = "mm",
+  bg = "white"
+)
 ```
 
 -   **Selecting CRSs with tools**:
@@ -1001,4 +1050,31 @@ ggplot() +
 -   **Custom CRSs**:
     -   Suitable for local datasets, using center points for AEQD.
     -   Caution: Not compatible with other datasets; may lose accuracy for large areas.
--   Advanced options: Use geodesic calculations for fallback if no CRS fits ([proj.org](https://proj.org/geodesic.html)).
+-   Advanced options: Use [geodesic calculations](https://proj.org/geodesic.html) for fallback if no CRS fits.
+
+### 7.7 Reprojecting Vector Geometries
+
+-   **Reprojection**: Transforming the coordinates of vector geometries (points, lines, polygons). Example: Converting CRS of an object for accurate distance measurement.
+-   Key Functionality in `sf` Package: Use [`st_transform()`](https://r-spatial.github.io/sf/reference/st_transform.html) to transform CRS.
+-   **Querying and Setting CRS**:
+    -   Retrieve CRS of `sf` objects using [`st_crs()`](https://r-spatial.github.io/sf/reference/st_crs.html).
+    -   Output contains components like `User input` and `wkt`.
+    -   CRS objects are lists containing elements like `Name`, `proj4string`, `epsg`, and `$wkt`, as shown in table in Section 7.3 above.
+    -   `$wkt` serves as the ultimate source of CRS details, queried via PROJ.
+
+::: callout-note
+OGR Coordinate Reference Systems and Coordinate Transformation [tutorial](https://gdal.org/en/stable/tutorials/osr_api_tut.html) provides insights into handling coordinate reference systems (CRS) and performing transformations using GDAL's OGR library. Here's how key concepts from the tutorial translate to `{sf}` in R:
+
+-   Defining a Geographic CRS:
+    -   In `{sf}`, you can assign a CRS to an `sf` object using the `st_set_crs()` function.
+-   Querying CRS Information:
+    -   In `{sf}`, you can retrieve CRS information using the `st_crs()` function:
+-   Transforming Coordinates Between CRSs:
+    -   In `{sf}`, the `st_transform()` function is used to transform geometries to a different CRS. For example, to transform to EPSG:27700:
+-   Handling Axis Order:
+    -   In `{sf}`, you can control axis order interpretation using the `st_axis_order()` function. To set it to traditional GIS order (longitude, latitude):
+
+        ``` r
+        st_axis_order(FALSE)
+        ```
+:::
