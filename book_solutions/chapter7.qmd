@@ -1078,3 +1078,202 @@ OGR Coordinate Reference Systems and Coordinate Transformation [tutorial](https:
         st_axis_order(FALSE)
         ```
 :::
+
+### 7.8 Reprojecting Raster Geometries
+
+-   **Raster Reprojection**: Creates a new raster with potentially different dimensions. Involves two steps:
+
+    1.  Extent Transformation: Adjusts raster extent (like vector reprojection).
+
+    2.  Pixel Resampling: Re-estimates pixel values.
+
+    -   Recommendation: Prefer vector reprojection over raster reprojection when both data types are used.
+
+-   **Key Difference from vector re-projection:** Raster reprojection creates a new raster with modified attributes (e.g., columns, rows) rather than altering individual pixel coordinates like vectors.
+
+-   **Two Processes of raster reprojection:**
+
+    -   Transformation: Adjusts grid geometry without changing pixel values, performed with the [stars](https://cran.r-project.org/package=stars) package. Also called Extent Transformation: Similar to vector reprojection, adjusts raster extent. Can be done using {stars} package. [@stars]
+    -   Warping: Reprojects raster using methods like `project()` from the [terra](https://cran.r-project.org/package=terra) package. Also called Pixel Resampling: Computes new pixel values using methods like nearest neighbor or bilinear re-sampling. Can be done with `terra::project()` from {terra} [@terra-3]
+
+-   Categorical Raster: Method used is `nearest neighbor` which ensures categorical values remain unchanged during reprojection. Result: Changes in resolution, extent, and added NA values (not new categories). Example is shown in @fig-8-1 .
+
+```{r}
+cat_raster <- rast(system.file("raster/nlcd.tif", package = "spDataLarge"))
+
+cat_raster1 <- cat_raster |> project("EPSG:4326", method = "near")
+# crs(cat_raster) |> 
+#   str_view()
+
+# PROJCRS["NAD83 / UTM zone 12N",
+
+g1 <- ggplot() +
+  geom_spatraster(
+    data = cat_raster
+  ) +
+  labs(
+    title = "Original Categorical Raster",
+    subtitle = "CRS: NAD83 / UTM zone 12N",
+    fill = "Land Cover Type"
+  )
+
+g2 <- ggplot() +
+  geom_spatraster(
+    data = cat_raster1
+  ) +
+  labs(
+    title = "Transformed Raster",
+    subtitle = "CRS: WGS 84  (EPSG:4326)",
+    fill = "Land Cover Type"
+  )
+
+
+g <- g1 + g2 +
+  plot_layout(
+    nrow = 1,
+    guides = "collect"
+  ) +
+  plot_annotation(
+    caption = "Land Cover for a small area in Utah, USA; National Land Cover Database 2011",
+    theme = theme(
+      plot.caption = element_text(
+        hjust = 0
+      )
+    )
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("book_solutions", "images", "chapter7-8.png"),
+  height = 800,
+  width = 1200,
+  unit = "px",
+  bg = "white"
+)
+```
+
+![**Warping or Re-sampling** categorical rasters (akin to reprojection) using `terra::project()` which uses near method - estimates re-sampled raster values using the value from the nearest original cell.](images/chapter7-8.png){#fig-8-1}
+
+-   Continuous Raster: Method used is `bilinear`, computes pixel values as weighted averages of neighboring cells. Result: Modifications to mean values, resolution, and extent. Example is shown in @fig-8-2 .
+
+```{r}
+srtm <- rast(system.file("raster/srtm.tif", 
+                              package = "spDataLarge"))
+
+srtm1 <- srtm |> project("EPSG:32612", method = "bilinear")
+
+g1 <- ggplot() +
+  geom_spatraster(
+    data = srtm
+  ) +
+  scale_fill_wiki_c() +
+  labs(
+    title = "Original Elevation Raster",
+    subtitle = "Geographic CRS: WGS 84 (EPSG:4326)",
+    fill = "Elevation (metres)"
+  )
+
+g2 <- ggplot() +
+  geom_spatraster(
+    data = srtm1
+  ) +
+  scale_fill_wiki_c() +
+  labs(
+    title = "Transformed Continuous Values Raster",
+    subtitle = "Projected CRS: UTM zone 12N (EPSG:32612)",
+    fill = "Elevation (metres)"
+  )
+
+
+g <- g1 + g2 +
+  plot_layout(
+    nrow = 1,
+    guides = "collect"
+  ) +
+  plot_annotation(
+    caption = "Elevation, above sea level in metres, from the Shuttle Radar Topography Mission (SRTM)",
+    theme = theme(
+      plot.caption = element_text(
+        hjust = 0
+      )
+    )
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("book_solutions", "images", "chapter7-8_1.png"),
+  height = 800,
+  width = 1200,
+  unit = "px",
+  bg = "white"
+)
+```
+
+![**Warping or Re-sampling** a continuous value raster (akin to reprojection) using `terra::project()` which uses bilinear method - estimates re-sampled raster values using distance weighted mean from nearest 4 cells.](images/chapter7-8_1.png){#fig-8-2}
+
+-   Projection Selection: Depends on the task. Use equal-area projections for density calculations, such as points per grid cell or inhabitants per grid cell.
+-   Key Functions:
+    -   `project()` ([terra](https://cran.r-project.org/package=terra)): Reprojects rasters.
+    -   `st_transform()` ([sf](https://cran.r-project.org/package=sf)): Reprojects vector data.
+-   A more apparent example is shown in @fig-8-3 for Greenland's elevation data from {geodata} [@geodata-2] using `terra::project()`
+
+```{r}
+greenland_raster <- geodata::elevation_30s(
+  country = "GRL",
+  path = tempdir()
+  )
+
+greenland_raster1 <- greenland_raster |> 
+  terra::project(
+    "EPSG:3413",
+    method = "bilinear"
+  )
+
+g1 <- ggplot() +
+  geom_spatraster(
+    data = greenland_raster
+  ) +
+  scale_fill_wiki_c() +
+  labs(
+    title = "Original Elevation Raster",
+    subtitle = "Geographic CRS: WGS 84 (EPSG:4326)",
+    fill = "Elevation (metres)"
+  )
+
+g2 <- ggplot() +
+  geom_spatraster(
+    data = greenland_raster1
+  ) +
+  scale_fill_wiki_c() +
+  labs(
+    title = "Transformed Continuous Values Raster",
+    subtitle = "Projected CRS: EPSG:3413 (North Pole Stereographic)",
+    fill = "Elevation (metres)"
+  )
+
+
+g <- g1 + g2 +
+  plot_layout(
+    nrow = 1,
+    guides = "collect"
+  ) +
+  plot_annotation(
+    caption = "Elevation, above sea level in metres from {geodata}",
+    theme = theme(
+      plot.caption = element_text(
+        hjust = 0
+      )
+    )
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("book_solutions", "images", "chapter7-8_2.png"),
+  height = 700,
+  width = 1400,
+  unit = "px",
+  bg = "white"
+)
+```
+
+![Warping or Re-sampling elevation data for Greenland (obtained from {geodata} package) using `terra::project()` which uses bilinear method - estimates re-sampled raster values using distance weighted mean from nearest 4 cells.](images/chapter7-8_2.png){#fig-8-3}
