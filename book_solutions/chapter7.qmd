@@ -1485,3 +1485,256 @@ ggsave(
 -   **Other Resources**:
     -   Learn about custom CRS definitions with **WKT strings** ([OGC documentation](https://www.ogc.org/)).
     -   Explore PROJ parameters and CRS modifications ([PROJ documentation](https://proj.org/)).
+
+### **7.10 Exercises**
+
+### E1.
+
+**Create a new object called `nz_wgs` by transforming `nz` object into the WGS84 CRS.**
+
+-   **Create an object of class `crs` for both and use this to query their CRSs.**
+
+-   **With reference to the bounding box of each object, what units does each CRS use?**
+
+-   **Remove the CRS from `nz_wgs` and plot the result: what is wrong with this map of New Zealand and why?**
+
+The code chunk below shows the method to transform the CRS on `nz` object into `WGS84` and querying their CRS using `st_crs()$WktPretty |> str_view()`. The New Zealand Transverse Mercator 2000 projection uses 1 metre as a unit, and WGS84 uses 1 degree of longitude / latitude as a unit. The result of removing the CRS from the `nz_wgs` object is plotted, along with original `nz_wgs` object, in @fig-ex1 .
+
+```{r}
+#| eval: true
+#| code-fold: false
+
+data("nz")
+nz_wgs <- nz |>
+  st_transform(crs = "EPSG:4326")
+st_crs(nz)$WktPretty |> str_view()
+st_crs(nz_wgs)$WktPretty |> str_view()
+
+st_crs(nz)$units
+st_crs(nz_wgs)$units
+```
+
+```{r}
+g1 <- ggplot(data = nz_wgs) +
+  geom_sf() +
+  labs(
+    title = "WGS84 Projection (Geographic)",
+    subtitle = "The map is shown in aspect ratio as per the projection."
+  ) +
+  theme(
+    plot.title.position = "plot"
+  )
+
+nz_wgs1 <- nz_wgs
+st_crs(nz_wgs1) <- NA
+
+g2 <- ggplot(data = nz_wgs1) +
+  geom_sf() +
+  labs(
+    title = "Same Map without projection (NA)",
+    subtitle = "The map loses its fixed aspect ratio, and converts to equal axes spacing."
+  ) +
+  theme(
+    plot.title.position = "plot"
+  )
+
+g <- g1 + g2 +
+  plot_layout(
+    nrow = 1
+  ) +
+  plot_annotation(
+    title = "Removing the CRS from New Zealand Map",
+    tag_levels = "a",
+    tag_prefix = "(",
+    tag_suffix = ")",
+    theme = theme(
+      plot.title = element_text(hjust = 0.5, size = 30)
+    )
+  ) &
+  theme(
+    plot.title.position = "plot",
+    plot.tag = element_text(
+      size = 24, 
+      face = "bold"
+    )
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("book_solutions", "images", "chapter7-ex1.png"),
+  height = 700,
+  width = 1400,
+  unit = "px",
+  bg = "white"
+)
+```
+
+![Removing the CRS from a map causes coord_sf() to use coord_equal() instead of desirable aspect ratio prescribed in the original CRS displays.](images/chapter7-ex1.png){#fig-ex1}
+
+### E2.
+
+**Transform the `world` dataset to the transverse Mercator projection (`"+proj=tmerc"`) and plot the result. What has changed and why? Try to transform it back into WGS 84 and plot the new object. Why does the new object differ from the original one?**
+
+The @fig-ex2 shows the entire result of transforming a Geographic CRS: map (a) in @fig-ex2, into Transverse Mercator Projection: map (b) in @fig-ex2, and then re-projecting it back into the same geographic CRS WGS84: map (c) in @fig-ex2 .
+
+While geographic (GCS) and projected (PCS) systems allow versatile transformations, they are not perfectly reversible in real-world data due to floating-point precision limits and approximations inherent in projection algorithms. After transforming back to WGS 84, some distortions may appear because the process involves approximations during the transformation, especially if the intermediate PCS introduced distortion.
+
+```{r}
+world <- rnaturalearth::ne_countries(
+    scale = "small", 
+    returnclass = "sf"
+  ) |> 
+  select(name, geometry)
+  # Removing Indonesia for easy plotting
+  # filter(name != "Indonesia")
+
+g1 <- ggplot(data = world) +
+  geom_sf() +
+  labs(
+    title = "Original World Map",
+    subtitle = "Geographic CRS: WGS84"
+  )
+
+g2 <- ggplot(data = world |> st_transform("+proj=tmerc")) +
+  geom_sf() +
+  labs(
+    title = "Transverse Mercator Projection",
+    subtitle = "Using st_crs(\"proj=tmerc\")"
+  )
+
+g3 <- ggplot(
+  data = world |> 
+    st_transform("+proj=tmerc") |> 
+    st_transform("WGS84")
+  ) +
+  geom_sf() +
+  labs(
+    title = "Back to original CRS (WGS84)",
+    subtitle = "Russian and Antarctica segments are distorted."
+  )
+
+g <- g1 + g2 + g3 +
+  plot_layout(
+    nrow = 1
+  ) +
+  plot_annotation(
+    title = "Transforming, and reverting back from a Transverse Mercator to Geographic CRS",
+    tag_levels = "a",
+    tag_prefix = "(",
+    tag_suffix = ")",
+    theme = theme(
+      plot.title = element_text(hjust = 0.5, size = 42)
+    )
+  ) &
+  theme(
+    plot.title.position = "plot",
+    plot.tag = element_text(
+      size = 24, 
+      face = "bold"
+    )
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("book_solutions", "images", "chapter7-ex2.png"),
+  height = 700,
+  width = 2400,
+  unit = "px",
+  bg = "white"
+)
+```
+
+![The entire result of transforming a Geographic CRS: original map (a), into (b) Transverse Mercator Projection, and then (c) back into the same geographic CRS WGS84.](images/chapter7-ex2.png){#fig-ex2}
+
+### E3.
+
+**Transform the continuous raster (`con_raster`) into NAD83 / UTM zone 12N using the nearest neighbor interpolation method. What has changed? How does it influence the results?**
+
+The code below, with the results shown in @fig-ex3, depicts an **original continuous raster** (`con_raster`) in part (a) of @fig-ex3, then the raster transformed into NAD83 / UTM Zone 12N with **nearest neighbour method** in part (b) of @fig-ex3, and finally, the raster transformed into NAD83 / UTM Zone 12N with **bilinear method** in part (c) of @fig-ex3 .
+
+Changes:
+
+1.  The spatial alignment and resolution may change depending on the target CRS and grid size.
+
+2.  The edges of the raster may introduce distortions or artifacts, especially if the original CRS and UTM grid are significantly different.
+
+Impact on Results:
+
+1.  Advantages: Nearest neighbor preserves the exact original values, which is critical for discrete data.
+
+2.  Disadvantages: For continuous rasters, it may introduce blocky artifacts, reducing the smoothness and potentially affecting analyses like slope or gradient computation.
+
+```{r}
+con_raster <- rast(system.file("raster/srtm.tif", package = "spDataLarge"))
+
+g1 <- ggplot() +
+  geom_spatraster(data = con_raster) +
+  scale_fill_wiki_c() +
+  labs(
+    title = "Original Raster",
+    subtitle = "Geographic CRS: WGS84",
+    fill = "Elevation (m)"
+  )
+
+g2 <- ggplot() +
+  geom_spatraster(
+    data = con_raster |> 
+      terra::project("EPSG:32612", method = "near")
+  ) +
+  scale_fill_wiki_c() +
+  labs(
+    title = "NAD83 / UTM zone 12N",
+    subtitle = "Using method = \"near\"",
+    fill = "Elevation (m)"
+  )
+
+g3 <- ggplot() +
+  geom_spatraster(
+    data = con_raster |> 
+      terra::project("EPSG:32612", method = "bilinear")
+  ) +
+  scale_fill_wiki_c() +
+  labs(
+    title = "NAD83 / UTM zone 12N",
+    subtitle = "Using method = \"bilinear\"",
+    fill = "Elevation (m)"
+  )
+
+g <- g1 + g2 + g3 +
+  plot_layout(
+    nrow = 1,
+    guides = "collect"
+  ) +
+  plot_annotation(
+    title = "Transforming a continuous raster using the nearest neighbor interpolation method.",
+    tag_levels = "a",
+    tag_prefix = "(",
+    tag_suffix = ")",
+    theme = theme(
+      plot.title = element_text(hjust = 0.5, size = 42)
+    )
+  ) &
+  theme(
+    plot.title.position = "plot",
+    plot.tag = element_text(
+      size = 24, 
+      face = "bold"
+    ),
+    legend.key.width = unit(5, "pt")
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("book_solutions", "images", "chapter7-ex3.png"),
+  height = 700,
+  width = 1800,
+  unit = "px",
+  bg = "white"
+)
+```
+
+![](images/chapter7-ex3.png){#fig-ex3}
+
+### E4. 
+
+**Transform the categorical raster (`cat_raster`) into WGS 84 using the bilinear interpolation method. What has changed? How does it influence the results?**
