@@ -70,7 +70,8 @@ theme_set(
       ),
       plot.subtitle = element_text(
         size = 16,
-        margin = margin(0.1, 0.1, 0.1, 0.1, "lines")
+        margin = margin(0.1, 0.1, 0.1, 0.1, "lines"),
+        lineheight = 0.3
       )
     )
 )
@@ -813,29 +814,81 @@ Thus, the distance between meridians varies with latitude, shrinking from approx
     -   **Tranformation into another Projected CRS**
         -   Projects needing planar geometry operations, like creating buffer zones with smooth edges.
         -   Required when comparing or combining objects with different CRSs (e.g., using [`st_distance()`](https://r-spatial.github.io/sf/reference/st_distance.html)).
--   **CRS Selection**: Geographic CRS is best for global and spherical geometry operations. Projected CRS is ideal for local/regional planar geometry operations and analyses requiring precise distance and area calculations. Here’s a simple table summarizing when to use geographic versus projected CRSs:
+-   **CRS Selection**: Geographic CRS is best for global and spherical geometry operations. Projected CRS is ideal for local/regional planar geometry operations and analyses requiring precise distance and area calculations. @tbl-7-6 summarizes when to use geographic versus projected CRSs:
 
-+--------------------------------------------+------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
-| **Scenario**                               | **Use Geographic CRS**                                                                                     | **Use Projected CRS**                                                      |
-+============================================+============================================================================================================+============================================================================+
-| Global Mapping                             | Required for **displaying data on web maps (e.g., with [`leaflet`](https://rstudio.github.io/leaflet/)).** | Not recommended due to distortions at global scales.                       |
-+--------------------------------------------+------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
-| Great Circle Distances                     | **Use** **for accurate calculation of shortest paths on the Earth's surface.**                             | Distances may be inaccurate due to planar projections.                     |
-+--------------------------------------------+------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
-| Angular Bearings                           | **Essential for computing directions or angles between points.**                                           | Distortions in angles make it unsuitable for such tasks.                   |
-+--------------------------------------------+------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
-| Radius-based Proximity Queries (Spherical) | **Use for radius-based queries or geofencing on a global scale.**                                          | Results can be distorted for large distances.                              |
-+--------------------------------------------+------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
-| Local Area Analysis                        | Not typically recommended unless working with global-scale spherical models.                               | **Ideal for small-to-medium-scale analyses with minimal distortions.**     |
-+--------------------------------------------+------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
-| Buffer Creation                            | Not recommended for smooth edges.                                                                          | **Best for creating accurate and smooth planar buffers.**                  |
-+--------------------------------------------+------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
-| Overlay and Intersection Operations        | Limited to angular-based operations (e.g., great circle intersections).                                    | **Preferred for planar intersections and overlays for precise alignment.** |
-+--------------------------------------------+------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
-| Planar Geometry Operations                 | Not ideal for creating planar geometries like buffers or centroids.                                        | **Essential for tasks like buffering and centroids in local projections.** |
-+--------------------------------------------+------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
-| Area and Length Calculation                | Use for global-scale spherical areas (with corrections).                                                   | Use for precise calculations in local or regional contexts.                |
-+--------------------------------------------+------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
+```{r}
+#| eval: true
+#| tbl-cap: "Guidelines for Choosing Between Geographic and Projected CRSs"
+#| label: tbl-7-6
+
+library(tibble)
+library(gt)
+
+# Create the table as a tibble
+data <- tibble(
+  ID = 1:9,
+  Scenario = c(
+    "Global Mapping",
+    "Great Circle Distances",
+    "Angular Bearings",
+    "Radius-based Proximity Queries (Spherical)",
+    "Local Area Analysis",
+    "Buffer Creation",
+    "Overlay and Intersection Operations",
+    "Planar Geometry Operations",
+    "Area and Length Calculation"
+  ),
+  `Geographic CRS` = c(
+    "Required for displaying data on web maps (e.g., with leaflet).",
+    "Use for accurate calculation of shortest paths on the Earth's surface.",
+    "Essential for computing directions or angles between points.",
+    "Use for radius-based queries or geofencing on a global scale.",
+    "Not typically recommended unless working with global-scale spherical models.",
+    "Not recommended for smooth edges.",
+    "Limited to angular-based operations (e.g., great circle intersections).",
+    "Not ideal for creating planar geometries like buffers or centroids.",
+    "Use for global-scale spherical areas (with corrections)."
+  ),
+  `Projected CRS` = c(
+    "Not recommended due to distortions at global scales.",
+    "Distances may be inaccurate due to planar projections.",
+    "Distortions in angles make it unsuitable for such tasks.",
+    "Results can be distorted for large distances.",
+    "Ideal for small-to-medium-scale analyses with minimal distortions.",
+    "Best for creating accurate and smooth planar buffers.",
+    "Preferred for planar intersections and overlays for precise alignment.",
+    "Essential for tasks like buffering and centroids in local projections.",
+    "Use for precise calculations in local or regional contexts."
+  )
+)
+
+# Create a beautiful table with gt
+data |> 
+  gt() |> 
+  tab_header(
+    title = "Geographic vs Projected CRS",
+    subtitle = "A comparison of scenarios for applying Geographic and Projected CRSs"
+  ) |> 
+  gtExtras::gt_theme_pff() |> 
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_body(columns = Scenario)
+  ) |> 
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_body(
+      columns = `Geographic CRS`,        # Column 3
+      rows = 1:4                         # Rows 1-4
+    )
+  ) |> 
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_body(
+      columns = `Projected CRS`,        # Column 4
+      rows = 5:9                        # Rows 5-9
+    )
+  )
+```
 
 ### 7.6 Which CRS to use?
 
@@ -1486,7 +1539,7 @@ ggsave(
     -   Learn about custom CRS definitions with **WKT strings** ([OGC documentation](https://www.ogc.org/)).
     -   Explore PROJ parameters and CRS modifications ([PROJ documentation](https://proj.org/)).
 
-### **7.10 Exercises**
+### 7.10 Exercises
 
 ### E1.
 
@@ -1735,6 +1788,115 @@ ggsave(
 
 ![](images/chapter7-ex3.png){#fig-ex3}
 
-### E4. 
+### E4.
 
 **Transform the categorical raster (`cat_raster`) into WGS 84 using the bilinear interpolation method. What has changed? How does it influence the results?**
+
+Transforming a categorical raster (`cat_raster`) from its original coordinate reference system (CRS) (NAD83 / UTM Zone 12N) (shown in (a) of @fig-ex4) into another CRS (such as WGS 84) using bilinear interpolation significantly alters its characteristics and interpretation, as shown in (b) of @fig-ex4.
+
+1.  Conversion of Raster Values:
+    -   A categorical raster represents discrete classes, such as land cover types (e.g., forest, urban, water), using integer values that act as category identifiers.
+    -   When transformed using bilinear interpolation, the algorithm treats these integers as continuous numeric values. It calculates a weighted average of the values from the nearest four cells in the input raster to assign values to the output raster.
+    -   This process results in non-integer values in the output raster, which no longer correspond to the original categories.
+2.  Loss of Categorical Meaning: The integer values in the original raster have a specific meaning tied to the categories they represent (e.g., 1 = forest, 2 = urban). After bilinear interpolation, the resulting non-integer values are meaningless in the context of categorical data because they no longer map directly to the predefined classes.
+3.  Blurring of Boundaries: Bilinear interpolation introduces smoothing between adjacent cells, which creates gradual transitions between values. This results in blurred boundaries between distinct categories, further distorting the original discrete nature of the data.
+4.  Introduction of Artefacts: The process can introduce artificial gradients or intermediate values that did not exist in the original data. For example, if the original raster has categories 1 (forest) and 2 (urban), interpolation might produce values like 1.5, which have no real-world significance.
+
+This influences the results in the following ways: —
+
+1.  Inappropriate Representation: The output raster is now a continuous raster, which is unsuitable for applications requiring categorical data, such as land cover analysis or habitat classification. This could lead to misinterpretations if the data is used without understanding the transformation process.
+2.  Loss of Original Information: The categorical structure and associated metadata (e.g., legends, class descriptions) are effectively destroyed, rendering the raster unusable for its original purpose.
+3.  Impact on Analysis: Any analysis that relies on the classification of discrete land cover types (e.g., area statistics, habitat mapping) would yield invalid results, as the categories no longer exist in their original form.
+
+Thus, for transforming categorical rasters between CRSs, nearest-neighbor interpolation (show in part (c) of @fig-ex4) should be used instead of bilinear interpolation. Nearest-neighbor interpolation preserves the integer values of the categories, ensuring that the categorical meaning of the data is retained.
+
+```{r}
+cat_raster <- rast(system.file("raster/nlcd.tif", 
+                               package = "spDataLarge"))
+
+# Get the CRS of the raster
+crs(cat_raster) |> str_view()
+
+# Check associated colours with the raster
+# has.colors(cat_raster)
+# coltab(cat_raster)
+
+# My custom palette for uniformity
+mypal <- c("#008ee0", "darkred", "grey80", "darkgreen",
+           "#858f42", "#90bf7e", "#d9e86b", "#96defa")
+g1 <- ggplot() +
+  geom_spatraster(data = cat_raster) +
+  scale_fill_manual(values = mypal) +
+  coord_sf(expand = FALSE) +
+  labs(
+    title = "Categorical Raster",
+    subtitle = "CRS NAD83 / UTM Zone 12 N",
+    fill = "Land Cover Type"
+  )
+
+
+g2 <- ggplot() +
+  geom_spatraster(
+    data = cat_raster |> 
+            project("WGS84", method = "bilinear")
+  ) +
+  coord_sf(expand = FALSE) +
+  scale_fill_princess_c(na.value = "black") +
+  labs(
+    title = "Projected Raster (bilinear)",
+    subtitle = "Raster converted into a Continuous Raster.\nCategories are Lost !",
+    fill = "Value"
+  )
+
+g3 <- ggplot() +
+  geom_spatraster(
+    data = cat_raster |> 
+            project("WGS84", method = "near")
+  ) +
+  coord_sf(expand = FALSE) +
+  scale_fill_manual(values = mypal, na.value = "black") +
+  labs(
+    title = "Projected Raster (nearest neighbour)",
+    subtitle = "Interpolation into Geographic CRS: WGS84.\nA new category of `NA` is introduced, as expected.",
+    fill = "Land Cover Type"
+  )
+
+
+g <- g1 + g2 + g3 +
+  plot_layout(
+    nrow = 1
+  ) +
+  plot_annotation(
+    title = "Transforming a categorical raster using the nearest neighbor and bilinear interpolation method.",
+    subtitle = "Bilinear interpolation computes averages, and leads the raster to lose all meaning, and convert into a continuous raster. (NA values are in black).",
+    tag_levels = "a",
+    tag_prefix = "(",
+    tag_suffix = ")",
+    theme = theme(
+      plot.title = element_text(hjust = 0.5, size = 36),
+      plot.subtitle = element_text(hjust = 0.5, size = 24)
+    )
+  ) &
+  theme(
+    plot.title.position = "plot",
+    plot.tag = element_text(
+      size = 24, 
+      face = "bold"
+    ),
+    legend.key.width = unit(5, "pt"),
+    plot.margin = margin(0,5,0,5, "pt"),
+    legend.margin = margin(0,0,0,0, "pt"),
+    legend.box.margin = margin(0,0,0,0, "pt")
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here("book_solutions", "images", "chapter7-ex4.png"),
+  height = 800,
+  width = 2100,
+  unit = "px",
+  bg = "white"
+)
+```
+
+![](images/chapter7-ex4.png){#fig-ex4}
