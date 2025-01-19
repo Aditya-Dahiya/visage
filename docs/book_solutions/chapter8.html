@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Aditya Dahiya">
+<meta name="dcterms.date" content="2025-01-19">
+
+<title>Chapter 8: Geographic data I/O – visage</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../visage_logo.png" rel="icon" type="image/png">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/quarto-contrib/social-share-0.1.0/social-share.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/social-share-0.1.0/all.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+<meta name="twitter:title" content="Chapter 8: Geographic data I/O – visage">
+<meta name="twitter:description" content="Key Learnings from, and Solutions to the exercises in Chapter 8 of the book Geocomputation with R by Robin Lovelace, Jakub Nowosad and Jannes Muenchow.">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../visage_logo.png" alt="visage" class="navbar-logo">
+    </a>
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">visage</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../geocomputation.html"> 
+<span class="menu-text">Geocomputation</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../book_solutions.html"> 
+<span class="menu-text">Book Solutions</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../ggplot2_ext.html"> 
+<span class="menu-text">ggplot2 Extensions</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools tools-wide">
+    <a href="../index.xml" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-rss"></i></a>
+    <div class="dropdown">
+      <a href="" title="" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label=""><i class="bi bi-github"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/Aditya-Dahiya/visage">
+            Source Code
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/Aditya-Dahiya/visage/issues">
+            Suggestions / Feedback
+            </a>
+          </li>
+      </ul>
+    </div>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">8.1 Introduction</a></li>
+  <li><a href="#file-formats" id="toc-file-formats" class="nav-link" data-scroll-target="#file-formats">8.2 File Formats</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/book_solutions/chapter8.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Chapter 8: Geographic data I/O</h1>
+<p class="subtitle lead">Key Learnings from, and Solutions to the exercises in Chapter 8 of the book Geocomputation with R by Robin Lovelace, Jakub Nowosad and Jannes Muenchow.</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">Geocomputation with R</div>
+    <div class="quarto-category">Textbook Solutions</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Aditya Dahiya </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 19, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)        <span class="co"># Simple Features in R</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(terra)     <span class="co"># Handling rasters in R</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyterra) <span class="co"># For plotting rasters in ggplot2</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(magrittr)  <span class="co"># Using pipes with raster objects</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse) <span class="co"># All things tidy; Data Wrangling</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spData)    <span class="co"># Spatial Datasets</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork) <span class="co"># Composing plots</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)        <span class="co"># Display GT tables with R</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">8.1 Introduction</h2>
+<ul>
+<li><strong>Importance of Data I/O</strong>: Geographic data input/output (I/O) is critical for geocomputation, ensuring accurate real-world applications and enabling data sharing.</li>
+<li><strong>Impact of Errors</strong>: Mistakes in data I/O (e.g., using outdated datasets) can cause significant issues later in projects.</li>
+</ul>
+</section>
+<section id="file-formats" class="level2">
+<h2 class="anchored" data-anchor-id="file-formats">8.2 File Formats</h2>
+<ul>
+<li><strong>Geographic data storage</strong>: Stored as files or spatial databases. File formats can store either vector or raster data; databases can handle both, and the most common types are shown in <a href="#tbl-file-formats" class="quarto-xref">Table&nbsp;1</a>.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Raster formats tibble</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>raster_formats <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Format =</span> <span class="fu">c</span>(</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"GeoTIFF"</span>, <span class="st">"NetCDF"</span>, <span class="st">"JPEG"</span>, <span class="st">"PNG"</span>, <span class="st">"HDF4"</span>, <span class="st">"HDF5"</span>, </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"GRIB"</span>, <span class="st">"Erdas Imagine"</span>, <span class="st">"ASCII Grid"</span>, <span class="st">"MBTiles"</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">Description =</span> <span class="fu">c</span>(</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Tagged Image File Format for georeferenced raster data."</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Network Common Data Form for array-oriented scientific data."</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Compressed image format commonly used for photographic images."</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Portable Network Graphics format for raster graphics."</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Hierarchical Data Format v4 for scientific data."</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Hierarchical Data Format v5, successor to HDF4."</span>,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Gridded Binary format for meteorological data."</span>,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Raster format for Erdas Imagine software."</span>,</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ASCII representation of raster data."</span>,</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"SQLite-based raster tile storage format."</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">Extension =</span> <span class="fu">c</span>(</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">".tif/.tiff"</span>, <span class="st">".nc"</span>, <span class="st">".jpg/.jpeg"</span>, <span class="st">".png"</span>, <span class="st">".hdf"</span>, </span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">".h5"</span>, <span class="st">".grb/.grib"</span>, <span class="st">".img"</span>, <span class="st">".asc"</span>, <span class="st">".mbtiles"</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">GeoReferencing =</span> <span class="fu">c</span>(</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Yes"</span>, <span class="st">"Yes"</span>, <span class="st">"No"</span>, <span class="st">"No"</span>, <span class="st">"Yes"</span>, <span class="st">"Yes"</span>, </span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Yes"</span>, <span class="st">"Yes"</span>, <span class="st">"Yes"</span>, <span class="st">"Yes"</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">group =</span> <span class="st">"Raster File Formats"</span>)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Vector formats tibble</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>vector_formats <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">Format =</span> <span class="fu">c</span>(<span class="st">"Shapefile"</span>, <span class="st">"GeoJSON"</span>, <span class="st">"KML"</span>, <span class="st">"GPKG"</span>, <span class="st">"CSV"</span>, <span class="st">"DXF"</span>, </span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>             <span class="st">"MapInfo File"</span>, <span class="st">"GML"</span>, <span class="st">"PostGIS"</span>, <span class="st">"TopoJSON"</span>),</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">Description =</span> <span class="fu">c</span>(</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Esri Shapefile format for vector geometries."</span>,</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"GeoJSON format for encoding a variety of geographic data structures."</span>,</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Keyhole Markup Language for geographic data in XML."</span>,</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Geopackage format for spatial data storage."</span>,</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Comma-Separated Values for point data with attributes."</span>,</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Drawing Exchange Format for CAD data."</span>,</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    <span class="st">"MapInfo TAB format for vector geometries."</span>,</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Geography Markup Language for XML-based vector data."</span>,</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>    <span class="st">"PostGIS spatial extension for PostgreSQL database."</span>,</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    <span class="st">"TopoJSON format for topology-preserving JSON data."</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">Extension =</span> <span class="fu">c</span>(<span class="st">".shp"</span>, <span class="st">".geojson"</span>, <span class="st">".kml"</span>, <span class="st">".gpkg"</span>, <span class="st">".csv"</span>, <span class="st">".dxf"</span>, </span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>                <span class="st">".tab"</span>, <span class="st">".gml"</span>, <span class="st">"PostgreSQL"</span>, <span class="st">".topojson"</span>),</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>  <span class="at">GeoReferencing =</span> <span class="fu">c</span>(</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Yes"</span>, <span class="st">"Yes"</span>, <span class="st">"Yes"</span>, <span class="st">"Yes"</span>, <span class="st">"No"</span>, <span class="st">"No"</span>, </span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Yes"</span>, <span class="st">"Yes"</span>, <span class="st">"Yes"</span>, <span class="st">"Yes"</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">group =</span> <span class="st">"Vector File Formats"</span>)</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a><span class="co"># Display vector formats table</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>  vector_formats,</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>  raster_formats</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(group) <span class="sc">|&gt;</span> </span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>    <span class="at">Format =</span> <span class="st">"File Format"</span>,</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>    <span class="at">Description =</span> <span class="st">"Description"</span>,</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>    <span class="at">Extension =</span> <span class="st">"File Extension"</span>,</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>    <span class="at">GeoReferencing =</span> <span class="st">"Geo-referencing"</span></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_footnote</span>(</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>    <span class="fu">md</span>(<span class="st">"_**Source**: GDAL documentation (https://gdal.org/en/stable/drivers/vector/index.html)_"</span>)</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>  gtExtras<span class="sc">::</span><span class="fu">gt_theme_nytimes</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_style</span>(</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>    <span class="at">style =</span> <span class="fu">list</span>(</span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>      <span class="fu">cell_text</span>(<span class="at">weight =</span> <span class="st">"bold"</span>)</span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>    <span class="at">locations =</span> <span class="fu">cells_body</span>(</span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>      <span class="at">columns =</span> Format</span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_style</span>(</span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>    <span class="at">style =</span> <span class="fu">list</span>(</span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>      <span class="fu">cell_fill</span>(<span class="at">color =</span> <span class="st">"lightgrey"</span>),    </span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>      <span class="fu">cell_text</span>(<span class="at">weight =</span> <span class="st">"bold"</span>, <span class="at">align =</span> <span class="st">"center"</span>)      </span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>    <span class="at">locations =</span> <span class="fu">cells_group</span>()           </span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div id="tbl-file-formats" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-file-formats-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Different kinds of File Formats dealing with Geo-Spatial Data
+</figcaption>
+<div aria-describedby="tbl-file-formats-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="ozrpwmwndr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+#ozrpwmwndr table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#ozrpwmwndr thead, #ozrpwmwndr tbody, #ozrpwmwndr tfoot, #ozrpwmwndr tr, #ozrpwmwndr td, #ozrpwmwndr th {
+  border-style: none;
+}
+
+#ozrpwmwndr p {
+  margin: 0;
+  padding: 0;
+}
+
+#ozrpwmwndr .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#ozrpwmwndr .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#ozrpwmwndr .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#ozrpwmwndr .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#ozrpwmwndr .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ozrpwmwndr .gt_bottom_border {
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ozrpwmwndr .gt_col_headings {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 1px;
+  border-bottom-color: #334422;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ozrpwmwndr .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 12px;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#ozrpwmwndr .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 12px;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#ozrpwmwndr .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#ozrpwmwndr .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#ozrpwmwndr .gt_column_spanner {
+  border-bottom-style: none;
+  border-bottom-width: 1px;
+  border-bottom-color: #334422;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#ozrpwmwndr .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#ozrpwmwndr .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#ozrpwmwndr .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#ozrpwmwndr .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#ozrpwmwndr .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#ozrpwmwndr .gt_row {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#ozrpwmwndr .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ozrpwmwndr .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#ozrpwmwndr .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#ozrpwmwndr .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#ozrpwmwndr .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ozrpwmwndr .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#ozrpwmwndr .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#ozrpwmwndr .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ozrpwmwndr .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ozrpwmwndr .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#ozrpwmwndr .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ozrpwmwndr .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#ozrpwmwndr .gt_table_body {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #FFFFFF;
+}
+
+#ozrpwmwndr .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ozrpwmwndr .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ozrpwmwndr .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ozrpwmwndr .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ozrpwmwndr .gt_left {
+  text-align: left;
+}
+
+#ozrpwmwndr .gt_center {
+  text-align: center;
+}
+
+#ozrpwmwndr .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#ozrpwmwndr .gt_font_normal {
+  font-weight: normal;
+}
+
+#ozrpwmwndr .gt_font_bold {
+  font-weight: bold;
+}
+
+#ozrpwmwndr .gt_font_italic {
+  font-style: italic;
+}
+
+#ozrpwmwndr .gt_super {
+  font-size: 65%;
+}
+
+#ozrpwmwndr .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#ozrpwmwndr .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#ozrpwmwndr .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#ozrpwmwndr .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#ozrpwmwndr .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#ozrpwmwndr .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#ozrpwmwndr .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#ozrpwmwndr .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#ozrpwmwndr div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table do-not-create-environment cell caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="header gt_col_headings">
+<th id="Format" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="text-align: center; color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase;" scope="col">File Format</th>
+<th id="Description" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="text-align: center; color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase;" scope="col">Description</th>
+<th id="Extension" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="text-align: center; color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase;" scope="col">File Extension</th>
+<th id="GeoReferencing" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="text-align: center; color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase;" scope="col">Geo-referencing</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd gt_group_heading_row">
+<td colspan="4" id="Vector File Formats" class="gt_group_heading" data-quarto-table-cell-role="th" style="text-align: center; background-color: #D3D3D3; font-weight: bold;" scope="colgroup">Vector File Formats</td>
+</tr>
+<tr class="even gt_row_group_first">
+<td class="gt_row gt_left" headers="Vector File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">Shapefile</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Esri Shapefile format for vector geometries.</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.shp</td>
+<td class="gt_row gt_left" headers="Vector File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Vector File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">GeoJSON</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">GeoJSON format for encoding a variety of geographic data structures.</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.geojson</td>
+<td class="gt_row gt_left" headers="Vector File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Vector File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">KML</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Keyhole Markup Language for geographic data in XML.</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.kml</td>
+<td class="gt_row gt_left" headers="Vector File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Vector File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">GPKG</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Geopackage format for spatial data storage.</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.gpkg</td>
+<td class="gt_row gt_left" headers="Vector File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Vector File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">CSV</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Comma-Separated Values for point data with attributes.</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.csv</td>
+<td class="gt_row gt_left" headers="Vector File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">No</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Vector File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">DXF</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Drawing Exchange Format for CAD data.</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.dxf</td>
+<td class="gt_row gt_left" headers="Vector File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">No</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Vector File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">MapInfo File</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">MapInfo TAB format for vector geometries.</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.tab</td>
+<td class="gt_row gt_left" headers="Vector File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Vector File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">GML</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Geography Markup Language for XML-based vector data.</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.gml</td>
+<td class="gt_row gt_left" headers="Vector File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Vector File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">PostGIS</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">PostGIS spatial extension for PostgreSQL database.</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">PostgreSQL</td>
+<td class="gt_row gt_left" headers="Vector File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Vector File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">TopoJSON</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">TopoJSON format for topology-preserving JSON data.</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.topojson</td>
+<td class="gt_row gt_left" headers="Vector File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="even gt_group_heading_row">
+<td colspan="4" id="Raster File Formats" class="gt_group_heading" data-quarto-table-cell-role="th" style="text-align: center; background-color: #D3D3D3; font-weight: bold;" scope="colgroup">Raster File Formats</td>
+</tr>
+<tr class="odd gt_row_group_first">
+<td class="gt_row gt_left" headers="Raster File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">GeoTIFF</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Tagged Image File Format for georeferenced raster data.</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.tif/.tiff</td>
+<td class="gt_row gt_left" headers="Raster File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Raster File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">NetCDF</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Network Common Data Form for array-oriented scientific data.</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.nc</td>
+<td class="gt_row gt_left" headers="Raster File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Raster File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">JPEG</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Compressed image format commonly used for photographic images.</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.jpg/.jpeg</td>
+<td class="gt_row gt_left" headers="Raster File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">No</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Raster File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">PNG</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Portable Network Graphics format for raster graphics.</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.png</td>
+<td class="gt_row gt_left" headers="Raster File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">No</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Raster File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">HDF4</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Hierarchical Data Format v4 for scientific data.</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.hdf</td>
+<td class="gt_row gt_left" headers="Raster File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Raster File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">HDF5</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Hierarchical Data Format v5, successor to HDF4.</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.h5</td>
+<td class="gt_row gt_left" headers="Raster File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Raster File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">GRIB</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Gridded Binary format for meteorological data.</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.grb/.grib</td>
+<td class="gt_row gt_left" headers="Raster File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Raster File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">Erdas Imagine</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Raster format for Erdas Imagine software.</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.img</td>
+<td class="gt_row gt_left" headers="Raster File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Raster File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">ASCII Grid</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">ASCII representation of raster data.</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.asc</td>
+<td class="gt_row gt_left" headers="Raster File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Raster File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">MBTiles</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">SQLite-based raster tile storage format.</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.mbtiles</td>
+<td class="gt_row gt_left" headers="Raster File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+</tbody><tfoot class="gt_footnotes">
+<tr class="odd">
+<td colspan="4" class="gt_footnote" style="text-align: center;"><em><strong>Source</strong>: GDAL documentation (<a href="https://gdal.org/en/stable/drivers/vector/index.html">https://gdal.org/en/stable/drivers/vector/index.html</a>)</em></td>
+</tr>
+</tfoot>
+
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<ul>
+<li><strong>GDAL (Geospatial Data Abstraction Library)</strong>:
+<ul>
+<li>Unified library for reading/writing raster and vector formats since the year 2000.</li>
+<li>Powers GIS software like GRASS GIS, ArcGIS, and QGIS.</li>
+<li>Supports over 200 vector and raster formats.</li>
+</ul></li>
+<li><strong>Common vector file formats</strong>:
+<ul>
+<li>ESRI Shapefile: Multi-file format; limited by 2GB size, 255 columns, and 10-character names.</li>
+<li>GeoJSON: JSON-based, supports coordinates; open format.</li>
+<li>KML/KMZ: XML-based; used for Google Earth.</li>
+<li>GPX: GPS data exchange.</li>
+<li>FlatGeobuf: Fast, single-file with streaming capabilities.</li>
+</ul></li>
+<li><strong>Common raster file formats</strong>:
+<ul>
+<li>GeoTIFF: Popular raster format embedding CRS; supports COG (Cloud Optimized GeoTIFF) for efficient online access.</li>
+<li>Arc ASCII: Text-based raster format with header and cell values.</li>
+</ul></li>
+<li><strong>Database formats</strong>:
+<ul>
+<li>SQLite/SpatiaLite: Lightweight relational database with spatial extensions.</li>
+<li>ESRI FileGDB: Proprietary database format supporting feature classes and topology.</li>
+<li>GeoPackage: Open standard SQLite-based lightweight spatial database for vector, raster, and non-spatial data.</li>
+</ul></li>
+<li><strong>Open standards by OGC (Open Geospatial Consortium)</strong>:
+<ul>
+<li>Promotes transparency and user-driven development.</li>
+<li>Formats like GML, KML, and GeoPackage adhere to OGC standards.</li>
+</ul></li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+ShapeFiles and their Limitations
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>ESRI Shapefiles have been a cornerstone in geospatial data exchange since their introduction in the early 1990s.</p>
+<p><strong>Reasons for Shapefile Popularity:</strong></p>
+<ol type="1">
+<li><p>Historical Prevalence: Introduced by ESRI in the early 1990s, Shapefiles became widely adopted due to their early entry into the GIS market.</p></li>
+<li><p>Simplicity and Compatibility: Shapefiles are straightforward to use and are supported by a vast array of GIS software, facilitating easy sharing and exchange of geographic information across different platforms.</p></li>
+<li><p>Open Specification: Despite being a proprietary format, ESRI published the technical specifications for Shapefiles, allowing other software developers to implement support for them, which contributed to their widespread adoption.</p></li>
+</ol>
+<p><strong>Contents of a ShapeFile Folder</strong></p>
+<ul>
+<li><strong><code>.shp</code>:</strong> Stores geometric shape data (points, lines, polygons).</li>
+<li><strong><code>.shx</code>:</strong> Index file for quick spatial queries of shapes.</li>
+<li><strong><code>.dbf</code>:</strong> Attribute table with associated data in tabular format.</li>
+<li><strong><code>.prj</code>:</strong> Coordinate system and projection information.</li>
+<li><strong><code>.cpg</code>:</strong> Encoding of character data (e.g., UTF-8).</li>
+<li><strong><code>.sbn/.sbx</code>:</strong> Optional spatial index for faster searches.</li>
+<li><strong><code>.qpj</code>:</strong> Alternative projection format used by some software.</li>
+</ul>
+<p><strong>Limitations of Shapefiles:</strong></p>
+<ol type="1">
+<li><p>Multi-File Structure: A single Shapefile consists of multiple files (e.g., <code>.shp</code>, <code>.shx</code>, <code>.dbf</code>), which can complicate file management and increase the risk of losing associated files.</p></li>
+<li><p>Attribute Constraints: Field names in the attribute table are limited to 10 characters, and the maximum number of fields is 255, restricting the complexity of attribute data that can be stored.</p></li>
+<li><p>File Size Limitation: Shapefiles have a maximum size limit of 2 GB, which can be restrictive for large datasets.</p></li>
+<li><p>Lack of Topological Information: Shapefiles do not store topological relationships between features, limiting their utility in analyses that require such information.</p></li>
+<li><p>Limited Data Types and Encoding: Shapefiles have poor support for Unicode, limiting international character representation, and they cannot store null values for numeric or text fields, which can lead to data inaccuracies.</p></li>
+</ol>
+<p><strong>Emerging Alternatives:</strong></p>
+<ol type="1">
+<li><p><strong>GeoPackage:</strong> An open, standards-based format developed by the Open Geospatial Consortium (OGC), GeoPackage uses a single SQLite database file to store both vector and raster data, overcoming many of the limitations associated with Shapefiles.</p></li>
+<li><p><strong>File Geodatabase:</strong> ESRI’s File Geodatabase offers a more robust solution with no size limitations, support for complex data types, and improved performance, making it a suitable alternative for users within the ESRI ecosystem.</p></li>
+<li><p><strong>GeoJSON:</strong> A format based on JavaScript Object Notation (JSON), GeoJSON is widely used for web applications and supports a variety of geometry types, making it a flexible alternative for sharing geospatial data, especially in web environments.</p></li>
+<li><p><strong>FlatGeobuf:</strong> A modern, open format designed for performant reading and writing of geospatial data, FlatGeobuf supports spatial indexing and is suitable for web and cloud environments.</p></li>
+</ol>
+</div>
+</div>
+<ul>
+<li><strong>Other new emerging formats</strong>:
+<ul>
+<li>LAS/LAZ: For lidar point clouds.</li>
+<li>NetCDF/HDF: For multidimensional arrays.</li>
+<li>Emerging formats: GeoArrow, Zarr.</li>
+</ul></li>
+<li><strong>Non-spatial formats</strong>:
+<ul>
+<li>Tabular formats (e.g., CSV, Excel) used for simple spatial data sharing.</li>
+<li>Lack support for complex geometries and spatial metadata like CRS.</li>
+</ul></li>
+<li><strong>Additional resources</strong>:
+<ul>
+<li><a href="https://gdal.org/">GDAL Documentation</a> offers comprehensive details on supported <a href="https://gdal.org/en/stable/drivers/vector/index.html">vector formats</a> and <a href="https://gdal.org/en/stable/drivers/raster/index.html">raster formats</a>.</li>
+</ul></li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/aditya-dahiya\.github\.io\/visage\/index\.html");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://giscus.app/client.js" data-repo="Aditya-Dahiya/visage" data-repo-id="R_kgDONAVlOw" data-category="General" data-category-id="DIC_kwDONAVlO84CjtPl" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script>
+<input type="hidden" id="giscus-base-theme" value="light">
+<input type="hidden" id="giscus-alt-theme" value="dark">
+</div> <!-- /content -->
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/book_solutions/chapter8.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><div class="page-columns page-rows-contents page-layout-article"><div class="social-share"><a href="https://twitter.com/share?url=https://aditya-dahiya.github.io/visage/book_solutions/chapter8.html&amp;text=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="twitter"><i class="fab fa-twitter fa-fw fa-lg"></i></a><a href="https://www.linkedin.com/shareArticle?url=https://aditya-dahiya.github.io/visage/book_solutions/chapter8.html&amp;title=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="linkedin"><i class="fa-brands fa-linkedin-in fa-fw fa-lg"></i></a>  <a href="mailto:?subject=Visualizing Information and Spatial Analysis with ggplot2 Extensions&amp;body=Check out this link:https://aditya-dahiya.github.io/visage/book_solutions/chapter8.html" target="_blank" class="email"><i class="fa-solid fa-envelope fa-fw fa-lg"></i></a><a href="https://www.facebook.com/sharer.php?u=https://aditya-dahiya.github.io/visage/book_solutions/chapter8.html" target="_blank" class="facebook"><i class="fab fa-facebook-f fa-fw fa-lg"></i></a><a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' &amp;&amp; mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=Visualizing Information and Spatial Analysis with ggplot2 Extensions https://aditya-dahiya.github.io/visage/book_solutions/chapter8.html'}else{return false;}" target="_blank" class="mastodon"><i class="fa-brands fa-mastodon fa-fw fa-lg"></i></a></div></div>
+
+
+
+
+</body></html>

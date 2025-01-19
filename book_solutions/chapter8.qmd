@@ -1,0 +1,228 @@
+---
+title: "Chapter 8: Geographic data I/O"
+subtitle: "Key Learnings from, and Solutions to the exercises in Chapter 8 of the book Geocomputation with R by Robin Lovelace, Jakub Nowosad and Jannes Muenchow."
+date: "2025-01-19"
+author: "Aditya Dahiya"
+bibliography: references.bib
+format:
+  html:
+    code-fold: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: false
+  cache: false
+categories:
+  - "Geocomputation with R"
+  - "Textbook Solutions"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/book_solutions/chapter8.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+```{r}
+#| label: setup
+#| eval: true
+
+library(sf)        # Simple Features in R
+library(terra)     # Handling rasters in R
+library(tidyterra) # For plotting rasters in ggplot2
+library(magrittr)  # Using pipes with raster objects
+library(tidyverse) # All things tidy; Data Wrangling
+library(spData)    # Spatial Datasets
+library(patchwork) # Composing plots
+library(gt)        # Display GT tables with R
+```
+
+## 8.1 Introduction
+
+-   **Importance of Data I/O**: Geographic data input/output (I/O) is critical for geocomputation, ensuring accurate real-world applications and enabling data sharing.
+-   **Impact of Errors**: Mistakes in data I/O (e.g., using outdated datasets) can cause significant issues later in projects.
+
+## 8.2 File Formats
+
+-   **Geographic data storage**: Stored as files or spatial databases. File formats can store either vector or raster data; databases can handle both, and the most common types are shown in @tbl-file-formats.
+
+```{r}
+#| eval: true
+#| label: tbl-file-formats
+#| tbl-cap: "Different kinds of File Formats dealing with Geo-Spatial Data"
+
+# Raster formats tibble
+raster_formats <- tibble(
+  Format = c(
+    "GeoTIFF", "NetCDF", "JPEG", "PNG", "HDF4", "HDF5", 
+    "GRIB", "Erdas Imagine", "ASCII Grid", "MBTiles"
+  ),
+  Description = c(
+    "Tagged Image File Format for georeferenced raster data.",
+    "Network Common Data Form for array-oriented scientific data.",
+    "Compressed image format commonly used for photographic images.",
+    "Portable Network Graphics format for raster graphics.",
+    "Hierarchical Data Format v4 for scientific data.",
+    "Hierarchical Data Format v5, successor to HDF4.",
+    "Gridded Binary format for meteorological data.",
+    "Raster format for Erdas Imagine software.",
+    "ASCII representation of raster data.",
+    "SQLite-based raster tile storage format."
+  ),
+  Extension = c(
+    ".tif/.tiff", ".nc", ".jpg/.jpeg", ".png", ".hdf", 
+    ".h5", ".grb/.grib", ".img", ".asc", ".mbtiles"
+  ),
+  GeoReferencing = c(
+    "Yes", "Yes", "No", "No", "Yes", "Yes", 
+    "Yes", "Yes", "Yes", "Yes"
+  )
+) |> 
+  mutate(group = "Raster File Formats")
+
+# Vector formats tibble
+vector_formats <- tibble(
+  Format = c("Shapefile", "GeoJSON", "KML", "GPKG", "CSV", "DXF", 
+             "MapInfo File", "GML", "PostGIS", "TopoJSON"),
+  Description = c(
+    "Esri Shapefile format for vector geometries.",
+    "GeoJSON format for encoding a variety of geographic data structures.",
+    "Keyhole Markup Language for geographic data in XML.",
+    "Geopackage format for spatial data storage.",
+    "Comma-Separated Values for point data with attributes.",
+    "Drawing Exchange Format for CAD data.",
+    "MapInfo TAB format for vector geometries.",
+    "Geography Markup Language for XML-based vector data.",
+    "PostGIS spatial extension for PostgreSQL database.",
+    "TopoJSON format for topology-preserving JSON data."
+  ),
+  Extension = c(".shp", ".geojson", ".kml", ".gpkg", ".csv", ".dxf", 
+                ".tab", ".gml", "PostgreSQL", ".topojson"),
+  GeoReferencing = c(
+    "Yes", "Yes", "Yes", "Yes", "No", "No", 
+    "Yes", "Yes", "Yes", "Yes"
+  )
+) |> 
+  mutate(group = "Vector File Formats")
+
+# Display vector formats table
+bind_rows(
+  vector_formats,
+  raster_formats
+) |> 
+  group_by(group) |> 
+  gt() |> 
+  cols_label(
+    Format = "File Format",
+    Description = "Description",
+    Extension = "File Extension",
+    GeoReferencing = "Geo-referencing"
+  ) |> 
+  tab_footnote(
+    md("_**Source**: GDAL documentation (https://gdal.org/en/stable/drivers/vector/index.html)_")
+  ) |> 
+  gtExtras::gt_theme_nytimes() |> 
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+    ),
+    locations = cells_body(
+      columns = Format
+    )
+  ) |> 
+  tab_style(
+    style = list(
+      cell_fill(color = "lightgrey"),    
+      cell_text(weight = "bold", align = "center")      
+    ),
+    locations = cells_group()           
+  )
+
+```
+
+-   **GDAL (Geospatial Data Abstraction Library)**:
+    -   Unified library for reading/writing raster and vector formats since the year 2000.
+    -   Powers GIS software like GRASS GIS, ArcGIS, and QGIS.
+    -   Supports over 200 vector and raster formats.
+-   **Common vector file formats**:
+    -   ESRI Shapefile: Multi-file format; limited by 2GB size, 255 columns, and 10-character names.
+    -   GeoJSON: JSON-based, supports coordinates; open format.
+    -   KML/KMZ: XML-based; used for Google Earth.
+    -   GPX: GPS data exchange.
+    -   FlatGeobuf: Fast, single-file with streaming capabilities.
+-   **Common raster file formats**:
+    -   GeoTIFF: Popular raster format embedding CRS; supports COG (Cloud Optimized GeoTIFF) for efficient online access.
+    -   Arc ASCII: Text-based raster format with header and cell values.
+-   **Database formats**:
+    -   SQLite/SpatiaLite: Lightweight relational database with spatial extensions.
+    -   ESRI FileGDB: Proprietary database format supporting feature classes and topology.
+    -   GeoPackage: Open standard SQLite-based lightweight spatial database for vector, raster, and non-spatial data.
+-   **Open standards by OGC (Open Geospatial Consortium)**:
+    -   Promotes transparency and user-driven development.
+    -   Formats like GML, KML, and GeoPackage adhere to OGC standards.
+
+::: callout-note
+### ShapeFiles and their Limitations
+
+ESRI Shapefiles have been a cornerstone in geospatial data exchange since their introduction in the early 1990s.
+
+**Reasons for Shapefile Popularity:**
+
+1.  Historical Prevalence: Introduced by ESRI in the early 1990s, Shapefiles became widely adopted due to their early entry into the GIS market.
+
+2.  Simplicity and Compatibility: Shapefiles are straightforward to use and are supported by a vast array of GIS software, facilitating easy sharing and exchange of geographic information across different platforms.
+
+3.  Open Specification: Despite being a proprietary format, ESRI published the technical specifications for Shapefiles, allowing other software developers to implement support for them, which contributed to their widespread adoption.
+
+**Contents of a ShapeFile Folder**
+
+-   **`.shp`:** Stores geometric shape data (points, lines, polygons).
+-   **`.shx`:** Index file for quick spatial queries of shapes.
+-   **`.dbf`:** Attribute table with associated data in tabular format.
+-   **`.prj`:** Coordinate system and projection information.
+-   **`.cpg`:** Encoding of character data (e.g., UTF-8).
+-   **`.sbn/.sbx`:** Optional spatial index for faster searches.
+-   **`.qpj`:** Alternative projection format used by some software.
+
+**Limitations of Shapefiles:**
+
+1.  Multi-File Structure: A single Shapefile consists of multiple files (e.g., `.shp`, `.shx`, `.dbf`), which can complicate file management and increase the risk of losing associated files.
+
+2.  Attribute Constraints: Field names in the attribute table are limited to 10 characters, and the maximum number of fields is 255, restricting the complexity of attribute data that can be stored.
+
+3.  File Size Limitation: Shapefiles have a maximum size limit of 2 GB, which can be restrictive for large datasets.
+
+4.  Lack of Topological Information: Shapefiles do not store topological relationships between features, limiting their utility in analyses that require such information.
+
+5.  Limited Data Types and Encoding: Shapefiles have poor support for Unicode, limiting international character representation, and they cannot store null values for numeric or text fields, which can lead to data inaccuracies.
+
+**Emerging Alternatives:**
+
+1.  **GeoPackage:** An open, standards-based format developed by the Open Geospatial Consortium (OGC), GeoPackage uses a single SQLite database file to store both vector and raster data, overcoming many of the limitations associated with Shapefiles.
+
+2.  **File Geodatabase:** ESRI's File Geodatabase offers a more robust solution with no size limitations, support for complex data types, and improved performance, making it a suitable alternative for users within the ESRI ecosystem.
+
+3.  **GeoJSON:** A format based on JavaScript Object Notation (JSON), GeoJSON is widely used for web applications and supports a variety of geometry types, making it a flexible alternative for sharing geospatial data, especially in web environments.
+
+4.  **FlatGeobuf:** A modern, open format designed for performant reading and writing of geospatial data, FlatGeobuf supports spatial indexing and is suitable for web and cloud environments.
+:::
+
+-   **Other new emerging formats**:
+    -   LAS/LAZ: For lidar point clouds.
+    -   NetCDF/HDF: For multidimensional arrays.
+    -   Emerging formats: GeoArrow, Zarr.
+-   **Non-spatial formats**:
+    -   Tabular formats (e.g., CSV, Excel) used for simple spatial data sharing.
+    -   Lack support for complex geometries and spatial metadata like CRS.
+-   **Additional resources**:
+    -   [GDAL Documentation](https://gdal.org/) offers comprehensive details on supported [vector formats](https://gdal.org/en/stable/drivers/vector/index.html) and [raster formats](https://gdal.org/en/stable/drivers/raster/index.html).

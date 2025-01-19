@@ -43,11 +43,15 @@ The [geofacet package](https://hafen.github.io/geofacet/) provides an innovative
 ### Install package, load required libraries
 
 ```{r}
+#| eval: true
+
+
 # install.packages("geofacet")
 library(tidyverse)             # Data Wrangling
 library(sf)                    # Simple Features in R
 library(geofacet)              # Geographic faceting
 library(patchwork)             # Compiling Plots
+library(gt)                    # Great Tables in R  
 
 
 # Setting themes etc. ----------------------------------
@@ -208,8 +212,6 @@ This code creates a detailed summary table of the 22 districts of Haryana, inclu
 #| eval: true
 #| label: tbl-hy-districts
 #| tbl-cap: "Summary of 22 Districts in the state of Haryana, along with their approximate centroid locations"
-library(tibble)
-library(gt)
 
 haryana_districts <- tibble(
   District_Name = c(

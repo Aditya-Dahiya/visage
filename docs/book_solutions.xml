@@ -10,7 +10,1190 @@
 <atom:link href="https://aditya-dahiya.github.io/visage/index.html/book_solutions.xml" rel="self" type="application/rss+xml"/>
 <description>Visualizing Information and Spatial Analysis with ggplot2 Extensions</description>
 <generator>quarto-1.5.57</generator>
-<lastBuildDate>Thu, 09 Jan 2025 18:30:00 GMT</lastBuildDate>
+<lastBuildDate>Sat, 18 Jan 2025 18:30:00 GMT</lastBuildDate>
+<item>
+  <title>Chapter 8: Geographic data I/O</title>
+  <dc:creator>Aditya Dahiya</dc:creator>
+  <link>https://aditya-dahiya.github.io/visage/index.html/book_solutions/chapter8.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(sf)        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Simple Features in R</span></span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(terra)     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Handling rasters in R</span></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyterra) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># For plotting rasters in ggplot2</span></span>
+<span id="cb1-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(magrittr)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Using pipes with raster objects</span></span>
+<span id="cb1-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># All things tidy; Data Wrangling</span></span>
+<span id="cb1-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(spData)    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Spatial Datasets</span></span>
+<span id="cb1-7"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(patchwork) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Composing plots</span></span>
+<span id="cb1-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(gt)        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Display GT tables with R</span></span></code></pre></div>
+</details>
+</div>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">8.1 Introduction</h2>
+<ul>
+<li><strong>Importance of Data I/O</strong>: Geographic data input/output (I/O) is critical for geocomputation, ensuring accurate real-world applications and enabling data sharing.</li>
+<li><strong>Impact of Errors</strong>: Mistakes in data I/O (e.g., using outdated datasets) can cause significant issues later in projects.</li>
+</ul>
+</section>
+<section id="file-formats" class="level2">
+<h2 class="anchored" data-anchor-id="file-formats">8.2 File Formats</h2>
+<ul>
+<li><strong>Geographic data storage</strong>: Stored as files or spatial databases. File formats can store either vector or raster data; databases can handle both, and the most common types are shown in Table&nbsp;1.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Raster formats tibble</span></span>
+<span id="cb2-2">raster_formats <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tibble</span>(</span>
+<span id="cb2-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Format =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(</span>
+<span id="cb2-4">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"GeoTIFF"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NetCDF"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"JPEG"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"PNG"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"HDF4"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"HDF5"</span>, </span>
+<span id="cb2-5">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"GRIB"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Erdas Imagine"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ASCII Grid"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"MBTiles"</span></span>
+<span id="cb2-6">  ),</span>
+<span id="cb2-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Description =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(</span>
+<span id="cb2-8">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Tagged Image File Format for georeferenced raster data."</span>,</span>
+<span id="cb2-9">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Network Common Data Form for array-oriented scientific data."</span>,</span>
+<span id="cb2-10">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Compressed image format commonly used for photographic images."</span>,</span>
+<span id="cb2-11">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Portable Network Graphics format for raster graphics."</span>,</span>
+<span id="cb2-12">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Hierarchical Data Format v4 for scientific data."</span>,</span>
+<span id="cb2-13">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Hierarchical Data Format v5, successor to HDF4."</span>,</span>
+<span id="cb2-14">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Gridded Binary format for meteorological data."</span>,</span>
+<span id="cb2-15">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Raster format for Erdas Imagine software."</span>,</span>
+<span id="cb2-16">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ASCII representation of raster data."</span>,</span>
+<span id="cb2-17">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"SQLite-based raster tile storage format."</span></span>
+<span id="cb2-18">  ),</span>
+<span id="cb2-19">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Extension =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(</span>
+<span id="cb2-20">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".tif/.tiff"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".nc"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".jpg/.jpeg"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".png"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".hdf"</span>, </span>
+<span id="cb2-21">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".h5"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".grb/.grib"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".img"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".asc"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".mbtiles"</span></span>
+<span id="cb2-22">  ),</span>
+<span id="cb2-23">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">GeoReferencing =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(</span>
+<span id="cb2-24">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Yes"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Yes"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"No"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"No"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Yes"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Yes"</span>, </span>
+<span id="cb2-25">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Yes"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Yes"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Yes"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Yes"</span></span>
+<span id="cb2-26">  )</span>
+<span id="cb2-27">) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-28">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">group =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Raster File Formats"</span>)</span>
+<span id="cb2-29"></span>
+<span id="cb2-30"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Vector formats tibble</span></span>
+<span id="cb2-31">vector_formats <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tibble</span>(</span>
+<span id="cb2-32">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Format =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Shapefile"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"GeoJSON"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"KML"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"GPKG"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"CSV"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DXF"</span>, </span>
+<span id="cb2-33">             <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"MapInfo File"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"GML"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"PostGIS"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"TopoJSON"</span>),</span>
+<span id="cb2-34">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Description =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(</span>
+<span id="cb2-35">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Esri Shapefile format for vector geometries."</span>,</span>
+<span id="cb2-36">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"GeoJSON format for encoding a variety of geographic data structures."</span>,</span>
+<span id="cb2-37">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Keyhole Markup Language for geographic data in XML."</span>,</span>
+<span id="cb2-38">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Geopackage format for spatial data storage."</span>,</span>
+<span id="cb2-39">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Comma-Separated Values for point data with attributes."</span>,</span>
+<span id="cb2-40">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Drawing Exchange Format for CAD data."</span>,</span>
+<span id="cb2-41">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"MapInfo TAB format for vector geometries."</span>,</span>
+<span id="cb2-42">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Geography Markup Language for XML-based vector data."</span>,</span>
+<span id="cb2-43">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"PostGIS spatial extension for PostgreSQL database."</span>,</span>
+<span id="cb2-44">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"TopoJSON format for topology-preserving JSON data."</span></span>
+<span id="cb2-45">  ),</span>
+<span id="cb2-46">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Extension =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".shp"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".geojson"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".kml"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".gpkg"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".csv"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".dxf"</span>, </span>
+<span id="cb2-47">                <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".tab"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".gml"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"PostgreSQL"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".topojson"</span>),</span>
+<span id="cb2-48">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">GeoReferencing =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(</span>
+<span id="cb2-49">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Yes"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Yes"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Yes"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Yes"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"No"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"No"</span>, </span>
+<span id="cb2-50">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Yes"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Yes"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Yes"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Yes"</span></span>
+<span id="cb2-51">  )</span>
+<span id="cb2-52">) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-53">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">group =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Vector File Formats"</span>)</span>
+<span id="cb2-54"></span>
+<span id="cb2-55"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Display vector formats table</span></span>
+<span id="cb2-56"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bind_rows</span>(</span>
+<span id="cb2-57">  vector_formats,</span>
+<span id="cb2-58">  raster_formats</span>
+<span id="cb2-59">) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-60">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">group_by</span>(group) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-61">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">gt</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-62">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cols_label</span>(</span>
+<span id="cb2-63">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Format =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"File Format"</span>,</span>
+<span id="cb2-64">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Description =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Description"</span>,</span>
+<span id="cb2-65">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Extension =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"File Extension"</span>,</span>
+<span id="cb2-66">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">GeoReferencing =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Geo-referencing"</span></span>
+<span id="cb2-67">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-68">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tab_footnote</span>(</span>
+<span id="cb2-69">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">md</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"_**Source**: GDAL documentation (https://gdal.org/en/stable/drivers/vector/index.html)_"</span>)</span>
+<span id="cb2-70">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-71">  gtExtras<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">gt_theme_nytimes</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-72">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tab_style</span>(</span>
+<span id="cb2-73">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(</span>
+<span id="cb2-74">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cell_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">weight =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span>)</span>
+<span id="cb2-75">    ),</span>
+<span id="cb2-76">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">locations =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cells_body</span>(</span>
+<span id="cb2-77">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">columns =</span> Format</span>
+<span id="cb2-78">    )</span>
+<span id="cb2-79">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-80">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tab_style</span>(</span>
+<span id="cb2-81">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(</span>
+<span id="cb2-82">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cell_fill</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lightgrey"</span>),    </span>
+<span id="cb2-83">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cell_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">weight =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">align =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"center"</span>)      </span>
+<span id="cb2-84">    ),</span>
+<span id="cb2-85">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">locations =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cells_group</span>()           </span>
+<span id="cb2-86">  )</span></code></pre></div>
+</details>
+<div id="tbl-file-formats" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-file-formats-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Different kinds of File Formats dealing with Geo-Spatial Data
+</figcaption>
+<div aria-describedby="tbl-file-formats-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="ozrpwmwndr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+#ozrpwmwndr table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#ozrpwmwndr thead, #ozrpwmwndr tbody, #ozrpwmwndr tfoot, #ozrpwmwndr tr, #ozrpwmwndr td, #ozrpwmwndr th {
+  border-style: none;
+}
+
+#ozrpwmwndr p {
+  margin: 0;
+  padding: 0;
+}
+
+#ozrpwmwndr .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#ozrpwmwndr .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#ozrpwmwndr .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#ozrpwmwndr .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#ozrpwmwndr .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ozrpwmwndr .gt_bottom_border {
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ozrpwmwndr .gt_col_headings {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 1px;
+  border-bottom-color: #334422;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ozrpwmwndr .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 12px;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#ozrpwmwndr .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 12px;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#ozrpwmwndr .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#ozrpwmwndr .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#ozrpwmwndr .gt_column_spanner {
+  border-bottom-style: none;
+  border-bottom-width: 1px;
+  border-bottom-color: #334422;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#ozrpwmwndr .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#ozrpwmwndr .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#ozrpwmwndr .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#ozrpwmwndr .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#ozrpwmwndr .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#ozrpwmwndr .gt_row {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#ozrpwmwndr .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ozrpwmwndr .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#ozrpwmwndr .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#ozrpwmwndr .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#ozrpwmwndr .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ozrpwmwndr .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#ozrpwmwndr .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#ozrpwmwndr .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ozrpwmwndr .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ozrpwmwndr .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#ozrpwmwndr .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ozrpwmwndr .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#ozrpwmwndr .gt_table_body {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #FFFFFF;
+}
+
+#ozrpwmwndr .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ozrpwmwndr .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ozrpwmwndr .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ozrpwmwndr .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ozrpwmwndr .gt_left {
+  text-align: left;
+}
+
+#ozrpwmwndr .gt_center {
+  text-align: center;
+}
+
+#ozrpwmwndr .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#ozrpwmwndr .gt_font_normal {
+  font-weight: normal;
+}
+
+#ozrpwmwndr .gt_font_bold {
+  font-weight: bold;
+}
+
+#ozrpwmwndr .gt_font_italic {
+  font-style: italic;
+}
+
+#ozrpwmwndr .gt_super {
+  font-size: 65%;
+}
+
+#ozrpwmwndr .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#ozrpwmwndr .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#ozrpwmwndr .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#ozrpwmwndr .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#ozrpwmwndr .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#ozrpwmwndr .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#ozrpwmwndr .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#ozrpwmwndr .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#ozrpwmwndr div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table do-not-create-environment cell caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="header gt_col_headings">
+<th id="Format" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="text-align: center; color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase;" scope="col">File Format</th>
+<th id="Description" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="text-align: center; color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase;" scope="col">Description</th>
+<th id="Extension" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="text-align: center; color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase;" scope="col">File Extension</th>
+<th id="GeoReferencing" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="text-align: center; color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase;" scope="col">Geo-referencing</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd gt_group_heading_row">
+<td colspan="4" id="Vector File Formats" class="gt_group_heading" data-quarto-table-cell-role="th" style="text-align: center; background-color: #D3D3D3; font-weight: bold;" scope="colgroup">Vector File Formats</td>
+</tr>
+<tr class="even gt_row_group_first">
+<td class="gt_row gt_left" headers="Vector File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">Shapefile</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Esri Shapefile format for vector geometries.</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.shp</td>
+<td class="gt_row gt_left" headers="Vector File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Vector File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">GeoJSON</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">GeoJSON format for encoding a variety of geographic data structures.</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.geojson</td>
+<td class="gt_row gt_left" headers="Vector File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Vector File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">KML</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Keyhole Markup Language for geographic data in XML.</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.kml</td>
+<td class="gt_row gt_left" headers="Vector File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Vector File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">GPKG</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Geopackage format for spatial data storage.</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.gpkg</td>
+<td class="gt_row gt_left" headers="Vector File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Vector File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">CSV</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Comma-Separated Values for point data with attributes.</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.csv</td>
+<td class="gt_row gt_left" headers="Vector File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">No</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Vector File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">DXF</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Drawing Exchange Format for CAD data.</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.dxf</td>
+<td class="gt_row gt_left" headers="Vector File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">No</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Vector File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">MapInfo File</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">MapInfo TAB format for vector geometries.</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.tab</td>
+<td class="gt_row gt_left" headers="Vector File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Vector File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">GML</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Geography Markup Language for XML-based vector data.</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.gml</td>
+<td class="gt_row gt_left" headers="Vector File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Vector File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">PostGIS</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">PostGIS spatial extension for PostgreSQL database.</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">PostgreSQL</td>
+<td class="gt_row gt_left" headers="Vector File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Vector File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">TopoJSON</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">TopoJSON format for topology-preserving JSON data.</td>
+<td class="gt_row gt_left" headers="Vector File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.topojson</td>
+<td class="gt_row gt_left" headers="Vector File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="even gt_group_heading_row">
+<td colspan="4" id="Raster File Formats" class="gt_group_heading" data-quarto-table-cell-role="th" style="text-align: center; background-color: #D3D3D3; font-weight: bold;" scope="colgroup">Raster File Formats</td>
+</tr>
+<tr class="odd gt_row_group_first">
+<td class="gt_row gt_left" headers="Raster File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">GeoTIFF</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Tagged Image File Format for georeferenced raster data.</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.tif/.tiff</td>
+<td class="gt_row gt_left" headers="Raster File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Raster File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">NetCDF</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Network Common Data Form for array-oriented scientific data.</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.nc</td>
+<td class="gt_row gt_left" headers="Raster File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Raster File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">JPEG</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Compressed image format commonly used for photographic images.</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.jpg/.jpeg</td>
+<td class="gt_row gt_left" headers="Raster File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">No</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Raster File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">PNG</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Portable Network Graphics format for raster graphics.</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.png</td>
+<td class="gt_row gt_left" headers="Raster File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">No</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Raster File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">HDF4</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Hierarchical Data Format v4 for scientific data.</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.hdf</td>
+<td class="gt_row gt_left" headers="Raster File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Raster File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">HDF5</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Hierarchical Data Format v5, successor to HDF4.</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.h5</td>
+<td class="gt_row gt_left" headers="Raster File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Raster File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">GRIB</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Gridded Binary format for meteorological data.</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.grb/.grib</td>
+<td class="gt_row gt_left" headers="Raster File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Raster File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">Erdas Imagine</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Raster format for Erdas Imagine software.</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.img</td>
+<td class="gt_row gt_left" headers="Raster File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Raster File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">ASCII Grid</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">ASCII representation of raster data.</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.asc</td>
+<td class="gt_row gt_left" headers="Raster File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Raster File Formats  Format" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: bold;">MBTiles</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Description" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">SQLite-based raster tile storage format.</td>
+<td class="gt_row gt_left" headers="Raster File Formats  Extension" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">.mbtiles</td>
+<td class="gt_row gt_left" headers="Raster File Formats  GeoReferencing" style="text-align: center; font-family: 'Source Sans Pro'; font-weight: 400;">Yes</td>
+</tr>
+</tbody><tfoot class="gt_footnotes">
+<tr class="odd">
+<td colspan="4" class="gt_footnote" style="text-align: center;"><em><strong>Source</strong>: GDAL documentation (<a href="https://gdal.org/en/stable/drivers/vector/index.html">https://gdal.org/en/stable/drivers/vector/index.html</a>)</em></td>
+</tr>
+</tfoot>
+
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<ul>
+<li><strong>GDAL (Geospatial Data Abstraction Library)</strong>:
+<ul>
+<li>Unified library for reading/writing raster and vector formats since the year 2000.</li>
+<li>Powers GIS software like GRASS GIS, ArcGIS, and QGIS.</li>
+<li>Supports over 200 vector and raster formats.</li>
+</ul></li>
+<li><strong>Common vector file formats</strong>:
+<ul>
+<li>ESRI Shapefile: Multi-file format; limited by 2GB size, 255 columns, and 10-character names.</li>
+<li>GeoJSON: JSON-based, supports coordinates; open format.</li>
+<li>KML/KMZ: XML-based; used for Google Earth.</li>
+<li>GPX: GPS data exchange.</li>
+<li>FlatGeobuf: Fast, single-file with streaming capabilities.</li>
+</ul></li>
+<li><strong>Common raster file formats</strong>:
+<ul>
+<li>GeoTIFF: Popular raster format embedding CRS; supports COG (Cloud Optimized GeoTIFF) for efficient online access.</li>
+<li>Arc ASCII: Text-based raster format with header and cell values.</li>
+</ul></li>
+<li><strong>Database formats</strong>:
+<ul>
+<li>SQLite/SpatiaLite: Lightweight relational database with spatial extensions.</li>
+<li>ESRI FileGDB: Proprietary database format supporting feature classes and topology.</li>
+<li>GeoPackage: Open standard SQLite-based lightweight spatial database for vector, raster, and non-spatial data.</li>
+</ul></li>
+<li><strong>Open standards by OGC (Open Geospatial Consortium)</strong>:
+<ul>
+<li>Promotes transparency and user-driven development.</li>
+<li>Formats like GML, KML, and GeoPackage adhere to OGC standards.</li>
+</ul></li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+ShapeFiles and their Limitations
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>ESRI Shapefiles have been a cornerstone in geospatial data exchange since their introduction in the early 1990s.</p>
+<p><strong>Reasons for Shapefile Popularity:</strong></p>
+<ol type="1">
+<li><p>Historical Prevalence: Introduced by ESRI in the early 1990s, Shapefiles became widely adopted due to their early entry into the GIS market.</p></li>
+<li><p>Simplicity and Compatibility: Shapefiles are straightforward to use and are supported by a vast array of GIS software, facilitating easy sharing and exchange of geographic information across different platforms.</p></li>
+<li><p>Open Specification: Despite being a proprietary format, ESRI published the technical specifications for Shapefiles, allowing other software developers to implement support for them, which contributed to their widespread adoption.</p></li>
+</ol>
+<p><strong>Contents of a ShapeFile Folder</strong></p>
+<ul>
+<li><strong><code>.shp</code>:</strong> Stores geometric shape data (points, lines, polygons).</li>
+<li><strong><code>.shx</code>:</strong> Index file for quick spatial queries of shapes.</li>
+<li><strong><code>.dbf</code>:</strong> Attribute table with associated data in tabular format.</li>
+<li><strong><code>.prj</code>:</strong> Coordinate system and projection information.</li>
+<li><strong><code>.cpg</code>:</strong> Encoding of character data (e.g., UTF-8).</li>
+<li><strong><code>.sbn/.sbx</code>:</strong> Optional spatial index for faster searches.</li>
+<li><strong><code>.qpj</code>:</strong> Alternative projection format used by some software.</li>
+</ul>
+<p><strong>Limitations of Shapefiles:</strong></p>
+<ol type="1">
+<li><p>Multi-File Structure: A single Shapefile consists of multiple files (e.g., <code>.shp</code>, <code>.shx</code>, <code>.dbf</code>), which can complicate file management and increase the risk of losing associated files.</p></li>
+<li><p>Attribute Constraints: Field names in the attribute table are limited to 10 characters, and the maximum number of fields is 255, restricting the complexity of attribute data that can be stored.</p></li>
+<li><p>File Size Limitation: Shapefiles have a maximum size limit of 2 GB, which can be restrictive for large datasets.</p></li>
+<li><p>Lack of Topological Information: Shapefiles do not store topological relationships between features, limiting their utility in analyses that require such information.</p></li>
+<li><p>Limited Data Types and Encoding: Shapefiles have poor support for Unicode, limiting international character representation, and they cannot store null values for numeric or text fields, which can lead to data inaccuracies.</p></li>
+</ol>
+<p><strong>Emerging Alternatives:</strong></p>
+<ol type="1">
+<li><p><strong>GeoPackage:</strong> An open, standards-based format developed by the Open Geospatial Consortium (OGC), GeoPackage uses a single SQLite database file to store both vector and raster data, overcoming many of the limitations associated with Shapefiles.</p></li>
+<li><p><strong>File Geodatabase:</strong> ESRI’s File Geodatabase offers a more robust solution with no size limitations, support for complex data types, and improved performance, making it a suitable alternative for users within the ESRI ecosystem.</p></li>
+<li><p><strong>GeoJSON:</strong> A format based on JavaScript Object Notation (JSON), GeoJSON is widely used for web applications and supports a variety of geometry types, making it a flexible alternative for sharing geospatial data, especially in web environments.</p></li>
+<li><p><strong>FlatGeobuf:</strong> A modern, open format designed for performant reading and writing of geospatial data, FlatGeobuf supports spatial indexing and is suitable for web and cloud environments.</p></li>
+</ol>
+</div>
+</div>
+<ul>
+<li><strong>Other new emerging formats</strong>:
+<ul>
+<li>LAS/LAZ: For lidar point clouds.</li>
+<li>NetCDF/HDF: For multidimensional arrays.</li>
+<li>Emerging formats: GeoArrow, Zarr.</li>
+</ul></li>
+<li><strong>Non-spatial formats</strong>:
+<ul>
+<li>Tabular formats (e.g., CSV, Excel) used for simple spatial data sharing.</li>
+<li>Lack support for complex geometries and spatial metadata like CRS.</li>
+</ul></li>
+<li><strong>Additional resources</strong>:
+<ul>
+<li><a href="https://gdal.org/">GDAL Documentation</a> offers comprehensive details on supported <a href="https://gdal.org/en/stable/drivers/vector/index.html">vector formats</a> and <a href="https://gdal.org/en/stable/drivers/raster/index.html">raster formats</a>.</li>
+</ul></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>Geocomputation with R</category>
+  <category>Textbook Solutions</category>
+  <guid>https://aditya-dahiya.github.io/visage/index.html/book_solutions/chapter8.html</guid>
+  <pubDate>Sat, 18 Jan 2025 18:30:00 GMT</pubDate>
+</item>
 <item>
   <title>Chapter 7: Reprojecting geographic data</title>
   <dc:creator>Aditya Dahiya</dc:creator>

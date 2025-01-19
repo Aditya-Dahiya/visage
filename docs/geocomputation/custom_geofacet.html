@@ -114,7 +114,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <script src="../site_libs/react-18.2.0/react-dom.min.js"></script>
 
-<script src="../site_libs/reactwidget-2.0.0/react-tools.umd.cjs"></script>
+<script src="../site_libs/reactwidget-1.0.0/react-tools.js"></script>
 
 <script src="../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
 
@@ -278,32 +278,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)                    <span class="co"># Simple Features in R</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(geofacet)              <span class="co"># Geographic faceting</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)             <span class="co"># Compiling Plots</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)                    <span class="co"># Great Tables in R  </span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Setting themes etc. ----------------------------------</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>sysfonts<span class="sc">::</span><span class="fu">font_add_google</span>(<span class="st">"Saira Condensed"</span>, <span class="st">"body_font"</span>)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>showtext<span class="sc">::</span><span class="fu">showtext_auto</span>()</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_family =</span> <span class="st">"body_font"</span>,</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_size =</span> <span class="dv">14</span>,</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_line_size =</span> <span class="fl">0.2</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">text =</span> <span class="fu">element_text</span>(</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        <span class="at">colour =</span> <span class="st">"grey20"</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>      ),</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        <span class="at">size =</span> <span class="dv">24</span>,</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">margin =</span> <span class="fu">margin</span>(<span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="st">"lines"</span>)</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>      ),</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>        <span class="at">size =</span> <span class="dv">16</span>,</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>        <span class="at">margin =</span> <span class="fu">margin</span>(<span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="st">"lines"</span>),</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">lineheight =</span> <span class="fl">0.3</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Setting themes etc. ----------------------------------</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>sysfonts<span class="sc">::</span><span class="fu">font_add_google</span>(<span class="st">"Saira Condensed"</span>, <span class="st">"body_font"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>showtext<span class="sc">::</span><span class="fu">showtext_auto</span>()</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_family =</span> <span class="st">"body_font"</span>,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_size =</span> <span class="dv">14</span>,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_line_size =</span> <span class="fl">0.2</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">text =</span> <span class="fu">element_text</span>(</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        <span class="at">colour =</span> <span class="st">"grey20"</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">size =</span> <span class="dv">24</span>,</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">margin =</span> <span class="fu">margin</span>(<span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="st">"lines"</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>        <span class="at">size =</span> <span class="dv">16</span>,</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">margin =</span> <span class="fu">margin</span>(<span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="st">"lines"</span>),</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>        <span class="at">lineheight =</span> <span class="fl">0.3</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
@@ -447,49 +448,46 @@ Figure&nbsp;1: Maps of USA with statitics (ranks) for each state plotted as hori
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>haryana_districts <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">District_Name =</span> <span class="fu">c</span>(</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Ambala"</span>, <span class="st">"Bhiwani"</span>, <span class="st">"Charkhi Dadri"</span>, <span class="st">"Faridabad"</span>, <span class="st">"Fatehabad"</span>,</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Gurugram"</span>, <span class="st">"Hisar"</span>, <span class="st">"Jhajjar"</span>, <span class="st">"Jind"</span>, <span class="st">"Kaithal"</span>,</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Karnal"</span>, <span class="st">"Kurukshetra"</span>, <span class="st">"Mahendragarh"</span>, <span class="st">"Nuh"</span>, <span class="st">"Palwal"</span>,</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Panchkula"</span>, <span class="st">"Panipat"</span>, <span class="st">"Rewari"</span>, <span class="st">"Rohtak"</span>, <span class="st">"Sirsa"</span>,</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Sonipat"</span>, <span class="st">"Yamunanagar"</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">Two_Letter_Code =</span> <span class="fu">c</span>(</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"AM"</span>, <span class="st">"BH"</span>, <span class="st">"CD"</span>, <span class="st">"FR"</span>, <span class="st">"FT"</span>, <span class="st">"GU"</span>, <span class="st">"HI"</span>, <span class="st">"JH"</span>, <span class="st">"JI"</span>, <span class="st">"KT"</span>,</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"KR"</span>, <span class="st">"KU"</span>, <span class="st">"MA"</span>, <span class="st">"NU"</span>, <span class="st">"PW"</span>, <span class="st">"PK"</span>, <span class="st">"PP"</span>, <span class="st">"RE"</span>, <span class="st">"RO"</span>, <span class="st">"SI"</span>,</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"SN"</span>, <span class="st">"YN"</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">Three_Letter_Code =</span> <span class="fu">c</span>(</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"AMB"</span>, <span class="st">"BHW"</span>, <span class="st">"CHD"</span>, <span class="st">"FAR"</span>, <span class="st">"FAT"</span>, <span class="st">"GUR"</span>, <span class="st">"HIS"</span>, </span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"JHA"</span>, <span class="st">"JIN"</span>, <span class="st">"KAI"</span>,</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"KAR"</span>, <span class="st">"KUR"</span>, <span class="st">"MAH"</span>, <span class="st">"NUH"</span>, <span class="st">"PAL"</span>, <span class="st">"PAN"</span>, <span class="st">"PNP"</span>, </span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"REW"</span>, <span class="st">"ROH"</span>, <span class="st">"SIR"</span>, <span class="st">"SON"</span>, <span class="st">"YAM"</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">Latitude =</span> <span class="fu">c</span>(</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="fl">30.3782</span>, <span class="fl">28.7930</span>, <span class="fl">28.5921</span>, <span class="fl">28.4089</span>, <span class="fl">29.5252</span>,</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="fl">28.4595</span>, <span class="fl">29.1492</span>, <span class="fl">28.6064</span>, <span class="fl">29.3162</span>, <span class="fl">29.8010</span>,</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="fl">29.6857</span>, <span class="fl">29.9695</span>, <span class="fl">28.2692</span>, <span class="fl">28.1070</span>, <span class="fl">28.1447</span>,</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="fl">30.6942</span>, <span class="fl">29.3909</span>, <span class="fl">28.1970</span>, <span class="fl">28.8955</span>, <span class="fl">29.5349</span>,</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="fl">28.9931</span>, <span class="fl">30.1290</span></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">Longitude =</span> <span class="fu">c</span>(</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    <span class="fl">76.7767</span>, <span class="fl">76.1390</span>, <span class="fl">76.2711</span>, <span class="fl">77.3178</span>, <span class="fl">75.4540</span>,</span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="fl">77.0266</span>, <span class="fl">75.7217</span>, <span class="fl">76.6565</span>, <span class="fl">76.3144</span>, <span class="fl">76.3995</span>,</span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="fl">76.9905</span>, <span class="fl">76.8783</span>, <span class="fl">76.1521</span>, <span class="fl">77.0010</span>, <span class="fl">77.3260</span>,</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="fl">76.8606</span>, <span class="fl">76.9635</span>, <span class="fl">76.6170</span>, <span class="fl">76.6066</span>, <span class="fl">75.0280</span>,</span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    <span class="fl">77.0151</span>, <span class="fl">77.2674</span></span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="fu">gt</span>(haryana_districts) <span class="sc">|&gt;</span> </span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label_with</span>(<span class="at">fn =</span> snakecase<span class="sc">::</span>to_title_case) <span class="sc">|&gt;</span> </span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(<span class="at">columns =</span> <span class="fu">c</span>(Latitude, Longitude)) <span class="sc">|&gt;</span> </span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_interactive</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>  gtExtras<span class="sc">::</span><span class="fu">gt_theme_538</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>haryana_districts <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">District_Name =</span> <span class="fu">c</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Ambala"</span>, <span class="st">"Bhiwani"</span>, <span class="st">"Charkhi Dadri"</span>, <span class="st">"Faridabad"</span>, <span class="st">"Fatehabad"</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Gurugram"</span>, <span class="st">"Hisar"</span>, <span class="st">"Jhajjar"</span>, <span class="st">"Jind"</span>, <span class="st">"Kaithal"</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Karnal"</span>, <span class="st">"Kurukshetra"</span>, <span class="st">"Mahendragarh"</span>, <span class="st">"Nuh"</span>, <span class="st">"Palwal"</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Panchkula"</span>, <span class="st">"Panipat"</span>, <span class="st">"Rewari"</span>, <span class="st">"Rohtak"</span>, <span class="st">"Sirsa"</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Sonipat"</span>, <span class="st">"Yamunanagar"</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">Two_Letter_Code =</span> <span class="fu">c</span>(</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"AM"</span>, <span class="st">"BH"</span>, <span class="st">"CD"</span>, <span class="st">"FR"</span>, <span class="st">"FT"</span>, <span class="st">"GU"</span>, <span class="st">"HI"</span>, <span class="st">"JH"</span>, <span class="st">"JI"</span>, <span class="st">"KT"</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"KR"</span>, <span class="st">"KU"</span>, <span class="st">"MA"</span>, <span class="st">"NU"</span>, <span class="st">"PW"</span>, <span class="st">"PK"</span>, <span class="st">"PP"</span>, <span class="st">"RE"</span>, <span class="st">"RO"</span>, <span class="st">"SI"</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"SN"</span>, <span class="st">"YN"</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">Three_Letter_Code =</span> <span class="fu">c</span>(</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"AMB"</span>, <span class="st">"BHW"</span>, <span class="st">"CHD"</span>, <span class="st">"FAR"</span>, <span class="st">"FAT"</span>, <span class="st">"GUR"</span>, <span class="st">"HIS"</span>, </span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"JHA"</span>, <span class="st">"JIN"</span>, <span class="st">"KAI"</span>,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"KAR"</span>, <span class="st">"KUR"</span>, <span class="st">"MAH"</span>, <span class="st">"NUH"</span>, <span class="st">"PAL"</span>, <span class="st">"PAN"</span>, <span class="st">"PNP"</span>, </span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"REW"</span>, <span class="st">"ROH"</span>, <span class="st">"SIR"</span>, <span class="st">"SON"</span>, <span class="st">"YAM"</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">Latitude =</span> <span class="fu">c</span>(</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="fl">30.3782</span>, <span class="fl">28.7930</span>, <span class="fl">28.5921</span>, <span class="fl">28.4089</span>, <span class="fl">29.5252</span>,</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="fl">28.4595</span>, <span class="fl">29.1492</span>, <span class="fl">28.6064</span>, <span class="fl">29.3162</span>, <span class="fl">29.8010</span>,</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="fl">29.6857</span>, <span class="fl">29.9695</span>, <span class="fl">28.2692</span>, <span class="fl">28.1070</span>, <span class="fl">28.1447</span>,</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="fl">30.6942</span>, <span class="fl">29.3909</span>, <span class="fl">28.1970</span>, <span class="fl">28.8955</span>, <span class="fl">29.5349</span>,</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="fl">28.9931</span>, <span class="fl">30.1290</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">Longitude =</span> <span class="fu">c</span>(</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="fl">76.7767</span>, <span class="fl">76.1390</span>, <span class="fl">76.2711</span>, <span class="fl">77.3178</span>, <span class="fl">75.4540</span>,</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="fl">77.0266</span>, <span class="fl">75.7217</span>, <span class="fl">76.6565</span>, <span class="fl">76.3144</span>, <span class="fl">76.3995</span>,</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="fl">76.9905</span>, <span class="fl">76.8783</span>, <span class="fl">76.1521</span>, <span class="fl">77.0010</span>, <span class="fl">77.3260</span>,</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    <span class="fl">76.8606</span>, <span class="fl">76.9635</span>, <span class="fl">76.6170</span>, <span class="fl">76.6066</span>, <span class="fl">75.0280</span>,</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="fl">77.0151</span>, <span class="fl">77.2674</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="fu">gt</span>(haryana_districts) <span class="sc">|&gt;</span> </span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label_with</span>(<span class="at">fn =</span> snakecase<span class="sc">::</span>to_title_case) <span class="sc">|&gt;</span> </span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(<span class="at">columns =</span> <span class="fu">c</span>(Latitude, Longitude)) <span class="sc">|&gt;</span> </span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_interactive</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>  gtExtras<span class="sc">::</span><span class="fu">gt_theme_538</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div id="tbl-hy-districts" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
@@ -498,27 +496,27 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
 </figcaption>
 <div aria-describedby="tbl-hy-districts-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="lgbtrixrwj" class=".gt_table" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="fvdngwqjrj" class=".gt_table" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Cairo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#lgbtrixrwj table {
+#fvdngwqjrj table {
   font-family: Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#lgbtrixrwj thead, #lgbtrixrwj tbody, #lgbtrixrwj tfoot, #lgbtrixrwj tr, #lgbtrixrwj td, #lgbtrixrwj th {
+#fvdngwqjrj thead, #fvdngwqjrj tbody, #fvdngwqjrj tfoot, #fvdngwqjrj tr, #fvdngwqjrj td, #fvdngwqjrj th {
   border-style: none;
 }
 
-#lgbtrixrwj p {
+#fvdngwqjrj p {
   margin: 0;
   padding: 0;
 }
 
-#lgbtrixrwj .gt_table {
+#fvdngwqjrj .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -544,12 +542,12 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   border-left-color: #D3D3D3;
 }
 
-#lgbtrixrwj .gt_caption {
+#fvdngwqjrj .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#lgbtrixrwj .gt_title {
+#fvdngwqjrj .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -561,7 +559,7 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   border-bottom-width: 0;
 }
 
-#lgbtrixrwj .gt_subtitle {
+#fvdngwqjrj .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -573,7 +571,7 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   border-top-width: 0;
 }
 
-#lgbtrixrwj .gt_heading {
+#fvdngwqjrj .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -585,13 +583,13 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   border-right-color: #D3D3D3;
 }
 
-#lgbtrixrwj .gt_bottom_border {
+#fvdngwqjrj .gt_bottom_border {
   border-bottom-style: none;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#lgbtrixrwj .gt_col_headings {
+#fvdngwqjrj .gt_col_headings {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -606,7 +604,7 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   border-right-color: #D3D3D3;
 }
 
-#lgbtrixrwj .gt_col_heading {
+#fvdngwqjrj .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -626,7 +624,7 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   overflow-x: hidden;
 }
 
-#lgbtrixrwj .gt_column_spanner_outer {
+#fvdngwqjrj .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -638,15 +636,15 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   padding-right: 4px;
 }
 
-#lgbtrixrwj .gt_column_spanner_outer:first-child {
+#fvdngwqjrj .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#lgbtrixrwj .gt_column_spanner_outer:last-child {
+#fvdngwqjrj .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#lgbtrixrwj .gt_column_spanner {
+#fvdngwqjrj .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #000000;
@@ -658,11 +656,11 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   width: 100%;
 }
 
-#lgbtrixrwj .gt_spanner_row {
+#fvdngwqjrj .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#lgbtrixrwj .gt_group_heading {
+#fvdngwqjrj .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -688,7 +686,7 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   text-align: left;
 }
 
-#lgbtrixrwj .gt_empty_group_heading {
+#fvdngwqjrj .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -703,15 +701,15 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   vertical-align: middle;
 }
 
-#lgbtrixrwj .gt_from_md > :first-child {
+#fvdngwqjrj .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#lgbtrixrwj .gt_from_md > :last-child {
+#fvdngwqjrj .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#lgbtrixrwj .gt_row {
+#fvdngwqjrj .gt_row {
   padding-top: 3px;
   padding-bottom: 3px;
   padding-left: 5px;
@@ -730,7 +728,7 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   overflow-x: hidden;
 }
 
-#lgbtrixrwj .gt_stub {
+#fvdngwqjrj .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -743,7 +741,7 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   padding-right: 5px;
 }
 
-#lgbtrixrwj .gt_stub_row_group {
+#fvdngwqjrj .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -757,15 +755,15 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   vertical-align: top;
 }
 
-#lgbtrixrwj .gt_row_group_first td {
+#fvdngwqjrj .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#lgbtrixrwj .gt_row_group_first th {
+#fvdngwqjrj .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#lgbtrixrwj .gt_summary_row {
+#fvdngwqjrj .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -775,16 +773,16 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   padding-right: 5px;
 }
 
-#lgbtrixrwj .gt_first_summary_row {
+#fvdngwqjrj .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#lgbtrixrwj .gt_first_summary_row.thick {
+#fvdngwqjrj .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#lgbtrixrwj .gt_last_summary_row {
+#fvdngwqjrj .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -794,7 +792,7 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   border-bottom-color: #D3D3D3;
 }
 
-#lgbtrixrwj .gt_grand_summary_row {
+#fvdngwqjrj .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -804,7 +802,7 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   padding-right: 5px;
 }
 
-#lgbtrixrwj .gt_first_grand_summary_row {
+#fvdngwqjrj .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -814,7 +812,7 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   border-top-color: #D3D3D3;
 }
 
-#lgbtrixrwj .gt_last_grand_summary_row_top {
+#fvdngwqjrj .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -824,11 +822,11 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   border-bottom-color: #D3D3D3;
 }
 
-#lgbtrixrwj .gt_striped {
+#fvdngwqjrj .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#lgbtrixrwj .gt_table_body {
+#fvdngwqjrj .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -837,7 +835,7 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   border-bottom-color: #D3D3D3;
 }
 
-#lgbtrixrwj .gt_footnotes {
+#fvdngwqjrj .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -851,7 +849,7 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   border-right-color: #D3D3D3;
 }
 
-#lgbtrixrwj .gt_footnote {
+#fvdngwqjrj .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -860,7 +858,7 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   padding-right: 5px;
 }
 
-#lgbtrixrwj .gt_sourcenotes {
+#fvdngwqjrj .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -874,7 +872,7 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   border-right-color: #D3D3D3;
 }
 
-#lgbtrixrwj .gt_sourcenote {
+#fvdngwqjrj .gt_sourcenote {
   font-size: 12px;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -882,72 +880,72 @@ Table&nbsp;1: Summary of 22 Districts in the state of Haryana, along with their 
   padding-right: 5px;
 }
 
-#lgbtrixrwj .gt_left {
+#fvdngwqjrj .gt_left {
   text-align: left;
 }
 
-#lgbtrixrwj .gt_center {
+#fvdngwqjrj .gt_center {
   text-align: center;
 }
 
-#lgbtrixrwj .gt_right {
+#fvdngwqjrj .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#lgbtrixrwj .gt_font_normal {
+#fvdngwqjrj .gt_font_normal {
   font-weight: normal;
 }
 
-#lgbtrixrwj .gt_font_bold {
+#fvdngwqjrj .gt_font_bold {
   font-weight: bold;
 }
 
-#lgbtrixrwj .gt_font_italic {
+#fvdngwqjrj .gt_font_italic {
   font-style: italic;
 }
 
-#lgbtrixrwj .gt_super {
+#fvdngwqjrj .gt_super {
   font-size: 65%;
 }
 
-#lgbtrixrwj .gt_footnote_marks {
+#fvdngwqjrj .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#lgbtrixrwj .gt_asterisk {
+#fvdngwqjrj .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#lgbtrixrwj .gt_indent_1 {
+#fvdngwqjrj .gt_indent_1 {
   text-indent: 5px;
 }
 
-#lgbtrixrwj .gt_indent_2 {
+#fvdngwqjrj .gt_indent_2 {
   text-indent: 10px;
 }
 
-#lgbtrixrwj .gt_indent_3 {
+#fvdngwqjrj .gt_indent_3 {
   text-indent: 15px;
 }
 
-#lgbtrixrwj .gt_indent_4 {
+#fvdngwqjrj .gt_indent_4 {
   text-indent: 20px;
 }
 
-#lgbtrixrwj .gt_indent_5 {
+#fvdngwqjrj .gt_indent_5 {
   text-indent: 25px;
 }
 
-#lgbtrixrwj .katex-display {
+#fvdngwqjrj .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#lgbtrixrwj div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#fvdngwqjrj div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 
@@ -955,8 +953,8 @@ tbody tr:last-child {
   border-bottom: 2px solid #ffffff00;
 }
 </style>
-<div id="lgbtrixrwj" class="reactable html-widget" style="width:auto;height:auto;"></div>
-<script type="application/json" data-for="lgbtrixrwj">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"District_Name":["Ambala","Bhiwani","Charkhi Dadri","Faridabad","Fatehabad","Gurugram","Hisar","Jhajjar","Jind","Kaithal","Karnal","Kurukshetra","Mahendragarh","Nuh","Palwal","Panchkula","Panipat","Rewari","Rohtak","Sirsa","Sonipat","Yamunanagar"],"Two_Letter_Code":["AM","BH","CD","FR","FT","GU","HI","JH","JI","KT","KR","KU","MA","NU","PW","PK","PP","RE","RO","SI","SN","YN"],"Three_Letter_Code":["AMB","BHW","CHD","FAR","FAT","GUR","HIS","JHA","JIN","KAI","KAR","KUR","MAH","NUH","PAL","PAN","PNP","REW","ROH","SIR","SON","YAM"],"Latitude":[30.3782,28.793,28.5921,28.4089,29.5252,28.4595,29.1492,28.6064,29.3162,29.801,29.6857,29.9695,28.2692,28.107,28.1447,30.6942,29.3909,28.197,28.8955,29.5349,28.9931,30.129],"Longitude":[76.7767,76.139,76.2711,77.3178,75.454,77.0266,75.7217,76.6565,76.3144,76.3995,76.9905,76.8783,76.1521,77.001,77.326,76.8606,76.9635,76.617,76.6066,75.028,77.0151,77.2674]},"columns":[{"id":"District_Name","name":"District Name","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"Two_Letter_Code","name":"Two Letter Code","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"Three_Letter_Code","name":"Three Letter Code","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"Latitude","name":"Latitude","type":"numeric","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","cell":["30.38","28.79","28.59","28.41","29.53","28.46","29.15","28.61","29.32","29.80","29.69","29.97","28.27","28.11","28.14","30.69","29.39","28.20","28.90","29.53","28.99","30.13"],"html":true,"align":"right","headerStyle":{"font-weight":"normal"}},{"id":"Longitude","name":"Longitude","type":"numeric","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","cell":["76.78","76.14","76.27","77.32","75.45","77.03","75.72","76.66","76.31","76.40","76.99","76.88","76.15","77.00","77.33","76.86","76.96","76.62","76.61","75.03","77.02","77.27"],"html":true,"align":"right","headerStyle":{"font-weight":"normal"}}],"defaultPageSize":10,"showPageSizeOptions":false,"pageSizeOptions":[10,25,50,100],"paginationType":"numbers","showPagination":true,"showPageInfo":true,"minRows":1,"height":"auto","theme":{"color":"#333333","backgroundColor":"#FFFFFF","stripedColor":"rgba(128,128,128,0.05)","style":{"fontFamily":"Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"},"tableStyle":{"borderTopStyle":"none","borderTopWidth":"2px","borderTopColor":"#D3D3D3"},"headerStyle":{"borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"black"}},"elementId":"lgbtrixrwj","dataKey":"61739b60696cc97c1eea5a8bc571e567"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.style","tag.attribs.columns.1.style","tag.attribs.columns.2.style","tag.attribs.columns.3.style","tag.attribs.columns.4.style"],"jsHooks":[]}</script>
+<div id="fvdngwqjrj" class="reactable html-widget" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="fvdngwqjrj">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"District_Name":["Ambala","Bhiwani","Charkhi Dadri","Faridabad","Fatehabad","Gurugram","Hisar","Jhajjar","Jind","Kaithal","Karnal","Kurukshetra","Mahendragarh","Nuh","Palwal","Panchkula","Panipat","Rewari","Rohtak","Sirsa","Sonipat","Yamunanagar"],"Two_Letter_Code":["AM","BH","CD","FR","FT","GU","HI","JH","JI","KT","KR","KU","MA","NU","PW","PK","PP","RE","RO","SI","SN","YN"],"Three_Letter_Code":["AMB","BHW","CHD","FAR","FAT","GUR","HIS","JHA","JIN","KAI","KAR","KUR","MAH","NUH","PAL","PAN","PNP","REW","ROH","SIR","SON","YAM"],"Latitude":[30.3782,28.793,28.5921,28.4089,29.5252,28.4595,29.1492,28.6064,29.3162,29.801,29.6857,29.9695,28.2692,28.107,28.1447,30.6942,29.3909,28.197,28.8955,29.5349,28.9931,30.129],"Longitude":[76.7767,76.139,76.2711,77.3178,75.454,77.0266,75.7217,76.6565,76.3144,76.3995,76.9905,76.8783,76.1521,77.001,77.326,76.8606,76.9635,76.617,76.6066,75.028,77.0151,77.2674]},"columns":[{"id":"District_Name","name":"District Name","type":"character","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left"},{"id":"Two_Letter_Code","name":"Two Letter Code","type":"character","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left"},{"id":"Three_Letter_Code","name":"Three Letter Code","type":"character","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left"},{"id":"Latitude","name":"Latitude","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","cell":["30.38","28.79","28.59","28.41","29.53","28.46","29.15","28.61","29.32","29.80","29.69","29.97","28.27","28.11","28.14","30.69","29.39","28.20","28.90","29.53","28.99","30.13"],"html":true,"align":"right"},{"id":"Longitude","name":"Longitude","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","cell":["76.78","76.14","76.27","77.32","75.45","77.03","75.72","76.66","76.31","76.40","76.99","76.88","76.15","77.00","77.33","76.86","76.96","76.62","76.61","75.03","77.02","77.27"],"html":true,"align":"right"}],"defaultPageSize":10,"showPageSizeOptions":false,"pageSizeOptions":[10,25,50,100],"paginationType":"numbers","showPagination":true,"showPageInfo":true,"minRows":1,"height":"auto","theme":{"color":"#333333","backgroundColor":"#FFFFFF","stripedColor":"rgba(128,128,128,0.05)","style":{"font-family":"Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif","fontSize":"16px"},"tableStyle":{"borderTopStyle":"none","borderTopWidth":"2px","borderTopColor":"#D3D3D3"},"headerStyle":{"fontWeight":"normal","backgroundColor":"white","borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"black"},"groupHeaderStyle":{"fontWeight":"normal","backgroundColor":"white","borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"black"},"cellStyle":{"fontWeight":"400"}},"elementId":"fvdngwqjrj","dataKey":"6df7fb50c3d2e9ea2eb12d5670111e97"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.style","tag.attribs.columns.1.style","tag.attribs.columns.2.style","tag.attribs.columns.3.style","tag.attribs.columns.4.style"],"jsHooks":[]}</script>
 </div>
 </div>
 </div>
@@ -1109,27 +1107,27 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
 </figcaption>
 <div aria-describedby="tbl-hy-zones-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="ascpdbdljo" class=".gt_table" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="kdqijqyaay" class=".gt_table" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Cairo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#ascpdbdljo table {
+#kdqijqyaay table {
   font-family: Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ascpdbdljo thead, #ascpdbdljo tbody, #ascpdbdljo tfoot, #ascpdbdljo tr, #ascpdbdljo td, #ascpdbdljo th {
+#kdqijqyaay thead, #kdqijqyaay tbody, #kdqijqyaay tfoot, #kdqijqyaay tr, #kdqijqyaay td, #kdqijqyaay th {
   border-style: none;
 }
 
-#ascpdbdljo p {
+#kdqijqyaay p {
   margin: 0;
   padding: 0;
 }
 
-#ascpdbdljo .gt_table {
+#kdqijqyaay .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1155,12 +1153,12 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   border-left-color: #D3D3D3;
 }
 
-#ascpdbdljo .gt_caption {
+#kdqijqyaay .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ascpdbdljo .gt_title {
+#kdqijqyaay .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1172,7 +1170,7 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   border-bottom-width: 0;
 }
 
-#ascpdbdljo .gt_subtitle {
+#kdqijqyaay .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1184,7 +1182,7 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   border-top-width: 0;
 }
 
-#ascpdbdljo .gt_heading {
+#kdqijqyaay .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -1196,13 +1194,13 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   border-right-color: #D3D3D3;
 }
 
-#ascpdbdljo .gt_bottom_border {
+#kdqijqyaay .gt_bottom_border {
   border-bottom-style: none;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ascpdbdljo .gt_col_headings {
+#kdqijqyaay .gt_col_headings {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1217,7 +1215,7 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   border-right-color: #D3D3D3;
 }
 
-#ascpdbdljo .gt_col_heading {
+#kdqijqyaay .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1237,7 +1235,7 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   overflow-x: hidden;
 }
 
-#ascpdbdljo .gt_column_spanner_outer {
+#kdqijqyaay .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1249,15 +1247,15 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   padding-right: 4px;
 }
 
-#ascpdbdljo .gt_column_spanner_outer:first-child {
+#kdqijqyaay .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ascpdbdljo .gt_column_spanner_outer:last-child {
+#kdqijqyaay .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ascpdbdljo .gt_column_spanner {
+#kdqijqyaay .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #000000;
@@ -1269,11 +1267,11 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   width: 100%;
 }
 
-#ascpdbdljo .gt_spanner_row {
+#kdqijqyaay .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ascpdbdljo .gt_group_heading {
+#kdqijqyaay .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1299,7 +1297,7 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   text-align: left;
 }
 
-#ascpdbdljo .gt_empty_group_heading {
+#kdqijqyaay .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1314,15 +1312,15 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   vertical-align: middle;
 }
 
-#ascpdbdljo .gt_from_md > :first-child {
+#kdqijqyaay .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ascpdbdljo .gt_from_md > :last-child {
+#kdqijqyaay .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ascpdbdljo .gt_row {
+#kdqijqyaay .gt_row {
   padding-top: 3px;
   padding-bottom: 3px;
   padding-left: 5px;
@@ -1341,7 +1339,7 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   overflow-x: hidden;
 }
 
-#ascpdbdljo .gt_stub {
+#kdqijqyaay .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1354,7 +1352,7 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   padding-right: 5px;
 }
 
-#ascpdbdljo .gt_stub_row_group {
+#kdqijqyaay .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1368,15 +1366,15 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   vertical-align: top;
 }
 
-#ascpdbdljo .gt_row_group_first td {
+#kdqijqyaay .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ascpdbdljo .gt_row_group_first th {
+#kdqijqyaay .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ascpdbdljo .gt_summary_row {
+#kdqijqyaay .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1386,16 +1384,16 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   padding-right: 5px;
 }
 
-#ascpdbdljo .gt_first_summary_row {
+#kdqijqyaay .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ascpdbdljo .gt_first_summary_row.thick {
+#kdqijqyaay .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ascpdbdljo .gt_last_summary_row {
+#kdqijqyaay .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1405,7 +1403,7 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   border-bottom-color: #D3D3D3;
 }
 
-#ascpdbdljo .gt_grand_summary_row {
+#kdqijqyaay .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1415,7 +1413,7 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   padding-right: 5px;
 }
 
-#ascpdbdljo .gt_first_grand_summary_row {
+#kdqijqyaay .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1425,7 +1423,7 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   border-top-color: #D3D3D3;
 }
 
-#ascpdbdljo .gt_last_grand_summary_row_top {
+#kdqijqyaay .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1435,11 +1433,11 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   border-bottom-color: #D3D3D3;
 }
 
-#ascpdbdljo .gt_striped {
+#kdqijqyaay .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ascpdbdljo .gt_table_body {
+#kdqijqyaay .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1448,7 +1446,7 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   border-bottom-color: #D3D3D3;
 }
 
-#ascpdbdljo .gt_footnotes {
+#kdqijqyaay .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1462,7 +1460,7 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   border-right-color: #D3D3D3;
 }
 
-#ascpdbdljo .gt_footnote {
+#kdqijqyaay .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1471,7 +1469,7 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   padding-right: 5px;
 }
 
-#ascpdbdljo .gt_sourcenotes {
+#kdqijqyaay .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1485,7 +1483,7 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   border-right-color: #D3D3D3;
 }
 
-#ascpdbdljo .gt_sourcenote {
+#kdqijqyaay .gt_sourcenote {
   font-size: 12px;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1493,72 +1491,72 @@ Table&nbsp;2: The Raw data for distance zones from nearest health-care facility 
   padding-right: 5px;
 }
 
-#ascpdbdljo .gt_left {
+#kdqijqyaay .gt_left {
   text-align: left;
 }
 
-#ascpdbdljo .gt_center {
+#kdqijqyaay .gt_center {
   text-align: center;
 }
 
-#ascpdbdljo .gt_right {
+#kdqijqyaay .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ascpdbdljo .gt_font_normal {
+#kdqijqyaay .gt_font_normal {
   font-weight: normal;
 }
 
-#ascpdbdljo .gt_font_bold {
+#kdqijqyaay .gt_font_bold {
   font-weight: bold;
 }
 
-#ascpdbdljo .gt_font_italic {
+#kdqijqyaay .gt_font_italic {
   font-style: italic;
 }
 
-#ascpdbdljo .gt_super {
+#kdqijqyaay .gt_super {
   font-size: 65%;
 }
 
-#ascpdbdljo .gt_footnote_marks {
+#kdqijqyaay .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ascpdbdljo .gt_asterisk {
+#kdqijqyaay .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ascpdbdljo .gt_indent_1 {
+#kdqijqyaay .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ascpdbdljo .gt_indent_2 {
+#kdqijqyaay .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ascpdbdljo .gt_indent_3 {
+#kdqijqyaay .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ascpdbdljo .gt_indent_4 {
+#kdqijqyaay .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ascpdbdljo .gt_indent_5 {
+#kdqijqyaay .gt_indent_5 {
   text-indent: 25px;
 }
 
-#ascpdbdljo .katex-display {
+#kdqijqyaay .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#ascpdbdljo div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#kdqijqyaay div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 
@@ -1570,8 +1568,8 @@ tbody tr:last-child {
 <div class="gt_heading gt_title gt_font_normal" style="text-size:bigger;">Percentage area of each district, in each zone</div>
 <div class="gt_heading gt_subtitle ">Column headings represent the distance from the nearest health-care facility</div>
 </div>
-<div id="ascpdbdljo" class="reactable html-widget" style="width:auto;height:auto;"></div>
-<script type="application/json" data-for="ascpdbdljo">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"district":["Ambala","Bhiwani","Faridabad","Fatehabad","Gurugram","Hisar","Jhajjar","Jind","Kaithal","Karnal","Kurukshetra","Mahendragarh","Nuh","Palwal","Panchkula","Panipat","Rewari","Rohtak","Sirsa","Sonipat","Yamunanagar","Charkhi Dadri"],"< 1 km":[3.29,1.38,15.14,1.31,13.4,1.98,2.63,1.52,1.64,2.47,3.58,2.26,1.67,2.42,6.18,4.45,2.62,3.59,0.88,3.13,2.9,2.46],"1 - 4 km":[15.99,10.99,33.98,11.51,33.48,14.07,22.38,14.58,14.75,21.34,23.24,16.7,16.76,14.69,26.6,24.75,21.04,19.39,8.8,25.56,17.84,22.49],"4 - 8 km":[27.06,27.47,34.59,24.78,37.25,32.48,43.02,29.34,34.11,41.62,41.68,35.79,42.31,30.06,34.77,46.88,41.12,33.01,21.27,42.07,34.43,46.22],"8 - 12 km":[27.68,30.29,15.53,30.59,14.4,33.01,26.64,24.76,28.32,21.9,22.53,32.07,27.27,35.15,24.75,21.71,26.9,28.55,25.43,20.06,26.19,23.21],"12 - 16 km":[20.65,21.81,0.76,23.78,1.48,15.07,5.28,16.42,12.25,8.31,8.23,9.72,11.34,17.31,6.07,2.17,8.19,10.55,21.69,5.32,14.42,5.12],"16 - 20 km":[4.67,7.81,0,7.65,0,3.27,0.05,7.74,6.76,3.58,0.73,2.12,0.65,0.37,1.62,0.04,0.13,4.07,10.81,2.93,4.03,0.5],"> 20 km":[0.66,0.25,"NA",0.39,"NA",0.11,"NA",5.64,2.18,0.77,"NA",1.34,"NA","NA","NA","NA","NA",0.82,11.12,0.92,0.19,"NA"]},"columns":[{"id":"district","name":"District","type":"character","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left","headerStyle":{"font-weight":"normal"}},{"id":"< 1 km","name":"&lt; 1 km","type":"numeric","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right","headerStyle":{"font-weight":"normal"}},{"id":"1 - 4 km","name":"1 - 4 km","type":"numeric","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right","headerStyle":{"font-weight":"normal"}},{"id":"4 - 8 km","name":"4 - 8 km","type":"numeric","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right","headerStyle":{"font-weight":"normal"}},{"id":"8 - 12 km","name":"8 - 12 km","type":"numeric","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right","headerStyle":{"font-weight":"normal"}},{"id":"12 - 16 km","name":"12 - 16 km","type":"numeric","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right","headerStyle":{"font-weight":"normal"}},{"id":"16 - 20 km","name":"16 - 20 km","type":"numeric","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right","headerStyle":{"font-weight":"normal"}},{"id":"> 20 km","name":"&gt; 20 km","type":"numeric","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right","headerStyle":{"font-weight":"normal"}}],"defaultPageSize":10,"showPageSizeOptions":false,"pageSizeOptions":[10,25,50,100],"paginationType":"numbers","showPagination":true,"showPageInfo":true,"minRows":1,"height":"auto","theme":{"color":"#333333","backgroundColor":"#FFFFFF","stripedColor":"rgba(128,128,128,0.05)","style":{"fontFamily":"Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"},"tableStyle":{"borderTopStyle":"none","borderTopWidth":"2px","borderTopColor":"#D3D3D3"},"headerStyle":{"borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"black"}},"elementId":"ascpdbdljo","dataKey":"d3ff4d22420ecfd3b0dd0959e9d6ed64"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.style","tag.attribs.columns.1.style","tag.attribs.columns.2.style","tag.attribs.columns.3.style","tag.attribs.columns.4.style","tag.attribs.columns.5.style","tag.attribs.columns.6.style","tag.attribs.columns.7.style"],"jsHooks":[]}</script>
+<div id="kdqijqyaay" class="reactable html-widget" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="kdqijqyaay">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"district":["Ambala","Bhiwani","Faridabad","Fatehabad","Gurugram","Hisar","Jhajjar","Jind","Kaithal","Karnal","Kurukshetra","Mahendragarh","Nuh","Palwal","Panchkula","Panipat","Rewari","Rohtak","Sirsa","Sonipat","Yamunanagar","Charkhi Dadri"],"< 1 km":[3.29,1.38,15.14,1.31,13.4,1.98,2.63,1.52,1.64,2.47,3.58,2.26,1.67,2.42,6.18,4.45,2.62,3.59,0.88,3.13,2.9,2.46],"1 - 4 km":[15.99,10.99,33.98,11.51,33.48,14.07,22.38,14.58,14.75,21.34,23.24,16.7,16.76,14.69,26.6,24.75,21.04,19.39,8.8,25.56,17.84,22.49],"4 - 8 km":[27.06,27.47,34.59,24.78,37.25,32.48,43.02,29.34,34.11,41.62,41.68,35.79,42.31,30.06,34.77,46.88,41.12,33.01,21.27,42.07,34.43,46.22],"8 - 12 km":[27.68,30.29,15.53,30.59,14.4,33.01,26.64,24.76,28.32,21.9,22.53,32.07,27.27,35.15,24.75,21.71,26.9,28.55,25.43,20.06,26.19,23.21],"12 - 16 km":[20.65,21.81,0.76,23.78,1.48,15.07,5.28,16.42,12.25,8.31,8.23,9.72,11.34,17.31,6.07,2.17,8.19,10.55,21.69,5.32,14.42,5.12],"16 - 20 km":[4.67,7.81,0,7.65,0,3.27,0.05,7.74,6.76,3.58,0.73,2.12,0.65,0.37,1.62,0.04,0.13,4.07,10.81,2.93,4.03,0.5],"> 20 km":[0.66,0.25,"NA",0.39,"NA",0.11,"NA",5.64,2.18,0.77,"NA",1.34,"NA","NA","NA","NA","NA",0.82,11.12,0.92,0.19,"NA"]},"columns":[{"id":"district","name":"District","type":"character","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left"},{"id":"< 1 km","name":"&lt; 1 km","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right"},{"id":"1 - 4 km","name":"1 - 4 km","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right"},{"id":"4 - 8 km","name":"4 - 8 km","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right"},{"id":"8 - 12 km","name":"8 - 12 km","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right"},{"id":"12 - 16 km","name":"12 - 16 km","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right"},{"id":"16 - 20 km","name":"16 - 20 km","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right"},{"id":"> 20 km","name":"&gt; 20 km","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right"}],"defaultPageSize":10,"showPageSizeOptions":false,"pageSizeOptions":[10,25,50,100],"paginationType":"numbers","showPagination":true,"showPageInfo":true,"minRows":1,"height":"auto","theme":{"color":"#333333","backgroundColor":"#FFFFFF","stripedColor":"rgba(128,128,128,0.05)","style":{"font-family":"Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif","fontSize":"16px"},"tableStyle":{"borderTopStyle":"none","borderTopWidth":"2px","borderTopColor":"#D3D3D3"},"headerStyle":{"fontWeight":"normal","backgroundColor":"white","borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"black"},"groupHeaderStyle":{"fontWeight":"normal","backgroundColor":"white","borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"black"},"cellStyle":{"fontWeight":"400"}},"elementId":"kdqijqyaay","dataKey":"2f3cc76f4d75ef737b76fb032ab5001f"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.style","tag.attribs.columns.1.style","tag.attribs.columns.2.style","tag.attribs.columns.3.style","tag.attribs.columns.4.style","tag.attribs.columns.5.style","tag.attribs.columns.6.style","tag.attribs.columns.7.style"],"jsHooks":[]}</script>
 </div>
 </div>
 </div>
@@ -2211,7 +2209,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 <footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/custom_geofacet.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><div class="page-columns page-rows-contents page-layout-article"><div class="social-share"><a href="https://twitter.com/share?url=https://aditya-dahiya.github.io/visage/geocomputation/custom_geofacet.html&amp;text=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="twitter"><i class="fab fa-twitter fa-fw fa-lg"></i></a><a href="https://www.linkedin.com/shareArticle?url=https://aditya-dahiya.github.io/visage/geocomputation/custom_geofacet.html&amp;title=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="linkedin"><i class="fa-brands fa-linkedin-in fa-fw fa-lg"></i></a>  <a href="mailto:?subject=Visualizing Information and Spatial Analysis with ggplot2 Extensions&amp;body=Check out this link:https://aditya-dahiya.github.io/visage/geocomputation/custom_geofacet.html" target="_blank" class="email"><i class="fa-solid fa-envelope fa-fw fa-lg"></i></a><a href="https://www.facebook.com/sharer.php?u=https://aditya-dahiya.github.io/visage/geocomputation/custom_geofacet.html" target="_blank" class="facebook"><i class="fab fa-facebook-f fa-fw fa-lg"></i></a><a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' &amp;&amp; mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=Visualizing Information and Spatial Analysis with ggplot2 Extensions https://aditya-dahiya.github.io/visage/geocomputation/custom_geofacet.html'}else{return false;}" target="_blank" class="mastodon"><i class="fa-brands fa-mastodon fa-fw fa-lg"></i></a></div></div>
-<script>var lightboxQuarto = GLightbox({"openEffect":"zoom","descPosition":"bottom","selector":".lightbox","loop":false,"closeEffect":"zoom"});
+<script>var lightboxQuarto = GLightbox({"openEffect":"zoom","selector":".lightbox","closeEffect":"zoom","loop":false,"descPosition":"bottom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {
