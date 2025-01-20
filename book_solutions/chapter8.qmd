@@ -57,9 +57,132 @@ library(gt)        # Display GT tables with R
 -   **Geographic data storage**: Stored as files or spatial databases. File formats can store either vector or raster data; databases can handle both, and the most common types are shown in @tbl-file-formats.
 
 ```{r}
+# A Code to fetch icons of different file formats
+# Get file icons for common file types
+file_format = c(
+  "Shapefile", "GeoJSON", "KML", "GPKG", "CSV", "DXF", "MapInfo File", "GML", 
+  "PostGIS", "TopoJSON", "GeoTIFF", "NetCDF", "JPEG", "PNG", "HDF4", "HDF5", 
+  "GRIB", "Erdas Imagine", "ASCII Grid", "MBTiles")
+
+temp_df <- tibble(
+  file_format = file_format,
+  id = 1:20
+)
+
+# Get a custom google search engine and API key
+# Tutorial: https://developers.google.com/custom-search/v1/overview
+# Tutorial 2: https://programmablesearchengine.google.com/
+# google_api_key <- "LOAD YOUR GOOGLE API KEY HERE"
+# my_cx <- "GET YOUR CUSTOM SEARCH ENGINE ID HERE"
+
+
+# Load necessary packages
+library(httr)
+library(magick)
+
+# Define function to download and save movie poster
+download_icons <- function(file_format_name, id) {
+  
+  api_key <- google_api_key
+  cx <- my_cx
+  
+  # Build the API request URL
+  url <- paste0("https://www.googleapis.com/customsearch/v1?q=", 
+                URLencode(paste0(file_format_name, " file icon svg")), 
+                "&cx=", cx, 
+                "&searchType=image&key=", api_key)
+  
+  # Make the request
+  response <- GET(url)
+  result <- content(response, "parsed")
+  
+  # Get the URL of the first image result
+  image_url <- result$items[[1]]$link
+  
+  im <- magick::image_read(image_url) |> 
+    image_resize("x100")
+  
+  # set background as white
+  image_write(
+    image = im,
+    path = here::here("book_solutions", "images", "temp_icons", 
+                      paste0("temp_icon_", id,".png")),
+    format = "png"
+    )
+}
+
+for (i in 1:20) {
+  download_icons(
+    file_format_name = temp_df$file_format[i],
+    id = i
+  )
+}
+
+
+# for (i in c(1:3, 5:14, 16:17, 19)) {
+#   download_icons(
+#     file_format_name = temp_df$file_format[i],
+#     id = i
+#   )
+# }
+
+# Some custom work
+image_url_4 <- "https://icons.veryicon.com/png/o/construction-tools/supermap-gis-product-color-system-function/postgis-workspace.png"
+
+image_url_15 <- "https://cdn.iconscout.com/icon/premium/png-256-thumb/hdf-file-2538306-2129659.png"
+
+image_url_18 <- "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQA0Pb2JqaMO5UGuYCgZzRi4BXQCw9lbmTDvg&s"
+
+image_url_20 <- "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlucEC8-sm9U0IXIfY-wh_c3nBFKLyg0JJdQ&s"
+
+image_url_19 <- "https://cdn.iconscout.com/icon/premium/png-256-thumb/ascii-file-1934516-1634566.png?f=webp&w=256"
+
+download_icon_custom <- function(id) {
+  im <- magick::image_read(get(paste0("image_url_", id))) |>
+    image_resize("x100")
+
+  # set background as white
+  image_write(
+    image = im,
+    path = here::here("book_solutions", "images", "temp_icons",
+                      paste0("temp_icon_", id,".png")),
+    format = "png"
+    )
+}
+
+for (i in c(4, 15, 18, 20)) {
+  download_icon_custom(i)
+}
+
+image_url_7 <- "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0Zb1IW-Ui71fJQy4G5kj3Ue2zQop38Kn1mA&s"
+
+image_url_12 <- "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTr8HP5xS8im3nK5Zm8l4iP8zDrGhoiakFbCA&s"
+
+for (i in c(7, 12, 19)) {
+  download_icon_custom(i)
+}
+
+image_url_11 <- "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHPryNCuawMSnTpre5hHZZiGuWqAhRQsjWQg&s"
+
+download_icon_custom(11)
+```
+
+```{r}
 #| eval: true
 #| label: tbl-file-formats
 #| tbl-cap: "Different kinds of File Formats dealing with Geo-Spatial Data"
+
+# Get file icons for common file types
+file_format = c(
+  "Shapefile", "GeoJSON", "KML", "GPKG", "CSV", "DXF", "MapInfo File", "GML", 
+  "PostGIS", "TopoJSON", "GeoTIFF", "NetCDF", "JPEG", "PNG", "HDF4", "HDF5", 
+  "GRIB", "Erdas Imagine", "ASCII Grid", "MBTiles")
+
+temp_df <- tibble(
+  file_format = file_format,
+  id = 1:20
+)
+
 
 # Raster formats tibble
 raster_formats <- tibble(
@@ -113,51 +236,26 @@ vector_formats <- tibble(
     "Yes", "Yes", "Yes", "Yes"
   )
 ) |> 
-  mutate(group = "Vector File Formats")
-
-# Create the tibble with the added 'File Icon' column
-data_with_icons <- tibble(
-  Format = c("Shapefile", "GeoJSON", "KML", "GPKG", "CSV", "DXF", "MapInfo File", "GML", 
-             "PostGIS", "TopoJSON", "GeoTIFF", "NetCDF", "JPEG", "PNG", "HDF4", "HDF5", 
-             "GRIB", "Erdas Imagine", "ASCII Grid", "MBTiles"),
-  `File Icon` = c(
-    "https://cdn-icons-png.flaticon.com/512/136/136522.png",  # Shapefile
-    "https://cdn-icons-png.flaticon.com/512/136/136525.png",  # GeoJSON 136530 -----------
-    "https://cdn-icons-png.flaticon.com/512/136/136528.png",  # KML
-    "https://cdn-icons-png.flaticon.com/512/136/136529.png",  # GPKG
-    "https://cdn-icons-png.flaticon.com/512/136/136534.png",  # CSV  ----------------
-    "https://cdn-icons-png.flaticon.com/512/136/136526.png",  # DXF
-    "https://cdn-icons-png.flaticon.com/512/136/136527.png",  # MapInfo File
-    "https://cdn-icons-png.flaticon.com/512/136/136531.png",  # GML
-    "https://cdn-icons-png.flaticon.com/512/136/136532.png",  # PostGIS
-    "https://cdn-icons-png.flaticon.com/512/136/136533.png",  # TopoJSON
-    "https://cdn-icons-png.flaticon.com/512/136/.png",  # GeoTIFF
-    "https://cdn-icons-png.flaticon.com/512/136/136535.png",  # NetCDF
-    "https://cdn-icons-png.flaticon.com/512/136/136536.png",  # JPEG
-    "https://cdn-icons-png.flaticon.com/512/136/136537.png",  # PNG
-    "https://cdn-icons-png.flaticon.com/512/136/136538.png",  # HDF4
-    "https://cdn-icons-png.flaticon.com/512/136/136539.png",  # HDF5
-    "https://cdn-icons-png.flaticon.com/512/136/136540.png",  # GRIB
-    "https://cdn-icons-png.flaticon.com/512/136/136541.png",  # Erdas Imagine
-    "https://cdn-icons-png.flaticon.com/512/136/136542.png",  # ASCII Grid
-    "https://cdn-icons-png.flaticon.com/512/136/136543.png"   # MBTiles
+  mutate(
+    group = "Vector File Formats"
   )
-)
-
 
 # Display vector formats table
 bind_rows(
   vector_formats,
   raster_formats
 ) |> 
-  left_join(data_with_icons) |> 
+  left_join(temp_df, by = join_by(Format == file_format)) |> 
+  mutate(file_path = paste0("images/temp_icons/temp_icon_", id, ".png")) |> 
+  select(-id) |> 
   group_by(group) |> 
   gt() |> 
   cols_label(
     Format = "File Format",
     Description = "Description",
     Extension = "File Extension",
-    GeoReferencing = "Geo-referencing"
+    GeoReferencing = "Geo-referencing",
+    file_path = "File Icon"
   ) |> 
   tab_footnote(
     md("_**Source**: GDAL documentation (https://gdal.org/)_")
@@ -167,7 +265,7 @@ bind_rows(
   ) |> 
   gtExtras::gt_theme_538() |> 
   fmt_image(
-    columns = `File Icon`
+    columns = file_path
   ) |> 
   tab_style(
     style = list(
@@ -201,6 +299,14 @@ bind_rows(
     ),
     locations = cells_body(
       columns = c(Extension, GeoReferencing)
+    )
+  ) |> 
+  tab_style(
+    style = list(
+      cell_text(align = "left")
+    ),
+    locations = cells_body(
+      columns = Description
     )
   ) |> 
   tab_style(
