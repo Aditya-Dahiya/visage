@@ -115,11 +115,42 @@ vector_formats <- tibble(
 ) |> 
   mutate(group = "Vector File Formats")
 
+# Create the tibble with the added 'File Icon' column
+data_with_icons <- tibble(
+  Format = c("Shapefile", "GeoJSON", "KML", "GPKG", "CSV", "DXF", "MapInfo File", "GML", 
+             "PostGIS", "TopoJSON", "GeoTIFF", "NetCDF", "JPEG", "PNG", "HDF4", "HDF5", 
+             "GRIB", "Erdas Imagine", "ASCII Grid", "MBTiles"),
+  `File Icon` = c(
+    "https://cdn-icons-png.flaticon.com/512/136/136522.png",  # Shapefile
+    "https://cdn-icons-png.flaticon.com/512/136/136525.png",  # GeoJSON 136530 -----------
+    "https://cdn-icons-png.flaticon.com/512/136/136528.png",  # KML
+    "https://cdn-icons-png.flaticon.com/512/136/136529.png",  # GPKG
+    "https://cdn-icons-png.flaticon.com/512/136/136534.png",  # CSV  ----------------
+    "https://cdn-icons-png.flaticon.com/512/136/136526.png",  # DXF
+    "https://cdn-icons-png.flaticon.com/512/136/136527.png",  # MapInfo File
+    "https://cdn-icons-png.flaticon.com/512/136/136531.png",  # GML
+    "https://cdn-icons-png.flaticon.com/512/136/136532.png",  # PostGIS
+    "https://cdn-icons-png.flaticon.com/512/136/136533.png",  # TopoJSON
+    "https://cdn-icons-png.flaticon.com/512/136/.png",  # GeoTIFF
+    "https://cdn-icons-png.flaticon.com/512/136/136535.png",  # NetCDF
+    "https://cdn-icons-png.flaticon.com/512/136/136536.png",  # JPEG
+    "https://cdn-icons-png.flaticon.com/512/136/136537.png",  # PNG
+    "https://cdn-icons-png.flaticon.com/512/136/136538.png",  # HDF4
+    "https://cdn-icons-png.flaticon.com/512/136/136539.png",  # HDF5
+    "https://cdn-icons-png.flaticon.com/512/136/136540.png",  # GRIB
+    "https://cdn-icons-png.flaticon.com/512/136/136541.png",  # Erdas Imagine
+    "https://cdn-icons-png.flaticon.com/512/136/136542.png",  # ASCII Grid
+    "https://cdn-icons-png.flaticon.com/512/136/136543.png"   # MBTiles
+  )
+)
+
+
 # Display vector formats table
 bind_rows(
   vector_formats,
   raster_formats
 ) |> 
+  left_join(data_with_icons) |> 
   group_by(group) |> 
   gt() |> 
   cols_label(
@@ -129,9 +160,15 @@ bind_rows(
     GeoReferencing = "Geo-referencing"
   ) |> 
   tab_footnote(
-    md("_**Source**: GDAL documentation (https://gdal.org/en/stable/drivers/vector/index.html)_")
+    md("_**Source**: GDAL documentation (https://gdal.org/)_")
   ) |> 
-  gtExtras::gt_theme_nytimes() |> 
+  tab_header(
+    title = "Different kinds of file formats for geographical data"
+  ) |> 
+  gtExtras::gt_theme_538() |> 
+  fmt_image(
+    columns = `File Icon`
+  ) |> 
   tab_style(
     style = list(
       cell_text(weight = "bold")
@@ -142,10 +179,42 @@ bind_rows(
   ) |> 
   tab_style(
     style = list(
+      cell_text(color = "darkgreen", weight = "bold")
+    ),
+    locations = cells_body(
+      rows = GeoReferencing == "Yes",
+      columns = GeoReferencing
+    )
+  ) |> 
+  tab_style(
+    style = list(
+      cell_text(color = "red", weight = "bold")
+    ),
+    locations = cells_body(
+      rows = GeoReferencing == "No",
+      columns = GeoReferencing
+    )
+  ) |> 
+  tab_style(
+    style = list(
+      cell_text(align = "center")
+    ),
+    locations = cells_body(
+      columns = c(Extension, GeoReferencing)
+    )
+  ) |> 
+  tab_style(
+    style = list(
       cell_fill(color = "lightgrey"),    
       cell_text(weight = "bold", align = "center")      
     ),
-    locations = cells_group()           
+    locations = cells_row_groups()           
+  ) |> 
+  tab_style(
+    style = list(
+      cell_text(align = "center")
+    ),
+    locations = cells_title()
   )
 
 ```
