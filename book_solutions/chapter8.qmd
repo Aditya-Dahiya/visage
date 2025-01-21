@@ -401,3 +401,79 @@ ESRI Shapefiles have been a cornerstone in geospatial data exchange since their 
     -   Lack support for complex geometries and spatial metadata like CRS.
 -   **Additional resources**:
     -   [GDAL Documentation](https://gdal.org/) offers comprehensive details on supported [vector formats](https://gdal.org/en/stable/drivers/vector/index.html) and [raster formats](https://gdal.org/en/stable/drivers/raster/index.html).
+
+### 8.3.1 Vector Data
+
+-   **Spatial vector data formats:** Common formats include `.geojson`, `.gpkg`, `.shp`. Import these with [sf::read_sf()](https://r-spatial.github.io/sf/reference/read_sf.html) or [sf::st_read()](https://r-spatial.github.io/sf/reference/st_read.html), which rely on GDAL drivers.
+
+-   **Driver overview:** Use [sf::st_drivers()](https://r-spatial.github.io/sf/reference/st_drivers.html) to see available GDAL drivers, their features, and file format capabilities (e.g., vector, raster support).
+
+```{r}
+#| tbl-cap: "The drivers available to GDAL, and therefore {sf}, in R, accessed using st_driver()"
+#| label: tbl-8-3-1
+
+
+st_drivers("vector") |> 
+  as_tibble()
+
+```
+
+-   `read_sf()` arguments and their purposes: —
+
+    -   **File input:**
+
+        -   `dsn` parameter specifies file paths, folders, database credentials, or GeoJSON strings.
+        -   Drivers are auto-detected from file extensions like `.gpkg` or `.shp`.
+
+    -   **Multiple layers:** Some formats (e.g., `.gpkg`) support multiple data layers. Use the `layer` argument in `read_sf()` to specify the desired layer.
+
+    -   **Subset data reading:**
+
+        -   `query`: Use OGR SQL queries for conditional imports (e.g., filter rows by column values).
+        -   `wkt_filter`: Filter geometries using Well-Known Text (WKT) spatial queries (e.g., buffers around a region).
+
+-   **Driver-specific options:**
+
+    -   Formats like `.csv` require specifying coordinate column names via the `options` parameter. Refer to [GDAL driver documentation](https://gdal.org/drivers/index.html) for details.
+
+-   Coordinate Reference Systems (CRS): If missing, assign CRS using [`sf::st_set_crs()`](https://r-spatial.github.io/sf/reference/st_set_crs.html).
+
+-   Other formats: `.kml`: Use [sf::st_layers()](https://r-spatial.github.io/sf/reference/st_layers.html) to list layers in KML files before reading specific layers.
+
+-   **Alternative tools:** [duckdb](https://duckdb.org/), an R interface with spatial extension, offers additional options for data import and querying.
+
+::: callout-note
+**Integrating DuckDB's spatial extension with R and the `{sf}` package**
+
+1.  Install and Load DuckDB's Spatial Extension: This setup enables geospatial data processing capabilities within DuckDB.
+
+    ``` r
+    library(DBI)
+    con <- dbConnect(duckdb::duckdb())
+    dbExecute(con, "INSTALL spatial;")
+    dbExecute(con, "LOAD spatial;")
+    ```
+
+2.  Import Geospatial Data into DuckDB: This command reads the specified shapefile and creates a table named `spatial_data` containing the geospatial information.
+
+    ``` sql
+    CREATE TABLE spatial_data AS
+    SELECT * FROM ST_Read('path/to/your/file.shp');
+    ```
+
+3.  Perform Spatial Queries in DuckDB: With the spatial extension, you can execute spatial functions such as `ST_Intersects`, `ST_Within`, and `ST_Contains` directly within DuckDB.
+
+    ``` sql
+    SELECT *
+    FROM spatial_data
+    WHERE ST_Within(geometry_column, ST_GeomFromText('POLYGON((...))'));
+    ```
+
+4.  Export Data to R for Use with `{sf}`: After processing, you can export the geospatial data back to R and convert it into an `{sf}` object for further analysis or visualization.
+
+    ``` r
+    spatial_df <- dbGetQuery(con, "SELECT * FROM spatial_data;")
+    library(sf)
+    sf_object <- st_as_sf(spatial_df, wkt = "geometry_column")
+    ```
+:::
