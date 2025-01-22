@@ -550,50 +550,53 @@ st_drivers("vector") |>
 #| tbl-cap: "Table showcasing various GDAL virtual file system prefixes for accessing remote and compressed files"
 #| label: tbl-vfs
 
+# Create the tibble
 file_access_table <- tibble(
   Prefix = c(
-    "/vsicurl/", "/vsizip/", "/vsi7z/", "/vsis3/", "/vsigs/", "/vsicurl_streaming/"
+    "/vsicurl/",
+    "/vsizip/",
+    "/vsi7z/",
+    "/vsis3/",
+    "/vsigs/",
+    "/vsicurl_streaming/"
   ),
   Description = c(
-    "Access files over HTTP, HTTPS, or FTP.",
-    "Read files directly from ZIP archives without extracting.",
-    "Read files directly from 7z archives without extracting.",
-    "Access files stored in Amazon S3 buckets.",
-    "Access files stored in Google Cloud Storage.",
-    "Stream files over HTTP, HTTPS, or FTP without seeking capabilities."
-  ),
-  `Example Usage` = c(
-    'read_sf("/vsicurl/https://example.com/vector_file.shp")\nrast("/vsicurl/https://example.com/raster_file.tif")',
-    'read_sf("/vsizip/path/to/archive.zip/contained_file.shp")\nrast("/vsizip/path/to/archive.zip/contained_file.tif")',
-    'read_sf("/vsi7z/path/to/archive.7z/contained_file.shp")\nrast("/vsi7z/path/to/archive.7z/contained_file.tif")',
-    'read_sf("/vsis3/bucket_name/path/to/file.shp")\nrast("/vsis3/bucket_name/path/to/file.tif")',
-    'read_sf("/vsigs/bucket_name/path/to/file.shp")\nrast("/vsigs/bucket_name/path/to/file.tif")',
-    'read_sf("/vsicurl_streaming/https://example.com/vector_file.geojson")\nrast("/vsicurl_streaming/https://example.com/raster_file.tif")'
+    "Enables GDAL to access files over [HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP), [HTTPS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview), or [FTP](https://en.wikipedia.org/wiki/File_Transfer_Protocol) protocols, allowing direct reading of remote datasets such as [GeoTIFFs](https://gdal.org/drivers/raster/gtiff.html) or [Shapefiles](https://gdal.org/drivers/vector/shapefile.html) hosted online.",
+    "Allows reading files directly from [ZIP archives](https://en.wikipedia.org/wiki/Zip_(file_format)) without extraction. ZIP files can contain various geospatial data formats like [Shapefiles](https://gdal.org/drivers/vector/shapefile.html), [GeoJSON](https://gdal.org/drivers/vector/geojson.html), or [KML files](https://gdal.org/drivers/vector/kml.html).",
+    "Supports reading files directly from [7z archives](https://en.wikipedia.org/wiki/7z), a high-compression format. These archives can include geospatial files such as [GeoTIFFs](https://gdal.org/drivers/raster/gtiff.html) or [Shapefiles](https://gdal.org/drivers/vector/shapefile.html).",
+    "Facilitates access to files stored in [Amazon S3](https://aws.amazon.com/s3/) buckets, enabling operations on remote datasets like [GeoTIFFs](https://gdal.org/drivers/raster/gtiff.html) or [Shapefiles](https://gdal.org/drivers/vector/shapefile.html) stored in the cloud.",
+    "Provides access to files stored in [Google Cloud Storage](https://cloud.google.com/storage/), allowing GDAL to read datasets such as [GeoTIFFs](https://gdal.org/drivers/raster/gtiff.html) or [Shapefiles](https://gdal.org/drivers/vector/shapefile.html) directly from cloud storage.",
+    "Enables streaming of files over [HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP), [HTTPS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview), or [FTP](https://en.wikipedia.org/wiki/File_Transfer_Protocol) without seeking capabilities, suitable for sequential reading of large remote datasets like [GeoJSON](https://gdal.org/drivers/vector/geojson.html) files."
   )
 )
 
 # Display the tibble using gt
 file_access_table |> 
   gt() |> 
+  fmt_markdown(columns = Description) |> 
   tab_header(
     title = "Virtual File(s) Access Methods with GDAL",
-    subtitle = "Prefixes, Descriptions, and Example Usage for sf::read_sf() & terra::rast()"
+    subtitle = md("Prefixes, Descriptions, and Example Usage for `sf::read_sf()` & `terra::rast()`")
+  ) |> 
+  gtExtras::gt_theme_guardian() |> 
+  tab_footnote(
+    footnote = md("GDAL virtual file system prefixes, their descriptions, and example usage with `read_sf()` and `rast()` functions in R for accessing remote and compressed files. For more details, refer to the [GDAL Virtual File Systems documentation](https://gdal.org/user/virtual_file_systems.html) and the [terra package reference](https://rspatial.org/terra/).")
+  ) |> 
+  tab_style(
+    style = cell_text(
+      size = "smaller"
+    ),
+    locations = cells_footnotes()
   ) |> 
   tab_style(
     style = list(
       cell_text(
         font = "monospace",
-        size = "small"     
+        weight = "bold"
       )
     ),
     locations = cells_body(
-      columns = c(Prefix, `Example Usage`)
+      columns = c(Prefix)
     )
-  ) |> 
-  cols_width(
-    Prefix ~ px(150),
-    Description ~ px(280),
-    `Example Usage` ~ px(200)
-  ) |> 
-  gtExtras::gt_theme_538()
+  )
 ```
