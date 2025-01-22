@@ -402,6 +402,13 @@ ESRI Shapefiles have been a cornerstone in geospatial data exchange since their 
 -   **Additional resources**:
     -   [GDAL Documentation](https://gdal.org/) offers comprehensive details on supported [vector formats](https://gdal.org/en/stable/drivers/vector/index.html) and [raster formats](https://gdal.org/en/stable/drivers/raster/index.html).
 
+## 8.3 Data input (I)
+
+-   Loading vector data: Use [`sf::read_sf()`](https://r-spatial.github.io/sf/reference/read_sf.html) to load vector data into R.
+-   Loading raster data: Use [`terra::rast()`](https://rspatial.org/terra/reference/rast.html) to read raster data.
+-   Data storage: Imported data is stored in RAM and becomes accessible in the `.GlobalEnv` of the session.
+-   Workspace management: Imported objects can be listed with [`ls()`](https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/ls) and are visible in IDE 'Environment' panels.
+
 ### 8.3.1 Vector Data
 
 -   **Spatial vector data formats:** Common formats include `.geojson`, `.gpkg`, `.shp`. Import these with [sf::read_sf()](https://r-spatial.github.io/sf/reference/read_sf.html) or [sf::st_read()](https://r-spatial.github.io/sf/reference/st_read.html), which rely on GDAL drivers.
@@ -411,11 +418,46 @@ ESRI Shapefiles have been a cornerstone in geospatial data exchange since their 
 ```{r}
 #| tbl-cap: "The drivers available to GDAL, and therefore {sf}, in R, accessed using st_driver()"
 #| label: tbl-8-3-1
-
+#| eval: true
 
 st_drivers("vector") |> 
-  as_tibble()
-
+  as_tibble() |> 
+  select(name, long_name, write, copy, is_raster) |> 
+  mutate(
+    write = if_else(write, "Yes", NA),
+    copy = if_else(copy, "Yes", NA),
+    is_raster = if_else(is_raster, "Yes", NA)
+  ) |> 
+  gt::gt() |> 
+  cols_label(
+    name = "Name",
+    long_name = "Full Name of file format",
+    write = "Can Write?",
+    copy = "Can copy?",
+    is_raster = "Also handles rasters?"
+  ) |> 
+  sub_missing(missing_text = "") |> 
+  tab_style(
+    locations = cells_body(
+      columns = c(write, copy, is_raster)
+    ),
+    style = list(
+      cell_text(
+        align = "center"
+      )
+    )
+  ) |> 
+  tab_style(
+    locations = cells_body(
+      columns = name
+    ),
+    style = list(
+      cell_text(
+        font = "monospace"
+      )
+    )
+  ) |> 
+  opt_interactive()
 ```
 
 -   `read_sf()` arguments and their purposes: —
@@ -438,7 +480,7 @@ st_drivers("vector") |>
 
 -   Coordinate Reference Systems (CRS): If missing, assign CRS using [`sf::st_set_crs()`](https://r-spatial.github.io/sf/reference/st_set_crs.html).
 
--   Other formats: `.kml`: Use [sf::st_layers()](https://r-spatial.github.io/sf/reference/st_layers.html) to list layers in KML files before reading specific layers.
+-   Other formats: `.kml`: Use [`sf::st_layers()`](https://r-spatial.github.io/sf/reference/st_layers.html) to list layers in KML files before reading specific layers.
 
 -   **Alternative tools:** [duckdb](https://duckdb.org/), an R interface with spatial extension, offers additional options for data import and querying.
 
@@ -477,3 +519,81 @@ st_drivers("vector") |>
     sf_object <- st_as_sf(spatial_df, wkt = "geometry_column")
     ```
 :::
+
+### 8.3.2 Raster data
+
+-   Raster File Formats:
+    -   Raster data supports single-layer and multi-layer files.
+    -   Use the `rast()` function from the [terra](https://rspatial.org/terra/) package to load raster files.
+    -   Reading Online Raster Data: Use the `/vsicurl/` prefix to read raster files from web resources (e.g., HTTP, FTP).
+
+::: callout-note
+**Cloud Optimized GeoTIFF (COG) and GeoTIFF Files**
+
+-   **GeoTIFF**:
+    -   [GeoTIFF](https://www.ogc.org/standards/geotiff) is a public domain metadata standard that allows geo-referencing information to be embedded within a TIFF file.
+    -   Stores raster data with spatial reference, essential for GIS and remote sensing applications.
+    -   Includes metadata like coordinate system, map projections, and georeferencing tags.
+-   **Cloud Optimized GeoTIFF ([COG](https://www.cogeo.org/))**:
+    -   A specialized format of GeoTIFF designed for efficient access and processing over the web.
+    -   COG files can be accessed using URLs with the `/vsicurl/` prefix in GDAL-supported libraries. Functions like `terra::crop()` or `terra::extract()` fetch required data portions on demand, without downloading the full dataset.
+    -   Thus, `/vsicurl/` prefix establishes a connection to the **COG** file without loading it into RAM. Values are accessed only during specific operations, e.g., crop() or extract().
+-   **Advantages of COG**:
+    -   Streaming Access: Reads only the necessary portions of data (e.g., specific coordinates), minimizing memory usage.
+    -   Compatibility: Readable by tools like GDAL, Rasterio, and R packages like `terra` and `stars`.
+:::
+
+-   **Virtual File Systems (VFS)**: GDAL provides several Virtual File System (VFS) prefixes (shown in @tbl-vfs) that allow direct access to various file systems, including compressed archives, network resources, and in-memory files. These prefixes can be utilized in R using functions like `sf::read_sf()` for vector data and `terra::rast()` for raster data. Source [GDAL Virtual File Systems](https://gdal.org/user/virtual_file_systems.html).
+
+```{r}
+#| eval: true
+#| tbl-cap: "Table showcasing various GDAL virtual file system prefixes for accessing remote and compressed files"
+#| label: tbl-vfs
+
+file_access_table <- tibble(
+  Prefix = c(
+    "/vsicurl/", "/vsizip/", "/vsi7z/", "/vsis3/", "/vsigs/", "/vsicurl_streaming/"
+  ),
+  Description = c(
+    "Access files over HTTP, HTTPS, or FTP.",
+    "Read files directly from ZIP archives without extracting.",
+    "Read files directly from 7z archives without extracting.",
+    "Access files stored in Amazon S3 buckets.",
+    "Access files stored in Google Cloud Storage.",
+    "Stream files over HTTP, HTTPS, or FTP without seeking capabilities."
+  ),
+  `Example Usage` = c(
+    'read_sf("/vsicurl/https://example.com/vector_file.shp")\nrast("/vsicurl/https://example.com/raster_file.tif")',
+    'read_sf("/vsizip/path/to/archive.zip/contained_file.shp")\nrast("/vsizip/path/to/archive.zip/contained_file.tif")',
+    'read_sf("/vsi7z/path/to/archive.7z/contained_file.shp")\nrast("/vsi7z/path/to/archive.7z/contained_file.tif")',
+    'read_sf("/vsis3/bucket_name/path/to/file.shp")\nrast("/vsis3/bucket_name/path/to/file.tif")',
+    'read_sf("/vsigs/bucket_name/path/to/file.shp")\nrast("/vsigs/bucket_name/path/to/file.tif")',
+    'read_sf("/vsicurl_streaming/https://example.com/vector_file.geojson")\nrast("/vsicurl_streaming/https://example.com/raster_file.tif")'
+  )
+)
+
+# Display the tibble using gt
+file_access_table |> 
+  gt() |> 
+  tab_header(
+    title = "Virtual File(s) Access Methods with GDAL",
+    subtitle = "Prefixes, Descriptions, and Example Usage for sf::read_sf() & terra::rast()"
+  ) |> 
+  tab_style(
+    style = list(
+      cell_text(
+        font = "monospace",
+        size = "small"     
+      )
+    ),
+    locations = cells_body(
+      columns = c(Prefix, `Example Usage`)
+    )
+  ) |> 
+  cols_width(
+    Prefix ~ px(150),
+    Description ~ px(280),
+    `Example Usage` ~ px(200)
+  ) |> 
+  gtExtras::gt_theme_538()
+```
