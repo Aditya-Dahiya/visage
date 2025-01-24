@@ -769,3 +769,57 @@ In his article "[GeoTIFF Compression for Dummies](https://blog.cleverelephant.ca
 
 6.  Interoperability: COGs are compatible with standard GeoTIFF readers while offering enhanced functionality when used with tools that understand their optimized format.
 :::
+
+## 8.5 Geoportals
+
+```{r}
+#| label: tbl-85
+#| eval: true
+#| tbl-cap: "Some Common Geoportals available freely on the internet."
+
+library(tibble)
+library(gt)
+
+# Create the tibble
+geoportals <- tibble::tibble(
+  Geoportal_Name = c(
+    "Data.gov",
+    "GEOSS Portal",
+    "Copernicus Data Space Ecosystem",
+    "SEDAC",
+    "INSPIRE Geoportal",
+    "EarthExplorer"
+  ),
+  Description = c(
+    "Provides a wide range of geospatial datasets, often location-specific.",
+    "Global coverage of raster datasets, suitable for a variety of analyses.",
+    "Offers global raster datasets and APIs for data analysis.",
+    "NASA-managed portal for vector datasets with global and regional coverage.",
+    "European Union's geoportal for datasets with regional and global focus.",
+    "USGS portal offering interactive dataset exploration with spatial/temporal filtering."
+  ),
+  Link = c(
+    "[Data.gov](https://catalog.data.gov/dataset?metadata_type=geospatial)",
+    "[GEOSS Portal](https://www.geoportal.org/)",
+    "[Copernicus Data Space Ecosystem](https://dataspace.copernicus.eu/)",
+    "[SEDAC](https://sedac.ciesin.columbia.edu/)",
+    "[INSPIRE Geoportal](http://inspire-geoportal.ec.europa.eu/)",
+    "[EarthExplorer](https://earthexplorer.usgs.gov/)"
+  )
+)
+
+# Print the tibble
+geoportals |> 
+  select(-Geoportal_Name) |> 
+  gt() |> 
+  fmt_markdown(columns = Link) |> 
+  cols_label_with(fn = snakecase::to_title_case) |> 
+  tab_header(
+    title = "Geoportals Data Sources"
+  ) |> 
+  tab_footnote(
+    footnote = md("Data sources: Adapted from the textbook `Geocomputation with R`, *Section 8.5 Geoportals*.")
+  ) |> 
+  gtExtras::gt_theme_espn()
+
+```
