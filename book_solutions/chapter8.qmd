@@ -263,7 +263,7 @@ bind_rows(
   tab_header(
     title = "Different kinds of file formats for geographical data"
   ) |> 
-  gtExtras::gt_theme_538() |> 
+  gtExtras::gt_theme_espn() |> 
   fmt_image(
     columns = file_path
   ) |> 
@@ -578,7 +578,7 @@ file_access_table |>
     title = "Virtual File(s) Access Methods with GDAL",
     subtitle = md("Prefixes, Descriptions, and Example Usage for `sf::read_sf()` & `terra::rast()`")
   ) |> 
-  gtExtras::gt_theme_guardian() |> 
+  gtExtras::gt_theme_espn() |> 
   tab_footnote(
     footnote = md("GDAL virtual file system prefixes, their descriptions, and example usage with `read_sf()` and `rast()` functions in R for accessing remote and compressed files. For more details, refer to the [GDAL Virtual File Systems documentation](https://gdal.org/user/virtual_file_systems.html) and the [terra package reference](https://rspatial.org/terra/).")
   ) |> 
@@ -650,7 +650,7 @@ file_types |>
   tab_footnote(
     footnote = md("*Sources: R Spatial Documentation ([r-spatial.github.io](https://r-spatial.github.io/sf/reference/st_write.html)) and GDAL Vector Drivers Documentation ([gdal.org](https://gdal.org/drivers/vector/index.html)).*")
   ) |> 
-  gtExtras::gt_theme_538() |> 
+  gtExtras::gt_theme_espn() |> 
   tab_style(
     style = list(
       cell_text(weight = "bold")
@@ -725,7 +725,7 @@ raster_formats |>
   tab_footnote(
     footnote = md("Sourced from the [terra package documentation](https://rdrr.io/cran/terra/man/writeRaster.html) and other geospatial data resources.")
   ) |> 
-  gtExtras::gt_theme_538() |> 
+  gtExtras::gt_theme_espn() |> 
   tab_style(
     style = list(
       cell_text(weight = "bold")
@@ -772,54 +772,120 @@ In his article "[GeoTIFF Compression for Dummies](https://blog.cleverelephant.ca
 
 ## 8.5 Geoportals
 
+-   Interactive exploration of datasets in a browser is an effective way to understand available layers.
+
+-   Downloading data with code is preferable for reproducibility and efficiency. Command-line techniques can initiate downloads using URLs or APIs.
+
 ```{r}
 #| label: tbl-85
 #| eval: true
 #| tbl-cap: "Some Common Geoportals available freely on the internet."
 
-library(tibble)
+library(tidyverse)
 library(gt)
 
-# Create the tibble
-geoportals <- tibble::tibble(
-  Geoportal_Name = c(
-    "Data.gov",
-    "GEOSS Portal",
-    "Copernicus Data Space Ecosystem",
-    "SEDAC",
-    "INSPIRE Geoportal",
-    "EarthExplorer"
-  ),
-  Description = c(
-    "Provides a wide range of geospatial datasets, often location-specific.",
-    "Global coverage of raster datasets, suitable for a variety of analyses.",
-    "Offers global raster datasets and APIs for data analysis.",
-    "NASA-managed portal for vector datasets with global and regional coverage.",
-    "European Union's geoportal for datasets with regional and global focus.",
-    "USGS portal offering interactive dataset exploration with spatial/temporal filtering."
-  ),
-  Link = c(
+geoportals <- tibble(
+  `Portal Name` = c(
     "[Data.gov](https://catalog.data.gov/dataset?metadata_type=geospatial)",
     "[GEOSS Portal](https://www.geoportal.org/)",
     "[Copernicus Data Space Ecosystem](https://dataspace.copernicus.eu/)",
     "[SEDAC](https://sedac.ciesin.columbia.edu/)",
     "[INSPIRE Geoportal](http://inspire-geoportal.ec.europa.eu/)",
     "[EarthExplorer](https://earthexplorer.usgs.gov/)"
+  ),
+  `Description` = c(
+    "Offers a vast array of geospatial datasets, including environmental data, climate records, and transportation networks.",
+    "Provides access to global Earth observation data, including satellite imagery and in-situ measurements across agriculture, biodiversity, and climate.",
+    "Delivers free access to Copernicus Sentinel satellite data, including high-resolution optical and radar imagery for environmental monitoring.",
+    "Focuses on integrating socioeconomic and environmental data, offering population distribution, urban extents, and climate impact indicators.",
+    "Facilitates access to European spatial data, including administrative boundaries, hydrography, and transportation networks adhering to INSPIRE standards.",
+    "Provides access to remote sensing data like Landsat imagery and digital elevation models managed by the U.S. Geological Survey."
+  ),
+  Type = c(
+    "Raster & Vector",
+    "Raster & Vector",
+    "Raster",
+    "Vector",
+    "Raster & Vector",
+    "Raster"
   )
 )
 
 # Print the tibble
 geoportals |> 
-  select(-Geoportal_Name) |> 
   gt() |> 
-  fmt_markdown(columns = Link) |> 
+  fmt_markdown(columns = `Portal Name`) |> 
   cols_label_with(fn = snakecase::to_title_case) |> 
   tab_header(
-    title = "Geoportals Data Sources"
+    title = "Geospatial Data Portals for Raster and Vector Datasets"
   ) |> 
   tab_footnote(
     footnote = md("Data sources: Adapted from the textbook `Geocomputation with R`, *Section 8.5 Geoportals*.")
   ) |> 
   gtExtras::gt_theme_espn()
+```
 
+## 8.6 Geographic data packages
+
+```{r}
+#| label: tbl-86
+#| eval: true
+#| tbl-cap: "Selected R Packages for Geographic Data Retrieval and Analysis"
+
+library(tidyverse)
+library(gt)
+
+geographic_data_packages <- tibble(
+  Package = c(
+    "[climateR](https://cran.r-project.org/package=climateR)",
+    "[elevatr](https://cran.r-project.org/package=elevatr)",
+    "[FedData](https://cran.r-project.org/package=FedData)",
+    "[geodata](https://cran.r-project.org/package=geodata)",
+    "[osmdata](https://cran.r-project.org/package=osmdata)",
+    "[osmextract](https://cran.r-project.org/package=osmextract)",
+    "[rnaturalearth](https://cran.r-project.org/package=rnaturalearth)",
+    "[rnoaa](https://cran.r-project.org/package=rnoaa)",
+    "[giscoR](https://cran.r-project.org/package=giscoR)"
+  ),
+  Description = c(
+    "Provides access to over 100,000 gridded climate and landscape datasets from more than 2,000 data providers, allowing users to retrieve data by specifying an area of interest.",
+    "Facilitates access to point and raster elevation data from various sources, enabling users to obtain elevation information for specific locations or regions.",
+    "Allows users to download datasets maintained by the U.S. federal government, including elevation, land cover, and other geospatial data.",
+    "Simplifies the download and import of administrative boundaries, elevation models, WorldClim climate data, and more for various regions worldwide.",
+    "Enables downloading and importing of small to medium-sized datasets from OpenStreetMap, suitable for detailed geographic analyses.",
+    "Designed for downloading and importing large OpenStreetMap datasets, making it suitable for extensive geographic analyses.",
+    "Provides access to Natural Earth vector and raster data, including country boundaries, rivers, and urban areas, useful for creating maps and visualizations.",
+    "Interfaces with the National Oceanic and Atmospheric Administration (NOAA) to import climate and weather data, including forecasts, historical data, and severe weather alerts.",
+    "Allows users to download and use geospatial data from GISCO (Geographical Information System of the European Commission), including administrative boundaries and other geographic features."
+  ),
+  Important_Functions = c(
+    "`getDataAOI()` – Retrieve data for a specified area of interest.",
+    "`get_elev_point()` – Get elevation data for specific points.",
+    "`get_ned()` – Download National Elevation Dataset data.",
+    "`worldclim_global()` – Access global climate data.",
+    "`opq()` – Build an Overpass query; `add_osm_feature()` – Specify features to retrieve.",
+    "`oe_read()` – Read OpenStreetMap data for a specified region.",
+    "`ne_countries()` – Retrieve country boundaries; `ne_download()` – Download Natural Earth data.",
+    "`meteo_pull_monitors()` – Retrieve meteorological data from specified monitors.",
+    "`gisco_get_countries()` – Retrieve country boundaries; `gisco_get_nuts()` – Access NUTS regions."
+  )
+)
+
+geographic_data_packages |> 
+  gt() |> 
+  fmt_markdown(columns = c(Package, 
+                           Important_Functions)) |> 
+  cols_label_with(fn = snakecase::to_title_case) |> 
+  tab_header(
+    title = "R Packages for Geographic Data"
+  ) |> 
+  gtExtras::gt_theme_espn() |> 
+  tab_style(
+    style = list(
+      cell_text(font = "monospace")
+    ),
+    locations = cells_body(
+      columns = Package
+    )
+  )
 ```
