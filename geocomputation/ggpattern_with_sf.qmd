@@ -1,0 +1,395 @@
+---
+title: "Mapping India's Cuisines with R: {sf}, {ggpattern}, {magick} and more"
+author: "Aditya Dahiya"
+subtitle: "Diverse culinary heritage of India with a vibrant map created in R, blending spatial data from {sf}, creative patterns from {ggpattern}, and precise labeling from {ggrepel}. Images of iconic state cuisines were curated using {httr} and {magick}, seamlessly integrated into the visual using the power of {ggplot2}."
+date: "2025-01-26"
+bibliography: references.bib
+format:
+  html:
+    code-fold: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: false
+categories:
+  - "Maps"
+  - "Geocomputation"
+  - "{ggpattern}"
+  - "{magick}"
+  - "{ggrepel}"
+  - "India"
+  - "Images"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/geocomputation/ggpattern_with_sf.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+![Discover the rich culinary diversity of India with this map, showcasing each state and union territory filled with its most iconic cuisine, accompanied by state names for easy reference. A harmonious blend of geography and gastronomy, crafted with R.](images/ggpattern_with_sf_india_cuisines.png)
+
+Step 1: Get India's Map Data, and make a base tibble
+
+```{r}
+
+# Data Import and Wrangling Tools
+library(tidyverse)            # All things tidy
+library(sf)                   # Handling simple features in R
+library(here)                 # Folder management
+
+# Final plot tools
+library(scales)               # Nice Scales for ggplot2
+library(fontawesome)          # Icons display in ggplot2
+library(ggtext)               # Markdown text in ggplot2
+library(showtext)             # Display fonts in ggplot2
+library(colorspace)           # Lighten and Darken colours
+library(ggpattern)            # Patterns / Images in geoms
+library(magick)               # Handling images
+library(httr)                 # Downloading images from Google
+
+
+india_map <- read_sf(
+  here::here(
+    "data", "india_map", "India_State_Boundary.shp"
+  )
+) |> 
+  janitor::clean_names() |> 
+  st_simplify(dTolerance = 1000) |> 
+  st_transform("EPSG:4326") |> 
+  mutate(
+    id = row_number(),
+    area = st_area(geometry)
+  ) |> 
+  relocate(id)
+
+india_map
+india_map$state_name
+```
+
+Step 2: Get images of states' cuisines from Google's Programme Search Engine through an API
+
+```{r}
+
+# Get a custom google search engine and API key
+# Tutorial: https://developers.google.com/custom-search/v1/overview
+# Tutorial 2: https://programmablesearchengine.google.com/
+
+# From:https://developers.google.com/custom-search/v1/overview
+# google_api_key <- "LOAD YOUR GOOGLE API KEY HERE"
+
+# From: https://programmablesearchengine.google.com/controlpanel/all
+# my_cx <- "GET YOUR CUSTOM SEARCH ENGINE ID HERE"
+
+# Define function to download and save movie poster
+download_food_images <- function(i) {
+  
+  api_key <- google_api_key
+  cx <- my_cx
+  
+  # Build the API request URL
+  url <- paste0(
+    "https://www.googleapis.com/customsearch/v1?q=", 
+    URLencode(
+      paste0(
+        india_map$state_name[i], 
+        " state cuisine photo HD"
+      )), 
+      "&cx=", cx, "&searchType=image&key=", api_key,
+      "&imgSize=large",       # Prioritize larger images
+      "&imgType=photo"
+    )
+  
+  # Make the request
+  response <- GET(url)
+  result <- content(response, "parsed")
+  
+  # Get the URL of the first image result
+  image_url <- result$items[[1]]$link
+  
+  im <- magick::image_read(image_url) |> 
+    image_resize("x1000")
+  
+  # set background as white
+  image_write(
+    image = im,
+    path = here::here("geocomputation", "images",
+                      paste0("temp_food_india_", i,".png")),
+    format = "png"
+    )
+}
+
+for (i in 18:nrow(india_map)) {
+  download_food_images(i)
+}
+
+
+
+# Custom run the function for id 1, 2, 10, 20
+custom_ids <- c(1, 2, 10, 20)
+```
+
+Step 2.1: The same Code improved with ChatGPT
+
+```{r}
+
+# Add a new column to store food names in the tibble
+india_map <- india_map |> mutate(food_name = NA_character_)
+
+# Function to extract food item name from the search query result
+extract_food_name <- function(items) {
+  if (length(items) > 0) {
+    # Attempt to extract meaningful food names from the title or snippet
+    food_name <- items[[1]]$title
+    return(food_name)
+  } else {
+    return(NA) # Return NA if no items are found
+  }
+}
+
+# Improved function to download and save food images
+download_food_images <- function(i) {
+  
+  api_key <- google_api_key
+  cx <- my_cx
+  
+  # Build the API request URL with additional filters
+  url <- paste0(
+    "https://www.googleapis.com/customsearch/v1?q=",
+    URLencode(paste0(india_map$state_name[i], 
+                     " traditional cuisine food photo")),
+    "&cx=", cx,
+    "&searchType=image",
+    "&key=", api_key,
+    "&imgSize=large",       # Restrict to medium-sized images
+    "&imgType=photo",
+    "&num=1"                 # Fetch only one result
+  )
+  
+  # Make the request
+  response <- GET(url)
+  if (response$status_code != 200) {
+    warning("Failed to fetch data for state: ", india_map$state_name[i])
+    return(NULL)
+  }
+  
+  # Parse the response
+  result <- content(response, "parsed")
+  
+  # Extract the image URL
+  if (!is.null(result$items)) {
+    image_url <- result$items[[1]]$link
+    food_name <- extract_food_name(result$items)
+  } else {
+    warning("No results found for state: ", india_map$state_name[i])
+    return(NULL)
+  }
+  
+  # Validate and process the image
+  tryCatch({
+    im <- magick::image_read(image_url) |> 
+      image_resize("x1000") # Resize image
+    # Save the image
+    image_write(
+      image = im,
+      path = here("geocomputation", "images", 
+                  paste0("temp_food_india_", i, ".png")),
+      format = "png"
+    )
+    
+    # Add the food name to the tibble
+    india_map$food_name[i] <- food_name
+    
+  }, error = function(e) {
+    warning("Failed to process image for state: ", india_map$state_name[i])
+  })
+}
+
+# Iterate through each state and download images
+for (i in 1:nrow(india_map)) {
+  download_food_images(i)
+}
+```
+
+Step 3: Set up Visualization Parameters
+
+```{r}
+
+# Font for titles
+font_add_google("Rye",
+  family = "title_font"
+) 
+
+# Font for the caption
+font_add_google("Voltaire",
+  family = "caption_font"
+) 
+
+font_add_google("Saira Extra Condensed",
+  family = "caption_font2"
+) 
+showtext_auto()
+
+# A base Colour
+bg_col <- "grey10"
+seecolor::print_color(bg_col)
+
+# Colour for highlighted text
+text_hil <- "grey90"
+seecolor::print_color(text_hil)
+
+# Colour for the text
+text_col <- "white"
+seecolor::print_color(text_col)
+
+
+# Define Base Text Size
+bts <- 90 
+
+# Caption stuff for the plot
+sysfonts::font_add(
+  family = "Font Awesome 6 Brands",
+  regular = here::here("docs", "Font Awesome 6 Brands-Regular-400.otf")
+)
+github <- "&#xf09b"
+github_username <- "aditya-dahiya"
+xtwitter <- "&#xe61b"
+xtwitter_username <- "@adityadahiyaias"
+social_caption_1 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{github};</span> <span style='color: {text_hil}'>{github_username}  </span>")
+social_caption_2 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{xtwitter};</span> <span style='color: {text_hil}'>{xtwitter_username}</span>")
+plot_caption <- paste0(
+  "**Data:** Google & Census of India", 
+  " |  **Code:** ", 
+  social_caption_1, 
+  " |  **Graphics:** ", 
+  social_caption_2
+  )
+rm(github, github_username, xtwitter, 
+   xtwitter_username, social_caption_1, 
+   social_caption_2)
+
+# Add text to plot-------------------------------------------------
+plot_title <- "Flavors of India:\nA Culinary Map"
+
+
+```
+
+Step 4: Use `ggpattern` to make final map Customizing options [here](https://coolbutuseless.github.io/package/ggpattern/articles/pattern-image.html).
+
+```{r}
+
+g <- ggplot(data = india_map) +
+  ggpattern::geom_sf_pattern(
+    mapping = aes(
+      pattern_filename = I(
+        paste0(
+          "geocomputation/images/temp_food_india_",
+          id, ".png"
+          )
+        )
+    ),
+    pattern = "image",
+    pattern_type = "expand",
+    linewidth = 1.2,
+    colour = bg_col
+  ) +
+  # A place filler code to try iterations while arriving
+  # at the final plot
+  # geom_sf(
+  #   colour = bg_col,
+  #   linewidth = 0.5,
+  #   fill = "grey60"
+  # ) +
+  ggrepel::geom_label_repel(
+    mapping = aes(
+      label = state_name,
+      geometry = geometry
+    ),
+    stat = "sf_coordinates",
+    family = "caption_font",
+    colour = text_col,
+    fill = alpha(bg_col, 0.5),
+    size = bts / 5,
+    label.size = unit(0, "mm")
+  ) +
+  coord_sf(clip = "off") +
+  labs(
+    title = plot_title,
+    caption = plot_caption
+  ) +
+  ggthemes::theme_map(
+    base_size = bts,
+    base_family = "title_font"
+  ) +
+  theme(
+    # Overall plot
+    plot.margin = margin(0,-15,0,-15, "mm"),
+    
+    # Labels
+    plot.title = element_text(
+      colour = text_hil,
+      margin = margin(0,25,-50,0, "mm"),
+      size = bts * 2.5,
+      lineheight = 0.3,
+      hjust = 1
+    ),
+    plot.caption = element_textbox(
+      family = "caption_font2",
+      margin = margin(-40,0,0,20, "mm"),
+      hjust = 0,
+      size = 0.8 * bts,
+      colour = text_hil
+    ),
+    plot.background = element_rect(
+      fill = "transparent",
+      colour = "transparent"
+    )
+    
+  )
+
+ggsave(
+  filename = here::here(
+    "geocomputation", "images",
+    "ggpattern_with_sf_india_cuisines.png"
+  ),
+  plot = g,
+  width = 400,
+  height = 500,
+  units = "mm",
+  bg = bg_col
+)
+
+```
+
+Step 5: Save thumbnail and clean up temporary files
+
+```{r}
+
+# Saving a thumbnail
+
+library(magick)
+# Reducing Image Size - its 15 Mb plus
+image_read(
+  here::here(
+    "geocomputation", "images",
+    "ggpattern_with_sf_india_cuisines.png"
+    )
+  ) |> 
+  image_resize(geometry = "x400")
+
+# Clean Up: Do no harm and leave the world an untouched place!
+# Remove temporary image files
+unlink(paste0("geocomputation/images/temp_food_india_", 1:nrow(india_map), ".png"))
+
+
+```
