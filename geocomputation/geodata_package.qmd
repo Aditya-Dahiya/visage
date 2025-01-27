@@ -1,0 +1,243 @@
+---
+title: "Exploring the package {geodata}"
+author: "Aditya Dahiya"
+subtitle: "Exploring the various datasets available publicly and freely to use and analyze with R, {terra} and {sf} with the {geodata} package"
+date: "2025-01-27"
+bibliography: references.bib
+format:
+  html:
+    code-fold: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: false
+categories:
+  - "Maps"
+  - "Geocomputation"
+  - "{geodata}"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/geocomputation/geodata_package.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+## Exploring the {geodata} package
+
+The {geodata} package [@geodata-2] with {sf} [@sf-3] and {terra} [@terra]
+
+```{r}
+#| label: setup
+
+# Data Import and Wrangling Tools
+library(tidyverse)            # All things tidy
+library(sf)                   # Handling simple features in R
+library(terra)                # Handling rasters in R
+library(tidyterra)            # Rasters with ggplot2
+
+# Final plot tools
+library(scales)               # Nice Scales for ggplot2
+library(fontawesome)          # Icons display in ggplot2
+library(ggtext)               # Markdown text in ggplot2
+library(showtext)             # Display fonts in ggplot2
+library(colorspace)           # Lighten and Darken colours
+
+# Package to explore
+library(geodata)              # Geospatial Data
+
+bts = 12 # Base Text Size
+sysfonts::font_add_google("Saira Condensed", "body_font")
+showtext::showtext_auto()
+theme_set(
+  theme_minimal(
+    base_size = bts,
+    base_family = "body_font"
+  ) +
+    theme(
+      text = element_text(
+        colour = "grey20",
+        lineheight = 0.3,
+        margin = margin(0,0,0,0, "pt")
+      )
+    )
+)
+
+# Some basic caption stuff
+# A base Colour
+bg_col <- "white"
+seecolor::print_color(bg_col)
+
+# Colour for highlighted text
+text_hil <- "grey30"
+seecolor::print_color(text_hil)
+
+# Colour for the text
+text_col <- "grey20"
+seecolor::print_color(text_col)
+
+
+# Caption stuff for the plot
+sysfonts::font_add(
+  family = "Font Awesome 6 Brands",
+  regular = here::here("docs", "Font Awesome 6 Brands-Regular-400.otf")
+)
+github <- "&#xf09b"
+github_username <- "aditya-dahiya"
+xtwitter <- "&#xe61b"
+xtwitter_username <- "@adityadahiyaias"
+social_caption_1 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{github};</span> <span style='color: {text_hil}'>{github_username}  </span>")
+social_caption_2 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{xtwitter};</span> <span style='color: {text_hil}'>{xtwitter_username}</span>")
+plot_caption <- paste0(
+  "**Code:** ", 
+  social_caption_1, 
+  " |  **Graphics:** ", 
+  social_caption_2
+  )
+rm(github, github_username, xtwitter, 
+   xtwitter_username, social_caption_1, 
+   social_caption_2)
+```
+
+### Exploring the average monthly temperature climate data for Greenland
+
+This code visualizes monthly average temperature data for Greenland using geospatial data and ggplot2 in R, leveraging key functions from the `{geodata}` package. The `geodata::gadm()` function is used to download Greenland's administrative boundaries as vector data, which is processed into a simple feature object with `sf::st_as_sf()`. The `geodata::worldclim_country()` function retrieves average temperature climate data for Greenland. The climate data is aggregated for lower resolution using `terra::aggregate()`, cropped to Greenland’s boundaries with `terra::crop()`, and masked with `terra::mask()` to match the vector boundary. It is then reprojected to a North Pole Stereographic projection using `terra::project()`. A faceted ggplot ( @fig-1 ) is created to visualize temperature data across all 12 months, with color gradients representing temperature values, styled with a minimal theme.
+
+```{r}
+
+# Get Greenland's boundaries
+greenland_vector <- geodata::gadm(
+  country = "Greenland",
+  path = tempdir(),
+  resolution = 2
+) |> 
+  st_as_sf()
+
+vec1 <- greenland_vector |> 
+  st_union() |> 
+  st_as_sf()
+
+# ggplot(greenland_vector) +
+#   geom_sf()
+
+# Get Average Temperature Climate Data for Greenland
+df1 <- worldclim_country(
+  country = "Greenland",
+  var = "tavg",
+  path = tempdir()
+)
+
+# Studying the layers: there are 12 - for the 12 months
+df1
+
+df1 |> crs() |> str_view()
+
+# Lower resolution for initial plots, and crop by Vector Map
+df2 <- df1 |> 
+  terra::aggregate(fact = 10, fun = mean) |>
+  terra::crop(vec1) |> 
+  terra::mask(vec1)
+
+# Project into CRS: North Pole Stereographic
+df3 <- df2 |> 
+  project("EPSG:3413", method = "bilinear")
+
+strip_labels <- month.name
+names(strip_labels) <- names(df2)
+
+g <- ggplot() +
+  geom_spatraster(
+    data = df3
+  ) +
+  scale_fill_viridis_c(
+    na.value = "transparent",
+    labels = function(x) paste0(x, "°C"),
+  ) +
+  facet_wrap(
+    ~lyr,
+    labeller = labeller(lyr = strip_labels),
+    ncol = 3,
+    nrow = 4
+  ) +
+  coord_sf(
+    clip = "off"
+  ) +
+  labs(
+    title = "Monthly Average Temperature in Greenland",
+    fill = "Average\ntemperature",
+    caption = plot_caption
+  ) +
+  theme_minimal(
+    base_family = "body_font",
+    base_size = bts * 3
+  ) +
+  theme(
+    axis.text = element_text(
+      size = bts, 
+      margin = margin(0,0,0,0, "pt")
+    ),
+    axis.ticks.length = unit(0, "pt"),
+    strip.text = element_text(
+      margin = margin(0,0,0,0, "pt")
+    ),
+    panel.grid = element_line(
+      linewidth = 0.1,
+      linetype = 3,
+      colour = "grey80"
+    ),
+    legend.position = "right",
+    panel.spacing = unit(5, "pt"),
+    panel.background = element_rect(
+      fill = "transparent",
+      colour = "transparent"
+    ),
+    
+    # Legend Corrections
+    legend.title = element_text(
+      margin = margin(0,0,3,0, "pt"),
+      lineheight = 0.3,
+      hjust = 0.5
+    ),
+    legend.text = element_text(
+      margin = margin(0,0,0,2, "pt"),
+      size = 18
+    ),
+    legend.margin = margin(0,0,0,0, "pt"),
+    legend.box.margin = margin(0,0,0,0, "pt"),
+    legend.key.width = unit(4, "pt"),
+    legend.key.height = unit(30, "pt"),
+    plot.caption = element_textbox(
+      hjust = 0.5,
+      size = bts * 2
+    ),
+    plot.title = element_text(
+      size = bts * 4,
+      hjust = 0.5
+    ),
+    plot.title.position = "plot"
+  )
+  
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images", "geodata_package_1.png"
+  ),
+  height = 1800,
+  width = 2000,
+  units = "px",
+  bg = "white"
+)
+```
+
+![Monthly Average Temperatures Across Greenland: showcasing temperature gradients for each month using a North Pole Stereographic projection.](images/geodata_package_1.png){#fig-1}
