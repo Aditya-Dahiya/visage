@@ -99,6 +99,7 @@ xtwitter_username <- "@adityadahiyaias"
 social_caption_1 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{github};</span> <span style='color: {text_hil}'>{github_username}  </span>")
 social_caption_2 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{xtwitter};</span> <span style='color: {text_hil}'>{xtwitter_username}</span>")
 plot_caption <- paste0(
+  "**Data**: {geodata} package",
   "**Code:** ", 
   social_caption_1, 
   " |  **Graphics:** ", 
@@ -241,3 +242,134 @@ ggsave(
 ```
 
 ![Monthly Average Temperatures Across Greenland: showcasing temperature gradients for each month using a North Pole Stereographic projection.](images/geodata_package_1.png){#fig-1}
+
+Getting Elevation data with {geodata} and plotting sea level rise
+
+```{r}
+
+# Getting blobale elevation raster data
+ge_raw <- elevation_global(
+  res = 10,
+  path = tempdir()
+)
+
+# Simulating Sea Leave Rise by different heights
+elev_tibble <- tibble(
+  base = values(ge_raw),
+  rise_1 = if_else(base < 1, NA, base),
+  rise_10 = if_else(base < 10, NA, base),
+  rise_40 = if_else(base < 50, NA, base),
+  rise_80 = if_else(base < 100, NA, base),
+  rise_100 = if_else(base < 200, NA, base)
+)
+
+# Make a blank raster of World Map size
+ge1 <- rast(
+  nrow = dim(ge_raw)[1],
+  ncol = dim(ge_raw)[2],
+  nlyrs = ncol(elev_tibble)
+)
+# Add values from the tibble to different layers of 
+# the newly created raster
+values(ge1) <- as.matrix(elev_tibble)
+
+# Reproject Raster into a nice projection 
+ge1 <- ge1 |> 
+  project("ESRI:54030")
+
+# Earlier Attempts that did not work
+# ge1 <- ge_raw
+# sea_level_rise = 1       # In metres
+# values(ge1) <- if_else(
+#   values(ge_raw) < sea_level_rise,
+#   NA,
+#   values(ge_raw)
+#   )
+# 
+# paste0("ge", sea_level_rise) |> 
+#   assign(ge_raw)
+# 
+
+strip_labels <- c(
+  "Current Sea Level",
+  paste0("Rise by ", 
+         c(1, 10, 50, 100, 200), 
+         " metres")
+)
+names(strip_labels) <- paste0("lyr.", 1:6)
+  
+g <- ggplot() +
+  geom_spatraster(
+    data = ge1
+  ) +
+  facet_wrap(
+    ~lyr, 
+    ncol = 2,
+    labeller = labeller(lyr = strip_labels)
+    ) +
+  scale_fill_wiki_c(
+    na.value = "lightblue"
+  ) +
+  coord_sf(clip = "off") +
+  labs(
+    title = "World Map: scenarios with rise in Sea Levels",
+    subtitle = "Simulating different levels of sea level rise, and effect of landmass using simple raster arithmetic",
+    caption = plot_caption,
+    fill = "Elevation above sea level (m)"
+  ) +
+  theme_minimal(
+    base_size = 2 * bts,
+    base_family = "body_font"
+  ) +
+  theme(
+    plot.margin = margin(0,0,0,0, "pt"),
+    panel.spacing = unit(2, "pt"),
+    legend.position = "bottom",
+    legend.title.position = "top",
+    panel.grid = element_blank(),
+    plot.caption = element_textbox(
+      hjust = 0.5,
+      margin = margin(5,0,5,0, "pt"),
+      size = bts
+    ),
+    plot.title = element_text(
+      margin = margin(15,0,0,0, "pt"),
+      hjust = 0.5,
+      face = "bold"
+    ),
+    plot.subtitle = element_text(
+      margin = margin(5,0,0,0, "pt"),
+      hjust = 0.5,
+      size = bts * 1.5
+    ),
+    strip.text = element_text(
+      margin = margin(2,0,-1,0, "pt"),
+      face = "bold"
+    ),
+    legend.key.height = unit(5, "pt"),
+    legend.box.margin = margin(-10,0,3,0, "pt"),
+    legend.margin = margin(-10,0,0,0, "pt"),
+    legend.title = element_text(
+      margin = margin(0,0,2,0, "pt"),
+      hjust = 0.5
+    ),
+    legend.text = element_text(
+      margin = margin(1,0,0,0, "pt"),
+      hjust = 0.5,
+      size = bts
+    )
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images", "geodata_package_2.png"
+  ),
+  height = 1150,
+  width = 1000,
+  units = "px",
+  bg = "lightblue"
+)
+```
+
+![](images/geodata_package_2.png)
