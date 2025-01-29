@@ -561,3 +561,215 @@ ggsave(
 ```
 
 ![Simulating Sea Level Rise in Europe: This map visualizes the impact of rising sea levels on European landmass using raster-based elevation data. Different scenarios, ranging from current sea levels to rises of 1m, 10m, 50m, 100m, and 200m, are represented to illustrate potential changes in geography. The analysis is tailored to the European context with an accurate ETRS89 / LAEA projection. The existing borders of nations are shown in white.](images/geodata_package_3.png)
+
+Exploring Crop data
+
+```{r}
+
+globalcrop <- geodata::cropland(
+  source = "worldcover",
+  path = tempdir()
+)
+
+haryana_vec <- read_sf(
+  here::here(
+    "data", "haryana_map",
+    "HARYANA_SUBDISTRICT_BDY.shp"
+  )
+) |> 
+  janitor::clean_names() |> 
+  mutate(
+    across(
+      .cols = c(district, tehsil),
+      .fns = function(x){
+        str_replace_all(x, "\\|", "I") |> 
+          str_replace_all(">", "A") |> 
+          str_replace_all("@", "U") |> 
+          str_to_title()
+      }
+    )
+  ) |> 
+  st_transform("EPSG:4326") |> 
+  mutate(id = row_number()) |> 
+  relocate(id)
+
+haryana_vec_boundary <- st_union(haryana_vec) |> 
+  st_as_sf()
+
+haryana_crop <- globalcrop |> 
+  terra::crop(haryana_vec) |> 
+  terra::mask(haryana_vec)
+
+# Computing percentage area of each subdistrict that is Cropland
+df1 <- haryana_crop |> 
+  terra::extract(haryana_vec) |> 
+  as_tibble() |> 
+  group_by(ID) |> 
+  summarise(crop_perc = mean(cropland)) |> 
+  arrange(desc(crop_perc)) |> 
+  janitor::clean_names() |> 
+  left_join(haryana_vec |> st_drop_geometry() |> 
+              select(id, district, tehsil)) |> 
+  mutate(
+    rank = row_number(),
+    facet_var = if_else(rank <= 39, "1", "2")
+  )
+
+# Add Ranks to display
+haryana_vec <- haryana_vec |> 
+  left_join(df1)
+
+
+df1 |>
+  mutate(
+    rank = fct(
+      as.character(rank),
+      levels = paste0(77:1)
+    )
+  ) |> 
+  ggplot(
+    mapping = aes(
+      x = crop_perc, 
+      y = rank
+    )
+  ) +
+  geom_col(
+    width = 0.3,
+    fill = alpha("grey20", 0.5)
+  ) +
+  geom_text(
+    mapping = aes(
+      label = paste0(
+        tehsil, "\n(", district, ")"
+      ),
+      x = 0
+    ),
+    nudge_x = -0.05,
+    hjust = 1,
+    size = 4,
+    lineheight = 0.3
+  ) +
+  facet_wrap(~facet_var, nrow = 1, scales = "free_y") +
+  labs(
+    x = NULL, y = NULL
+  ) +
+  scale_x_continuous(
+    labels = label_percent(),
+    expand = expansion(c(0.3, 0))
+  ) +
+  theme(
+    axis.text.y = element_blank()
+  )
+```
+
+```{r}
+
+g <- ggplot() +
+  geom_spatraster(
+    data = haryana_crop
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::Blue-Yellow",
+    direction = -1,
+    na.value = "transparent",
+    trans = "exp"
+  ) +
+  geom_sf(
+    data = haryana_vec,
+    colour = "white",
+    fill = "transparent"
+  ) +
+  geom_sf(
+    data = haryana_vec_boundary,
+    colour = "grey10",
+    linewidth = 0.5,
+    fill = "transparent"
+  ) +
+  geom_sf_label(
+    data = haryana_vec,
+    mapping = aes(label = rank),
+    size = 2,
+    colour = "grey10",
+    fill = alpha("white", 0.9),
+    label.size = NA,
+    label.r = unit(0.1, "lines"),
+    label.padding = unit(0.1, "lines")
+  ) +
+  coord_sf(clip = "off") +
+  labs(
+    title = "Cropland in different Sib-districts of Haryana (India)",
+    subtitle = "Using data from ESA WorldCover, showing percentage area of each subdivision that is cropland.",
+    caption = plot_caption,
+    fill = "Percentage area in each pixel that is cropland"
+  ) +
+  theme_minimal(
+    base_size = bts * 1.5,
+    base_family = "body_font"
+  ) +
+  theme(
+    text = element_text(
+      colour = "grey20",
+      lineheight = 0.3
+    ),
+    plot.margin = margin(0,0,0,0, "pt"),
+    legend.position = "inside",
+    legend.position.inside = c(1, 0),
+    legend.direction = "horizontal",
+    legend.title.position = "top",
+    legend.justification = c(1, 1),
+    panel.grid = element_line(
+      colour = "grey50",
+      linetype = 3,
+      linewidth = 0.2
+    ),
+    plot.caption = element_textbox(
+      hjust = 0.5,
+      margin = margin(35,0,5,0, "pt"),
+      size = bts
+    ),
+    plot.title.position = "plot",
+    plot.title = element_text(
+      margin = margin(10,0,0,0, "pt"),
+      hjust = 0.5,
+      face = "bold",
+      size = bts * 3
+    ),
+    plot.subtitle = element_text(
+      margin = margin(3,0,1,0, "pt"),
+      hjust = 0.5,
+      size = bts * 2
+    ),
+    legend.key.height = unit(5, "pt"),
+    legend.key.width = unit(35, "pt"),
+    legend.box.margin = margin(10,5,3,0, "pt"),
+    legend.margin = margin(10,5,0,0, "pt"),
+    legend.title = element_text(
+      margin = margin(0,0,2,0, "pt"),
+      hjust = 0.5
+    ),
+    legend.text = element_text(
+      margin = margin(1,0,0,0, "pt"),
+      hjust = 0.5
+    ),
+    axis.text.y = element_text(
+      margin = margin(0,0,0,180, "pt")
+    ),
+    axis.ticks = element_blank(),
+    axis.ticks.length = unit(0, "pt")
+  )
+
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images", 
+    "geodata_package_4.png"
+  ),
+  height = 1300,
+  width = 1800,
+  units = "px",
+  bg = "white"
+)
+```
+
+![](images/geodata_package_4.png)
