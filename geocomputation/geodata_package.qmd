@@ -562,7 +562,9 @@ ggsave(
 
 ![Simulating Sea Level Rise in Europe: This map visualizes the impact of rising sea levels on European landmass using raster-based elevation data. Different scenarios, ranging from current sea levels to rises of 1m, 10m, 50m, 100m, and 200m, are represented to illustrate potential changes in geography. The analysis is tailored to the European context with an accurate ETRS89 / LAEA projection. The existing borders of nations are shown in white.](images/geodata_package_3.png)
 
-Exploring Crop data
+### Exploring Crop data from {geodata}
+
+This R script uses open-source land cover data from the [{geodata}](https://rdrr.io/github/rspatial/geodata/) package to analyze and visualize cropland distribution across Haryana's subdistricts (tehsils). The dataset, derived from the [ESA WorldCover](https://esa-worldcover.org/en) dataset at a 0.3-second resolution, represents the fraction of cropland in each cell. The analysis starts by downloading global cropland data using `geodata::cropland()`. The Haryana subdistrict boundary shapefile is read using `{sf}` via `read_sf()`, cleaned with `{janitor}`, and transformed to EPSG:4326. The cropland raster is cropped and masked to Haryana’s boundaries using `{terra}` functions `crop()` and `mask()`. Raster extraction (`terra::extract()`) is performed to compute the average cropland percentage per subdistrict. The results are merged into the spatial data (`left_join()`) and ranked. Visualization is done using `{ggplot2}`, where an inset bar chart ranks subdistricts by cropland percentage.
 
 ```{r}
 
@@ -620,7 +622,7 @@ haryana_vec <- haryana_vec |>
   left_join(df1)
 
 
-df1 |>
+g_inset <- df1 |>
   mutate(
     rank = fct(
       as.character(rank),
@@ -634,37 +636,59 @@ df1 |>
     )
   ) +
   geom_col(
-    width = 0.3,
+    width = 0.6,
     fill = alpha("grey20", 0.5)
   ) +
   geom_text(
     mapping = aes(
       label = paste0(
-        tehsil, "\n(", district, ")"
+        tehsil
       ),
       x = 0
     ),
     nudge_x = -0.05,
     hjust = 1,
     size = 4,
-    lineheight = 0.3
+    lineheight = 0.3,
+    family = "body_font",
+    colour = "grey20"
   ) +
+  geom_label(
+    mapping = aes(label = rank, x = 0.02),
+    family = "body_font",
+    size = 4,
+    label.size = unit(0.1, "pt"),
+    label.padding = unit(0.1, "lines")
+  ) +
+  geom_text(
+    mapping = aes(label = paste0(
+      round(100*crop_perc, 1), "%")),
+    family = "body_font",
+    size = 4,
+    hjust = 1,
+    nudge_x = -0.03,
+    colour = "white"
+  ) +
+  coord_cartesian(clip = "off") +
   facet_wrap(~facet_var, nrow = 1, scales = "free_y") +
   labs(
     x = NULL, y = NULL
   ) +
   scale_x_continuous(
     labels = label_percent(),
-    expand = expansion(c(0.3, 0))
+    expand = expansion(c(0.3, 0)),
+    breaks = c(0, seq(0.1, 0.9, 0.2))
   ) +
   theme(
-    axis.text.y = element_blank()
+    axis.text.y = element_blank(),
+    strip.text = element_blank(),
+    panel.grid = element_blank()
   )
 ```
 
 ```{r}
 
-g <- ggplot() +
+g_base <- ggplot() +
   geom_spatraster(
     data = haryana_crop
   ) +
@@ -700,7 +724,8 @@ g <- ggplot() +
     title = "Cropland in different Sib-districts of Haryana (India)",
     subtitle = "Using data from ESA WorldCover, showing percentage area of each subdivision that is cropland.",
     caption = plot_caption,
-    fill = "Percentage area in each pixel that is cropland"
+    fill = "Percentage area in each pixel that is cropland",
+    x = NULL, y = NULL
   ) +
   theme_minimal(
     base_size = bts * 1.5,
@@ -758,6 +783,14 @@ g <- ggplot() +
     axis.ticks.length = unit(0, "pt")
   )
 
+library(patchwork)
+g <- g_base +
+  inset_element(
+    p = g_inset,
+    left = -0.1, right = 0.47,
+    bottom = 0, top = 0.91,
+    align_to = "full"
+  )
 
 ggsave(
   plot = g,
@@ -772,4 +805,4 @@ ggsave(
 )
 ```
 
-![](images/geodata_package_4.png)
+![This map visualizes the percentage of cropland across Haryana’s tehsils using high-resolution ESA WorldCover data. Each subdistrict is ranked by cropland coverage, with darker shades indicating higher agricultural presence. An inset chart provides a ranked comparison of tehsils, offering a clear insight into regional variations in cropland distribution. Data sourced from [ESA WorldCover](https://esa-worldcover.org/en) (CC BY 4.0).](images/geodata_package_4.png)
