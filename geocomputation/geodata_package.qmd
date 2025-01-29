@@ -243,7 +243,11 @@ ggsave(
 
 ![Monthly Average Temperatures Across Greenland: showcasing temperature gradients for each month using a North Pole Stereographic projection.](images/geodata_package_1.png){#fig-1}
 
-Getting Elevation data with {geodata} and plotting sea level rise
+### Getting Elevation data with {geodata} and plotting sea level rise
+
+This code demonstrates the simulation of various sea level rise scenarios using elevation data and visualizes the resulting impact on global landmass through raster manipulation and plotting. It leverages the [**elevation_global()**](https://rspatial.org/terra/reference/elevation_global.html) function to obtain global elevation raster data, with a resolution of 10 arc-seconds. The [**if_else()**](https://dplyr.tidyverse.org/reference/if_else.html) function is used to simulate sea level rise scenarios by adjusting elevation data based on thresholds (1m, 10m, 50m, 100m, and 200m). The manipulated elevation data is then stored as layers in a raster object created with [**rast()**](https://rspatial.org/terra/reference/rast.html) from the `terra` package.
+
+The raster is reprojected into an aesthetically pleasing projection (ESRI:54030) using [**project()**](https://rspatial.org/terra/reference/project.html) for better visualization. The final map is plotted with [**ggplot()**](https://ggplot2.tidyverse.org/reference/ggplot.html), incorporating the [**geom_spatraster()**](https://rspatial.org/terra/reference/geom_spatraster.html) layer to display raster data and [**facet_wrap()**](https://ggplot2.tidyverse.org/reference/facet_wrap.html) to present the different scenarios.
 
 ```{r}
 
@@ -372,4 +376,188 @@ ggsave(
 )
 ```
 
-![](images/geodata_package_2.png)
+![An elevation map of the world plotted using geom_spatraster() which shows 6 facets - each with a different scenario of sea level rise with global warming - current levels, 1 m, 10 m, 50 m, 100 m and 200 m - drawn with simple raster arithmetic. The world is projected in Robinson Projection (ESRI:54030) to make is aesthetically pleasing.](images/geodata_package_2.png)
+
+### Doing the same map for Europe
+
+This code extends the sea level rise simulation to the European region by refining the raster data and restricting it to the continent's boundaries. It first retrieves global elevation data using [**elevation_global()**](https://rspatial.org/terra/reference/elevation_global.html), then defines a [**bounding box**](https://r-spatial.github.io/sf/reference/st_bbox.html) to exclude distant islands and ensure a focused analysis on mainland Europe.
+
+To obtain vector data for European countries, [**ne_countries()**](https://cran.r-project.org/web/packages/rnaturalearth/rnaturalearth.pdf) from the `rnaturalearth` package is used, selecting only relevant attributes. Unlike the previous global analysis, this visualization applies the **ETRS89 / LAEA Europe projection** (`EPSG:32633`) using [**project()**](https://rspatial.org/terra/reference/project.html) to maintain spatial accuracy for the European context. The final visualization integrates raster data using [**geom_spatraster()**](https://rspatial.org/terra/reference/geom_spatraster.html) and overlays country borders (shown in white colour) with [**geom_sf()**](https://ggplot2.tidyverse.org/reference/geom_sf.html), providing a detailed view of how landmass is affected by rising sea levels.
+
+```{r}
+# Getting global elevation raster data
+ge_raw <- elevation_global(
+  res = 10,
+  path = tempdir()
+)
+
+# Create a bounding box to remove far off islands in Europe
+bounding_box <- st_bbox(
+  c(xmin = -25, xmax = 45, ymin = 31, ymax = 70),
+  crs = "EPSG:4326"
+)
+
+# Get Vector Data on European Countries
+europe <- rnaturalearth::ne_countries(
+  continent = "Europe",
+  returnclass = "sf",
+  scale = "medium"
+) |> 
+  select(name, iso_a3, geometry) |> 
+  filter(!(name %in% c("Russia"))) |> 
+  st_crop(bounding_box)
+
+ggplot(europe) +
+  geom_sf()
+
+whole_europe <- europe |>
+  st_union() |> 
+  st_as_sf()
+
+# Check the map
+ggplot(whole_europe) +
+  geom_sf()
+
+# Crop the global Elevation raster
+ge_europe <- ge_raw |> 
+  terra::crop(whole_europe) |> 
+  terra::mask(whole_europe)
+
+ggplot() +
+  geom_spatraster(data = ge_europe)
+
+# Simulating Sea Leave Rise by different heights
+elev_tibble <- tibble(
+  base = values(ge_europe),
+  rise_1 = if_else(base < 1, NA, base),
+  rise_10 = if_else(base < 10, NA, base),
+  rise_40 = if_else(base < 50, NA, base),
+  rise_80 = if_else(base < 100, NA, base),
+  rise_100 = if_else(base < 200, NA, base)
+)
+
+# Make a blank raster of World Map size
+ge1 <- rast(
+  nrow = dim(ge_europe)[1],
+  ncol = dim(ge_europe)[2],
+  nlyrs = ncol(elev_tibble),
+  extent = ext(ge_europe),
+  resolution = res(ge_europe)
+)
+# Add values from the tibble to different layers of 
+# the newly created raster
+values(ge1) <- as.matrix(elev_tibble)
+
+# Test the ge1
+# ge1
+# ge_europe
+
+# Reproject Raster into ETRS89 / LAEA Europe Projection for Europe 
+ge_projected <- ge1 |> 
+  project("EPSG:32633")
+
+# Earlier Attempts that did not work
+# ge1 <- ge_raw
+# sea_level_rise = 1       # In metres
+# values(ge1) <- if_else(
+#   values(ge_raw) < sea_level_rise,
+#   NA,
+#   values(ge_raw)
+#   )
+# 
+# paste0("ge", sea_level_rise) |> 
+#   assign(ge_raw)
+# 
+
+strip_labels <- c(
+  "Current Sea Level",
+  paste0("Rise by ", 
+         c(1, 10, 50, 100, 200), 
+         " metres")
+)
+names(strip_labels) <- paste0("lyr.", 1:6)
+  
+g <- ggplot() +
+  geom_spatraster(
+    data = ge_projected
+  ) +
+  geom_sf(
+    data = europe,
+    colour = "white",
+    fill = "transparent",
+    linewidth = 0.1
+  ) +
+  facet_wrap(
+    ~lyr, 
+    ncol = 2,
+    labeller = labeller(lyr = strip_labels)
+    ) +
+  scale_fill_wiki_c(
+    na.value = "lightblue"
+  ) +
+  coord_sf(clip = "off") +
+  labs(
+    title = "Europe Map with rising in Sea Levels",
+    subtitle = "Simulating different levels of sea level rise, and effect of landmass using simple raster arithmetic",
+    caption = plot_caption,
+    fill = "Elevation above sea level (m)"
+  ) +
+  theme_minimal(
+    base_size = 2 * bts,
+    base_family = "body_font"
+  ) +
+  theme(
+    plot.margin = margin(0,0,0,0, "pt"),
+    panel.spacing = unit(2, "pt"),
+    legend.position = "bottom",
+    legend.title.position = "top",
+    panel.grid = element_blank(),
+    plot.caption = element_textbox(
+      hjust = 0.5,
+      margin = margin(5,0,5,0, "pt"),
+      size = bts
+    ),
+    plot.title = element_text(
+      margin = margin(15,0,0,0, "pt"),
+      hjust = 0.5,
+      face = "bold"
+    ),
+    plot.subtitle = element_text(
+      margin = margin(3,0,1,0, "pt"),
+      hjust = 0.5,
+      size = bts * 1.5
+    ),
+    strip.text = element_text(
+      margin = margin(2,0,-9,0, "pt"),
+      face = "bold"
+    ),
+    legend.key.height = unit(5, "pt"),
+    legend.box.margin = margin(-10,0,3,0, "pt"),
+    legend.margin = margin(-10,0,0,0, "pt"),
+    legend.title = element_text(
+      margin = margin(0,0,2,0, "pt"),
+      hjust = 0.5
+    ),
+    legend.text = element_text(
+      margin = margin(1,0,0,0, "pt"),
+      hjust = 0.5,
+      size = bts
+    ),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    axis.ticks.length = unit(0, "pt")
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images", "geodata_package_3.png"
+  ),
+  height = 1150,
+  width = 1000,
+  units = "px",
+  bg = "lightblue"
+)
+```
+
+![Simulating Sea Level Rise in Europe: This map visualizes the impact of rising sea levels on European landmass using raster-based elevation data. Different scenarios, ranging from current sea levels to rises of 1m, 10m, 50m, 100m, and 200m, are represented to illustrate potential changes in geography. The analysis is tailored to the European context with an accurate ETRS89 / LAEA projection. The existing borders of nations are shown in white.](images/geodata_package_3.png)
