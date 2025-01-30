@@ -1,5 +1,5 @@
 ---
-title: "Exploring the package {cliamteR}"
+title: "Exploring the package {climateR}"
 author: "Aditya Dahiya"
 subtitle: "Exploring the various datasets available publicly and freely to use and analyze with R, {terra} and {sf} with the {climateR} package"
 date: "2025-01-30"
@@ -33,9 +33,9 @@ share:
   facebook: true
 ---
 
-## Exploring the {geodata} package
+## Exploring the {climateR} package
 
-The {geodata} package [@geodata-2] with {sf} [@sf-3] and {terra} [@terra]
+Exploring [{climateR}](https://github.com/mikejohnson51/climateR) (by [Mike Johnson](http://mikejohnson51.github.io/)) with {sf} [@sf-3] and {terra} [@terra]
 
 ```{r}
 #| label: setup
@@ -125,7 +125,7 @@ The `getTerraClim()` function in the `{climateR}` package provides access to Ter
 ```{r}
 #| eval: true
 #| label: tbl-vars-getTerraClim
-#| fig-cap: ""
+#| tbl-cap: "Summary of Climate and Hydrological Variables in getTerraClim()"
 
 terraClim_vars <- tibble::tibble(
   Variable = c("aet", "def", "PDSI", "pet", "ppt", "q", "soil", "srad", 
@@ -149,7 +149,7 @@ terraClim_vars <- tibble::tibble(
 )
 
 terraClim_vars |> 
-  gt() |> 
+  gt::gt() |> 
   gtExtras::gt_theme_538()
 ```
 
@@ -194,9 +194,11 @@ ggplot() +
 object.size(climate_raw)
 ```
 
-```{r}
+## British Isles: Monthly Rainfall Data
 
-library(gganimate)       # For animations
+This code generates a faceted map of monthly rainfall in the British Isles from January 2018 to December 2022. It begins by defining the area of interest using [`aoi_get()`](https://rdrr.io/github/adokter/climateR/man/aoi_get.html) and then retrieves precipitation data via [`getTerraClim()`](https://rdrr.io/github/adokter/climateR/man/getTerraClim.html). The region is refined using [`ne_countries()`](https://rdrr.io/cran/rnaturalearth/man/ne_countries.html) and processed with [`st_union()`](https://r-spatial.github.io/sf/reference/st_union.html), [`st_as_sf()`](https://r-spatial.github.io/sf/reference/st_as_sf.html), and [`st_crop()`](https://r-spatial.github.io/sf/reference/st_crop.html) to match the raster data’s extent. The precipitation raster is cropped and masked using [`terra::crop()`](https://rspatial.github.io/terra/reference/crop.html) and [`terra::mask()`](https://rspatial.github.io/terra/reference/mask.html). Monthly labels are extracted with [`str_remove()`](https://stringr.tidyverse.org/reference/str_remove.html) and [`format()`](https://rdrr.io/r/base/format.Date.html). The plot is created using [`ggplot()`](https://ggplot2.tidyverse.org/reference/ggplot.html) with [`geom_spatraster()`](https://rdrr.io/pkg/spatial/pkg/ggraster/man/geom_spatraster.html) for the raster data and [`geom_sf()`](https://ggplot2.tidyverse.org/reference/geom_sf.html) for country borders. Color scaling is handled by [`paletteer::scale_fill_paletteer_c()`](https://rdrr.io/pkg/paletteer/man/scale_fill_paletteer.html), and faceting is applied with [`facet_wrap()`](https://ggplot2.tidyverse.org/reference/facet_wrap.html). The final visualization is styled using [`theme_map()`](https://rdrr.io/pkg/ggthemes/man/theme_map.html), and the plot is saved with [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html).
+
+```{r}
 # Try for a smaller area
 
 uk_vec <- aoi_get(country = c("United Kingdom", "Ireland"))
@@ -236,6 +238,7 @@ uk_rast <- uk_climate_raw$ppt |>
   terra::crop(uk_vec_detail) |> 
   terra::mask(uk_vec_detail)
 
+
 strip_labels <- uk_rast |> 
   names() |> 
   str_remove("ppt_") |> 
@@ -249,12 +252,13 @@ names(strip_labels) <- uk_rast |>
 
 g <- ggplot() +
   geom_spatraster(
-    data = uk_rast
+    data = uk_rast[[c(1:60)]]
   ) +
   geom_sf(
     data = uk_vec_detail,
     fill = "transparent",
-    linewidth = 0.5
+    linewidth = 0.25,
+    colour = "grey20"
   ) +
   paletteer::scale_fill_paletteer_c(
     "grDevices::Blues 3",
@@ -265,40 +269,64 @@ g <- ggplot() +
   ) +
   facet_wrap(
     ~lyr,
-    labeller = labeller(lyr = strip_labels)
+    labeller = labeller(lyr = strip_labels),
+    nrow = 5,
+    ncol = 12
   ) +
   coord_sf(clip = "off") +
   labs(
     title = "British Isles: Rainfall Pattern",
     fill = "Monthly Precipitation (mm)"
   ) +
+  ggthemes::theme_map(
+    base_size = 40,
+    base_family = "body_font"
+  ) +
   theme(
     legend.position = "bottom",
     legend.title.position = "top",
     strip.text = element_text(
       hjust = 0,
-      margin = margin(0,0,-20,0,"pt"),
-      size = 24
+      margin = margin(4,0,-2,0,"pt"),
+      size = 48
+    ),
+    strip.background = element_blank(),
+    plot.title = element_text(
+      margin = margin(0,0,10,0, "pt"),
+      hjust = 0.5,
+      size = 120
     ),
     panel.background = element_rect(
       fill = "transparent",
       colour = "transparent"
-    )
-  ) +
-  transition_states(
-    lyr,
-    transition_length = 0.1,
-    state_length = 1
+    ),
+    legend.key.height = unit(10, "pt"),
+    legend.key.width = unit(100, "pt"),
+    legend.title = element_text(
+      margin = margin(0,0,2,0, "mm"),
+      size = 80,
+      hjust = 0.5
+    ),
+    legend.text = element_text(
+      margin = margin(2,0,0,0, "mm")
+    ),
+    plot.margin = margin(10,0,10,0, "pt"),
+    legend.margin = margin(0,0,0,0, "pt"),
+    legend.box.margin = margin(0,0,0,0, "pt"),
+    legend.justification = c(0.5, 0)
   )
 
-anim_save(
+ggsave(
   filename = here::here(
     "geocomputation", "images",
-    "climateR_package_1.gif"
+    "climateR_package_1.png"
   ),
-  animation = g,
-  nframes = length(strip_labels) * 3,
-  height = 600,
-  width = 500
+  plot = g,
+  height = 4500,
+  width = 6000,
+  units = "px",
+  bg = "white"
 )
 ```
+
+![This faceted visualization illustrates monthly precipitation trends across the British Isles from January 2018 to December 2022. Each panel represents a different month, showcasing variations in rainfall intensity using a gradient color scale. Data is sourced from TerraClimate and spatially refined for accuracy.](images/climateR_package_1.png){#fig-1}
