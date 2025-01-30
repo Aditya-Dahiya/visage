@@ -1,0 +1,192 @@
+---
+title: "Exploring the package {cliamteR}"
+author: "Aditya Dahiya"
+subtitle: "Exploring the various datasets available publicly and freely to use and analyze with R, {terra} and {sf} with the {climateR} package"
+date: "2025-01-30"
+bibliography: references.bib
+format:
+  html:
+    code-fold: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: false
+categories:
+  - "Maps"
+  - "Geocomputation"
+  - "{geodata}"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/geocomputation/climateR_package.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+## Exploring the {geodata} package
+
+The {geodata} package [@geodata-2] with {sf} [@sf-3] and {terra} [@terra]
+
+```{r}
+#| label: setup
+
+# Install {cliamteR} package
+# remotes::install_github("mikejohnson51/AOI") # suggested!
+# remotes::install_github("mikejohnson51/climateR")
+
+# Data Import and Wrangling Tools
+library(sf)                   # Handling simple features in R
+library(terra)                # Handling rasters in R
+library(tidyterra)            # Rasters with ggplot2
+library(tidyverse)            # All things tidy
+
+# Final plot tools
+library(scales)               # Nice Scales for ggplot2
+library(fontawesome)          # Icons display in ggplot2
+library(ggtext)               # Markdown text in ggplot2
+library(showtext)             # Display fonts in ggplot2
+library(colorspace)           # Lighten and Darken colours
+
+# Package to explore
+library(climateR)             # Climate Data
+library(AOI)                  # Get area of interest
+
+# Making tables in R
+library(gt)                   # Beautiful Tables
+
+bts = 12 # Base Text Size
+sysfonts::font_add_google("Asap Condensed", "body_font")
+showtext::showtext_auto()
+theme_set(
+  theme_minimal(
+    base_size = bts,
+    base_family = "body_font"
+  ) +
+    theme(
+      text = element_text(
+        colour = "grey20",
+        lineheight = 0.3,
+        margin = margin(0,0,0,0, "pt")
+      )
+    )
+)
+
+# Some basic caption stuff
+# A base Colour
+bg_col <- "white"
+seecolor::print_color(bg_col)
+
+# Colour for highlighted text
+text_hil <- "grey30"
+seecolor::print_color(text_hil)
+
+# Colour for the text
+text_col <- "grey20"
+seecolor::print_color(text_col)
+
+
+# Caption stuff for the plot
+sysfonts::font_add(
+  family = "Font Awesome 6 Brands",
+  regular = here::here("docs", "Font Awesome 6 Brands-Regular-400.otf")
+)
+github <- "&#xf09b"
+github_username <- "aditya-dahiya"
+xtwitter <- "&#xe61b"
+xtwitter_username <- "@adityadahiyaias"
+social_caption_1 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{github};</span> <span style='color: {text_hil}'>{github_username}  </span>")
+social_caption_2 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{xtwitter};</span> <span style='color: {text_hil}'>{xtwitter_username}</span>")
+plot_caption <- paste0(
+  "**Data**: {geodata} package  ",
+  "  |  **Code:** ", 
+  social_caption_1, 
+  " |  **Graphics:** ", 
+  social_caption_2
+  )
+rm(github, github_username, xtwitter, 
+   xtwitter_username, social_caption_1, 
+   social_caption_2)
+```
+
+## `getTerraClim()` 
+
+The `getTerraClim()` function in the `{climateR}` package provides access to TerraClimate data, a high-resolution dataset that offers monthly climate and water balance variables from 1958 onward. These variables include key climate indicators such as precipitation, temperature, soil moisture, wind speed, and evaporation metrics.
+
+```{r}
+#| eval: true
+#| label: tbl-vars-getTerraClim
+#| fig-cap: ""
+terraClim_vars <- tibble::tibble(
+  Variable = c("aet", "def", "PDSI", "pet", "ppt", "q", "soil", "srad", 
+               "swe", "tmax", "tmin", "vap", "vpd", "ws"),
+  Units = c("mm", "mm", "unitless", "mm", "mm", "mm", "mm", "W/m^2", 
+            "mm", "degC", "degC", "kPa", "kPa", "m/s"),
+  Description = c("Water evaporation amount", 
+                  "Potential evaporation minus actual evaporation",
+                  "Palmer Drought Severity Index",
+                  "Potential evaporation amount",
+                  "Precipitation amount",
+                  "Runoff amount",
+                  "Soil moisture content",
+                  "Downwelling shortwave flux in air",
+                  "Liquid water content of surface snow",
+                  "Maximum air temperature",
+                  "Minimum air temperature",
+                  "Water vapor partial pressure in air",
+                  "Vapor pressure deficit",
+                  "Wind speed")
+)
+
+terraClim_vars |> 
+  gt() |> 
+  gtExtras::gt_theme_538()
+```
+
+```{r}
+#| label: explore-climateR
+
+# Get a nice map of India from Survey of India (simplified to
+# save on computing time)
+india_vec <- read_sf(
+  here::here(
+    "data", "india_map",
+    "India_Country_Boundary.shp"
+  )
+) |> 
+  # Simplify to save computing time
+  st_simplify(dTolerance = 3000) |> 
+  # Keep on bigger szed polygons and multiploygons
+  filter(!st_is_empty(geometry)) |> 
+  arrange(desc(Area)) |> 
+  slice(1:2) |> 
+  select(-Area) |> 
+  st_transform("EPSG:4326")
+
+india_vec |> 
+  ggplot() +
+  geom_sf()
+
+india_vec2 <- aoi_get(country = "India") |> 
+  st_cast("POLYGON")
+
+climate_raw <- getTerraClim(
+  india_vec2,
+  varname = "ppt",
+  startDate = "2018-01-01"
+)
+
+ggplot() +
+  geom_spatraster(
+    data = climate_raw$ppt
+  )
+```
