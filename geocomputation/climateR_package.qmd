@@ -118,7 +118,7 @@ rm(github, github_username, xtwitter,
    social_caption_2)
 ```
 
-## `getTerraClim()` 
+## `getTerraClim()`
 
 The `getTerraClim()` function in the `{climateR}` package provides access to TerraClimate data, a high-resolution dataset that offers monthly climate and water balance variables from 1958 onward. These variables include key climate indicators such as precipitation, temperature, soil moisture, wind speed, and evaporation metrics.
 
@@ -126,6 +126,7 @@ The `getTerraClim()` function in the `{climateR}` package provides access to Ter
 #| eval: true
 #| label: tbl-vars-getTerraClim
 #| fig-cap: ""
+
 terraClim_vars <- tibble::tibble(
   Variable = c("aet", "def", "PDSI", "pet", "ppt", "q", "soil", "srad", 
                "swe", "tmax", "tmin", "vap", "vpd", "ws"),
@@ -182,11 +183,122 @@ india_vec2 <- aoi_get(country = "India") |>
 climate_raw <- getTerraClim(
   india_vec2,
   varname = "ppt",
-  startDate = "2018-01-01"
+  startDate = "2021-01-01"
 )
 
 ggplot() +
   geom_spatraster(
     data = climate_raw$ppt
   )
+
+object.size(climate_raw)
+```
+
+```{r}
+
+library(gganimate)       # For animations
+# Try for a smaller area
+
+uk_vec <- aoi_get(country = c("United Kingdom", "Ireland"))
+
+uk_climate_raw <- getTerraClim(
+  uk_vec,
+  varname = "ppt",
+  startDate = "2018-01-01",
+  endDate = "2022-12-31"
+)
+
+uk_vec_detail <- rnaturalearth::ne_countries(
+  country = c("United Kingdom", "Ireland"),
+  scale = "medium",
+  returnclass = "sf"
+) |> 
+  select(geometry) |> 
+  st_union() |> 
+  st_as_sf() |> 
+  st_crop(
+    st_bbox(
+      c(
+        ymin = 49.8,
+        ymax = 59.5,
+        xmin = -10.3,
+        xmax = 2
+      ),
+      crs = st_crs("EPSG:4326")
+    )
+  ) |> 
+  st_transform(st_crs(uk_climate_raw$ppt))
+
+ggplot(uk_vec_detail) +
+  geom_sf()
+
+uk_rast <- uk_climate_raw$ppt |> 
+  terra::crop(uk_vec_detail) |> 
+  terra::mask(uk_vec_detail)
+
+strip_labels <- uk_rast |> 
+  names() |> 
+  str_remove("ppt_") |> 
+  str_remove("_total") |> 
+  as_date() |> 
+  format("%B %Y")
+
+names(strip_labels) <- uk_rast |> 
+  names()
+
+
+g <- ggplot() +
+  geom_spatraster(
+    data = uk_rast
+  ) +
+  geom_sf(
+    data = uk_vec_detail,
+    fill = "transparent",
+    linewidth = 0.5
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::Blues 3",
+    direction = -1,
+    na.value = "transparent",
+    limits = c(0, 450),
+    oob = scales::squish
+  ) +
+  facet_wrap(
+    ~lyr,
+    labeller = labeller(lyr = strip_labels)
+  ) +
+  coord_sf(clip = "off") +
+  labs(
+    title = "British Isles: Rainfall Pattern",
+    fill = "Monthly Precipitation (mm)"
+  ) +
+  theme(
+    legend.position = "bottom",
+    legend.title.position = "top",
+    strip.text = element_text(
+      hjust = 0,
+      margin = margin(0,0,-20,0,"pt"),
+      size = 24
+    ),
+    panel.background = element_rect(
+      fill = "transparent",
+      colour = "transparent"
+    )
+  ) +
+  transition_states(
+    lyr,
+    transition_length = 0.1,
+    state_length = 1
+  )
+
+anim_save(
+  filename = here::here(
+    "geocomputation", "images",
+    "climateR_package_1.gif"
+  ),
+  animation = g,
+  nframes = length(strip_labels) * 3,
+  height = 600,
+  width = 500
+)
 ```
