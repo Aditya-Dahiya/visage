@@ -581,27 +581,82 @@ length(strip_labels)
 #   range(na.rm = T)
 
 # A dummy tibble for writing labels along with maps
-df_labels <- tibble(lyr = strip_labels) |> 
-  mutate(lyr = str_replace_all(lyr, "\n", " ")) |> 
+df_labels <- tibble(strip_label = strip_labels) |> 
   mutate(
+    strip_label = str_replace_all(strip_label, "\n", " "),
     month = rep(1:12, 14),
-    month = month(month, label = TRUE, abbr = FALSE),
-    year  = rep(2010:2023, each = 12)
+    month_label = month(month, label = TRUE, abbr = TRUE),
+    year_label  = as.character(rep(2010:2023, each = 12)),
+    lyr = names(strip_labels)
+  ) |> 
+  mutate(
+    month_label = if_else(year_label == "2010", month_label, ""),
+    year_label = if_else(month == 1, year_label, "")
   )
 
-ggplot() +
-  geom_text(
-    data = df_labels,
-    mapping = aes(
-      label = month,
-      x = 0, y = 0
-    )
-  ) +
-  facet_wrap(
-    ~lyr,
-    ncol = 12
-  ) +
-  theme_void()
+# Some testing code to create facets with text only in few of them
+# g1 <- ggplot(
+#   data = df_labels
+# ) +
+#   geom_text(
+#     data = df_labels |> filter(str_detect(lyr, "2010")),
+#     mapping = aes(
+#       label = month_label,
+#       x = 82.5, y = 39
+#     ),
+#     size = 20,
+#     family = "body_font"
+#   ) +
+#   geom_text(
+#     data = df_labels |> filter(month == 1),
+#     mapping = aes(
+#       label = year_label,
+#       x = 64, y = 22
+#     ),
+#     size = 20,
+#     family = "body_font"
+#   ) +
+#   coord_sf(
+#     default_crs = "EPSG:4326",
+#     clip = "off",
+#     xlim = c(68, 97),
+#     ylim = c(7, 37)
+#   ) +
+#   facet_wrap(
+#     ~lyr,
+#     ncol = 12
+#   ) +
+#   theme_minimal() +
+#   theme(
+#     strip.text = element_blank(),
+#     axis.text = element_blank(),
+#     axis.title = element_blank(),
+#     panel.grid = element_blank()
+#   )
+# 
+# ggsave(
+#   filename = here::here(
+#     "geocomputation", "images",
+#     "climateR_package_temp.png"
+#   ),
+#   plot = g1,
+#   height = 2500 * 4.1,
+#   width = 6000,
+#   units = "px",
+#   bg = "white",
+#   limitsize = FALSE
+# )
+# 
+# ggplot() +
+#   geom_spatraster(
+#     data = india_rast[[1]]
+#   ) +
+#   coord_sf(
+#     default_crs = "EPSG:4326",
+#     clip = "off",
+#     xlim = c(68, 97),
+#     ylim = c(7, 37)
+#   )
 
 g2 <- ggplot() +
   geom_spatraster(
@@ -612,6 +667,34 @@ g2 <- ggplot() +
     fill = "transparent",
     linewidth = 0.25,
     colour = "grey20"
+  ) +
+  
+  # Strip Labels along the months at top
+  geom_text(
+    data = df_labels |> filter(str_detect(lyr, "2010")),
+    mapping = aes(
+      label = month_label,
+      x = 82.5, y = 45
+    ),
+    size = 50,
+    family = "body_font"
+  ) +
+  
+  # Strip labels for Year at the left side
+  geom_text(
+    data = df_labels |> filter(month == 1),
+    mapping = aes(
+      label = year_label,
+      x = 52, y = 22
+    ),
+    size = 50,
+    family = "body_font"
+  ) +
+  coord_sf(
+    default_crs = "EPSG:4326",
+    clip = "off",
+    xlim = c(68, 97),
+    ylim = c(7, 37)
   ) +
   paletteer::scale_fill_paletteer_c(
     "ggthemes::Orange-Blue-White Diverging",
@@ -625,7 +708,6 @@ g2 <- ggplot() +
     labeller = labeller(lyr = strip_labels),
     ncol = 12
   ) +
-  coord_sf(clip = "off") +
   labs(
     title = "India: Drought Severity (2010 - 2023)",
     subtitle = str_wrap("Palmer Drought Severity Index (PDSI) measures long-term drought and wetness conditions based on temperature, precipitation, and soil moisture balance. Negative values indicate drought severity, while positive values signify wetter-than-normal conditions.", 130),
@@ -639,27 +721,29 @@ g2 <- ggplot() +
   theme(
     legend.position = "bottom",
     legend.title.position = "top",
-    strip.text = element_text(
-      hjust = 0.7,
-      margin = margin(3,0,-20,0,"pt"),
-      size = 48,
-      lineheight = 0.3
-    ),
+    # strip.text = element_text(
+    #   hjust = 0.7,
+    #   margin = margin(3,0,-20,0,"pt"),
+    #   size = 48,
+    #   lineheight = 0.3
+    # ),
+    strip.text = element_blank(),
     strip.background = element_blank(),
+    plot.title.position = "plot",
     plot.title = element_text(
       margin = margin(0,0,10,0, "pt"),
       hjust = 0.5,
       size = 210
     ),
     plot.subtitle = element_text(
-      margin = margin(0,0,10,0, "pt"),
+      margin = margin(0,0,50,0, "pt"),
       hjust = 0.5,
-      size = 90,
+      size = 80,
       lineheight = 0.3
     ),
     plot.caption = element_textbox(
       hjust = 0.5,
-      margin = margin(10,0,0,0, "pt"),
+      margin = margin(20,0,0,0, "pt"),
       size = 80
     ),
     panel.background = element_rect(
@@ -677,9 +761,9 @@ g2 <- ggplot() +
       margin = margin(2,0,0,0, "mm"),
       size = 60
     ),
-    plot.margin = margin(10,5,10,5, "pt"),
-    legend.margin =  margin(0,0,0,0, "pt"),
-    legend.box.margin = margin(0,0,0,0, "pt"),
+    plot.margin = margin(10,5,10,90, "pt"),
+    legend.margin =  margin(-20,0,0,0, "pt"),
+    legend.box.margin = margin(-20,0,0,0, "pt"),
     legend.justification = c(0.5, 0)
   )
 
@@ -689,8 +773,8 @@ ggsave(
     "climateR_package_2.png"
   ),
   plot = g2,
-  height = 2500 * 4.1,
-  width = 6000,
+  height = 9000,
+  width = 6200,
   units = "px",
   bg = "white",
   limitsize = FALSE
