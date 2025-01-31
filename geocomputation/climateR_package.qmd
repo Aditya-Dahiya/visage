@@ -107,7 +107,7 @@ xtwitter_username <- "@adityadahiyaias"
 social_caption_1 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{github};</span> <span style='color: {text_hil}'>{github_username}  </span>")
 social_caption_2 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{xtwitter};</span> <span style='color: {text_hil}'>{xtwitter_username}</span>")
 plot_caption <- paste0(
-  "**Data**: {geodata} package  ",
+  "**Data**: {climateR} package  ",
   "  |  **Code:** ", 
   social_caption_1, 
   " |  **Graphics:** ", 
@@ -290,6 +290,192 @@ ggsave(
 ```
 
 ![This faceted visualization illustrates monthly precipitation trends across the British Isles from January 2018 to December 2022. Each panel represents a different month, showcasing variations in rainfall intensity using a gradient color scale. Data is sourced from TerraClimate and spatially refined for accuracy.](images/climateR_package_1.png){#fig-1}
+
+## Precipitation data graphic for India.
+
+```{r}
+
+# Get a nice map of India from Survey of India (simplified to
+# save on computing time)
+india_vec <- read_sf(
+  here::here(
+    "data", "india_map",
+    "India_Country_Boundary.shp"
+  )
+) |> 
+  # Simplify to save computing time
+  st_simplify(dTolerance = 3000) |> 
+  # Keep on bigger szed polygons and multiploygons
+  filter(!st_is_empty(geometry)) |> 
+  arrange(desc(Area)) |> 
+  slice(1:2) |> 
+  select(-Area) |> 
+  st_transform("EPSG:4326")
+
+# Quick check
+india_vec |> 
+  ggplot() +
+  geom_sf()
+#--------------------------------------------------------------
+# Minor manual correction: Increase bounding box of India
+# as the top of north is slightly getting cropped
+# Get the current bounding box of India
+india_bbox <- st_bbox(india_vec)
+
+# Increase the northern boundary (ymax) by 2 degrees
+india_bbox["ymax"] <- india_bbox["ymax"] + 2
+
+# Convert the updated bounding box to an sf object
+india_bbox_sf <- st_as_sfc(india_bbox, crs = st_crs(india_vec))
+
+# Crop india_vec to match the expanded bounding box
+india_vec <- st_crop(india_vec, india_bbox_sf)
+
+# Remove temporary objects
+rm(india_bbox, india_bbox_sf)
+#-------------------------------------------------------------
+
+# Download the TerraClimate dataset on PDSI from 
+# https://www.climatologylab.org/terraclimate.html
+india_rast_raw <- getTerraClim(
+  india_vec,
+  varname = "ppt",
+  startDate = "2018-01-01",
+  endDate = "2023-12-01"
+)
+
+# Match CRS of both: prefer to change CRS of vector
+india_vec2 <- india_vec |> 
+  st_transform(crs(india_rast_raw$ppt))
+
+# Crop and Maskt he Raster to show only the data within 
+# India's Administrative Borders
+india_rast <- india_rast_raw$ppt |> 
+  aggregate(fact = 4) |> 
+  terra::crop(india_vec2) |> 
+  terra::mask(india_vec2)
+
+# Clean Names for the Panel Strip Text: Month and Year
+strip_labels <- india_rast |> 
+  names() |> 
+  str_remove("ppt_") |> 
+  str_remove("_total") |> 
+  as_date() |> 
+  format("%b\n%Y")
+
+names(strip_labels) <- india_rast |> 
+  names()
+
+length(strip_labels)
+
+# Temporarily save india_rast to save download time
+# Check its range of values
+writeRaster(
+  india_rast,
+  filename = "india_ppt_rast.tif",
+  overwrite = TRUE
+)
+
+india_rast |>
+  values() |>
+  range(na.rm = T)
+
+g2 <- ggplot() +
+  geom_spatraster(
+    data = india_rast
+  ) +
+  geom_sf(
+    data = india_vec2,
+    fill = "transparent",
+    linewidth = 0.25,
+    colour = "grey20"
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::Blues 3",
+    direction = -1,
+    na.value = "transparent",
+    limits = c(0, 700),
+    breaks = seq(0, 600, 200),
+    oob = scales::squish
+  ) +
+  facet_wrap(
+    ~lyr,
+    labeller = labeller(lyr = strip_labels),
+    ncol = 12
+  ) +
+  coord_sf(clip = "off") +
+  labs(
+    title = "India: Rainfall Patterns (2018 - 2023)",
+    subtitle = str_wrap("Monthly rainfall data for India, from TerraClimate dataset, fetched as a Raster using {climateR}", 130),
+    fill = "Precipitation (mm)",
+    caption = plot_caption
+  ) +
+  ggthemes::theme_map(
+    base_size = 40,
+    base_family = "body_font"
+  ) +
+  theme(
+    legend.position = "bottom",
+    legend.title.position = "top",
+    strip.text = element_text(
+      hjust = 0.7,
+      margin = margin(3,0,-20,0,"pt"),
+      size = 48,
+      lineheight = 0.3
+    ),
+    strip.background = element_blank(),
+    plot.title = element_text(
+      margin = margin(0,0,10,0, "pt"),
+      hjust = 0.5,
+      size = 160
+    ),
+    plot.subtitle = element_text(
+      margin = margin(0,0,10,0, "pt"),
+      hjust = 0.5,
+      size = 70,
+      lineheight = 0.3
+    ),
+    plot.caption = element_textbox(
+      hjust = 0.5,
+      margin = margin(30,0,0,0, "pt"),
+      size = 60
+    ),
+    panel.background = element_rect(
+      fill = "transparent",
+      colour = "transparent"
+    ),
+    legend.key.height = unit(10, "pt"),
+    legend.key.width = unit(100, "pt"),
+    legend.title = element_text(
+      margin = margin(0,0,2,0, "mm"),
+      size = 80,
+      hjust = 0.5
+    ),
+    legend.text = element_text(
+      margin = margin(2,0,0,0, "mm"),
+      size = 60
+    ),
+    plot.margin = margin(10,5,5,5, "pt"),
+    legend.margin =  margin(-20,0,0,0, "pt"),
+    legend.box.margin = margin(-20,0,0,0, "pt"),
+    legend.justification = c(0.5, 0)
+  )
+
+ggsave(
+  filename = here::here(
+    "geocomputation", "images",
+    "climateR_package_3.png"
+  ),
+  plot = g2,
+  height = 3700,
+  width = 4000,
+  units = "px",
+  bg = "white",
+  limitsize = FALSE
+)
+```
+
+![This faceted visualization illustrates monthly precipitation trends across the India from January 2018 to December 2023. Each panel represents a different month, showcasing variations in rainfall intensity using a gradient color scale. Data is sourced from TerraClimate and spatially refined for accuracy.](images/climateR_package_3.png)
 
 ## India: Drought Severity Trends (2010 - 2023)
 
