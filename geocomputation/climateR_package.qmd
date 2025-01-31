@@ -526,20 +526,32 @@ rm(india_bbox, india_bbox_sf)
 
 # Download the TerraClimate dataset on PDSI from 
 # https://www.climatologylab.org/terraclimate.html
-india_rast_raw <- getTerraClim(
-  india_vec,
-  varname = "PDSI",
-  startDate = "2010-01-01",
-  endDate = "2023-12-01"
-)
+# india_rast_raw <- getTerraClim(
+#   india_vec,
+#   varname = "PDSI",
+#   startDate = "2010-01-01",
+#   endDate = "2023-12-01"
+# )
+# Use Downloaded Data
+india_rast_raw <- rast("india_rast.tif")
 
 # Match CRS of both: prefer to change CRS of vector
+# Code for using directly downloaded data
+# india_vec2 <- india_vec |> 
+#   st_transform(crs(india_rast_raw$PDSI))
+# Code for using downloaded data
 india_vec2 <- india_vec |> 
-  st_transform(crs(india_rast_raw$PDSI))
+  st_transform(crs(india_rast_raw))
 
 # Crop and Maskt he Raster to show only the data within 
 # India's Administrative Borders
-india_rast <- india_rast_raw$PDSI |> 
+# india_rast <- india_rast_raw$PDSI |> 
+#   aggregate(fact = 4) |> 
+#   terra::crop(india_vec2) |> 
+#   terra::mask(india_vec2)
+
+# Code for using downloaded data
+india_rast <- india_rast_raw |> 
   aggregate(fact = 4) |> 
   terra::crop(india_vec2) |> 
   terra::mask(india_vec2)
@@ -563,10 +575,33 @@ length(strip_labels)
 #   india_rast,
 #   filename = "india_rast.tif"
 # )
-# 
+
 # india_rast |> 
 #   values() |> 
 #   range(na.rm = T)
+
+# A dummy tibble for writing labels along with maps
+df_labels <- tibble(lyr = strip_labels) |> 
+  mutate(lyr = str_replace_all(lyr, "\n", " ")) |> 
+  mutate(
+    month = rep(1:12, 14),
+    month = month(month, label = TRUE, abbr = FALSE),
+    year  = rep(2010:2023, each = 12)
+  )
+
+ggplot() +
+  geom_text(
+    data = df_labels,
+    mapping = aes(
+      label = month,
+      x = 0, y = 0
+    )
+  ) +
+  facet_wrap(
+    ~lyr,
+    ncol = 12
+  ) +
+  theme_void()
 
 g2 <- ggplot() +
   geom_spatraster(
@@ -647,28 +682,6 @@ g2 <- ggplot() +
     legend.box.margin = margin(0,0,0,0, "pt"),
     legend.justification = c(0.5, 0)
   )
-
-g1 <- tibble(year = 2010:2023) |> 
-  ggplot() +
-  geom_text(
-    mapping = aes(
-      x = 0, y = 0,
-      label = year
-    ),
-    family = "body_font",
-    size = 80,
-    colour = "grey10"
-  ) +
-  coord_cartesian(clip = "off") +
-  facet_wrap(~year, ncol = 1) +
-  theme_void() +
-  theme(
-    strip.text = element_blank()
-  )
-
-library(patchwork)
-g <- wrap_plots(g1, g2) +
-  plot_layout(widths = c(1, 12))
 
 ggsave(
   filename = here::here(
