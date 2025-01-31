@@ -244,7 +244,7 @@ strip_labels <- uk_rast |>
   str_remove("ppt_") |> 
   str_remove("_total") |> 
   as_date() |> 
-  format("%B %Y")
+  format("%B\n%Y")
 
 names(strip_labels) <- uk_rast |> 
   names()
@@ -287,8 +287,9 @@ g <- ggplot() +
     legend.title.position = "top",
     strip.text = element_text(
       hjust = 0,
-      margin = margin(4,0,-2,0,"pt"),
-      size = 48
+      margin = margin(6,0,-10,0,"pt"),
+      size = 48,
+      lineheight = 0.3
     ),
     strip.background = element_blank(),
     plot.title = element_text(
