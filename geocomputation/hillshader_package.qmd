@@ -1,0 +1,353 @@
+---
+title: "Showing elevation in Maps (1) : {hillshader}"
+author: "Aditya Dahiya"
+subtitle: "Exploring {hillshader} for shaded relief maps with {ggplot2}, {terra} and {tidyterra}"
+date: "2025-02-02"
+bibliography: references.bib
+format:
+  html:
+    code-fold: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: false
+categories:
+  - "Maps"
+  - "Geocomputation"
+  - "{elevatr}"
+  - "{hillshader}"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/geocomputation/hillshader_package.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+## Exploring the {hillshader} package
+
+The [`hillshader`](https://github.com/pierreroudier/hillshader) package [@hillshader] is an R tool designed to create shaded relief maps using ray-tracing techniques.t serves as a wrapper around the [`rayshader`](https://github.com/tylermorganwall/rayshader) [@rayshader] and `raster` [@raster] packages, facilitating the generation of hillshade relief maps and their export to spatial files.
+
+The primary function, `hillshader()`, allows for the creation of hillshade maps as `RasterLayer` objects. Users can customize the shading process by specifying different shader functions, such as `ray_shade` and `ambient_shade`, and adjust parameters like sun angle and altitude to achieve desired visual effects. Additionally, the package offers functions like `add_shadow_2d`, `matrix_to_raster`, and `write_raster` to enhance integration with `rayshader` pipelines and GIS workflows.
+
+```{r}
+#| label: setup
+
+# Data Import and Wrangling Tools
+library(sf)                   # Handling simple features in R
+library(terra)                # Handling rasters in R
+library(tidyterra)            # Rasters with ggplot2
+library(tidyverse)            # All things tidy
+
+# Final plot tools
+library(scales)               # Nice Scales for ggplot2
+library(fontawesome)          # Icons display in ggplot2
+library(ggtext)               # Markdown text in ggplot2
+library(showtext)             # Display fonts in ggplot2
+library(colorspace)           # Lighten and Darken colours
+library(patchwork)            # Composing Plots
+
+# Package to explore
+library(rayshader)            # 2D / 3D map visualizations
+library(raster)               # Handling rasters
+library(hillshader)           # Shaded reliefs in R
+
+# Making tables in R
+library(gt)                   # Beautiful Tables
+
+bts = 36 # Base Text Size
+sysfonts::font_add_google("Roboto Condensed", "body_font")
+sysfonts::font_add_google("Oswald", "title_font")
+showtext::showtext_auto()
+theme_set(
+  theme_minimal(
+    base_size = bts,
+    base_family = "body_font"
+  ) +
+    theme(
+      text = element_text(
+        colour = "grey30",
+        lineheight = 0.3,
+        margin = margin(0,0,0,0, "pt")
+      ),
+      plot.title = element_text(
+        hjust = 0.5
+      ),
+      plot.subtitle = element_text(
+        hjust = 0.5
+      )
+    )
+)
+
+# Some basic caption stuff
+# A base Colour
+bg_col <- "white"
+seecolor::print_color(bg_col)
+
+# Colour for highlighted text
+text_hil <- "grey30"
+seecolor::print_color(text_hil)
+
+# Colour for the text
+text_col <- "grey20"
+seecolor::print_color(text_col)
+
+
+# Caption stuff for the plot
+sysfonts::font_add(
+  family = "Font Awesome 6 Brands",
+  regular = here::here("docs", "Font Awesome 6 Brands-Regular-400.otf")
+)
+github <- "&#xf09b"
+github_username <- "aditya-dahiya"
+xtwitter <- "&#xe61b"
+xtwitter_username <- "@adityadahiyaias"
+social_caption_1 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{github};</span> <span style='color: {text_hil}'>{github_username}  </span>")
+social_caption_2 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{xtwitter};</span> <span style='color: {text_hil}'>{xtwitter_username}</span>")
+plot_caption <- paste0(
+  "**Tools**: {hillshader} *#rstats* ",
+  "  |  **Code:** ", 
+  social_caption_1, 
+  " |  **Graphics:** ", 
+  social_caption_2
+  )
+rm(github, github_username, xtwitter, 
+   xtwitter_username, social_caption_1, 
+   social_caption_2)
+```
+
+### Exploring the in-built data example
+
+```{r}
+
+maungawhau_hr
+
+hs <- hillshader(maungawhau_hr)
+
+g1 <- ggplot() +
+  geom_spatraster(data = rast(maungawhau_hr)) +
+  scale_fill_wiki_c() +
+  labs(
+    title = "An Elevation Raster",
+    subtitle = "Maungawhau, a volcano in Auckland, New Zealand",
+    fill = "Elevation (metres)"
+  ) +
+  coord_sf(expand = F, clip = "off") +
+  theme(
+    panel.grid = element_blank(),
+    legend.key.width = unit(5, "pt"),
+    plot.margin = margin(0,0,0,5, "pt"),
+    legend.margin = margin(0,0,0,0, "pt"),
+    legend.box.margin = margin(0,0,0,0, "pt"),
+    axis.text = element_text(size = bts/2)
+  )
+
+g2 <- ggplot() +
+  geom_spatraster(data = rast(hs)) +
+  paletteer::scale_fill_paletteer_c("ggthemes::Gray", -1) +
+  labs(
+    title = "Basic Hillshader raster",
+    subtitle = "Default behaviours of hillshader()"
+  ) +
+  coord_sf(expand = F, clip = "off") +
+  theme(
+    legend.position = "none",
+    panel.grid = element_blank(),
+    plot.margin = margin(0,5,0,0, "pt"),
+    axis.text = element_text(size = bts/2)
+  )
+
+g <- g1 + g2 +
+  plot_annotation(
+    title = "{hillshader}: A basic example",
+    caption = plot_caption,
+    theme = theme(
+      plot.title = element_text(
+        hjust = 0.5,
+        family = "title_font"
+      ),
+      plot.caption = element_textbox(
+        hjust = 0.5,
+        family = "title_font"
+      )
+    )
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images",
+    "hillshader_package_1.png"
+  ),
+  height = 1200,
+  width = 1800,
+  units = "px",
+  bg = "white"
+)
+```
+
+![](images/hillshader_package_1.png)
+
+### Trying out an example: Himachal Pradesh with {elevatr} data
+
+```{r}
+
+himachal_vec <- read_sf(
+  here::here(
+    "data", "india_map",
+    "India_State_Boundary.shp"
+  )
+) |> 
+  filter(State_Name == "Himachal Pradesh") |> 
+  st_transform("EPSG:4326")
+
+# ggplot(himachal_vec) +
+#   geom_sf()
+# 
+# st_bbox(himachal_vec)
+
+himachal_rast <- elevatr::get_elev_raster(
+  locations = himachal_vec,
+  z = 7
+) |> 
+  rast() |> 
+  terra::crop(himachal_vec) |> 
+  terra::mask(himachal_vec)
+
+g1 <- ggplot() +
+  geom_spatraster(data = himachal_rast) +
+  geom_sf(data = himachal_vec, fill = NA) +
+  scale_fill_wiki_c() +
+  labs(
+    title = "Himachal Pradesh (India)",
+    fill = "Elevation (metres)"
+  ) +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0,0),
+    legend.justification = c(0,0),
+    legend.key.height = unit(10, "pt"),
+    legend.title.position = "top",
+    legend.direction = "horizontal",
+    plot.title = element_text(
+        size = bts * 2,
+        margin = margin(15,0,2,0, "pt")
+      ),
+    panel.grid = element_line(
+        linewidth = 0.2,
+        linetype = 3
+    )
+  )
+
+plot_himachal <- function(sunangle = 315, sunaltitude = 0){
+  hs <- himachal_rast |> 
+    raster() |> 
+    hillshader(
+      c("ray_shade", "ambient_shade"),
+      sunangle = sunangle,
+      sunaltitude = sunaltitude
+    )
+
+  ggplot() +
+    geom_spatraster(data = rast(hs)) +
+    geom_sf(data = himachal_vec, fill = NA) +
+    paletteer::scale_fill_paletteer_c(
+      "ggthemes::Classic Gray", 
+      direction = 1,
+      na.value = "transparent",
+      trans = "log2"
+    ) +
+    labs(
+      title = paste0("sunangle: ", sunangle, 
+                     "  ; sunaltitude: ",
+                     sunaltitude)
+    ) +
+    coord_sf(expand = F, clip = "off") +
+    theme(
+      legend.position = "none",
+      panel.grid = element_line(
+        linewidth = 0.2,
+        linetype = 3
+      ),
+      plot.margin = margin(0,5,0,0, "pt"),
+      axis.text = element_text(size = bts/2),
+      plot.title = element_text(
+        size = bts * 2,
+        margin = margin(15,0,2,0, "pt")
+      ),
+      plot.subtitle = element_text(
+        margin = margin(0,0,0,0, "pt")
+      )
+    )
+}
+
+g2 <- plot_himachal(sunangle = 315, sunaltitude = 0)
+
+g3 <- plot_himachal(sunangle = 90, sunaltitude = 30)
+
+g4 <- plot_himachal(sunangle = 315, sunaltitude = 30)
+
+g5 <- plot_himachal(sunangle = 90, sunaltitude = 60)
+
+g6 <- plot_himachal(sunangle = 315, sunaltitude = 60)
+
+g <- wrap_plots(g1, g2, g3, g4, g5, g6) +
+  plot_layout(
+    ncol = 2,
+    nrow = 3
+  ) +
+  plot_annotation(
+    title = "Combinations of sun-angle & sun-altitude in {hillshader}",
+    caption = plot_caption,
+    theme = theme(
+      plot.title = element_text(
+        family = "title_font",
+        size = bts * 3,
+        hjust = 0.5,
+        lineheight = 0.3,
+        margin = margin(20,0,0,0, "pt")
+      ),
+      plot.caption = element_textbox(
+        hjust = 0.5
+      )
+    )
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images",
+    "hillshader_package_2.png"
+  ),
+  height = 4800,
+  width = 3600,
+  units = "px",
+  bg = "white"
+)
+```
+
+![](images/hillshader_package_2.png)
+
+```{r}
+# Improving with rayshader
+temp <- himachal_rast |> 
+  raster_to_matrix()
+
+temp |> 
+  sphere_shade(
+    sunangle = 315,
+    texture = "bw"
+    ) |> 
+  add_water(detect_water(temp), color = "desert") |> 
+  plot_map()
+```
