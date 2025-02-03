@@ -115,7 +115,7 @@ xtwitter_username <- "@adityadahiyaias"
 social_caption_1 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{github};</span> <span style='color: {text_hil}'>{github_username}  </span>")
 social_caption_2 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{xtwitter};</span> <span style='color: {text_hil}'>{xtwitter_username}</span>")
 plot_caption <- paste0(
-  "**Tools**: {hillshader} *#rstats* ",
+  "**Tools**: {elevatr} {terra} {tidyterra} in *#rstats* ",
   "  |  **Code:** ", 
   social_caption_1, 
   " |  **Graphics:** ", 
@@ -129,6 +129,10 @@ rm(github, github_username, xtwitter,
 ## Trying the technique for Sikkim (India)
 
 ```{r}
+#| label: get-sikkim-boundary-lakes-roads
+
+library(osmdata)        # Fetching lakes data
+
 
 # Get sikkim administrative boundary data
 sikkim_vec <- read_sf(
@@ -139,6 +143,32 @@ sikkim_vec <- read_sf(
 ) |> 
   filter(State_Name == "Sikkim") |> 
   st_transform("EPSG:4326")
+
+# Add lakes, ponds and water bodies
+sikkim_lakes_raw <- opq(bbox = st_bbox(sikkim_vec)) |>
+  add_osm_feature(
+    key = "natural",
+    value = c("water")
+  ) |>
+  osmdata_sf()
+
+sikkim_lakes <- bind_rows(
+  sikkim_lakes_raw$osm_polygons,
+  sikkim_lakes_raw$osm_multipolygons
+) |> 
+  select(osm_id, geometry) |> 
+  st_crop(sikkim_vec) |> 
+  mutate(
+    area = st_area(geometry)
+  ) |>
+  slice_max(order_by = area, n = 20)
+
+ggplot() +
+  geom_sf(data = sikkim_vec, fill = NA) +
+  geom_sf(data = sikkim_lakes)
+```
+
+```{r}
 
 # Test plot the sf object: a vector
 ggplot(sikkim_vec) +
@@ -155,11 +185,9 @@ sikkim_rast <- elevatr::get_elev_raster(
   locations = sikkim_vec,
   z = 7
 ) |> 
-  rast() |> 
+  terra::rast() |> 
   terra::crop(sikkim_vec) |> 
   terra::mask(sikkim_vec)
-
-sikkim_rast
 
 ggplot() +
   geom_spatraster(data = sikkim_rast) +
@@ -195,6 +223,157 @@ ggplot() +
     legend.text = element_text(
       margin = margin(1,0,0,0, "pt")
     )
+  )
+
+ggplot() +
+  geom_spatraster(data = sikkim_rast) +
+  coord_sf() +
+  scale_fill_hypso_c()
+
+
+# Estimate the Slope of the terrain using terra::terrain
+slope1 <- terrain(sikkim_rast, v = "slope", unit = "radians")
+# Estimate the Aspect or Orientation using terra::terrain
+aspect1 <- terrain(sikkim_rast, v = "aspect", unit = "radians")
+
+# With a certain Sun-Angle and Sun-Direction
+sunangle = 30
+sundirection = 315
+
+# Calculate the hillshade effect with a certain degree of elevation
+sikkim_shade_single <- shade(
+  slope = slope1, 
+  aspect = aspect1,
+  angle = sunangle,
+  direction = sundirection,
+  normalize = TRUE
+)
+
+# Final Hill-shade Plot
+ggplot() +
+  geom_spatraster(
+    data = sikkim_shade_single
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::Light Grays",
+    na.value = "transparent",
+    direction = -1
+  )
+```
+
+### Uni-directional Shadow: with a Coloured raster map
+
+```{r}
+
+ggplot() +
+  
+  # The shadows part of the raster map
+  geom_spatraster(
+    data = sikkim_shade_single
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::Light Grays",
+    na.value = "transparent",
+    direction = -1
+  ) +
+  
+  # New fill scale
+  ggnewscale::new_scale_fill() +
+  
+  # The elevation digital raster
+  geom_spatraster(
+    data = sikkim_rast,
+    alpha = 0.7
+  ) +
+  scale_fill_hypso_c() +
+  
+  # Outer boundary map of Sikkim
+  geom_sf(
+    data = sikkim_vec,
+    fill = NA
+  )
+```
+
+### Multi-directional Shadow: with a Coloured raster map
+
+```{r}
+
+# Multiple directions to shade() function
+sikkim_shade_multi <- map(
+  c(270, 45, 135, 330), 
+  function(directions) {
+    shade(
+      slope1, 
+      aspect1,
+      angle = 45,
+      direction = directions,
+      normalize = TRUE
+      )
+    }
+  )
+
+# Create a multi-dimensional raster and reduce it by summing up
+sikkim_shade_multi <- rast(sikkim_shade_multi) |> sum()
+
+# Final Hill-shade Plot
+ggplot() +
+  geom_spatraster(
+    data = sikkim_shade_single
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::Light Grays",
+    na.value = "transparent",
+    direction = -1
+  ) +
+  labs(
+    title = "Uni-Directional Shadow"
+  )
+
+ggplot() +
+  geom_spatraster(
+    data = sikkim_shade_multi
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::Light Grays",
+    na.value = "transparent",
+    direction = -1
+  ) +
+  labs(
+    title = "Multi-Directional Shadow"
+  )
+
+```
+
+```{r}
+
+ggplot() +
+  
+  list(
+    # The shadows part of the raster map
+    geom_spatraster(
+      data = sikkim_shade_multi
+    ) +
+    paletteer::scale_fill_paletteer_c(
+      "grDevices::Light Grays",
+      na.value = "transparent",
+      direction = -1
+    ) +
+    
+    # New fill scale
+    ggnewscale::new_scale_fill() +
+    
+    # The elevation digital raster
+    geom_spatraster(
+      data = sikkim_rast,
+      alpha = 0.7
+    ) +
+    scale_fill_hypso_c()
+  ) |> ggblend::blend(blend = "multiply") +
+  
+  # Outer boundary map of Sikkim
+  geom_sf(
+    data = sikkim_vec,
+    fill = NA
   )
 ```
 
