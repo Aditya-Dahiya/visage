@@ -1,5 +1,5 @@
 ---
-title: "Showing elevation in Maps (1) : {whitebox} & {terra}"
+title: "Showing elevation in Maps (2) : {whitebox} & {terra}"
 author: "Aditya Dahiya"
 subtitle: "Exploring {whitebox} & {terra} for shaded relief maps with {ggplot2} and {tidyterra}"
 date: "2025-02-03"
@@ -41,6 +41,7 @@ We employ R’s geospatial packages, including [terra](https://cran.r-project.or
 ```{r}
 #| label: setup
 
+
 # Data wrangling & visualization
 library(tidyverse)  # Data manipulation & visualization
 
@@ -65,7 +66,7 @@ library(showtext)             # Display fonts in ggplot2
 library(colorspace)           # Lighten and Darken colours
 library(patchwork)            # Composing Plots
 
-bts = 12 # Base Text Size
+bts = 18 # Base Text Size
 sysfonts::font_add_google("Roboto Condensed", "body_font")
 sysfonts::font_add_google("Oswald", "title_font")
 showtext::showtext_auto()
@@ -124,15 +125,17 @@ plot_caption <- paste0(
 rm(github, github_username, xtwitter, 
    xtwitter_username, social_caption_1, 
    social_caption_2)
+
 ```
 
 ## Trying the technique for Sikkim (India)
+
+The following code extracts and visualizes geographical features of Sikkim using OpenStreetMap data. The [**`osmdata`**](https://github.com/ropensci/osmdata) package is used to fetch water bodies (lakes, ponds) and road networks within the Sikkim state boundary. First, the administrative boundary of Sikkim is read from a shapefile using [**`sf`**](https://r-spatial.github.io/sf/) and transformed to EPSG:4326. Then, [**`opq()`**](https://github.com/ropensci/osmdata#osm-overpass-api) queries OpenStreetMap for water features (`natural = water`) and roads (`highway` key). The top 20 largest lakes are selected based on area, and major roads are filtered. Finally, [**`ggplot2`**](https://ggplot2.tidyverse.org/) is used to plot the Sikkim boundary along with lakes.
 
 ```{r}
 #| label: get-sikkim-boundary-lakes-roads
 
 library(osmdata)        # Fetching lakes data
-
 
 # Get sikkim administrative boundary data
 sikkim_vec <- read_sf(
@@ -163,10 +166,31 @@ sikkim_lakes <- bind_rows(
   ) |>
   slice_max(order_by = area, n = 20)
 
+# Getting roads
+sikkim_roads_raw <- opq(bbox = st_bbox(sikkim_vec)) |>
+  add_osm_feature(
+    key = "highway", 
+    value = c("motorway", "trunk",
+              "primary", "secondary")
+  ) |>
+  osmdata_sf()
+object.size(sikkim_roads_raw) |> print(units = "Mb")
+
+levels_roads <- c("secondary", "primary", "trunk")
+
+sikkim_roads <- sikkim_roads_raw$osm_lines |> 
+  select(osm_id, highway, geometry) |> 
+  mutate(highway = fct(highway, levels = levels_roads)) |> 
+  st_intersection(sikkim_vec)
+
 ggplot() +
   geom_sf(data = sikkim_vec, fill = NA) +
   geom_sf(data = sikkim_lakes)
 ```
+
+### Elevation Raster Map
+
+The following code visualizes the elevation data of **Sikkim, India** using the `{ggplot2}` and `{terra}` packages. It first plots the vector boundary of Sikkim using `{sf}` and then retrieves a **Digital Elevation Model (DEM)** using `{elevatr}`'s [`get_elev_raster()`](https://cran.r-project.org/web/packages/elevatr/vignettes/introduction_to_elevatr.html). The raster data is then converted to a `{terra}` object, cropped, and masked to match the Sikkim boundary. Finally, a **ggplot2** map is created using [`geom_spatraster()`](https://cran.r-project.org/web/packages/ggspatial/) to visualize elevation with a hypsometric color scale.
 
 ```{r}
 
@@ -175,21 +199,16 @@ ggplot(sikkim_vec) +
   geom_sf(fill = NA) +
   labs(title = "Sikkim (India)")
 
-# Get the Lakes of Sikkim for {osm}---------------------------------
-
-# ------------------------------------------------------------------
-
 # Get DEM: Digital Elevation Model of Sikkim from {elevatr}
-
 sikkim_rast <- elevatr::get_elev_raster(
   locations = sikkim_vec,
-  z = 7
+  z = 9
 ) |> 
   terra::rast() |> 
   terra::crop(sikkim_vec) |> 
   terra::mask(sikkim_vec)
 
-ggplot() +
+g1 <- ggplot() +
   geom_spatraster(data = sikkim_rast) +
   geom_sf(data = sikkim_vec, fill = NA) +
   scale_fill_hypso_c(
@@ -198,20 +217,25 @@ ggplot() +
     )
   ) +
   labs(
-    title = "Sikkim (India)",
+    title = "Sikkim (India): Elevation Raster",
+    subtitle = "Simple shows elevation through colours. No 3-D or aesthetically impactful representation.",
     fill = "Elevation (metres)"
   ) +
   theme(
     legend.position = "inside",
     legend.position.inside = c(0,1),
     legend.justification = c(0,1),
-    legend.key.height = unit(10, "pt"),
-    legend.key.width = unit(20, "pt"),
+    legend.key.height = unit(5, "pt"),
+    legend.key.width = unit(15, "pt"),
     legend.title.position = "top",
     legend.direction = "horizontal",
     plot.title = element_text(
         size = bts * 2,
         margin = margin(15,0,2,0, "pt")
+      ),
+    plot.subtitle = element_text(
+        size = bts,
+        margin = margin(0,0,0,0, "pt")
       ),
     panel.grid = element_line(
         linewidth = 0.2,
@@ -225,11 +249,25 @@ ggplot() +
     )
   )
 
-ggplot() +
-  geom_spatraster(data = sikkim_rast) +
-  coord_sf() +
-  scale_fill_hypso_c()
+ggsave(
+  plot = g1,
+  filename = here::here(
+    "geocomputation", "images",
+    "whitebox_terra_1.png"
+  ),
+  height = 1200,
+  width = 1200,
+  units = "px"
+)
+```
 
+![](images/whitebox_terra_1.png){#fig-1 width="300"}
+
+### Grayscale Hillshade with Terrain Data
+
+The following code demonstrates how to create a hillshade effect using the [terra](https://rspatial.org/terra/) package for terrain analysis and [ggplot2](https://ggplot2.tidyverse.org/) for visualization. First, it calculates the slope and aspect of a raster dataset, representing terrain elevation. The `terra::terrain()` function is utilized to estimate both the slope and aspect in radians. Using a specified sun angle and direction, the hillshade effect is generated with the `shade()` function, providing a grayscale representation of the terrain. Finally, the hillshade is visualized with `ggplot2`, employing the `geom_spatraster()` function from the [tidyterra](https://dieghernan.github.io/tidyterra/) package and a grayscale palette from the [paletteer](https://emilhvitfeldt.github.io/paletteer/) package. The plot is saved using `ggsave()` from the [here](https://cran.r-project.org/package=here) package for organized file paths.
+
+```{r}
 
 # Estimate the Slope of the terrain using terra::terrain
 slope1 <- terrain(sikkim_rast, v = "slope", unit = "radians")
@@ -250,22 +288,63 @@ sikkim_shade_single <- shade(
 )
 
 # Final Hill-shade Plot
-ggplot() +
+g2 <- ggplot() +
   geom_spatraster(
     data = sikkim_shade_single
   ) +
   paletteer::scale_fill_paletteer_c(
     "grDevices::Light Grays",
     na.value = "transparent",
-    direction = -1
+    direction = 1
+  ) +
+  labs(
+    title = "Hillshade: Uni-directional (in grayscale)",
+    subtitle = "Gray-scale aspect and slope for each region as a raster, but this misses elevation completely.",
+    fill = "Elevation (metres)"
+  ) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+        size = bts * 2,
+        margin = margin(15,0,2,0, "pt")
+      ),
+    plot.subtitle = element_text(
+        size = bts,
+        margin = margin(0,0,0,0, "pt")
+      ),
+    panel.grid = element_line(
+        linewidth = 0.2,
+        linetype = 3
+    ),
+    legend.title = element_text(
+      margin = margin(0,0,2,0, "pt")
+    ),
+    legend.text = element_text(
+      margin = margin(1,0,0,0, "pt")
+    )
   )
+
+ggsave(
+  plot = g2,
+  filename = here::here(
+    "geocomputation", "images",
+    "whitebox_terra_2.png"
+  ),
+  height = 1200,
+  width = 1200,
+  units = "px"
+)
 ```
+
+![](images/whitebox_terra_2.png){#fig-2 width="300"}
 
 ### Uni-directional Shadow: with a Coloured raster map
 
+The following code generates a map overlaying a hillshade raster with an elevation raster for Sikkim. The hillshade raster, stored in `sikkim_shade_single`, is plotted first using [`geom_spatraster()`](https://rdrr.io/pkg/terra/man/spatraster.html) from the `terra` package. It is styled using a grayscale palette from [`paletteer::scale_fill_paletteer_c()`](https://rdrr.io/pkg/paletteer/man/scale_fill_paletteer_c.html). A new fill scale is introduced with [`ggnewscale::new_scale_fill()`](https://github.com/teunbrand/ggnewscale) before overlaying the elevation raster, `sikkim_rast`, with [`scale_fill_hypso_c()`](https://rdrr.io/pkg/metR/man/scale_fill_hypso.html) for elevation-based coloring. The outer boundary of Sikkim is added using [`geom_sf()`](https://ggplot2.tidyverse.org/reference/ggsf.html).
+
 ```{r}
 
-ggplot() +
+g3 <- ggplot() +
   
   # The shadows part of the raster map
   geom_spatraster(
@@ -274,7 +353,7 @@ ggplot() +
   paletteer::scale_fill_paletteer_c(
     "grDevices::Light Grays",
     na.value = "transparent",
-    direction = -1
+    direction = 1
   ) +
   
   # New fill scale
@@ -291,16 +370,57 @@ ggplot() +
   geom_sf(
     data = sikkim_vec,
     fill = NA
+  ) +
+  
+  labs(
+    title = "Hillshade (Uni-directional) with elevation Raster",
+    subtitle = "Shade and Aspect gray-scale raster, with unidirectional shadown, overlaid with translucent elevation coloured raster."
+  ) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+        size = bts * 2,
+        margin = margin(15,0,2,0, "pt")
+      ),
+    plot.subtitle = element_text(
+        size = bts,
+        margin = margin(0,0,0,0, "pt")
+      ),
+    panel.grid = element_line(
+        linewidth = 0.2,
+        linetype = 3
+    ),
+    legend.title = element_text(
+      margin = margin(0,0,2,0, "pt")
+    ),
+    legend.text = element_text(
+      margin = margin(1,0,0,0, "pt")
+    )
   )
+
+ggsave(
+  plot = g3,
+  filename = here::here(
+    "geocomputation", "images",
+    "whitebox_terra_3.png"
+  ),
+  height = 1200,
+  width = 1200,
+  units = "px"
+)
 ```
 
-### Multi-directional Shadow: with a Coloured raster map
+![](images/whitebox_terra_3.png){#fig-3 width="300"}
+
+### Multi-Directional Hillshade with Elevation Raster
+
+The following code generates a **multi-directional hillshade** effect for a raster dataset using the [`shade()`](https://rdrr.io/pkg/terra/man/shade.html) function in the **terra** package. It applies shading from four different directions (270°, 15°, 60°, and 330°) to enhance topographic visualization. The outputs are combined into a single raster using [`rast()`](https://rdrr.io/pkg/terra/man/rast.html) and summed up to create a composite hillshade. The **ggplot2** package is then used to visualize the raster layers, with **paletteer** providing grayscale shading and **ggnewscale** enabling a second fill scale for an overlaid **elevation raster**. The **sf** package is used to add the outer boundary of Sikkim.
 
 ```{r}
 
 # Multiple directions to shade() function
 sikkim_shade_multi <- map(
-  c(270, 45, 135, 330), 
+  c(270, 15, 60, 330), 
   function(directions) {
     shade(
       slope1, 
@@ -315,80 +435,305 @@ sikkim_shade_multi <- map(
 # Create a multi-dimensional raster and reduce it by summing up
 sikkim_shade_multi <- rast(sikkim_shade_multi) |> sum()
 
-# Final Hill-shade Plot
-ggplot() +
-  geom_spatraster(
-    data = sikkim_shade_single
-  ) +
-  paletteer::scale_fill_paletteer_c(
-    "grDevices::Light Grays",
-    na.value = "transparent",
-    direction = -1
-  ) +
-  labs(
-    title = "Uni-Directional Shadow"
-  )
-
-ggplot() +
+g4 <- ggplot() +
+  
   geom_spatraster(
     data = sikkim_shade_multi
   ) +
   paletteer::scale_fill_paletteer_c(
     "grDevices::Light Grays",
     na.value = "transparent",
-    direction = -1
+    direction = 1
   ) +
-  labs(
-    title = "Multi-Directional Shadow"
-  )
-
-```
-
-```{r}
-
-ggplot() +
+  # New fill scale
+  ggnewscale::new_scale_fill() +
   
-  list(
-    # The shadows part of the raster map
-    geom_spatraster(
-      data = sikkim_shade_multi
-    ) +
-    paletteer::scale_fill_paletteer_c(
-      "grDevices::Light Grays",
-      na.value = "transparent",
-      direction = -1
-    ) +
-    
-    # New fill scale
-    ggnewscale::new_scale_fill() +
-    
-    # The elevation digital raster
-    geom_spatraster(
-      data = sikkim_rast,
-      alpha = 0.7
-    ) +
-    scale_fill_hypso_c()
-  ) |> ggblend::blend(blend = "multiply") +
+  # The elevation digital raster
+  geom_spatraster(
+    data = sikkim_rast,
+    alpha = 0.7
+  ) +
+  scale_fill_hypso_c() +
   
   # Outer boundary map of Sikkim
   geom_sf(
     data = sikkim_vec,
     fill = NA
+  ) +
+  
+  labs(
+    title = "Multi-Directional Hillshade (with elevation raster)",
+    subtitle = "The shade, with multidirectional slope and aspect, overlaid with translucent elevation raster. Aethetically pleasing."
+  ) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+        size = bts * 2,
+        margin = margin(15,0,2,0, "pt")
+      ),
+    plot.subtitle = element_text(
+        size = bts,
+        margin = margin(0,0,0,0, "pt")
+      ),
+    panel.grid = element_line(
+        linewidth = 0.2,
+        linetype = 3
+    ),
+    legend.title = element_text(
+      margin = margin(0,0,2,0, "pt")
+    ),
+    legend.text = element_text(
+      margin = margin(1,0,0,0, "pt")
+    )
   )
+
+ggsave(
+  plot = g4,
+  filename = here::here(
+    "geocomputation", "images",
+    "whitebox_terra_4.png"
+  ),
+  height = 1200,
+  width = 1200,
+  units = "px"
+)
+
 ```
 
-Saving the graphic
+![](images/whitebox_terra_4.png){#fig-4 width="300"}
+
+### Blending Shades and Elevation Raster using `{ggblend}`
+
+The following code creates a visually appealing map of Sikkim by blending a multidirectional hillshade raster with an elevation raster using `{ggblend}`. The `geom_raster()` function is used twice—first to plot the hillshade (`sikkim_shade_multi`) using a light gray palette from `{paletteer}`, and then to overlay a semi-transparent digital elevation model (`sikkim_rast`) with `scale_fill_hypso_c()`. The `{ggnewscale}` package allows a new fill scale for the second raster layer. The vector boundary of Sikkim is added using `geom_sf()`, and the final composition is styled using `{ggplot2}`’s `theme()`.
 
 ```{r}
+
+g5 <- ggplot() +
+
+  (
+    list(  
+      # The shadows part of the raster map
+      geom_raster(
+        data = sikkim_shade_multi |> as.tibble(xy = T),
+        aes(x, y, fill = sum)
+      ),
+      paletteer::scale_fill_paletteer_c(
+        "grDevices::Light Grays",
+        na.value = "transparent",
+        direction = 1
+      ),
+      
+      # New fill scale
+      ggnewscale::new_scale_fill(),
+      
+      # The elevation digital raster
+      geom_raster(
+        data = sikkim_rast |> as.tibble(xy = T),
+        aes(x, y, fill = file32e432a33603),
+        alpha = 0.7
+      ),
+      scale_fill_hypso_c()
+    ) |> blend("multiply")
+  ) +
+  
+  # Outer boundary map of Sikkim
+  geom_sf(
+    data = sikkim_vec,
+    fill = NA
+  ) +
+  coord_sf() +
+  
+  labs(
+    title = "Blend shades and elevation raster: {ggblend}",
+    subtitle = "The shade, with multidirectional slope and aspect, overlaid with translucent elevation raster. Aethetically pleasing.",
+    x = NULL, y = NULL
+  ) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+        size = bts * 2,
+        margin = margin(15,0,2,0, "pt")
+      ),
+    plot.subtitle = element_text(
+        size = bts,
+        margin = margin(0,0,0,0, "pt")
+      ),
+    panel.grid = element_line(
+        linewidth = 0.2,
+        linetype = 3
+    ),
+    legend.title = element_text(
+      margin = margin(0,0,2,0, "pt")
+    ),
+    legend.text = element_text(
+      margin = margin(1,0,0,0, "pt")
+    )
+  )
+
+ggsave(
+  plot = g5,
+  filename = here::here(
+    "geocomputation", "images",
+    "whitebox_terra_5.png"
+  ),
+  height = 1200,
+  width = 1200,
+  units = "px"
+)
+```
+
+![](images/whitebox_terra_5.png){#fig-5 width="300"}
+
+### Creating a Blended Raster Map with Highways in Sikkim
+
+The following code generates a visually appealing map of Sikkim by blending multiple raster layers and overlaying highway data. It uses **ggplot2** for plotting, **paletteer** for color scales, and **ggnewscale** to introduce multiple fill scales. The base raster consists of a multi-directional shaded relief layer (`sikkim_shade_multi`) and an elevation raster (`sikkim_rast`), which are blended using the `blend("multiply")` function. The map also incorporates **sf** data layers for the Sikkim boundary (`sikkim_vec`) and major highways (`sikkim_roads`), with varying linewidths and alpha values set using `scale_linewidth_manual()` and `scale_alpha_manual()`.
+
+```{r}
+
+g6 <- ggplot() +
+
+  # A list for blended raster colours
+  (
+    list(  
+      # The shadows part of the raster map
+      geom_raster(
+        data = sikkim_shade_multi |> as.tibble(xy = T),
+        aes(x, y, fill = sum)
+      ),
+      paletteer::scale_fill_paletteer_c(
+        "grDevices::Light Grays",
+        na.value = "white",
+        direction = 1
+      ),
+      
+      # New fill scale
+      ggnewscale::new_scale_fill(),
+      
+      # The elevation digital raster
+      geom_raster(
+        data = sikkim_rast |> as.tibble(xy = T),
+        aes(x, y, fill = file32e432a33603),
+        alpha = 0.7
+      ),
+      scale_fill_hypso_c()
+    ) |> blend("multiply")
+  ) +
+  
+  # Outer boundary map of Sikkim
+  geom_sf(
+    data = sikkim_vec,
+    fill = NA,
+    colour = "grey50"
+  ) +
+  coord_sf() +
+  geom_sf(
+    data = sikkim_roads,
+    mapping = aes(
+      linewidth = highway,
+      alpha = highway
+    )
+  ) +
+  scale_linewidth_manual(
+    values = c(0.2, 0.3, 0.4)
+  ) +
+  scale_alpha_manual(
+    values = c(0.3, 0.5, 0.7)
+  ) +
+  labs(
+    title = "Adding highways to blended rasters",
+    subtitle = "Adding major highways, roads, with the blended, multi-directional shaded raster. Aethetically pleasing.",
+    x = NULL, y = NULL
+  ) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+        size = bts * 2,
+        margin = margin(15,0,2,0, "pt")
+      ),
+    plot.subtitle = element_text(
+        size = bts,
+        margin = margin(0,0,0,0, "pt")
+      ),
+    panel.grid = element_line(
+        linewidth = 0.2,
+        linetype = 3
+    ),
+    legend.title = element_text(
+      margin = margin(0,0,2,0, "pt")
+    ),
+    legend.text = element_text(
+      margin = margin(1,0,0,0, "pt")
+    )
+  )
+
+ggsave(
+  plot = g6,
+  filename = here::here(
+    "geocomputation", "images",
+    "whitebox_terra_6.png"
+  ),
+  height = 1200,
+  width = 1200,
+  units = "px"
+)
+```
+
+![](images/whitebox_terra_6.png){#fig-6 width="300"}
+
+### Creating a Multi-Panel Shaded Relief Map Layout
+
+The following code uses the **{patchwork}** package to arrange multiple **ggplot2** plots into a structured layout. It combines six plots (`g1` to `g6`) using `wrap_plots()`, setting a 2-column by 3-row grid with `plot_layout()`. The **{ggblend}** and **{terra}** packages are referenced in the title to indicate the process of creating blended multidirectional shaded relief maps. The `plot_annotation()` function adds a title, subtitle, and caption, while `theme()` customizes text styles and margins.
+
+```{r}
+
+library(patchwork)
+
+g <- wrap_plots(g1, g2, g3, g4, g5, g6) +
+  plot_layout(
+    ncol = 2,
+    nrow = 3
+  ) +
+  plot_annotation(
+    title = "Shaded relief maps: {terra} & {ggblend}",
+    subtitle = "Different stages in producing a blended multidirectional shaded relief map of hilly areas in R.",
+    caption = plot_caption,
+    tag_levels = "I",
+    theme = theme(
+      plot.title = element_text(
+        margin = margin(20,0,5,0, "pt"),
+        size = bts * 6
+      ),
+      plot.subtitle = element_text(
+        margin = margin(0,0,0,0, "pt"),
+        size = bts * 3
+      ),
+      plot.caption = element_textbox(
+        hjust = 0.5,
+        size = bts * 2,
+        margin = margin(15,0,10,0, "pt")
+      )
+    )
+  ) &
+  theme(
+    plot.margin = margin(0,40,0,40, "pt"),
+    plot.tag = element_text(
+      size = bts * 4,
+      face = "bold",
+      margin = margin(0,30,-40,0, "pt")
+    )
+  )
+
 ggsave(
   plot = g,
   filename = here::here(
     "geocomputation", "images",
-    "hillshader_package_3.png"
+    "whitebox_terra_7.png"
   ),
-  height = 5000,
-  width = 4800,
+  height = 1200 * 3.2,
+  width = 1200 * 2.5,
   units = "px",
   bg = "white"
 )
 ```
+
+![A composite plot of the (I) the elevation raster of the height above sea level for the state of Sikkim (India). (II) A grey-scale hillshade graph showing the spect and slope, irrespective of the elevation. (III) The same map, but in a uni-directional shadow, now merged with translucent elevation raster. (IV) With a multi-drectional shade. (V) With a blended (using `ggblend`) colours from the grayscale shaded relief and coloured elevation raster. And, (VI) the blended raster with overlaid highways and roads.](images/whitebox_terra_7.png){#fig-7}
