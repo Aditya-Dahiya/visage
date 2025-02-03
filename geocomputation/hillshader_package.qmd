@@ -338,16 +338,151 @@ ggsave(
 
 ![](images/hillshader_package_2.png)
 
-```{r}
-# Improving with rayshader
-temp <- himachal_rast |> 
-  raster_to_matrix()
+## Another example for a smaller area - Sikkim (India)
 
-temp |> 
-  sphere_shade(
-    sunangle = 315,
-    texture = "bw"
-    ) |> 
-  add_water(detect_water(temp), color = "desert") |> 
-  plot_map()
+The analysis uses the [`hillshader`](https://github.com/pierreroudier/hillshader) package to generate five different hillshade maps of Sikkim, India, by varying the `sunangle` and `sunaltitude` parameters. The base map is created by extracting elevation data using [`elevatr::get_elev_raster()`](https://rdrr.io/github/jhollist/elevatr/man/get_elev_raster.html) and masking it with the Sikkim state boundary from a shapefile loaded with [`sf::read_sf()`](https://r-spatial.github.io/sf/reference/st_read.html). The function [`plot_sikkim()`](https://github.com/pierreroudier/hillshader) applies `hillshader()` with ray-traced shading techniques (`ray_shade` and `ambient_shade`) and visualizes the results using [`ggplot2::geom_spatraster()`](https://rdrr.io/github/r-spatial/ggplot2/man/geom_spatraster.html) for a grayscale effect. Different combinations of sunlight direction (`sunangle`) and height (`sunaltitude`) alter the relief perception. The six maps, including an elevation reference, are arranged with [`patchwork::wrap_plots()`](https://patchwork.data-imaginist.com/reference/wrap_plots.html), demonstrating how terrain visualization changes under varying lighting conditions.
+
+```{r}
+
+sikkim_vec <- read_sf(
+  here::here(
+    "data", "india_map",
+    "India_State_Boundary.shp"
+  )
+) |> 
+  filter(State_Name == "Sikkim") |> 
+  st_transform("EPSG:4326")
+
+ggplot(sikkim_vec) +
+  geom_sf()
+
+st_bbox(sikkim_vec)
+
+sikkim_rast <- elevatr::get_elev_raster(
+  locations = sikkim_vec,
+  z = 7
+) |> 
+  rast() |> 
+  terra::crop(sikkim_vec) |> 
+  terra::mask(sikkim_vec)
+
+g1 <- ggplot() +
+  geom_spatraster(data = sikkim_rast) +
+  geom_sf(data = sikkim_vec, fill = NA) +
+  scale_fill_wiki_c() +
+  labs(
+    title = "Sikkim (India)",
+    fill = "Elevation (metres)"
+  ) +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0,1),
+    legend.justification = c(0,1),
+    legend.key.height = unit(10, "pt"),
+    legend.key.width = unit(30, "pt"),
+    legend.title.position = "top",
+    legend.direction = "horizontal",
+    plot.title = element_text(
+        size = bts * 2,
+        margin = margin(15,0,2,0, "pt")
+      ),
+    panel.grid = element_line(
+        linewidth = 0.2,
+        linetype = 3
+    ),
+    legend.title = element_text(
+      margin = margin(0,0,2,0, "pt")
+    ),
+    legend.text = element_text(
+      margin = margin(1,0,0,0, "pt")
+    )
+  )
+
+plot_sikkim <- function(sunangle = 315, sunaltitude = 0){
+  hs <- sikkim_rast |> 
+    raster() |> 
+    hillshader(
+      c("ray_shade", "ambient_shade"),
+      sunangle = sunangle,
+      sunaltitude = sunaltitude
+    )
+
+  ggplot() +
+    geom_spatraster(data = rast(hs)) +
+    geom_sf(data = sikkim_vec, fill = NA) +
+    paletteer::scale_fill_paletteer_c(
+      "ggthemes::Classic Gray", 
+      direction = 1,
+      na.value = "transparent",
+      trans = "log2"
+    ) +
+    labs(
+      title = paste0("sunangle: ", sunangle, 
+                     "  ; sunaltitude: ",
+                     sunaltitude)
+    ) +
+    coord_sf(expand = F, clip = "off") +
+    theme(
+      legend.position = "none",
+      panel.grid = element_line(
+        linewidth = 0.2,
+        linetype = 3
+      ),
+      plot.margin = margin(0,5,0,0, "pt"),
+      axis.text = element_text(size = bts/2),
+      plot.title = element_text(
+        size = bts * 2,
+        margin = margin(15,0,2,0, "pt")
+      ),
+      plot.subtitle = element_text(
+        margin = margin(0,0,0,0, "pt")
+      )
+    )
+}
+
+g2 <- plot_sikkim(sunangle = 315, sunaltitude = 0)
+
+g3 <- plot_sikkim(sunangle = 90, sunaltitude = 30)
+
+g4 <- plot_sikkim(sunangle = 315, sunaltitude = 30)
+
+g5 <- plot_sikkim(sunangle = 90, sunaltitude = 60)
+
+g6 <- plot_sikkim(sunangle = 315, sunaltitude = 60)
+
+g <- wrap_plots(g1, g3, g5, g2, g4, g6) +
+  plot_layout(
+    ncol = 3,
+    nrow = 2
+  ) +
+  plot_annotation(
+    title = "Combinations of sun-angle & sun-altitude in {hillshader}",
+    caption = plot_caption,
+    theme = theme(
+      plot.title = element_text(
+        family = "title_font",
+        size = bts * 4,
+        hjust = 0.5,
+        lineheight = 0.3,
+        margin = margin(20,0,0,0, "pt")
+      ),
+      plot.caption = element_textbox(
+        hjust = 0.5
+      )
+    )
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images",
+    "hillshader_package_3.png"
+  ),
+  height = 4800,
+  width = 4800,
+  units = "px",
+  bg = "white"
+)
 ```
+
+![This visualization showcases the impact of varying sun angles and altitudes on hillshade maps of Sikkim, India, using the `{hillshader}` package. The top-left map represents the original elevation data, while the remaining five maps illustrate different shading effects based on changes in `sunangle` (direction of sunlight) and `sunaltitude` (height of the sun above the horizon). By adjusting these parameters, the perception of terrain depth and structure changes, highlighting how light sources influence the visualization of topography.](images/hillshader_package_3.png)
