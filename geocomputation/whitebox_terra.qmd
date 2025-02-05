@@ -737,3 +737,258 @@ ggsave(
 ```
 
 ![A composite plot of the (I) the elevation raster of the height above sea level for the state of Sikkim (India). (II) A grey-scale hillshade graph showing the spect and slope, irrespective of the elevation. (III) The same map, but in a uni-directional shadow, now merged with translucent elevation raster. (IV) With a multi-drectional shade. (V) With a blended (using `ggblend`) colours from the grayscale shaded relief and coloured elevation raster. And, (VI) the blended raster with overlaid highways and roads.](images/whitebox_terra_7.png){#fig-7}
+
+## An alternative for shaded relief maps: {whitebox}
+
+This R script utilizes the {whitebox} package to generate a hillshade raster from a Digital Elevation Model (DEM) of Sikkim, India. Hillshade is a technique that simulates the illumination of a surface by a light source to accentuate terrain features, enhancing the visualization of topographic relief. The script begins by saving the DEM (`sikkim_rast`) as a TIFF file, as WhiteboxTools operates on TIFF inputs. It then initializes WhiteboxTools and applies the `wbt_hillshade()` function, specifying parameters such as azimuth (direction of the light source) and altitude (angle of the light source above the horizon) to control the illumination's direction and angle. The resulting hillshade raster is subsequently masked using the vector boundaries of Sikkim (`sikkim_vec`) to limit the visualization to the area of interest. Finally, the script employs {ggplot2} to overlay the hillshade and elevation data, creating a composite map that effectively highlights the terrain's features.
+
+```{r}
+
+# Install the package {whitebox}
+# install.packages("whitebox")
+
+# Load the library {whitebox}
+# library(whitebox)
+
+# Download the 'WhiteboxTools' binary if needed.
+# install_whitebox()
+
+
+# Since Whitebox tools operate on .tiff files, save the raster
+# as a tiff file first.
+
+terra::writeRaster(
+  x = sikkim_rast, 
+  filename = here::here("geocomputation", "temp_sikkim.tiff"),
+  overwrite = T
+)
+
+# Launch Whitebox
+wbt_init()
+
+whitebox::wbt_hillshade(
+  dem = here::here("geocomputation", "temp_sikkim.tiff"),
+  output = here::here("geocomputation", "temp_sikkim1.tiff"),
+  azimuth = 315,
+  altitude = 20
+)
+
+sikkim_wbt <- rast(
+  here::here("geocomputation", "temp_sikkim1.tiff")
+) |> 
+  terra::mask(sikkim_vec)
+
+g8 <- ggplot() +
+  
+  # WhiteBox Uni-directional Shadow
+  geom_spatraster(data = sikkim_wbt) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::Light Grays",
+    na.value = "transparent",
+    direction = 1
+  ) +
+  
+  # New fill scale
+  ggnewscale::new_scale_fill() +
+  
+  # The elevation digital raster
+  geom_spatraster(
+    data = sikkim_rast,
+    alpha = 0.7
+  ) +
+  scale_fill_hypso_c() +
+  
+  # Outer boundary map of Sikkim
+  geom_sf(
+    data = sikkim_vec,
+    fill = NA
+  ) +
+  
+  labs(
+    title = "Uni-Directional Hillshade {whitebox}",
+    subtitle = "Control over directions of shadow using arguments altitude and azimuth."
+  ) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+        size = bts * 2,
+        margin = margin(15,0,2,0, "pt")
+      ),
+    plot.subtitle = element_text(
+        size = bts,
+        margin = margin(0,0,0,0, "pt")
+      ),
+    panel.grid = element_line(
+        linewidth = 0.2,
+        linetype = 3
+    ),
+    legend.title = element_text(
+      margin = margin(0,0,2,0, "pt")
+    ),
+    legend.text = element_text(
+      margin = margin(1,0,0,0, "pt")
+    )
+  )
+
+ggsave(
+  plot = g8,
+  filename = here::here(
+    "geocomputation", "images",
+    "whitebox_terra_8.png"
+  ),
+  height = 1200,
+  width = 1200,
+  units = "px"
+)
+```
+
+![](images/whitebox_terra_8.png)
+
+### **Hypsometrically tinted hill-shade**
+
+The provided R code utilizes the `wbt_hypsometrically_tinted_hillshade` function from the `whitebox` package to generate a hypsometrically tinted hillshade image of Sikkim, India. This function creates a color-shaded relief image from an input Digital Elevation Model (DEM) by combining hillshading with hypsometric tinting, which applies colors based on elevation ranges to enhance terrain visualization.
+
+```{r}
+
+whitebox::wbt_hypsometrically_tinted_hillshade(
+  dem = here::here("geocomputation", "temp_sikkim.tiff"),
+  output = here::here("geocomputation", "temp_sikkim1.tiff")
+)
+
+sikkim_wbt <- rast(
+  here::here("geocomputation", "temp_sikkim1.tiff")
+) |> 
+  terra::mask(sikkim_vec)
+
+g9 <- ggplot() +
+  
+  geom_spatraster_rgb(data = sikkim_wbt) +
+  
+  # Outer boundary map of Sikkim
+  geom_sf(
+    data = sikkim_vec,
+    fill = NA
+  ) +
+  labs(
+    title = "Hypsometrically tinted hillshade {whitebox}",
+    subtitle = "Use in-built colours from geom_spatraster_rgb() without any user specified scale_fill_*()"
+  ) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+        size = bts * 2,
+        margin = margin(15,0,2,0, "pt")
+      ),
+    plot.subtitle = element_text(
+        size = bts,
+        margin = margin(0,0,0,0, "pt")
+      ),
+    panel.grid = element_line(
+        linewidth = 0.2,
+        linetype = 3
+    ),
+    legend.title = element_text(
+      margin = margin(0,0,2,0, "pt")
+    ),
+    legend.text = element_text(
+      margin = margin(1,0,0,0, "pt")
+    )
+  )
+
+ggsave(
+  plot = g9,
+  filename = here::here(
+    "geocomputation", "images",
+    "whitebox_terra_9.png"
+  ),
+  height = 1200,
+  width = 1200,
+  units = "px"
+)
+```
+
+![](images/whitebox_terra_9.png)
+
+### **Multidirectional hillshade**
+
+The provided R code utilizes the `whitebox` package to generate a multidirectional hillshade raster from a Digital Elevation Model (DEM) of Sikkim, India. The `wbt_multidirectional_hillshade` function calculates shading by considering illumination from multiple directions, resulting in a more detailed and realistic depiction of the terrain compared to traditional single-direction hillshade methods. In this code, the DEM is processed to produce a hillshade raster, which is then masked using the vector boundaries of Sikkim.
+
+```{r}
+
+whitebox::wbt_multidirectional_hillshade(
+  dem = here::here("geocomputation", "temp_sikkim.tiff"),
+  output = here::here("geocomputation", "temp_sikkim1.tiff"),
+  altitude = 30
+)
+
+sikkim_wbt <- rast(
+  here::here("geocomputation", "temp_sikkim1.tiff")
+) |> 
+  terra::mask(sikkim_vec)
+
+g10 <- ggplot() +
+  
+  # WhiteBox Multidirectional Shadow
+  geom_spatraster(data = sikkim_wbt) +
+  
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::Light Grays",
+    na.value = "transparent",
+    direction = 1
+  ) +
+  
+  # New fill scale
+  ggnewscale::new_scale_fill() +
+  
+  # The elevation digital raster
+  geom_spatraster(
+    data = sikkim_rast,
+    alpha = 0.7
+  ) +
+  scale_fill_hypso_c() +
+  
+  # Outer boundary map of Sikkim
+  geom_sf(
+    data = sikkim_vec,
+    fill = NA
+  ) +
+  
+  labs(
+    title = "Multi-Directional Hillshade {whitebox}",
+    subtitle = "Limited control over directions of shadow, but an easy process."
+  ) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+        size = bts * 2,
+        margin = margin(15,0,2,0, "pt")
+      ),
+    plot.subtitle = element_text(
+        size = bts,
+        margin = margin(0,0,0,0, "pt")
+      ),
+    panel.grid = element_line(
+        linewidth = 0.2,
+        linetype = 3
+    ),
+    legend.title = element_text(
+      margin = margin(0,0,2,0, "pt")
+    ),
+    legend.text = element_text(
+      margin = margin(1,0,0,0, "pt")
+    )
+  )
+
+ggsave(
+  plot = g10,
+  filename = here::here(
+    "geocomputation", "images",
+    "whitebox_terra_10.png"
+  ),
+  height = 1200,
+  width = 1200,
+  units = "px"
+)
+```
+
+![](images/whitebox_terra_10.png)
