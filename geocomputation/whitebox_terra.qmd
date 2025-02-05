@@ -748,7 +748,7 @@ This R script utilizes the {whitebox} package to generate a hillshade raster fro
 # install.packages("whitebox")
 
 # Load the library {whitebox}
-# library(whitebox)
+library(whitebox)
 
 # Download the 'WhiteboxTools' binary if needed.
 # install_whitebox()
@@ -842,7 +842,7 @@ ggsave(
 )
 ```
 
-![](images/whitebox_terra_8.png)
+![](images/whitebox_terra_8.png){#fig-8 width="300"}
 
 ### **Hypsometrically tinted hill-shade**
 
@@ -992,3 +992,55 @@ ggsave(
 ```
 
 ![](images/whitebox_terra_10.png)
+
+```{r}
+
+library(patchwork)
+
+g11 <- wrap_plots(g8, g9, g10, g5) +
+  plot_layout(
+    ncol = 2,
+    nrow = 2
+  ) +
+  plot_annotation(
+    title = "Shaded relief maps: {terra} vs. {whitebox}",
+    subtitle = "Comparing the performance of {terra} generated shaded maps, vs. the {whitebox} generated maps.",
+    caption = plot_caption,
+    tag_levels = "I",
+    theme = theme(
+      plot.title = element_text(
+        margin = margin(20,0,5,0, "pt"),
+        size = bts * 6
+      ),
+      plot.subtitle = element_text(
+        margin = margin(0,0,0,0, "pt"),
+        size = bts * 3
+      ),
+      plot.caption = element_textbox(
+        hjust = 0.5,
+        size = bts * 2,
+        margin = margin(15,0,10,0, "pt")
+      )
+    )
+  ) &
+  theme(
+    plot.margin = margin(0,40,0,40, "pt"),
+    plot.tag = element_text(
+      size = bts * 4,
+      face = "bold",
+      margin = margin(0,30,-40,0, "pt")
+    )
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images",
+    "whitebox_terra_7.png"
+  ),
+  height = 1200 * 3.2,
+  width = 1200 * 2.5,
+  units = "px",
+  bg = "white"
+)
+```
