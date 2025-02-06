@@ -508,6 +508,9 @@ The following code creates a visually appealing map of Sikkim by blending a mult
 
 ```{r}
 
+temp_tibble <- sikkim_rast |> as_tibble(xy = T)
+names(temp_tibble) <- c("x", "y", "alt")
+
 g5 <- ggplot() +
 
   (
@@ -528,8 +531,8 @@ g5 <- ggplot() +
       
       # The elevation digital raster
       geom_raster(
-        data = sikkim_rast |> as_tibble(xy = T),
-        aes(x, y, fill = file255027112d22),
+        data = temp_tibble,
+        aes(x, y, fill = alt),
         alpha = 0.7
       ),
       scale_fill_hypso_c()
@@ -926,26 +929,49 @@ sikkim_wbt <- rast(
 ) |> 
   terra::mask(sikkim_vec)
 
-g10 <- ggplot() +
+ggsave(
+  plot = g10,
+  filename = here::here(
+    "geocomputation", "images",
+    "whitebox_terra_10.png"
+  ),
+  height = 1200,
+  width = 1200,
+  units = "px"
+)
+```
+
+![](images/whitebox_terra_10.png){#fig-10 width="300"}
+
+Blended Shades
+
+```{r}
+
+g12 <- ggplot() +
   
-  # WhiteBox Multidirectional Shadow
-  geom_spatraster(data = sikkim_wbt) +
-  
-  paletteer::scale_fill_paletteer_c(
-    "grDevices::Light Grays",
-    na.value = "transparent",
-    direction = 1
+  # Start the blending
+  (
+    list(
+      # WhiteBox Multidirectional Shadow
+      geom_spatraster(data = sikkim_wbt),
+      
+      paletteer::scale_fill_paletteer_c(
+        "grDevices::Light Grays",
+        na.value = "transparent",
+        direction = 1
+      ),
+      
+      # New fill scale
+      ggnewscale::new_scale_fill(),
+      
+      # The elevation digital raster
+      geom_spatraster(
+        data = sikkim_rast,
+        alpha = 0.7
+      ),
+      scale_fill_hypso_c()
+    ) |> blend("multiply")
   ) +
-  
-  # New fill scale
-  ggnewscale::new_scale_fill() +
-  
-  # The elevation digital raster
-  geom_spatraster(
-    data = sikkim_rast,
-    alpha = 0.7
-  ) +
-  scale_fill_hypso_c() +
   
   # Outer boundary map of Sikkim
   geom_sf(
@@ -954,8 +980,8 @@ g10 <- ggplot() +
   ) +
   
   labs(
-    title = "Multi-Directional Hillshade {whitebox}",
-    subtitle = "Limited control over directions of shadow, but an easy process."
+    title = "{ggblend} & Multi-Directional {whitebox}",
+    subtitle = "Using combination of {whitebox} multidirectional hillshade and {ggblend}."
   ) +
   theme(
     legend.position = "none",
@@ -980,10 +1006,10 @@ g10 <- ggplot() +
   )
 
 ggsave(
-  plot = g10,
+  plot = g12,
   filename = here::here(
     "geocomputation", "images",
-    "whitebox_terra_10.png"
+    "whitebox_terra_12.png"
   ),
   height = 1200,
   width = 1200,
@@ -991,44 +1017,66 @@ ggsave(
 )
 ```
 
-![](images/whitebox_terra_10.png){#fig-10 width="300"}
+![](images/whitebox_terra_12.png){#fig-12 width="300"}
+
+Compiling the Plots
 
 ```{r}
 
 library(patchwork)
 
-g11 <- wrap_plots(g3, g4, g5, g8, g9, g10) +
+g1 <- g1 +
+  theme(
+    legend.position = "bottom",
+      legend.direction = "horizontal",
+      legend.key.height = unit(10, "pt"),
+      legend.key.width = unit(120, "pt"),
+      legend.title.position = "top",
+      legend.text = element_text(
+        size = 3 * bts,
+        margin = margin(2,0,0,0, "pt")
+        ),
+      legend.title = element_text(
+        size = 3 * bts,
+        margin = margin(0,0,5,0, "pt"),
+        hjust = 0.5
+      )
+  )
+g11 <- wrap_plots(g1, g3, g4, g5, g9, g8, g10, g12) +
   plot_layout(
-    ncol = 3,
-    nrow = 2
+    ncol = 4,
+    nrow = 2,
+    guides = "collect"
   ) +
   plot_annotation(
-    title = "Shaded relief maps: {terra} vs. {whitebox}",
-    subtitle = str_wrap("Comparing the performance of {terra} generated shaded maps vs. the {whitebox} generated maps. The first row shows the {terra} outputs, while second row shows {whotebox} outputs.", 95),
+    title = "Shaded relief maps: {terra} vs. {whitebox}\nwith & without {ggblend}",
+    subtitle = str_wrap("Comparing the outcomes of {terra} generated shaded maps vs. the {whitebox} generated maps. The first row shows the base elevation raster and {terra} outputs (uni-directional, multi-directional and blended multi-directional), while second row shows the {whitebox} outputs (An RGB hypso-tinted raster, uni-directional, multi-directional and blended multidirectional.)", 95),
     caption = plot_caption,
     tag_levels = "I",
     theme = theme(
       plot.title = element_text(
         margin = margin(50,0,10,0, "pt"),
-        size = bts * 9
+        size = bts * 10,
+        lineheight = 0.3
       ),
       plot.subtitle = element_text(
         margin = margin(0,0,20,0, "pt"),
-        size = bts * 4
+        size = bts * 4.5
       ),
       plot.caption = element_textbox(
         hjust = 0.5,
         size = bts * 2,
         margin = margin(15,0,10,0, "pt")
-      )
+      ),
+      legend.position = "bottom"
     )
   ) &
   theme(
-    plot.margin = margin(0,0,10,0, "pt"),
+    plot.margin = margin(0,5,10,5, "pt"),
     plot.tag = element_text(
       size = bts * 4,
       face = "bold",
-      margin = margin(0,-20,-20,0, "pt")
+      margin = margin(0,-30,-10,0, "pt")
     )
   )
 
@@ -1038,8 +1086,8 @@ ggsave(
     "geocomputation", "images",
     "whitebox_terra_11.png"
   ),
-  height = 1200 * 3.75,
-  width = 1200 * 3.25,
+  height = 1200 * 4.45,
+  width = 1200 * 3.85,
   units = "px",
   bg = "white"
 )
