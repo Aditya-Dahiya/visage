@@ -174,3 +174,90 @@ osm_packages |>
 ```
 
 ## `osmextract`
+
+```{r}
+#| label: download-india-data
+
+# Load necessary libraries
+library(osmextract)
+library(sf)
+
+# Download and extract the data
+health_india <- oe_get(
+  place = "India",
+  query = "SELECT * FROM 'multipolygons'"
+)
+
+names(health_india)
+object.size(health_india) |> print(units = "Mb")
+
+# Temporarily Saving the Data for easy use in travel / reload
+saveRDS(
+  object = health_small,
+  file = "india_health_small.rds"
+)
+
+health_large <- opq(bbox = in_bbox) |>
+  add_osm_feature(
+    key = "amenity",
+    value = c("hospital", "nursing_home")
+  ) |>
+  osmdata_sf()
+
+object.size(health_large) |> print(units = "Mb")
+
+# Temporarily Saving the Data for easy use in travel / reload
+saveRDS(
+  object = health_large,
+  file = "india_health_large.rds"
+)
+
+########### India Highways -----------------------------------
+# Troubleshoot: Large data, hence need to increase time-out
+# Credits: https://github.com/ropensci/osmdata/issues/200
+roads_1 <- opq(bbox = in_bbox, timeout = 500) |> 
+  add_osm_feature(
+    key = "highway", 
+    value = c("motorway")
+  ) |> 
+  osmdata_sf()
+
+object.size(roads_1) |> print(units = "Mb")
+
+saveRDS(
+  object = roads_1,
+  file = "india_roads_1.rds"
+)
+
+roads_1_5 <- opq(bbox = in_bbox, timeout = 100) |> 
+  add_osm_feature(
+    key = "highway", 
+    value = c("trunk")
+  ) |> 
+  osmdata_sf()
+
+object.size(roads_1) |> print(units = "Mb")
+
+saveRDS(
+  object = roads_1_5,
+  file = "india_roads_1_5.rds"
+)
+# 
+# roads_2 <- opq(bbox = in_bbox) |> 
+#   add_osm_feature(
+#     key = "highway", 
+#     value = c("primary", "secondary")
+#   ) |> 
+#   osmdata_sf()
+# 
+# object.size(roads_2) |> print(units = "Mb")
+# 
+# # Temporary Saving the Data for easy use in travel
+# 
+# saveRDS(
+#   object = roads_2,
+#   file = "india_roads_2.rds"
+# )
+
+
+```
