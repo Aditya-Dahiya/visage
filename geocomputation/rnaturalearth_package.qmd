@@ -267,7 +267,8 @@ ggsave(
 world_map <- ne_countries(
   scale = 110,
   returnclass = "sf"
-)
+) |> 
+  select(name, geometry)
 
 world_lines <- ne_download(
   scale = 50,
@@ -334,129 +335,355 @@ ggsave(
 
 ### Raster Maps for the World with `ne_download()`
 
+In this case, we are downloading the *50m Cross Blended Hypsometric Tints with Shaded Relief* dataset, which combines elevation-based color shading with hillshade effects to enhance terrain visualization. This dataset is ideal for creating aesthetically pleasing and informative background maps in `ggplot2` with `tidyterra`, providing a smooth, global-scale representation of landforms.
+
 ```{r}
+
 # Link to data: https://www.naturalearthdata.com/downloads/50m-raster-data/50m-cross-blend-hypso
+
+# https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/50m/raster/HYP_50M_SR.zip
+
+# https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/50m/raster/HYP_50M_SR_W.zip
+
+world_cbhsr_rast <- ne_download(
+  scale = 50,
+  type = "HYP_50M_SR_W",
+  category = "raster"
+)
+
+temp_rast <- world_cbhsr_rast |> 
+  aggregate(fact = 2) |> 
+  project("ESRI:54030")
+g <- ggplot() +
+  geom_spatraster_rgb(
+    data = temp_rast,
+    maxcell = 5e6
+  ) +
+  labs(
+    title = "World Map as a SpatRaster:\n50m Cross Blended Hypsometric Tints with Shaded Relief and Water"
+  ) 
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images",
+     "rnaturalearth_package_5.png"
+  ),
+  height = 500,
+  width = 800,
+  units = "px"
+)
 ```
 
-Get an animation
+![](images/rnaturalearth_package_5.png)
+
+### Plotting International Date Line with Raster Map 
+
+Changing the CRS to Azimuthal Equal Area Projection around Equator and IDL cross-point.
 
 ```{r}
+
+temp_crs <- paste0(
+  "+proj=laea +x_0=0 +y_0=0 +lon_0=", 
+  180,          # Longitude
+  " +lat_0=", 
+  0             # Latitude
+)
+
+temp_rast <- world_cbhsr_rast |> 
+  terra::aggregate(fact = 10) |> 
+  terra::project(temp_crs)
+
+g <- ggplot() +
+  geom_spatraster_rgb(
+    data = temp_rast
+  ) +
+  geom_sf(
+    data = world_lines,
+    mapping = aes(
+      linewidth = high_var,
+      alpha = high_var
+    ),
+    colour = "darkred",
+    linetype = 1,
+    lineend = "round"
+  ) +
+  scale_alpha_manual(values = c(0.4, 0.8)) +
+  scale_linewidth_manual(values = c(0.2, 0.4)) +
+  coord_sf(
+    crs = 
+    ) +
+  labs(
+    title = "International Date Line\nwith background Raster Map"
+  ) +
+  theme(
+    plot.title = element_text(
+      hjust = 0.5, size = 12
+    ),
+    panel.grid = element_blank(),
+    legend.position = "none"
+  )
+
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images",
+     "rnaturalearth_package_6.png"
+  ),
+  height = 500,
+  width = 500,
+  units = "px"
+)
+```
+
+![](images/rnaturalearth_package_6.png)
+
+### Flight path from one place to another
+
+```{r}
+
+# Basic World Maps (repeat of previous code)
+world_map <- ne_countries(
+  scale = 110,
+  returnclass = "sf"
+) |> 
+  select(name, geometry)
+
+world_lines <- ne_download(
+  scale = 50,
+  type = "geographic_lines",
+  returnclass = "sf",
+  category = "physical"
+) |> 
+  select(name) |> 
+  mutate(
+    high_var = name == "International Date Line"
+  )
+
+world_oceans <- ne_download(
+  scale = 50,
+  type = "ocean",
+  category = "physical",
+  returnclass = "sf"
+) 
+
+# Number of flight path points to treat as intermediate between 
+# Singapore and New York City
+num_points <- 20
+
+flight1 <- tibble::tibble(
+  name = c("Singapore Changi Airport", 
+           "New York JFK Airport"),
+  longitude = c(103.994003, -73.7781),
+  latitude = c(1.364420, 40.6413)
+)
+
+flight2 <- flight1 |> 
+  st_as_sf(
+    coords = c("longitude", "latitude"),
+    crs = "EPSG:4326"
+  )
+
+flight_path <- geosphere::gcIntermediate(
+  p1 = c(flight1$longitude[1], flight1$latitude[1]),
+  p2 = c(flight1$longitude[2], flight1$latitude[2]),
+  n = num_points,
+  addStartEnd = TRUE
+) |> 
+  as_tibble()
+
+flight_path_sf <- flight_path |>
+  st_as_sf(
+    coords = c("lon", "lat"),
+    crs = "EPSG:4326"
+  ) |> 
+  st_combine() |> 
+  st_cast("LINESTRING")
+
+
+# Points to plot
+plot_points <- c(1, num_points %/% 3, 
+                 2*num_points %/% 3, num_points)
+
+for (i in plot_points){
+  
+  temp_crs <- paste0(
+    "+proj=laea +x_0=0 +y_0=0 +lon_0=", 
+    flight_path$lon[i],          # Longitude
+    " +lat_0=", 
+    flight_path$lat[i]            # Latitude
+  )
+  
+  temp_rast <- world_cbhsr_rast |> 
+    terra::aggregate(fact = 10) |> 
+    terra::project(temp_crs)
+  
+paste0("g", i) |> 
+  assign(
+    ggplot() +
+      geom_spatraster_rgb(
+        data = temp_rast
+      ) +
+      # geom_sf(
+      #   data = world_map,
+      #   fill = "#e0ca22",
+      #   colour = NA,
+      #   linewidth = 0.01
+      # ) +
+      # geom_sf(
+      #   data = world_oceans,
+      #   fill = "skyblue",
+      #   colour = NA
+      # ) +
+      geom_sf(
+        data = flight_path_sf, 
+        colour = "red",
+        linewidth = 0.3
+        ) +
+      geom_sf(
+        data = flight2,
+        size = 1,
+        colour = "darkred"
+      ) +
+      coord_sf(
+        crs = temp_crs
+      ) +
+      theme(
+        plot.title = element_textbox(
+          hjust = 0.5, 
+          halign = 0.5
+        ),
+        panel.grid = element_line(
+          linewidth = 0.05, 
+          colour = "grey80",
+          linetype = 1
+        )
+      )
+  )
+  
+}
+
+g <- g1 + g6 + g12 + g20 +
+  plot_annotation(
+    title = "Static Flight Path: Singapore to New York City",
+    theme = theme(
+      plot.title = element_text(
+        size = 2 * 12,
+        margin = margin(5,0,0,0, "pt")
+      )
+    )
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images",
+     "rnaturalearth_package_7.png"
+  ),
+  height = 1000,
+  width = 1000,
+  units = "px"
+)
+```
+
+![](images/rnaturalearth_package_7.png)
+
+### Get an animation of flight path
+
+```{r}
+
+world_agg_rast <- world_cbhsr_rast |> 
+    terra::aggregate(fact = 10)
+
+
+# Number of flight path points to treat as intermediate between 
+# Singapore and New York City
+num_points <- 20
+
+flight1 <- tibble::tibble(
+  name = c("Singapore Changi Airport", 
+           "New York JFK Airport"),
+  longitude = c(103.994003, -73.7781),
+  latitude = c(1.364420, 40.6413)
+)
+
+flight2 <- flight1 |> 
+  st_as_sf(
+    coords = c("longitude", "latitude"),
+    crs = "EPSG:4326"
+  )
+
+flight_path <- geosphere::gcIntermediate(
+  p1 = c(flight1$longitude[1], flight1$latitude[1]),
+  p2 = c(flight1$longitude[2], flight1$latitude[2]),
+  n = num_points,
+  addStartEnd = TRUE
+) |> 
+  as_tibble()
+
+flight_path_sf <- flight_path |>
+  st_as_sf(
+    coords = c("lon", "lat"),
+    crs = "EPSG:4326"
+  ) |> 
+  st_combine() |> 
+  st_cast("LINESTRING")
+
 library(magick)
 library(animation)
 
+i = 10
+
 animation::saveGIF(
-  expr = for (i in seq(90, -90, -.5)) {
-      # Create custom LAEA projection focussed around I.D.L.
-      new_crs = paste0(
-        "+proj=laea +x_0=0 +y_0=0 +lon_0=", 180, 
-        " +lat_0=", i)
   
-      a <- ggplot() +
-        geom_sf(
-          data = world_lines, 
-          mapping = aes(
-            linewidth = name == "International Date Line"
-            ),
-          colour = "red"
-          ) +
-        scale_linewidth_manual(values = c(0.1, 0.5)) +
-        geom_sf(data = world_map, 
-          fill = "#d1cc38") +
-        coord_sf(crs = new_crs, expand = FALSE) +
-        labs(
-          title = "International Date Line"
+  expr = for (i in 1:nrow(flight_path)) {
+    temp_crs <- paste0(
+      "+proj=laea +x_0=0 +y_0=0 +lon_0=", 
+      flight_path$lon[i],          # Longitude
+      " +lat_0=", 
+      flight_path$lat[i]            # Latitude
+    )
+  
+    temp_rast <- world_agg_rast |> 
+      terra::project(temp_crs)
+  
+    ggplot() +
+      geom_spatraster_rgb(
+        data = temp_rast,
+        maxcell = 5e+4
+      ) +
+      geom_sf(
+        data = flight_path_sf, 
+        colour = "red",
+        linewidth = 0.3
         ) +
-        theme(
-          legend.position = "none",
-          axis.text = element_blank(),
-          axis.title = element_blank(),
-          axis.ticks.length = unit(0, "pt"),
-          panel.background = element_rect(
-            fill = "skyblue",
-            colour = "grey30"
-          )
-        )
-      print(a)
-      },
-  movie.name = here::here(
-    "geocomputation", "images",
-    "rnaturalearth_package_1.gif"
-  ),
-  clean = TRUE,
-  ani.height = 450,
-  ani.width = 450,
-  ani.loop = TRUE,
-  interval = 0.02
-)
-
-
-animation::saveGIF(
-  expr = 
-    for (j in c(180, -180)){
-      
-      i_vec <- ifelse(
-        j == 180, 
-        seq(90, -90, -0.5),
-        seq(-90, 90, 0.5)
+      geom_sf(
+        data = flight2,
+        size = 0.6,
+        colour = "darkred"
+      ) +
+      geom_sf(
+        data = flight_path |> 
+                  slice(i) |> 
+                  st_as_sf(coords = c("lon", "lat"),
+                           crs = "EPSG:4326"),
+        size = 1,
+        colour = "grey20"
+      ) +
+      coord_sf(
+        crs = temp_crs
       )
-      
-      for (i in i_vec) {
-      # Create custom LAEA projection focussed around I.D.L.
-      new_crs = paste0(
-        "+proj=laea +x_0=0 +y_0=0 +lon_0=", j, 
-        " +lat_0=", i)
-  
-      a <- ggplot() +
-        geom_sf(
-          data = world_lines, 
-          mapping = aes(
-            linewidth = name == "International Date Line"
-            ),
-          colour = "red"
-          ) +
-        scale_linewidth_manual(values = c(0.1, 0.5)) +
-        geom_sf(
-          data = world_map, 
-          fill = "#d1cc38"
-          ) +
-        coord_sf(crs = new_crs, expand = FALSE) +
-        labs(
-          title = "International Date Line"
-        ) +
-        theme(
-          legend.position = "none",
-          panel.background = element_rect(
-            fill = "skyblue",
-            colour = "grey30"
-          )
-        )
-      print(a)
-      }
-    },
+  },
   movie.name = here::here(
     "geocomputation", "images",
     "rnaturalearth_package_1.gif"
   ),
-  clean = TRUE,
-  ani.height = 450,
-  ani.width = 450,
+  ani.height = 500,
+  ani.width = 500,
   ani.loop = TRUE,
   interval = 1
 )
-# Create custom LAEA projection focussed around I.D.L.
-new_crs = paste0(
-    "+proj=laea +x_0=0 +y_0=0 +lon_0=", 180, 
-    " +lat_0=", 0)
-
-ggplot() +
-  geom_sf(data = world_lines, colour = "red") +
-  geom_sf(data = world_map, fill = alpha("grey", 0.2)) +
-  coord_sf(crs = new_crs) 
-
-world_lines |> 
-  ggplot() +
-  geom_sf() +
-  coord_sf(crs = "ESRI:54030")
 ```
 
 ### ne_states() with India
@@ -500,27 +727,4 @@ uk_rivers |>
 uk_state |> 
   ggplot() +
   geom_sf()
-```
-
-### Exploring `ne_download()`
-
-Target: to download raster from <https://www.naturalearthdata.com/downloads/10m-raster-data/10m-cross-blend-hypso/>
-
-Target 2: understand how to download <https://www.naturalearthdata.com/downloads/50m-physical-vectors/> features.
-
-```{r}
-rnaturalearthhires::states10 |> 
-  ggplot() +
-  geom_sf()
-
-rast1 <- ne_download(
-  scale = 10, 
-  type = "MSR_50M", 
-  category = "raster", 
-  destdir = tempdir()
-  )
-
-ggplot()
-
-rast1
 ```
