@@ -2,7 +2,7 @@
 title: "Exploring the package {rnaturalearth} in R"
 author: "Aditya Dahiya"
 subtitle: "Various types of maps and geographic data available with {rnaturalearth}"
-date: "2025-02-08"
+date: "2025-02-10"
 bibliography: references.bib
 format:
   html:
@@ -118,7 +118,7 @@ rm(github, github_username, xtwitter,
 
 ```
 
-Basic plot of World Map
+### Basic plot of World Map
 
 ```{r}
 world1 <- rnaturalearth::ne_countries(
@@ -128,7 +128,7 @@ world1 <- rnaturalearth::ne_countries(
 
 g <- ggplot(world1) +
   geom_sf(
-    fill = NA, colour = "grey30",
+    fill = alpha("grey", 0.8), colour = "grey30",
     linewidth = 0.1
   ) +
   coord_sf(
@@ -163,7 +163,7 @@ ggsave(
 
 ![Basic World map with ne_countries()](images/rnaturalearth_package_1.png){#fig-1}
 
-World Coastline Map
+### World Coastline Map
 
 ```{r}
 world1 <- rnaturalearth::ne_coastline(
@@ -173,14 +173,15 @@ world1 <- rnaturalearth::ne_coastline(
 
 g <- ggplot(world1) +
   geom_sf(
-    fill = NA, colour = "grey30",
+    fill = alpha("grey", 0.8), colour = "grey30",
     linewidth = 0.1
   ) +
   coord_sf(
     crs = "ESRI:54030"
   ) +
   labs(
-    title = "Basic Coastline map with ne_coastline()"
+    title = "Basic Coastline map with ne_coastline()",
+    subtitle = "Multi-linestring class of {sf} objects"
   ) +
   theme(
     plot.title = element_textbox(
@@ -208,12 +209,61 @@ ggsave(
 
 ![](images/rnaturalearth_package_2.png)
 
-### Geographic lines with ne_download()
+### Oceans map with `ne_download`
+
+Entire world water bodies as 1 (or 2, for Caspian Sea) multipolygons. Useful for plotting flight paths, when we don't want oceans to be transparent in Azimuthal Equal Area projections.
+
+```{r}
+# Link: https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/physical/ne_110m_ocean.zip
+
+world_oceans <- ne_download(
+  scale = 50,
+  type = "ocean",
+  category = "physical",
+  returnclass = "sf"
+)
+
+g <- ggplot(world_oceans) +
+  geom_sf(
+    fill = alpha("grey", 0.5),
+    linewidth = 0.1
+  ) +
+  coord_sf(crs = "ESRI:54030") +
+  labs(
+    title = "World Oceans"
+  ) +
+  theme(
+    plot.title = element_textbox(
+      hjust = 0.5, 
+      halign = 0.5,
+      size = 18
+    ),
+    panel.grid = element_line(
+      linewidth = 0.05, 
+      colour = "grey20",
+      linetype = 2
+    )
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images",
+     "rnaturalearth_package_3.png"
+  ),
+  height = 500,
+  width = 800,
+  units = "px"
+)
+```
+
+![](images/rnaturalearth_package_3.png)
+
+### Geographic lines with `ne_download()`
 
 ```{r}
 # https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/50m/physical/ne_50m_geographic_lines.zip
-library(magick)
-library(animation)
+
 world_map <- ne_countries(
   scale = 110,
   returnclass = "sf"
@@ -225,13 +275,80 @@ world_lines <- ne_download(
   returnclass = "sf",
   category = "physical"
 ) |> 
-  select(name)
+  select(name) |> 
+  mutate(
+    high_var = name == "International Date Line"
+  )
+
+g <- ggplot() +
+  geom_sf(
+    data = world_map,
+    fill = alpha("grey", 0.5),
+    linewidth = 0.1
+  ) +
+  geom_sf(
+    data = world_lines,
+    mapping = aes(
+      linewidth = high_var,
+      alpha = high_var
+    ),
+    colour = "darkred",
+    linetype = 1,
+    lineend = "round"
+  ) +
+  scale_alpha_manual(values = c(0.4, 0.8)) +
+  scale_linewidth_manual(values = c(0.2, 0.4)) +
+  coord_sf(
+    crs = paste0(
+        "+proj=laea +x_0=0 +y_0=0 +lon_0=", 
+        180, 
+        " +lat_0=", 
+        0)
+    ) +
+  labs(
+    title = "International Date Line"
+  ) +
+  theme(
+    plot.title = element_textbox(
+      hjust = 0.5, 
+      halign = 0.5,
+      size = 18
+    ),
+    panel.grid = element_blank(),
+    legend.position = "none"
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images",
+     "rnaturalearth_package_4.png"
+  ),
+  height = 500,
+  width = 500,
+  units = "px"
+)
+```
+
+![](images/rnaturalearth_package_4.png)
+
+### Raster Maps for the World with `ne_download()`
+
+```{r}
+# Link to data: https://www.naturalearthdata.com/downloads/50m-raster-data/50m-cross-blend-hypso
+```
+
+Get an animation
+
+```{r}
+library(magick)
+library(animation)
 
 animation::saveGIF(
   expr = for (i in seq(90, -90, -.5)) {
       # Create custom LAEA projection focussed around I.D.L.
       new_crs = paste0(
-        "+proj=laea +x_0=0 +y_0=0 +lon_0=", j, 
+        "+proj=laea +x_0=0 +y_0=0 +lon_0=", 180, 
         " +lat_0=", i)
   
       a <- ggplot() +
@@ -243,7 +360,8 @@ animation::saveGIF(
           colour = "red"
           ) +
         scale_linewidth_manual(values = c(0.1, 0.5)) +
-        geom_sf(data = world_map, fill = NA) +
+        geom_sf(data = world_map, 
+          fill = "#d1cc38") +
         coord_sf(crs = new_crs, expand = FALSE) +
         labs(
           title = "International Date Line"
@@ -252,7 +370,11 @@ animation::saveGIF(
           legend.position = "none",
           axis.text = element_blank(),
           axis.title = element_blank(),
-          axis.ticks.length = unit(0, "pt")
+          axis.ticks.length = unit(0, "pt"),
+          panel.background = element_rect(
+            fill = "skyblue",
+            colour = "grey30"
+          )
         )
       print(a)
       },
@@ -293,13 +415,20 @@ animation::saveGIF(
           colour = "red"
           ) +
         scale_linewidth_manual(values = c(0.1, 0.5)) +
-        geom_sf(data = world_map, fill = NA) +
+        geom_sf(
+          data = world_map, 
+          fill = "#d1cc38"
+          ) +
         coord_sf(crs = new_crs, expand = FALSE) +
         labs(
           title = "International Date Line"
         ) +
         theme(
-          legend.position = "none"
+          legend.position = "none",
+          panel.background = element_rect(
+            fill = "skyblue",
+            colour = "grey30"
+          )
         )
       print(a)
       }
@@ -329,8 +458,6 @@ world_lines |>
   geom_sf() +
   coord_sf(crs = "ESRI:54030")
 ```
-
-![](images/rnaturalearth_package_1.gif)
 
 ### ne_states() with India
 
@@ -376,10 +503,6 @@ uk_state |>
 ```
 
 ### Exploring `ne_download()`
-
-**type**
-
-:   type of natural earth file to download one of 'countries', 'map_units', 'map_subunits', 'sovereignty', 'states' OR the portion of any natural earth vector url after the scale and before the . e.g. for 'ne_50m_urban_areas.zip' this would be 'urban_areas'. See Details. OR the raster filename e.g. for 'MSR_50M.zip' this would be 'MSR_50M'
 
 Target: to download raster from <https://www.naturalearthdata.com/downloads/10m-raster-data/10m-cross-blend-hypso/>
 
