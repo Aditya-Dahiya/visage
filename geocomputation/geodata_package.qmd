@@ -806,3 +806,545 @@ ggsave(
 ```
 
 ![This map visualizes the percentage of cropland across Haryana’s tehsils using high-resolution ESA WorldCover data. Each subdistrict is ranked by cropland coverage, with darker shades indicating higher agricultural presence. An inset chart provides a ranked comparison of tehsils, offering a clear insight into regional variations in cropland distribution. Data sourced from [ESA WorldCover](https://esa-worldcover.org/en) (CC BY 4.0).](images/geodata_package_4.png)
+
+### Getting GADM data of any country up-to small administrative units level
+
+The `geodata::gadm()` function enables users to fetch administrative boundary data for any country at different levels of granularity. In the code given below, `gadm()` retrieves boundary data for India at three levels: **state (level 1), district (level 2), and sub-district (level 3)**, storing them as simple features (`sf`) objects after conversion using `st_as_sf()`.
+
+```{r}
+
+india1 <- geodata::gadm(
+  country = "India",
+  level = 1,
+  path = tempdir()
+) |> 
+  st_as_sf() |> 
+  janitor::clean_names()
+
+india2 <- geodata::gadm(
+  country = "India",
+  level = 2,
+  path = tempdir()
+) |> 
+  st_as_sf() |> 
+  janitor::clean_names()
+
+india3 <- geodata::gadm(
+  country = "India",
+  level = 3,
+  path = tempdir()
+) |> 
+  st_as_sf() |> 
+  janitor::clean_names()
+
+g1 <- india2 |> 
+  filter(name_1 == c("Karnataka")) |> 
+  ggplot() +
+  geom_sf(
+    linewidth = 0.2,
+    colour = "white"
+  ) +
+  ggrepel::geom_text_repel(
+    aes(label = name_2, 
+        geometry = geometry),
+    stat = "sf_coordinates",
+    force = 0.5,
+    force_pull = 10,
+    box.padding = 0
+  ) +
+  labs(
+    x = NULL, y = NULL, 
+    title = "Karnataka"
+  ) +
+  theme(
+    panel.grid = element_line(
+      linewidth = 0.2
+    ),
+    plot.title = element_text(
+      hjust = 0.5, size = 24
+    )
+  )
+
+g2 <- india2 |> 
+  filter(name_1 == c("Tamil Nadu")) |> 
+  ggplot() +
+  geom_sf(
+    linewidth = 0.2,
+    colour = "white"
+  ) +
+  ggrepel::geom_text_repel(
+    aes(label = name_2, 
+        geometry = geometry),
+    stat = "sf_coordinates",
+    force = 0.5,
+    force_pull = 10,
+    box.padding = 0
+  ) +
+  labs(
+    x = NULL, y = NULL, 
+    title = "Tamil Nadu"
+  ) +
+  theme(
+    panel.grid = element_line(
+      linewidth = 0.2
+    ),
+    plot.title = element_text(
+      hjust = 0.5, size = 24
+    )
+  )
+
+library(patchwork)
+ggsave(
+  plot = (g1 + g2),
+  filename = here::here("geocomputation", "images",
+                        "geodata_package_5.png"),
+  height = 800,
+  width = 1200,
+  units = "px",
+  bg = "white"
+)
+```
+
+![](images/geodata_package_5.png){#fig-ktn}
+
+Making Cropland Data for Karnataka and Tamil Nadu
+
+```{r}
+globalcrop <- geodata::cropland(
+  source = "worldcover",
+  path = tempdir()
+)
+
+state_name <- "Karnataka"
+
+state_vec <- india2 |> 
+  filter(name_1 == state_name) |> 
+  mutate(id = row_number())
+
+state_vec_boundary <- st_union(state_vec) |> 
+  st_as_sf()
+
+state_crop <- globalcrop |> 
+  terra::crop(state_vec) |> 
+  terra::mask(state_vec)
+
+# Computing percentage area of each district that is Cropland
+df1 <- state_crop |> 
+  terra::extract(state_vec) |> 
+  as_tibble() |> 
+  group_by(ID) |> 
+  summarise(crop_perc = mean(cropland)) |> 
+  arrange(desc(crop_perc)) |> 
+  janitor::clean_names() |> 
+  left_join(
+    state_vec |> 
+      st_drop_geometry() |> 
+      select(id, name_2)
+  ) |> 
+  mutate(rank = row_number())
+
+# Add Ranks to display
+state_vec <- state_vec |> 
+  left_join(df1)
+
+
+g_inset <- df1 |>
+  ggplot(
+    mapping = aes(
+      x = crop_perc, 
+      y = fct(as.character(rank),
+              levels = as.character(max(df1$rank):1))
+    )
+  ) +
+  geom_col(
+    width = 0.6,
+    fill = alpha("grey20", 0.5),
+    position = position_identity()
+  ) +
+  geom_text(
+    mapping = aes(
+      label = paste0(
+        name_2
+      ),
+      x = 0
+    ),
+    nudge_x = -0.05,
+    hjust = 1,
+    size = 4,
+    lineheight = 0.3,
+    family = "body_font",
+    colour = "grey20"
+  ) +
+  geom_label(
+    mapping = aes(label = rank, x = -0.02),
+    family = "body_font",
+    size = 4,
+    label.size = unit(0.1, "pt"),
+    label.padding = unit(0.1, "lines")
+  ) +
+  geom_text(
+    mapping = aes(label = paste0(
+      round(100 * crop_perc, 1), "%")),
+    family = "body_font",
+    size = 4,
+    hjust = 1,
+    nudge_x = -0.03,
+    colour = "white"
+  ) +
+  coord_cartesian(clip = "off") +
+  labs(
+    x = NULL, y = NULL
+  ) +
+  scale_x_continuous(
+    labels = label_percent(),
+    expand = expansion(c(0.3, 0)),
+    breaks = c(0, seq(0.1, 0.9, 0.2))
+  ) +
+  theme(
+    axis.text.y = element_blank(),
+    strip.text = element_blank(),
+    panel.grid = element_blank()
+  )
+
+
+g_base <- ggplot() +
+  geom_spatraster(
+    data = state_crop
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::Blue-Yellow",
+    direction = -1,
+    na.value = "transparent",
+    trans = "exp"
+  ) +
+  geom_sf(
+    data = state_vec,
+    colour = "white",
+    fill = "transparent"
+  ) +
+  geom_sf(
+    data = state_vec_boundary,
+    colour = "grey10",
+    linewidth = 0.5,
+    fill = "transparent"
+  ) +
+  geom_sf_label(
+    data = state_vec,
+    mapping = aes(label = rank),
+    size = 6,
+    colour = "grey10",
+    fill = alpha("white", 0.9),
+    label.size = NA,
+    label.r = unit(0.1, "lines"),
+    label.padding = unit(0.1, "lines")
+  ) +
+  coord_sf(clip = "off") +
+  labs(
+    title = paste0(
+      "Cropland in different Districts of ",  
+      state_name, 
+      " (India)"),
+    subtitle = "Using data from ESA WorldCover, showing percentage area of each district that is cropland.",
+    caption = plot_caption,
+    fill = "Percentage area in each pixel that is cropland",
+    x = NULL, y = NULL
+  ) +
+  theme_minimal(
+    base_size = bts * 1.5,
+    base_family = "body_font"
+  ) +
+  theme(
+    text = element_text(
+      colour = "grey20",
+      lineheight = 0.3
+    ),
+    plot.margin = margin(0,0,0,0, "pt"),
+    legend.position = "inside",
+    legend.position.inside = c(1, 0),
+    legend.direction = "horizontal",
+    legend.title.position = "top",
+    legend.justification = c(1, 1),
+    panel.grid = element_line(
+      colour = "grey50",
+      linetype = 3,
+      linewidth = 0.2
+    ),
+    plot.caption = element_textbox(
+      hjust = 0.5,
+      margin = margin(35,0,5,0, "pt"),
+      size = bts
+    ),
+    plot.title.position = "plot",
+    plot.title = element_text(
+      margin = margin(10,0,0,0, "pt"),
+      hjust = 0.5,
+      face = "bold",
+      size = bts * 3
+    ),
+    plot.subtitle = element_text(
+      margin = margin(3,0,1,0, "pt"),
+      hjust = 0.5,
+      size = bts * 2
+    ),
+    legend.key.height = unit(5, "pt"),
+    legend.key.width = unit(35, "pt"),
+    legend.box.margin = margin(10,5,3,0, "pt"),
+    legend.margin = margin(10,5,0,0, "pt"),
+    legend.title = element_text(
+      margin = margin(0,0,2,0, "pt"),
+      hjust = 0.5
+    ),
+    legend.text = element_text(
+      margin = margin(1,0,0,0, "pt"),
+      hjust = 0.5
+    ),
+    axis.text.y = element_text(
+      margin = margin(0,0,0,180, "pt")
+    ),
+    axis.ticks = element_blank(),
+    axis.ticks.length = unit(0, "pt")
+  )
+
+library(patchwork)
+g <- g_base +
+  inset_element(
+    p = g_inset,
+    left = -0.1, right = 0.47,
+    bottom = 0, top = 0.91,
+    align_to = "full"
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images", 
+    "geodata_package_6.png"
+  ),
+  height = 1400,
+  width = 1800,
+  units = "px",
+  bg = "white"
+)
+```
+
+![](images/geodata_package_6.png)
+
+```{r}
+globalcrop <- geodata::cropland(
+  source = "worldcover",
+  path = tempdir()
+)
+
+state_name <- "Tamil Nadu"
+
+state_vec <- india2 |> 
+  filter(name_1 == state_name) |> 
+  mutate(id = row_number())
+
+state_vec_boundary <- st_union(state_vec) |> 
+  st_as_sf()
+
+state_crop <- globalcrop |> 
+  terra::crop(state_vec) |> 
+  terra::mask(state_vec)
+
+# Computing percentage area of each district that is Cropland
+df1 <- state_crop |> 
+  terra::extract(state_vec) |> 
+  as_tibble() |> 
+  group_by(ID) |> 
+  summarise(crop_perc = mean(cropland)) |> 
+  arrange(desc(crop_perc)) |> 
+  janitor::clean_names() |> 
+  left_join(
+    state_vec |> 
+      st_drop_geometry() |> 
+      select(id, name_2)
+  ) |> 
+  mutate(rank = row_number())
+
+# Add Ranks to display
+state_vec <- state_vec |> 
+  left_join(df1)
+
+
+g_inset <- df1 |>
+  ggplot(
+    mapping = aes(
+      x = crop_perc, 
+      y = fct(as.character(rank),
+              levels = as.character(max(df1$rank):1))
+    )
+  ) +
+  geom_col(
+    width = 0.6,
+    fill = alpha("grey20", 0.5),
+    position = position_identity()
+  ) +
+  geom_text(
+    mapping = aes(
+      label = paste0(
+        name_2
+      ),
+      x = 0
+    ),
+    nudge_x = -0.05,
+    hjust = 1,
+    size = 4,
+    lineheight = 0.3,
+    family = "body_font",
+    colour = "grey20"
+  ) +
+  geom_label(
+    mapping = aes(label = rank, x = -0.02),
+    family = "body_font",
+    size = 4,
+    label.size = unit(0.1, "pt"),
+    label.padding = unit(0.1, "lines")
+  ) +
+  geom_text(
+    mapping = aes(label = paste0(
+      round(100 * crop_perc, 1), "%")),
+    family = "body_font",
+    size = 4,
+    hjust = 1,
+    nudge_x = -0.03,
+    colour = "white"
+  ) +
+  coord_cartesian(clip = "off") +
+  labs(
+    x = NULL, y = NULL
+  ) +
+  scale_x_continuous(
+    labels = label_percent(),
+    expand = expansion(c(0.3, 0)),
+    breaks = c(0, seq(0.1, 0.9, 0.2))
+  ) +
+  theme(
+    axis.text.y = element_blank(),
+    strip.text = element_blank(),
+    panel.grid = element_blank()
+  )
+
+
+g_base <- ggplot() +
+  geom_spatraster(
+    data = state_crop
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::Blue-Yellow",
+    direction = -1,
+    na.value = "transparent",
+    trans = "exp"
+  ) +
+  geom_sf(
+    data = state_vec,
+    colour = "grey20",
+    fill = "transparent"
+  ) +
+  geom_sf(
+    data = state_vec_boundary,
+    colour = "grey10",
+    linewidth = 0.5,
+    fill = "transparent"
+  ) +
+  geom_sf_label(
+    data = state_vec,
+    mapping = aes(label = rank),
+    size = 6,
+    colour = "grey10",
+    fill = alpha("white", 0.9),
+    label.size = NA,
+    label.r = unit(0.1, "lines"),
+    label.padding = unit(0.1, "lines")
+  ) +
+  coord_sf(clip = "off") +
+  labs(
+    title = paste0(
+      "Cropland in different Districts of ",  
+      state_name, 
+      " (India)"),
+    subtitle = "Using data from ESA WorldCover, showing percentage area of each district that is cropland.",
+    caption = plot_caption,
+    fill = "Percentage area in each pixel that is cropland",
+    x = NULL, y = NULL
+  ) +
+  theme_minimal(
+    base_size = bts * 1.5,
+    base_family = "body_font"
+  ) +
+  theme(
+    text = element_text(
+      colour = "grey20",
+      lineheight = 0.3
+    ),
+    plot.margin = margin(0,0,0,0, "pt"),
+    legend.position = "inside",
+    legend.position.inside = c(1, 0),
+    legend.direction = "horizontal",
+    legend.title.position = "top",
+    legend.justification = c(1, 1),
+    panel.grid = element_line(
+      colour = "grey50",
+      linetype = 3,
+      linewidth = 0.2
+    ),
+    plot.caption = element_textbox(
+      hjust = 0.5,
+      margin = margin(35,0,5,0, "pt"),
+      size = bts
+    ),
+    plot.title.position = "plot",
+    plot.title = element_text(
+      margin = margin(10,0,0,0, "pt"),
+      hjust = 0.5,
+      face = "bold",
+      size = bts * 3
+    ),
+    plot.subtitle = element_text(
+      margin = margin(3,0,1,0, "pt"),
+      hjust = 0.5,
+      size = bts * 2
+    ),
+    legend.key.height = unit(5, "pt"),
+    legend.key.width = unit(35, "pt"),
+    legend.box.margin = margin(10,5,3,0, "pt"),
+    legend.margin = margin(10,5,0,0, "pt"),
+    legend.title = element_text(
+      margin = margin(0,0,2,0, "pt"),
+      hjust = 0.5
+    ),
+    legend.text = element_text(
+      margin = margin(1,0,0,0, "pt"),
+      hjust = 0.5
+    ),
+    axis.text.y = element_text(
+      margin = margin(0,0,0,180, "pt")
+    ),
+    axis.ticks = element_blank(),
+    axis.ticks.length = unit(0, "pt")
+  )
+
+library(patchwork)
+g <- g_base +
+  inset_element(
+    p = g_inset,
+    left = -0.1, right = 0.47,
+    bottom = 0, top = 0.91,
+    align_to = "full"
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images", 
+    "geodata_package_7.png"
+  ),
+  height = 1400,
+  width = 1800,
+  units = "px",
+  bg = "white"
+)
+```
+
+![](images/geodata_package_7.png)
