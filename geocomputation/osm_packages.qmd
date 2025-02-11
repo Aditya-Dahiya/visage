@@ -2,7 +2,7 @@
 title: "Different Packages to access Open Street Maps in R"
 author: "Aditya Dahiya"
 subtitle: "Exploring {osmdata}, {osmextract}, {osmapiR}"
-date: "2025-02-06"
+date: "2025-02-11"
 bibliography: references.bib
 format:
   html:
@@ -57,7 +57,7 @@ library(ggtext)               # Markdown text in ggplot2
 library(showtext)             # Display fonts in ggplot2
 library(patchwork)            # Composing Plots
 
-bts = 18 # Base Text Size
+bts = 42 # Base Text Size
 sysfonts::font_add_google("Roboto Condensed", "body_font")
 sysfonts::font_add_google("Oswald", "title_font")
 showtext::showtext_auto()
@@ -105,7 +105,7 @@ xtwitter_username <- "@adityadahiyaias"
 social_caption_1 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{github};</span> <span style='color: {text_hil}'>{github_username}  </span>")
 social_caption_2 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{xtwitter};</span> <span style='color: {text_hil}'>{xtwitter_username}</span>")
 plot_caption <- paste0(
-  "**Tools**: Open Street Maps ",
+  "**Data**:  Open Street Maps through {osmextract}, {geodata} and {elevatr}",
   "  |  **Code:** ", 
   social_caption_1, 
   " |  **Graphics:** ", 
@@ -129,29 +129,25 @@ osm_packages <- tibble::tibble(
     "[osmdata](https://github.com/ropensci/osmdata)",
     "[osmapiR](https://github.com/ropensci/osmapiR)",
     "[osmextract](https://github.com/ropensci/osmextract)",
-    "[geofabrik](https://cran.r-project.org/package=geofabrik)",
-    "[OpenStreetMap](https://cran.r-project.org/package=OpenStreetMap)"
+    "[geofabrik](https://cran.r-project.org/package=geofabrik)"
   ),
   `Description` = c(
     "Provides an R interface to the Overpass API for querying OSM data.",
     "R interface to the OpenStreetMap API v0.6 for fetching and saving raw geodata.",
     "Downloads, converts, and imports bulk OSM data (.pbf files).",
-    "Downloads OSM data from Geofabrik’s regional extracts.",
-    "Accesses high-resolution raster maps using the OpenStreetMap protocol."
+    "Downloads OSM data from Geofabrik’s regional extracts."
   ),
   `Advantages` = c(
     "Ideal for extracting specific features; flexible Overpass API queries.",
     "Allows fetching, editing, and saving OSM data, including metadata and GPS traces.",
     "Efficiently handles large-scale OSM extracts; supports bulk processing.",
-    "Easy access to pre-processed regional OSM extracts; simplifies data handling.",
-    "Provides static raster tiles for visualization without complex queries."
+    "Easy access to pre-processed regional OSM extracts; simplifies data handling."
   ),
   `Disadvantages` = c(
     "Rate-limited API; not suited for large datasets.",
     "Not designed for bulk OSM data retrieval; more useful for metadata analysis.",
     "Requires handling large .pbf files; needs external dependencies for conversion.",
-    "Limited to available regional extracts; lacks fine-grained filtering.",
-    "Raster tiles only; no access to raw OSM vector data."
+    "Limited to available regional extracts; lacks fine-grained filtering."
   )
 )
 
@@ -175,89 +171,176 @@ osm_packages |>
 
 ## `osmextract`
 
+The `{osmextract}` package in R provides an efficient way to download and extract OpenStreetMap (OSM) data in a structured format. It allows users to retrieve spatial data such as points, lines, and polygons for specific geographic regions, making it useful for mapping, geospatial analysis, and urban studies. The package integrates well with `{sf}` to handle spatial objects and supports various file formats for seamless data extraction.
+
+In the code provided, `{osmextract}` is used to fetch OSM data for Haryana in three layers: points, lines, and polygons. The `{sf}` package is used to manage and manipulate spatial vector data, converting extracted data into simple features. `{geodata}` helps in retrieving administrative boundaries from the GADM database.
+
 ```{r}
-#| label: download-india-data
+#| label: download-haryana-data
 
 # Load necessary libraries
 library(osmextract)
 library(sf)
 
 # Download and extract the data
-health_india <- oe_get(
-  place = "India",
-  query = "SELECT * FROM 'multipolygons'"
+# Points
+points_haryana <- oe_get(
+  place = "Haryana",
+  layer = "points"
 )
 
-names(health_india)
-object.size(health_india) |> print(units = "Mb")
-
-# Temporarily Saving the Data for easy use in travel / reload
-saveRDS(
-  object = health_small,
-  file = "india_health_small.rds"
+# Lines
+lines_haryana <- oe_get(
+  place = "Haryana",
+  layer = "lines"
 )
 
-health_large <- opq(bbox = in_bbox) |>
-  add_osm_feature(
-    key = "amenity",
-    value = c("hospital", "nursing_home")
-  ) |>
-  osmdata_sf()
-
-object.size(health_large) |> print(units = "Mb")
-
-# Temporarily Saving the Data for easy use in travel / reload
-saveRDS(
-  object = health_large,
-  file = "india_health_large.rds"
+# Polygons
+polygons_haryana <- oe_get(
+  place = "Haryana",
+  layer = "multipolygons"
 )
 
-########### India Highways -----------------------------------
-# Troubleshoot: Large data, hence need to increase time-out
-# Credits: https://github.com/ropensci/osmdata/issues/200
-roads_1 <- opq(bbox = in_bbox, timeout = 500) |> 
-  add_osm_feature(
-    key = "highway", 
-    value = c("motorway")
-  ) |> 
-  osmdata_sf()
+# Get Haryana Map from GADM / {geodata} with geodata::gadm()
+# District Wise Map
+haryana_map <- geodata::gadm(
+  country = "India",
+  level = 2,
+  path = tempdir()
+) |> 
+  st_as_sf() |> 
+  janitor::clean_names() |> 
+  filter(name_1 == "Haryana") |> 
+  rename(district = name_2) |> 
+  select(district, geometry)
 
-object.size(roads_1) |> print(units = "Mb")
+# Overall Boundary Map
+haryana_boundary <- geodata::gadm(
+  country = "India",
+  level = 1,
+  path = tempdir()
+) |> 
+  st_as_sf() |> 
+  janitor::clean_names() |> 
+  filter(name_1 == "Haryana") |> 
+  select(geometry)
+```
 
-saveRDS(
-  object = roads_1,
-  file = "india_roads_1.rds"
-)
+### Canals of Haryana
 
-roads_1_5 <- opq(bbox = in_bbox, timeout = 100) |> 
-  add_osm_feature(
-    key = "highway", 
-    value = c("trunk")
-  ) |> 
-  osmdata_sf()
+In this analysis, additional packages are used to enhance data extraction, processing, and visualization. The `{elevatr}` package is utilized to retrieve elevation raster data for Haryana. The `{stringr}` package is employed to extract numeric values from text-based attributes, such as canal width from OSM tags. The `{tidyterra}` package is indirectly referenced through `geom_spatraster()`, facilitating the inclusion of raster elevation data. Additionally, `{sf}` remains central for spatial vector data processing, and `{geodata}` continues to provide administrative boundaries from the GADM database. The final map effectively presents Haryana’s irrigation canal network overlaid on an elevation raster with clear administrative boundaries.
 
-object.size(roads_1) |> print(units = "Mb")
+```{r}
 
-saveRDS(
-  object = roads_1_5,
-  file = "india_roads_1_5.rds"
-)
-# 
-# roads_2 <- opq(bbox = in_bbox) |> 
-#   add_osm_feature(
-#     key = "highway", 
-#     value = c("primary", "secondary")
-#   ) |> 
-#   osmdata_sf()
-# 
-# object.size(roads_2) |> print(units = "Mb")
-# 
-# # Temporary Saving the Data for easy use in travel
-# 
-# saveRDS(
-#   object = roads_2,
-#   file = "india_roads_2.rds"
+st_crs(points_haryana)
+
+# Background raster for Haryana
+# world_cbhsr_rast <- rnaturalearth::ne_download(
+#   scale = 50,
+#   type = "HYP_50M_SR",
+#   category = "raster"
 # )
 
+raster_haryana <- elevatr::get_elev_raster(
+  locations = haryana_boundary,
+  z = 9
+) |> 
+  terra::rast() |> 
+  terra::crop(haryana_boundary) |> 
+  terra::mask(haryana_boundary)
 
+canals_haryana <- lines_haryana |> 
+  filter(waterway == "canal") |> 
+  select(osm_id, name, other_tags, geometry) |> 
+  mutate(width = str_extract(
+    other_tags, '(?<=\\"width\\"=>\\")\\d+(?=\\")'),
+    width = parse_number(width)
+  ) |> 
+  st_intersection(haryana_boundary)
+
+g <- ggplot() +
+  geom_spatraster(
+    data = raster_haryana
+  ) +
+  scale_fill_gradient(
+    high = "grey0", 
+    low = "grey90",
+    na.value = "transparent",
+    trans = "log2",
+    breaks = c(200, 400, 600, 1000)
+    ) +
+  geom_sf(
+    data = haryana_map,
+    fill = NA,
+    colour = "white"
+  ) +
+  geom_sf(
+    data = haryana_boundary,
+    colour = "grey20",
+    fill = NA,
+    linewidth = 0.7
+  ) +
+  geom_sf(
+    data = canals_haryana,
+    # mapping = aes(linewidth = length),
+    colour = "blue"
+  ) +
+  # scale_linewidth_continuous(
+  #   range = c(0.1, 4)
+  # )
+  labs(
+    title = "Irrigation Canal Network in Haryana (India)",
+    subtitle = "Administrative Maps from GADM through {geodata},\nand elevation raster from {elevatr}",
+    fill = "Elevation (above sea level) (metres)"
+  ) +
+  theme(
+    legend.position = "inside",
+    panel.grid = element_line(
+      linewidth = 0.1
+    ),
+    legend.position.inside = c(0, 0),
+    legend.justification = c(0, 0),
+    legend.direction = "horizontal",
+    legend.title.position = "top",
+    legend.margin = margin(0,0,0,0, "pt"),
+    legend.box.margin = margin(0,0,0,0, "pt"),
+    legend.key.height = unit(5, "pt"),
+    legend.key.width = unit(40, "pt"),
+    legend.title = element_text(
+      hjust = 0.5,
+      margin = margin(0,0,2,0,"pt")
+    ),
+    legend.text = element_text(
+      margin = margin(1,0,0,0, "pt")
+    )
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images",
+    "osm_packages_1.png"
+  ),
+  height = 2400,
+  width = 1800,
+  units = "px"
+)
+```
+
+![Haryana’s irrigation canal network overlaid on an elevation raster with clear administrative boundaries.](images/osm_packages_1.png){#fig-1}
+
+### Health Facilities
+
+```{r}
+# Health Care Facilties (as points)
+points_haryana |> 
+  as_tibble() |> 
+  filter(str_detect(other_tags, "health|hospital|pharmacy|clinic")) |> 
+  ggplot() +
+  geom_sf(
+    aes(geometry = geometry)
+  )
+
+#
+names(lines_haryana)
 ```
