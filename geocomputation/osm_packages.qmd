@@ -105,7 +105,7 @@ xtwitter_username <- "@adityadahiyaias"
 social_caption_1 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{github};</span> <span style='color: {text_hil}'>{github_username}  </span>")
 social_caption_2 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{xtwitter};</span> <span style='color: {text_hil}'>{xtwitter_username}</span>")
 plot_caption <- paste0(
-  "**Data**:  Open Street Maps through {osmextract}, {geodata} and {elevatr}",
+  "**Data**:  Open Street Maps through {osmextract}",
   "  |  **Code:** ", 
   social_caption_1, 
   " |  **Graphics:** ", 
@@ -186,20 +186,25 @@ library(sf)
 # Points
 points_haryana <- oe_get(
   place = "Haryana",
-  layer = "points"
+  layer = "points",
+  download_directory = "C:/Users/dradi/Desktop" 
 )
+object.size(points_haryana) |> print(units = "Mb")
 
 # Lines
 lines_haryana <- oe_get(
   place = "Haryana",
-  layer = "lines"
+  layer = "lines",
+  download_directory = "C:/Users/dradi/Desktop"
 )
-
+object.size(lines_haryana) |> print(units = "Mb")
 # Polygons
 polygons_haryana <- oe_get(
   place = "Haryana",
-  layer = "multipolygons"
+  layer = "multipolygons",
+  download_directory = "C:/Users/dradi/Desktop"
 )
+object.size(polygons_haryana) |> print(units = "Mb")
 
 # Get Haryana Map from GADM / {geodata} with geodata::gadm()
 # District Wise Map
@@ -328,6 +333,260 @@ ggsave(
 ```
 
 ![Haryana’s irrigation canal network overlaid on an elevation raster with clear administrative boundaries.](images/osm_packages_1.png){#fig-1}
+
+### Plotting Roads
+
+```{r}
+
+# CAtegorizing Roads by widths and importance
+wid0 <- c("motorway_link", "motorway" , "corridor")
+wid1 <- c("trunk", "primary", "primary_link", "trunk_link")
+wid2 <- c("secondary_link", "secondary")
+wid3 <- c("tertiary", "tertiary_link")
+wid4 <- c("unclassified", "residential", "service", "road")
+wid5 <- c("footway", "track", "cycleway", "pedestrian", "path", 
+          "steps", "living_street", "rest_area", "construction",
+          "busway", "bridleway", "proposed", "services")
+                                                 
+     
+df1 <- lines_haryana |> 
+  as_tibble() |> 
+  filter(!is.na(highway)) |> 
+  select(osm_id, highway, other_tags, geometry) |> 
+  mutate(
+    width_var = case_when(
+      highway %in%  wid0 ~ "wid0",
+      highway %in%  wid1 ~ "wid1",
+      highway %in%  wid2 ~ "wid2",
+      highway %in%  wid3 ~ "wid3",
+      highway %in%  wid4 ~ "wid4",
+      highway %in%  wid5 ~ "wid5",
+      .default = NA
+    )
+  ) |> 
+  filter(!is.na(width_var)) |> 
+  
+  # Create a width_var to plot widths and 
+  # transparency as per importance
+  mutate(
+    width_var = fct(
+      width_var,
+      levels = paste0("wid", 0:5)
+    )
+  ) |> 
+  
+  # Convert back to {sf} object
+  st_as_sf() |> 
+  
+  # Keep only portions within the boundaries of Haryana
+  st_intersection(haryana_boundary)
+
+g <- ggplot() +
+  geom_sf(
+    data = df1,
+    mapping = aes(
+      linewidth = width_var,
+      alpha = width_var
+    )
+  ) +
+  geom_sf(
+    data = haryana_map,
+    colour = alpha("red", 0.2),
+    linewidth = 0.6,
+    fill = NA
+  ) +
+  geom_sf(
+    data = haryana_boundary,
+    linewidth = 1.2,
+    colour = "#94475EFF", 
+    fill = NA
+  ) +
+  scale_linewidth_manual(
+    values = seq(1, 0.1, -0.15)
+  ) +
+  scale_alpha_manual(
+    values = seq(0.8, 0.1, -0.12)
+  ) +
+  labs(
+    title = "All Highways and Roads of Haryana (India)",
+    subtitle = "Bulk data download using {osmextract}, geocomputation\nwith {sf} and plotting with {ggplot2}",
+    caption = plot_caption
+  ) +
+  theme_minimal(
+    base_family = "body_font",
+    base_size = 40
+  ) +
+  theme(
+    legend.position = "none",
+    text = element_text(
+      colour = "grey30",
+      lineheight = 0.3,
+      hjust = 0.5
+    ),
+    plot.title = element_text(
+      margin = margin(10,0,0,0, "pt"),
+      hjust = 0.5,
+      size = 90
+    ),
+    plot.subtitle = element_text(
+      margin = margin(5,0,0,0, "pt"),
+      hjust = 0.5,
+      size = 70,
+      lineheight = 0.4
+    ),
+    plot.caption = element_textbox(
+      hjust = 0.5,
+      halign = 0.5
+    ),
+    panel.grid = element_line(
+      colour = "grey80",
+      linewidth = 0.1
+    )
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images",
+    "osm_packages_2.png"
+  ),
+  height = 3800,
+  width = 2800,
+  units = "px",
+  bg = "white"
+)
+```
+
+![](images/osm_packages_2.png)
+
+```{r}
+df2 <- df1 |>
+  filter(!is.na(other_tags)) |> 
+  mutate(
+    maxspeed = str_extract(other_tags, 
+                           '"maxspeed"=>"\\d+"') |> 
+      str_extract("\\d+") |> 
+      as.numeric(),
+    
+    lanes = str_extract(other_tags, '"lanes"=>"\\d+"') |> 
+      str_extract("\\d+") |> 
+      as.numeric(),
+    
+    surface = str_extract(other_tags, 
+                          '"surface"=>"[a-zA-Z0-9_-]+"') |> 
+      str_remove_all('"surface"=>"')
+  ) |> 
+  mutate(surface = str_remove_all(surface, '\\"$'))
+
+
+df2 |> 
+  st_drop_geometry() |> 
+  count(surface, sort = T) |> 
+  pull(surface)
+
+df3 <- df2 |> 
+  filter(!is.na(surface)) |> 
+  mutate(
+    maxspeed = str_extract(
+      other_tags, '"maxspeed"=>"\\d+"'
+      ) |> 
+      str_extract("\\d+") |> 
+      as.numeric()
+    ) |> 
+  filter(!is.na(maxspeed)) |> 
+  mutate(
+    surface = if_else(
+      surface %in% c("asphalt",
+                     "paved",
+                     "unpaved",
+                     "concrete"),
+      surface,
+      "Others"
+    ),
+    surface = str_to_title(surface),
+    surface = fct(
+      surface,
+      levels = c(
+        "Asphalt",
+        "Concrete",
+        "Paved",
+        "Unpaved",
+        "Others"
+      )
+    )
+  )
+
+g <- ggplot() +
+  geom_sf(
+    data = df3,
+    mapping = aes(colour = surface)
+  ) +
+  paletteer::scale_colour_paletteer_d(
+    "nbapalettes::suns_00s"
+    ) +
+  geom_sf(
+    data = haryana_map,
+    colour = alpha("black", 0.4),
+    linewidth = 0.6,
+    fill = NA
+  ) +
+  geom_sf(
+    data = haryana_boundary,
+    linewidth = 1.2,
+    colour = "black", 
+    fill = NA
+  ) +
+  labs(
+    title = "Speed Limits on Roads in Haryana (India)",
+    subtitle = "Bulk data download using {osmextract}, geocomputation\nwith {sf} and plotting with {ggplot2}",
+    caption = plot_caption
+  ) +
+  theme_minimal(
+    base_family = "body_font",
+    base_size = 40
+  ) +
+  theme(
+    legend.position = "bottom",
+    text = element_text(
+      colour = "grey30",
+      lineheight = 0.3,
+      hjust = 0.5
+    ),
+    plot.title = element_text(
+      margin = margin(10,0,0,0, "pt"),
+      hjust = 0.5,
+      size = 90
+    ),
+    plot.subtitle = element_text(
+      margin = margin(5,0,0,0, "pt"),
+      hjust = 0.5,
+      size = 70,
+      lineheight = 0.4
+    ),
+    plot.caption = element_textbox(
+      hjust = 0.5,
+      halign = 0.5
+    ),
+    panel.grid = element_line(
+      colour = "grey80",
+      linewidth = 0.1
+    )
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images",
+    "osm_packages_3.png"
+  ),
+  height = 3800,
+  width = 2800,
+  units = "px",
+  bg = "white"
+)
+```
+
+![](images/osm_packages_3.png)
 
 ### Health Facilities
 
