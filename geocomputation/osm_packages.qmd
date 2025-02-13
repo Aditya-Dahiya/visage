@@ -338,7 +338,7 @@ ggsave(
 
 ```{r}
 
-# CAtegorizing Roads by widths and importance
+# Categorizing Roads by widths and importance
 wid0 <- c("motorway_link", "motorway" , "corridor")
 wid1 <- c("trunk", "primary", "primary_link", "trunk_link")
 wid2 <- c("secondary_link", "secondary")
@@ -457,7 +457,9 @@ ggsave(
 )
 ```
 
-![](images/osm_packages_2.png)
+![A map of Haryana (borders in red), with administrative boundaries of districts (in translucent red) overlaid with all the major roads - larger roads and highways are wider and more opaque, lesser width roads are thinner and more translucent.](images/osm_packages_2.png){#fig-2}
+
+### Trying to plot Roads, coloured by some attributes extracted from Open Street Maps
 
 ```{r}
 df2 <- df1 |>
@@ -519,7 +521,8 @@ df3 <- df2 |>
 g <- ggplot() +
   geom_sf(
     data = df3,
-    mapping = aes(colour = surface)
+    mapping = aes(colour = surface),
+    key_glyph = draw_key_abline
   ) +
   paletteer::scale_colour_paletteer_d(
     "nbapalettes::suns_00s"
@@ -539,14 +542,18 @@ g <- ggplot() +
   labs(
     title = "Speed Limits on Roads in Haryana (India)",
     subtitle = "Bulk data download using {osmextract}, geocomputation\nwith {sf} and plotting with {ggplot2}",
-    caption = plot_caption
+    caption = plot_caption,
+    colour = "Type of Road Surface"
   ) +
   theme_minimal(
     base_family = "body_font",
     base_size = 40
   ) +
   theme(
-    legend.position = "bottom",
+    legend.position = "inside",
+    legend.position.inside = c(0.1,0.2),
+    legend.justification = c(0,0),
+    legend.direction = "vertical",
     text = element_text(
       colour = "grey30",
       lineheight = 0.3,
@@ -570,7 +577,10 @@ g <- ggplot() +
     panel.grid = element_line(
       colour = "grey80",
       linewidth = 0.1
-    )
+    ),
+    legend.title.position = "top",
+    legend.margin = margin(0,0,0,0, "pt"),
+    legend.box.margin = margin(0,0,0,0, "pt")
   )
 
 ggsave(
@@ -587,6 +597,236 @@ ggsave(
 ```
 
 ![](images/osm_packages_3.png)
+
+### Get Popoulation Density Raster
+
+The population raster data is sourced from *Global High-Resolution Annual Population Grids (2000-2023), v1* by **Ciesin, Center for International Earth Science Information Network, Columbia University** [(CIESIN, 2024)](https://zenodo.org/records/11179644). This dataset provides high-resolution population estimates globally, integrating census and administrative data with geospatial modeling to refine population distributions. The data, maintained by **NASA’s Socioeconomic Data and Applications Center (SEDAC)**, is valuable for demographic analysis, urban planning, and environmental studies. The full dataset and documentation are available on [Zenodo](https://zenodo.org/records/11179644).
+
+```{r}
+# 2022 year Global Population Density 30 sec arc resolution
+url <- "https://zenodo.org/records/11179644/files/GlobPOP_Count_30arc_2022_I32.tiff?download=1"
+
+output_file <- "GlobPOP_Count_30arc_2022_I32.tiff"
+download.file(url, output_file, mode = "wb")
+
+haryana_pop_rast <- rast(output_file) |> 
+  terra::crop(haryana_boundary) |> 
+  terra::mask(haryana_boundary)
+
+# Ensure all negative and zero values are replaced with 0.01
+# (For easy plotting with log transformation scale)
+haryana_pop_rast[haryana_pop_rast <= 0] <- 0.01
+
+g <- ggplot() +
+  
+  # Population Density Raster
+  geom_spatraster(data = haryana_pop_rast) +
+  # paletteer::scale_fill_paletteer_c(
+  #   "grDevices::Reds 3",
+  #   direction = -1,
+  #   na.value = "white",
+  #   trans = "log",
+  #   limits = c(0.2, 1e4),
+  #   oob = scales::squish,,
+  #   breaks = c(10, 100, 500, 1000, 10000)
+  # ) +
+  scale_fill_gradientn(
+    colours = c("white", "#FFDDDEFF", "#FF8D93FF", 
+                "#C41B2DFF", "#69000CFF"),
+    values = scales::rescale(c(0.1, 10, 100, 1000, 
+                               10000)),
+    limits = c(0, 10000),
+    oob = scales::squish,
+    na.value = "white"
+  ) +
+  # Road Network
+  geom_sf(
+    data = df1 |> filter(highway %in% c(wid1, wid2)),
+    linewidth = 0.3,
+    alpha = 0.9
+  ) +
+  # geom_sf(
+  #   data = haryana_map,
+  #   colour = alpha("black", 0.4),
+  #   linewidth = 0.6,
+  #   fill = NA
+  # ) +
+  geom_sf(
+    data = haryana_boundary,
+    linewidth = 1.2,
+    colour = "black", 
+    fill = NA
+  ) +
+  labs(
+    title = "Population Density vs. Road Network (Haryana)",
+    subtitle = "Bulk data download using {osmextract}, geocomputation\nwith {sf} and plotting with {ggplot2}",
+    caption = plot_caption,
+    fill = "Population Density\n(Persons per sq. km.)"
+  ) +
+  theme_minimal(
+    base_family = "body_font",
+    base_size = 40
+  ) +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0.1,0.2),
+    legend.justification = c(0,0),
+    legend.direction = "vertical",
+    text = element_text(
+      colour = "grey30",
+      lineheight = 0.3,
+      hjust = 0.5
+    ),
+    plot.title = element_text(
+      margin = margin(10,0,0,0, "pt"),
+      hjust = 0.5,
+      size = 90
+    ),
+    plot.subtitle = element_text(
+      margin = margin(10,0,0,0, "pt"),
+      hjust = 0.5,
+      size = 70,
+      lineheight = 0.3
+    ),
+    plot.caption = element_textbox(
+      hjust = 0.5,
+      halign = 0.5
+    ),
+    panel.grid = element_line(
+      colour = "grey80",
+      linewidth = 0.1
+    ),
+    legend.title.position = "top",
+    legend.margin = margin(0,0,0,0, "pt"),
+    legend.box.margin = margin(0,0,0,0, "pt")
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images",
+    "osm_packages_4.png"
+  ),
+  height = 3800,
+  width = 2800,
+  units = "px",
+  bg = "white"
+)
+```
+
+![](images/osm_packages_4.png)
+
+### Comparing with Rail Network
+
+```{r}
+
+rail_haryana <- lines_haryana |> 
+  filter(!is.na(railway)) |> 
+  st_intersection(haryana_boundary)
+
+g <- ggplot() +
+  
+  # Population Density Raster
+  geom_spatraster(data = haryana_pop_rast) +
+  # paletteer::scale_fill_paletteer_c(
+  #   "grDevices::Reds 3",
+  #   direction = -1,
+  #   na.value = "white",
+  #   trans = "log",
+  #   limits = c(0.2, 1e4),
+  #   oob = scales::squish,,
+  #   breaks = c(10, 100, 500, 1000, 10000)
+  # ) +
+  scale_fill_gradientn(
+    colours = c("white", "#FFDDDEFF", "#FF8D93FF", 
+                "#C41B2DFF", "#69000CFF"),
+    values = scales::rescale(c(0.1, 10, 100, 1000, 
+                               10000)),
+    limits = c(0, 10000),
+    oob = scales::squish,
+    na.value = "white"
+  ) +
+  
+  # Railway Network
+  geom_sf(
+    data = rail_haryana,
+    linewidth = 0.5,
+    alpha = 0.9
+  ) +
+  # geom_sf(
+  #   data = haryana_map,
+  #   colour = alpha("black", 0.4),
+  #   linewidth = 0.6,
+  #   fill = NA
+  # ) +
+  geom_sf(
+    data = haryana_boundary,
+    linewidth = 1.2,
+    colour = "black", 
+    fill = NA
+  ) +
+  labs(
+    title = "Population Density vs. Railway Network (Haryana)",
+    subtitle = "Bulk data download using {osmextract}, geocomputation\nwith {sf} and plotting with {ggplot2}",
+    caption = plot_caption,
+    fill = "Population Density\n(Persons per sq. km.)"
+  ) +
+  theme_minimal(
+    base_family = "body_font",
+    base_size = 40
+  ) +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0.1,0.2),
+    legend.justification = c(0,0),
+    legend.direction = "vertical",
+    text = element_text(
+      colour = "grey30",
+      lineheight = 0.3,
+      hjust = 0.5
+    ),
+    plot.title = element_text(
+      margin = margin(10,0,0,0, "pt"),
+      hjust = 0.5,
+      size = 90
+    ),
+    plot.subtitle = element_text(
+      margin = margin(10,0,0,0, "pt"),
+      hjust = 0.5,
+      size = 70,
+      lineheight = 0.3
+    ),
+    plot.caption = element_textbox(
+      hjust = 0.5,
+      halign = 0.5
+    ),
+    panel.grid = element_line(
+      colour = "grey80",
+      linewidth = 0.1
+    ),
+    legend.title.position = "top",
+    legend.margin = margin(0,0,0,0, "pt"),
+    legend.box.margin = margin(0,0,0,0, "pt")
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images",
+    "osm_packages_5.png"
+  ),
+  height = 3800,
+  width = 2800,
+  units = "px",
+  bg = "white"
+)
+```
+
+### ![](images/osm_packages_5.png) Compiling plots
+
+```{r}
+
+```
 
 ### Health Facilities
 
