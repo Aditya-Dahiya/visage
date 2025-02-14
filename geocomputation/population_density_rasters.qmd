@@ -58,6 +58,7 @@ library(patchwork)            # Composing Plots
 bts = 42 # Base Text Size
 sysfonts::font_add_google("Roboto Condensed", "body_font")
 sysfonts::font_add_google("Oswald", "title_font")
+sysfonts::font_add_google("Saira Extra Condensed", "title_font")
 showtext::showtext_auto()
 # A base Colour
 bg_col <- "white"
@@ -103,7 +104,7 @@ xtwitter_username <- "@adityadahiyaias"
 social_caption_1 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{github};</span> <span style='color: {text_hil}'>{github_username}  </span>")
 social_caption_2 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{xtwitter};</span> <span style='color: {text_hil}'>{xtwitter_username}</span>")
 plot_caption <- paste0(
-  "**Data**:  Open Street Maps through {osmextract}",
+  "**Data**:  Center for International Earth Science Information Network, Columbia University",
   "  |  **Code:** ", 
   social_caption_1, 
   " |  **Graphics:** ", 
@@ -165,7 +166,7 @@ rast_2010[rast_2010 <= 0] <- 0.01
 rast_2022[rast_2022 <= 0] <- 0.01
 ```
 
-Getting an example for Delhi, India
+### Getting an example for Delhi, India
 
 ```{r}
 # Get Delhi Map from GADM / {geodata} with geodata::gadm()
@@ -182,12 +183,15 @@ delhi_map <- geodata::gadm(
 
 # ALERT: Downloads Massive amounts of Data-----------------------------
 # Set Working Directory to a temporary one ----------------------------
+setwd("C:/Users/dradi/OneDrive/Desktop/pop_raster_data_temp")
 setwd("C:/Users/dradi/Desktop/pop_raster_data_temp")
+
 # Get {osmextract} data for Delhi - to plot roads
 lines_delhi <- osmextract::oe_get(
   place = "Delhi",
   layer = "lines",
-  download_directory = "C:/Users/dradi/Desktop/pop_raster_data_temp" 
+  download_directory = "C:/Users/dradi/OneDrive/Desktop/pop_raster_data_temp",
+  download_directory = "C:/Users/dradi/Desktop/pop_raster_data_temp"
 )
 
 # ---------------------------------------------------------------------
@@ -222,45 +226,209 @@ roads_delhi <- lines_delhi |>
   st_intersection(delhi_map)
 ```
 
-### Trying out static maps for each year
+### Compiling a raster for Delhi with years as multiple layers
+
+```{r}
+#| label: do-not-run-compile-multi-layered-raster
+
+# Code to compile the rasters of different years into a single raster
+for (selected_year in 1990:2022) {
+  
+  # Construct file path
+  file_path <- paste0("GlobPOP_Count_30arc_", selected_year, "_I32.tiff")
+  
+  # Check if the raster file exists before proceeding
+  if (file.exists(file_path)) {
+    
+    # Load, crop, and mask the raster safely
+    rast_obj <- tryCatch({
+      rast(file_path) |> 
+        terra::crop(delhi_map) |> 
+        terra::mask(delhi_map, touches = FALSE)
+    }, error = function(e) {
+      message(paste("Skipping year", selected_year, "due to error:", e$message))
+      return(NULL)
+    })
+    
+    # If raster loading was successful, process further
+    if (!is.null(rast_obj)) {
+      assign(paste0("rast_", selected_year), rast_obj)
+      
+      # Modify raster values safely
+      assign(
+        paste0("rast_", selected_year), 
+        get(paste0("rast_", selected_year)) |> 
+          (\(x) { x[x <= 0] <- 0.01; x })()
+      )
+      
+      message(paste("Processed raster for year", selected_year))
+    }
+    
+  } else {
+    message(paste("Skipping year", selected_year, "as file does not exist"))
+  }
+}
+
+
+# Compiling the multiple rasters into a Multi-layered Raster ----------------
+# Define years range
+years <- 1990:2022
+
+# Initialize an empty SpatRaster object
+rast_stack <- NULL
+
+# Loop through each year and add the raster if it exists
+for (y in years) {
+  rast_name <- paste0("rast_", y)  # Construct variable name
+  
+  if (exists(rast_name)) {  # Check if raster exists
+    rast <- get(rast_name)  # Retrieve raster
+    
+    if (is.null(rast_stack)) {
+      rast_stack <- rast  # Initialize with first available raster
+    } else {
+      rast_stack <- c(rast_stack, rast)  # Append to SpatRaster
+    }
+  } else {
+    message(paste("Skipping year", y, "as raster is missing"))
+  }
+}
+
+# Convert the names of the layers into year numbers for better plotting
+names(rast_stack) <- str_extract(
+  names(rast_stack), 
+  "(?<!\\d)(199[0-9]|20[0-2][0-9])(?!\\d)"
+)
+varnames(rast_stack) <- str_extract(
+  varnames(rast_stack), 
+  "(?<!\\d)(199[0-9]|20[0-2][0-9])(?!\\d)"
+)
+
+writeRaster(
+  rast_stack,
+  filename = "delhi_pop_rast_multiyears.tiff"
+)
+
+
+```
+
+### Plotting a multiple layered raster
 
 ```{r}
 
+# Get vector map of Delhi
+delhi_map <- read_sf(
+  here::here(
+    "data", "india_map", 
+    "India_State_Boundary.shp"
+    )
+  ) |> 
+  filter(State_Name == "Delhi") |> 
+  st_transform("EPSG:4326")
+
+delhi_rast_stack <- rast("delhi_pop_rast_multiyears.tiff")
+
+# Get layers which are to be plotted
+layers_to_keep <- which(
+  names(delhi_rast_stack) %in% as.character(c(seq(1991, 2020, 3), 2020))
+)
+
 g <- ggplot() +
   geom_spatraster(
-    data = rast_2010
-  ) +
-  paletteer::scale_fill_paletteer_c(
-    "grDevices::YlOrBr",
-    direction = -1,
-    na.value = "transparent",
-    transform = "log",
-    limits = c(10, 1e6),
-    oob = scales::squish,
-    breaks = c(0, 10, 100, 1000, 1e4, 1e5, 1e6),
-    labels = scales::label_number(big.mark = ",")
+    data = delhi_rast_stack[[layers_to_keep]]
   ) +
   geom_sf(
     data = delhi_map,
-    fill = NA
+    linewidth = 1,
+    fill = NA,
+    colour = "black"
   ) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::Batlow",
+    # "grDevices::Hawaii",
+    direction = -1,
+    na.value = "transparent",
+    transform = "sqrt",
+    labels = label_number(big.mark = ",", accuracy = 1),
+    limits = c(100, 30000),
+    breaks = c(100, 1000, 5000, 10000, 20000, 30000),
+    oob = scales::squish
+  ) +
+  
+  # Plotting Roads
   geom_sf(
     data = roads_delhi,
     mapping = aes(
-      linewidth = width_var,
-      alpha = width_var
-    )
-  ) +
-  scale_alpha_manual(
-    values = c(0.8, 0.6, 0.4, 0.2)
+      linewidth = width_var
+    ),
+    alpha = 1
   ) +
   scale_linewidth_manual(
-    values = c(0.8, 0.6, 0.4, 0.2)
+    values = c(0.2, 0.2, 0.1, 0.05, 0.05)
+  ) +
+  facet_wrap(~lyr, ncol = 3) +
+  coord_sf(
+    clip = "off"
+  ) +
+  guides(
+    linewidth = "none"
+  ) +
+  labs(
+    title = "Delhi: Population Density rising along trunk roads",
+    subtitle = "A comparsion of changes in population density (1990-2020) with overlaid trunk roads",
+    caption = plot_caption,
+    fill = "Persons/sq.km."
+  ) +
+  theme_void(
+    base_size = 80,
+    base_family = "body_font"
   ) +
   theme(
-    legend.position = "none"
+    text = element_text(
+      colour = text_hil
+    ),
+    strip.text = element_text(
+      margin = margin(0,0,-20,0, "pt"),
+      hjust = 0.2,
+      size = 120
+    ),
+    panel.spacing = unit(0, "pt"),
+    legend.position = "inside",
+    legend.position.inside = c(0.975, 0.03),
+    legend.justification = c(1, 0),
+    legend.text = element_text(
+      margin = margin(0,0,0,5, "pt")
+    ),
+    legend.title = element_text(
+      margin = margin(0,0,20,0, "pt")
+    ),
+    legend.key.height = unit(50, "pt"),
+    legend.key.width = unit(20, "pt"),
+    panel.background = element_rect(
+      fill = "transparent",
+      colour = "transparent"
+    ),
+    plot.title = element_text(
+      hjust = 0.5,
+      margin = margin(40,0,5,0, "pt"),
+      size = 170,
+      colour = text_hil,
+      face = "bold"
+    ),
+    plot.subtitle = element_text(
+      hjust = 0.5,
+      margin = margin(5,0,5,0, "pt"),
+      size = 90,
+      colour = text_hil
+    ),
+    plot.caption = element_textbox(
+      hjust = 0.5, 
+      halign = 0.5,
+      margin = margin(10,0,40,0, "pt"),
+      colour = text_hil,
+      family = "body_font"
+    )
   )
-
 
 ggsave(
   plot = g,
@@ -268,11 +436,11 @@ ggsave(
     "geocomputation", "images",
     "population_density_rasters_1.png"
   ),
-  height = 1300,
-  width = 1300,
+  height = 1300 * 5.1,
+  width = 1300 * 4,
   units = "px",
   bg = "white"
 )
 ```
 
-![](images/population_density_rasters_1.png)
+![This graphic shows the population density of Delhi (India) compared from 1990 to 2020, on a transformed fill scale where darker colours represent more densely populated areas. Overlain on top are the major arterial roads of Delhi, taken from Open Street Maps data. An evident pattern is urban densification along major arterial roads, particularly towards north-west of Central Delhi, and especially along its Ring-Road.](images/population_density_rasters_1.png){#fig-1}
