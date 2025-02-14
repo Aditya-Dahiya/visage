@@ -122,22 +122,28 @@ Getting Population Density Rasters from [@liu2024]. [Code](https://github.com/lu
 ```{r}
 # 1990 to 2022 year Global Population Density 30 sec arc resolution
 
-year_ranges <- c(1990, 2000, 2010, 2020)
-
-# ALERT: Downloads Massive amounts of Data ---------------------------
 # Set Working Directory to a temporary one ---------------------------
 setwd("C:/Users/dradi/Desktop/pop_raster_data_temp")
 
-year_ranges <- c(1990, 2000, 2010, 2020)
+year_ranges <- 1990:2021
 
+# ALERT: Downloads Massive amounts of Data ---------------------------
 for (i in year_ranges) {
   url <- paste0(
     "https://zenodo.org/records/11179644/files/GlobPOP_Count_30arc_", 
     i, 
-    "_I32.tiff")
+    "_I32.tiff"
+  )
   
   output_file <- paste0("GlobPOP_Count_30arc_", i, "_I32.tiff")
-  download.file(url, output_file, mode = "wb")
+  
+  # Attempt to download the file with error handling
+  tryCatch({
+    download.file(url, output_file, mode = "wb")
+    cat("Successfully downloaded:", output_file, "\n")
+  }, error = function(e) {
+    cat("Error downloading:", output_file, "-", conditionMessage(e), "\n")
+  })
 }
 # --------------------------------------------------------------------
 
