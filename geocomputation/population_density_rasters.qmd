@@ -35,6 +35,8 @@ share:
 
 ## Introduction
 
+The [GlobPOP dataset](https://zenodo.org/records/11179644) is a comprehensive global gridded population dataset spanning from 1990 to 2022, developed by researchers Luling Liu, Xin Cao, Shijie Li, and Na Jie from Beijing Normal University. This dataset offers high-precision spatial resolution at 30 arcseconds (approximately 1 km at the equator) and is available in both population count and density formats. The data fusion framework integrates five existing population products—GHS-POP, GRUMP, GPWv4, LandScan, and WorldPop—using cluster analysis and statistical learning methods to enhance accuracy. The dataset is accessible in GeoTIFF format. For more detailed information, refer to the published paper. [@liu2024].
+
 ```{r}
 #| label: setup
 
@@ -58,7 +60,7 @@ library(patchwork)            # Composing Plots
 bts = 42 # Base Text Size
 sysfonts::font_add_google("Roboto Condensed", "body_font")
 sysfonts::font_add_google("Oswald", "title_font")
-sysfonts::font_add_google("Saira Extra Condensed", "title_font")
+sysfonts::font_add_google("Saira Extra Condensed", "caption_font")
 showtext::showtext_auto()
 # A base Colour
 bg_col <- "white"
@@ -118,7 +120,7 @@ rm(github, github_username, xtwitter,
 
 ### 33-year population density rasters
 
-Getting Population Density Rasters from [@liu2024]. [Code](https://github.com/lulingliu/GlobPOP) citation.
+Getting Population Density Rasters. [Code](https://github.com/lulingliu/GlobPOP) from researchers on how the data was compiled.
 
 ```{r}
 # 1990 to 2022 year Global Population Density 30 sec arc resolution
@@ -166,7 +168,7 @@ rast_2010[rast_2010 <= 0] <- 0.01
 rast_2022[rast_2022 <= 0] <- 0.01
 ```
 
-### Getting an example for Delhi, India
+### Getting Delhi (India) vector map - boundaries
 
 ```{r}
 # Get Delhi Map from GADM / {geodata} with geodata::gadm()
@@ -183,14 +185,13 @@ delhi_map <- geodata::gadm(
 
 # ALERT: Downloads Massive amounts of Data-----------------------------
 # Set Working Directory to a temporary one ----------------------------
-setwd("C:/Users/dradi/OneDrive/Desktop/pop_raster_data_temp")
-setwd("C:/Users/dradi/Desktop/pop_raster_data_temp")
+# TEMPORARY DIRECTORY NAME HERE: setwd() #
 
 # Get {osmextract} data for Delhi - to plot roads
 lines_delhi <- osmextract::oe_get(
   place = "Delhi",
   layer = "lines",
-  download_directory = "C:/Users/dradi/OneDrive/Desktop/pop_raster_data_temp",
+  # download_directory = "C:/Users/dradi/OneDrive/Desktop/pop_raster_data_temp",
   download_directory = "C:/Users/dradi/Desktop/pop_raster_data_temp"
 )
 
@@ -224,6 +225,18 @@ roads_delhi <- lines_delhi |>
     )
   ) |> 
   st_intersection(delhi_map)
+
+rm(wid0, wid1, wid2, wid3)
+rm(lines_delhi)
+# Get vector map of Delhi from stored data
+# delhi_map <- read_sf(
+#   here::here(
+#     "data", "india_map", 
+#     "India_State_Boundary.shp"
+#     )
+#   ) |> 
+#   filter(State_Name == "Delhi") |> 
+#   st_transform("EPSG:4326")
 ```
 
 ### Compiling a raster for Delhi with years as multiple layers
@@ -315,16 +328,6 @@ writeRaster(
 ### Plotting a multiple layered raster
 
 ```{r}
-
-# Get vector map of Delhi
-delhi_map <- read_sf(
-  here::here(
-    "data", "india_map", 
-    "India_State_Boundary.shp"
-    )
-  ) |> 
-  filter(State_Name == "Delhi") |> 
-  st_transform("EPSG:4326")
 
 delhi_rast_stack <- rast("delhi_pop_rast_multiyears.tiff")
 
@@ -444,3 +447,167 @@ ggsave(
 ```
 
 ![This graphic shows the population density of Delhi (India) compared from 1990 to 2020, on a transformed fill scale where darker colours represent more densely populated areas. Overlain on top are the major arterial roads of Delhi, taken from Open Street Maps data. An evident pattern is urban densification along major arterial roads, particularly towards north-west of Central Delhi, and especially along its Ring-Road.](images/population_density_rasters_1.png){#fig-1}
+
+### Plotting changes in population density over time
+
+This code computes the difference between consecutive raster layers using `map2()` from the `{purrr}` package.
+
+```{r}
+# Assuming delhi_rast_stack is a SpatRaster
+years <- names(delhi_rast_stack) |> as.numeric()
+
+# Compute differences between consecutive years
+# {purrr}'s map2() function iterates over two vectors simultaneously.
+rast_diff_list <- map2(
+  
+  # Removes the first element, keeping all years except the first 
+  .x = years[-1], 
+  
+  # Removes the last element, keeping all years except the last
+  .y = years[-length(years)], 
+  
+  # Each iteration computes the following
+  .f = ~ {delhi_rast_stack[[as.character(.x)]] - delhi_rast_stack[[as.character(.y)]]}
+)
+
+# Convert the list to a raster stack
+delhi_rast_diff <- rast(rast_diff_list)
+
+# Rename layers to indicate change years (e.g., "Change_1991" for 1991-1990)
+names(delhi_rast_diff) <- years[-1]
+varnames(delhi_rast_diff) <- years[-1]
+
+delhi_rast_diff
+
+rm(years, rast_diff_list)
+```
+
+Plotting the differences (i.e. change in population density)
+
+```{r}
+
+layers_to_keep <- which(
+  names(delhi_rast_stack) %in% as.character(c(seq(1991, 2020, 3), 2020   ))
+)
+
+
+g <- ggplot() +
+  geom_spatraster(
+    data = delhi_rast_stack[[layers_to_keep]] |> 
+      terra::mask(delhi_map, touches = FALSE)
+  ) +
+  geom_sf(
+    data = delhi_map,
+    linewidth = 2,
+    fill = NA,
+    colour = "grey10"
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::Spectral",
+    direction = -1,
+    na.value = "transparent",
+    limits = c(-1e2, 3e4),
+    breaks = c(-1e1, 0, 100, 1000, 5000, 10000, 15000, 25000),
+    oob = scales::squish,
+    trans = "sqrt",
+    labels = label_number(big.mark = ",", accuracy = 1)
+  ) +
+  
+  # Plotting Roads
+  geom_sf(
+    data = roads_delhi,
+    mapping = aes(
+      linewidth = width_var
+    ),
+    alpha = 1
+  ) +
+  scale_linewidth_manual(
+    values = c(0.2, 0.2, 0.1, 0.05, 0.05)
+  ) +
+  facet_wrap(~lyr, ncol = 3) +
+  coord_sf(
+    clip = "off",
+    expand = FALSE
+  ) +
+  guides(
+    linewidth = "none"
+  ) +
+  labs(
+    title = "Delhi: Changes in Population Density",
+    subtitle = str_wrap("Computing for each year, the change in population density for each pixel from the previous years, using raster algebra.", 90),
+    caption = plot_caption,
+    fill = "Change in Density\n(Persons/sq.km.)"
+  ) +
+  theme_void(
+    base_size = 80,
+    base_family = "body_font"
+  ) +
+  theme(
+    text = element_text(
+      colour = text_hil
+    ),
+    strip.text = element_text(
+      margin = margin(0,0,-20,0, "pt"),
+      hjust = 0.1,
+      size = 120
+    ),
+    panel.spacing.y = unit(0, "pt"),
+    panel.spacing.x = unit(30, "pt"),
+    legend.position = "inside",
+    legend.position.inside = c(0.975, 0.03),
+    legend.justification = c(1, 0),
+    legend.text = element_text(
+      margin = margin(0,0,0,5, "pt")
+    ),
+    legend.title = element_text(
+      margin = margin(0,0,20,0, "pt"),
+      lineheight = 0.3
+    ),
+    legend.key.height = unit(35, "pt"),
+    legend.key.width = unit(30, "pt"),
+    legend.ticks = element_line(
+      linewidth = 0.7,
+      colour = "white"
+    ),
+    panel.background = element_rect(
+      fill = "transparent",
+      colour = "transparent"
+    ),
+    plot.title = element_text(
+      hjust = 0.5,
+      margin = margin(40,0,5,0, "pt"),
+      size = 190,
+      colour = text_hil,
+      face = "bold",
+      family = "title_font"
+    ),
+    plot.subtitle = element_text(
+      hjust = 0.5,
+      margin = margin(5,0,5,0, "pt"),
+      size = 90,
+      colour = text_hil,
+      lineheight = 0.3
+    ),
+    plot.caption = element_textbox(
+      hjust = 0.5, 
+      halign = 0.5,
+      margin = margin(20,0,20,0, "pt"),
+      colour = text_hil,
+      family = "caption_font"
+    )
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images",
+    "population_density_rasters_2.png"
+  ),
+  height = 1300 * 5.1,
+  width = 1300 * 4,
+  units = "px",
+  bg = "white"
+)
+```
+
+![](images/population_density_rasters_2.png)
