@@ -889,3 +889,42 @@ geographic_data_packages |>
     )
   )
 ```
+
+## 8.7 Geographic Metadata
+
+-   Geographic metadata describe datasets, structures, and services, ensuring data is FAIR (Findable, Accessible, Interoperable, Reusable). Defined by ISO/OGC standards, mainly [ISO 19115](https://www.iso.org/standard/53798.html), used in spatial data infrastructures and metadata catalogs.
+-   The [geometa](https://cran.r-project.org/package=geometa) package allows reading, writing, and validating geographic metadata following ISO/OGC standards. It supports standards like:
+    -   ISO 19110 (feature catalog)
+    -   **ISO 19115-1 & 19115-2 (vector and raster metadata)**
+    -   ISO 19119 (service metadata)
+    -   ISO 19136 (GML) (Geography Markup Language)
+    -   Handles metadata using ISO/TS 19139 (XML) specification.
+-   {geometa} can create, validate, encode, and save metadata in XML format. Metadata files can be read using `geometa::readISO19139()`.
+
+::: callout-note
+The `{geometa}` package in R is used to create, read, and validate geographic metadata following ISO and OGC standards, such as ISO 19115 for dataset metadata and ISO 19110 for feature cataloging.
+
+While `{geometa}` does not directly handle spatial data, it works alongside the `{sf}` package, which is commonly used for reading and manipulating spatial data like shapefiles and spatial databases.
+
+For example, if you have a spatial dataset in "EPSG:4326" format, you can manage the data with `{sf}` (`st_read()` to import a shapefile), while `{geometa}` can store metadata such as coordinate reference system (CRS), data sources, processing history, and licensing. Additionally, `{geometa}` can generate ISO 19139-compliant XML files, useful for publishing metadata in spatial data infrastructures (SDI) or catalog services.
+
+Use `{geometa}` when you need to
+
+-   document spatial datasets,
+
+-   define responsible parties (contacts, organizations),
+
+-   specify data quality (conformance checks), and
+
+-   maintain FAIR metadata (Findable, Accessible, Interoperable, Reusable) for sharing and archiving spatial data.
+:::
+
+-   The [geoflow](https://cran.r-project.org/package=geoflow) package extends {geometa} to automate metadata management.
+
+::: callout-note
+The {geoflow} package helps users manage and publish geospatial data by automating workflows that handle both data and its descriptive information, known as metadata.
+
+For example, geoflow can take spatial data, process it, and then publish it to platforms like GeoServer, making the data available for others to view and analyze.
+:::
+
+-   GML standard (ISO 19136) can store both data and metadata. The {sf} package allows exporting GML objects from simple features.
