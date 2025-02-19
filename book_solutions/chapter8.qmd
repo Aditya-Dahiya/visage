@@ -1033,9 +1033,52 @@ Both functions ultimately call the same underlying code and return an object of 
 
 **Read the `cycle_hire_xy.csv` file from the spData package as a spatial object (Hint: it is located in the `misc` folder). What is a geometry type of the loaded object?**
 
+```{r}
+#| eval: true
+#| echo: true
+#| code-fold: false
+
+
+# Read the CSV file
+cycle_hire_data <- read_csv(
+  system.file("misc/cycle_hire_xy.csv", package = "spData")
+)
+
+class(cycle_hire_data)
+
+# Convert to sf object
+cycle_hire_sf <- st_as_sf(cycle_hire_data, coords = c("X", "Y"), crs = 4326)
+
+# Print geometry type
+st_geometry_type(cycle_hire_sf) |> 
+  unique()
+
+```
+
 ### E4.
 
 **Download the borders of Germany using rnaturalearth, and create a new object called `germany_borders`. Write this new object to a file of the GeoPackage format.**
+
+```{r}
+#| code-fold: false
+
+# Load necessary libraries
+library(rnaturalearth)
+library(rnaturalearthdata)
+
+# Download the borders of Germany
+germany_borders <- ne_countries(
+  scale = "large", 
+  country = "Germany", 
+  returnclass = "sf"
+  )
+
+# Write to a GeoPackage file
+st_write(germany_borders, "germany_borders.gpkg", driver = "GPKG")
+
+# Check the file
+list.files(pattern = "germany_borders.gpkg")
+```
 
 ### E5.
 
