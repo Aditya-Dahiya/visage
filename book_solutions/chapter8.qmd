@@ -1084,9 +1084,97 @@ list.files(pattern = "germany_borders.gpkg")
 
 **Download the global monthly minimum temperature with a spatial resolution of 5 minutes using the geodata package. Extract the June values, and save them to a file named `tmin_june.tif` file (hint: use [`terra::subset()`](https://rspatial.github.io/terra/reference/subset.html)).**
 
+```{r}
+#| code-fold: false
+
+
+# Load necessary packages
+library(geodata)
+library(terra)
+
+# Download global monthly minimum temperature (5-minute resolution)
+rast1 <- worldclim_global(
+  var = "tmin", 
+  res = 5, 
+  path = tempdir()
+  )
+names(rast1)
+
+names(rast1)[6]
+# Extract June values (assuming June corresponds to the 6th band)
+rast2 <- terra::subset(rast1, 6)
+
+# Define the output file path
+output_file <- 
+
+# Save the extracted layer as a GeoTIFF file
+writeRaster(
+  rast2, 
+  filename = "tmin_june.tif", 
+  format = "GTiff", 
+  overwrite = TRUE)
+
+g <- ggplot() +
+  geom_spatraster(
+    data = rast2 |> project("ESRI:54030")
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "ggthemes::Orange-Blue Diverging",
+    direction = -1,
+    na.value = "transparent"
+  ) +
+  ggthemes::theme_map() +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+      hjust = 0.5
+    )
+  ) +
+  labs(
+    title = "Global Minimum Temperatures (June)"
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "book_solutions", "images",
+    "chapter8-ex5.png"
+  ),
+  height = 3,
+  width = 5,
+  units = "cm"
+)
+```
+
+![](images/chapter8-ex5.png)
+
 ### E6.
 
 **Create a static map of Germany’s borders, and save it to a PNG file.**
+
+```{r}
+germany <- rnaturalearth::ne_countries(
+  country = "Germany",
+  scale = "large"
+)
+
+g <- ggplot() +
+  geom_sf(data = germany) +
+  coord_sf(crs = "EPSG:3035") +
+  labs(
+    title = "Map of Germany"
+  )
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "book_solutions", "images",
+    "chapter8-ex6.png"
+  )
+)
+```
+
+![](images/chapter8-ex6.png)
 
 ### E7.
 
