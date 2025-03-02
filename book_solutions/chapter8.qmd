@@ -1179,3 +1179,27 @@ ggsave(
 ### E7.
 
 **Create an interactive map using data from the `cycle_hire_xy.csv` file. Export this map to a file called `cycle_hire.html`.**
+
+```{r}
+#| eval: true
+#| fig-cap: "An interactive {mapview} map of cycle hiring points in London"
+#| fig-width: 10
+library(mapview)
+
+cycle_hire_data <- read_csv(
+  system.file("misc/cycle_hire_xy.csv", package = "spData")
+) |> 
+  st_as_sf(coords = c("X", "Y")) |> 
+  st_set_crs("EPSG:4326")
+
+# webshot::install_phantomjs()
+
+cycle_hire_data |> 
+  mapview(zcol = "nbikes", legend = TRUE)
+  
+# mapshot(cycle1,
+#         file = here::here("book_solutions", "images",
+#                           "chapter8-ex7.png"))
+
+
+```
