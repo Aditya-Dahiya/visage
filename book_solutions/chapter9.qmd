@@ -1,0 +1,157 @@
+---
+title: "Chapter 9: Making maps with R"
+subtitle: "Key Learnings from, and Solutions to the exercises in Chapter 8 of the book Geocomputation with R by Robin Lovelace, Jakub Nowosad and Jannes Muenchow."
+date: "2025-03-02"
+author: "Aditya Dahiya"
+bibliography: references.bib
+format:
+  html:
+    code-fold: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: false
+  cache: false
+categories:
+  - "Geocomputation with R"
+  - "Textbook Solutions"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/book_solutions/chapter9.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+In this chapter, I use **{ggplot2}** [@ggplot2-2] to produce equivalent maps, as produced by **{tmap}** [@tmap] in the textbook. In addition, I use **{cols4all}** [@cols4all] palettes for colour and fill scales.
+
+```{r}
+#| label: setup
+#| eval: true
+
+library(sf)        # Simple Features in R
+library(terra)     # Handling rasters in R
+library(tidyterra) # For plotting rasters in ggplot2
+library(magrittr)  # Using pipes with raster objects
+library(tidyverse) # All things tidy; Data Wrangling
+library(spData)    # Spatial Datasets
+library(patchwork) # Composing plots
+library(gt)        # Display GT tables with R
+```
+
+### 9.1 Introduction
+
+-   Cartography is a crucial aspect of geographic research, blending communication, detail, and creativity.
+-   Static maps in R can be created using the [`plot()`](https://r.geocompx.org/adv-map.html#base-r-maps) function, but advanced cartography benefits from dedicated packages.
+-   The chapter focuses in-depth on the [`tmap`](https://r-tmap.github.io/) package rather than multiple tools superficially.
+
+```{r}
+# install.packages("colorblindcheck")
+# install.packages("cols4all")
+
+# A nice way to pick colour palettes for maps etc.
+# cols4all::c4a_gui()
+cols4all::c4a_palettes()
+
+cols4all::c4a(palette = "powerbi.highrise") |> 
+  seecolor::print_color()
+```
+
+### 9.2 Static maps
+
+-   Most common type of geo-computation output, stored as `.png` (raster) and `.pdf` (vector).
+-   Base R's `plot()` is the fastest way to create static maps from [`sf`](https://r-spatial.github.io/sf/) or [`terra`](https://rspatial.github.io/terra/), ideal for quick visual checks.
+-   [`tmap`](https://r-tmap.github.io/tmap/) package offers:
+    -   Simple, ggplot2-like syntax.
+    -   Static and interactive maps with `tmap_mode()`.
+    -   Support for multiple spatial classes (`sf`, `terra`).
+
+### 9.2.1 `tmap` basics
+
+-   Grammar of graphics: Like [ggplot2](https://ggplot2.tidyverse.org/), [tmap](https://r-tmap.github.io/) follows a structured approach, separating input data from aesthetics (visual properties).
+-   Basic structure: Uses `tm_shape()` to define the input dataset (vector or raster), followed by layer elements like `tm_fill()` and `tm_borders()`.
+-   Layering approach:
+    -   `tm_fill()`: Fills (multi)polygon areas.
+    -   `tm_borders()`: Adds border outlines to (multi)polygons.
+    -   `tm_polygons()`: Combines fill and border.
+    -   `tm_lines()`: Draws lines for (multi)linestrings.
+    -   `tm_symbols()`: Adds symbols for points, lines, and polygons.
+    -   `tm_raster()`: Displays raster data.
+    -   `tm_rgb()`: Handles multi-layer rasters.
+    -   `tm_text()`: Adds text labels.
+-   Layering operator: The `+` operator is used to add multiple layers.
+-   Quick maps: `qtm()` provides a fast way to generate thematic maps (`qtm(nz)` ≈ `tm_shape(nz) + tm_fill() + tm_borders()`).
+    -   Limitations of qtm(): Less control over aesthetics, so not covered in detail in this chapter.
+
+### 9.2.2 Map objects
+
+-   {tmap} allows storing maps as objects, enabling modifications and layer additions.
+-   Use [`tm_polygons()`](https://r-tmap.github.io/tmap/reference/tm_polygons.html) to create a map object, combining `tm_fill()` and `tm_borders()`.
+-   Stored maps can be plotted later by simply calling the object.
+-   Additional layers are added using `+ tm_shape(new_obj)`, where `new_obj` represents a new spatial object.
+-   Aesthetic functions apply to the most recently added shape until another is introduced.
+-   Spatial objects can be manipulated with [`sf`](https://r-spatial.github.io/sf/), e.g., `st_union()`, `st_buffer()`, and `st_cast()`.
+-   Multiple layers can be added, such as:
+    -   Raster elevation (`tm_raster()`)
+    -   Territorial waters (`tm_lines()`)
+    -   High points (`tm_symbols()`)
+-   [`tmap_arrange()`](https://r-tmap.github.io/tmap/reference/tmap_arrange.html) combines multiple `tmap` objects into a single visualization.
+-   The `+` operator adds layers, but aesthetics are controlled within layer functions.
+
+### 9.2.3 Visual variables
+
+-   Default aesthetics in tmap:
+    -   `tm_fill()` and `tm_symbols()` use gray shades.
+    -   `tm_lines()` uses a continuous black line.
+    -   Defaults can be overridden for customization.
+-   Types of map aesthetics:
+    -   Variable-dependent aesthetics (change with data).
+    -   Fixed aesthetics (constant values).
+-   Key aesthetic arguments in tmap:
+    -   `fill`: Polygon fill color.
+    -   `col`: Border, line, point, or raster color.
+    -   `lwd`: Line width.
+    -   `lty`: Line type.
+    -   `size`: Symbol size.
+    -   `shape`: Symbol shape.
+    -   `fill_alpha`, `col_alpha`: Transparency for fill and border.
+-   Applying aesthetics:
+    -   Use a column name to map a variable. Pass a character string referring to a column name.
+    -   Use a fixed value for constant aesthetics.
+-   Additional arguments for visual variables:
+    -   `.scale`: Controls representation on the map and legend.
+    -   `.legend`: Customizes legend settings.
+    -   `.free`: Defines whether each facet uses the same or different scales.
+
+### 9.2.4 Scales
+
+-   Scales define how values are visually represented in maps and legends, depending on the selected visual variable (e.g., `fill.scale`, `col.scale`, `size.scale`).
+-   Default scale is [`tm_scale()`](https://r-tmap.github.io/tmap/reference/tm_scale.html), which auto-selects settings based on input data type (factor, numeric, integer).
+-   Colour settings impact spatial variability; customization options include:
+    -   `breaks`: manually set classification thresholds.
+    -   `n`: define the number of bins.
+    -   `values`: assign colour schemes (e.g., `"BuGn"`).
+-   **Family of scale functions in *tmap*:**
+    -   [`tm_scale_intervals()`](https://r-tmap.github.io/tmap/reference/tm_scale_intervals.html): splits values into intervals using predefined styles (`"pretty"`, `"equal"`, `"quantile"`, `"jenks"`, `"log10_pretty"`).
+    -   [`tm_scale_continuous()`](https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html): creates continuous colour fields, suitable for rasters.
+    -   [`tm_scale_categorical()`](https://r-tmap.github.io/tmap/reference/tm_scale_categorical.html): assigns unique colours to categorical values.
+-   Colour palettes are key for readability and should be carefully chosen:
+    -   [`cols4all::c4a_gui()`](https://mtennekes.github.io/cols4all/) helps find suitable palettes.
+    -   Default values for visual variables can be checked with [`tmap_options()`](https://r-tmap.github.io/tmap/reference/tmap_options.html).
+-   Three main colour palette types:
+    -   Categorical: distinct colours for unordered categories (e.g., land cover classes).
+    -   Sequential: gradient from light to dark, for continuous numeric variables.
+    -   Diverging: two sequential palettes meeting at a neutral reference point (e.g., temperature anomalies).
+-   Key considerations for colour choices:
+    -   Perceptibility: colours should match common associations (e.g., blue for water, green for vegetation).
+    -   Accessibility: use colour-blind-friendly palettes where possible.

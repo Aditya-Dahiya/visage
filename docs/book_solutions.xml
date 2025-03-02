@@ -10,7 +10,240 @@
 <atom:link href="https://aditya-dahiya.github.io/visage/index.html/book_solutions.xml" rel="self" type="application/rss+xml"/>
 <description>Visualizing Information and Spatial Analysis with ggplot2 Extensions</description>
 <generator>quarto-1.5.57</generator>
-<lastBuildDate>Sat, 18 Jan 2025 18:30:00 GMT</lastBuildDate>
+<lastBuildDate>Sat, 01 Mar 2025 18:30:00 GMT</lastBuildDate>
+<item>
+  <title>Chapter 9: Making maps with R</title>
+  <dc:creator>Aditya Dahiya</dc:creator>
+  <link>https://aditya-dahiya.github.io/visage/index.html/book_solutions/chapter9.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>In this chapter, I use <strong>{ggplot2}</strong> <span class="citation" data-cites="ggplot2-2">(Wickham 2016)</span> to produce equivalent maps, as produced by <strong>{tmap}</strong> <span class="citation" data-cites="tmap">(Tennekes 2018)</span> in the textbook. In addition, I use <strong>{cols4all}</strong> <span class="citation" data-cites="cols4all">(Tennekes and Puts 2023)</span> palettes for colour and fill scales.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(sf)        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Simple Features in R</span></span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(terra)     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Handling rasters in R</span></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyterra) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># For plotting rasters in ggplot2</span></span>
+<span id="cb1-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(magrittr)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Using pipes with raster objects</span></span>
+<span id="cb1-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># All things tidy; Data Wrangling</span></span>
+<span id="cb1-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(spData)    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Spatial Datasets</span></span>
+<span id="cb1-7"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(patchwork) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Composing plots</span></span>
+<span id="cb1-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(gt)        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Display GT tables with R</span></span></code></pre></div>
+</details>
+</div>
+<section id="introduction" class="level3">
+<h3 class="anchored" data-anchor-id="introduction">9.1 Introduction</h3>
+<ul>
+<li>Cartography is a crucial aspect of geographic research, blending communication, detail, and creativity.</li>
+<li>Static maps in R can be created using the <a href="https://r.geocompx.org/adv-map.html#base-r-maps"><code>plot()</code></a> function, but advanced cartography benefits from dedicated packages.</li>
+<li>The chapter focuses in-depth on the <a href="https://r-tmap.github.io/"><code>tmap</code></a> package rather than multiple tools superficially.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># install.packages("colorblindcheck")</span></span>
+<span id="cb2-2"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># install.packages("cols4all")</span></span>
+<span id="cb2-3"></span>
+<span id="cb2-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># A nice way to pick colour palettes for maps etc.</span></span>
+<span id="cb2-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># cols4all::c4a_gui()</span></span>
+<span id="cb2-6">cols4all<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c4a_palettes</span>()</span></code></pre></div>
+</details>
+</div>
+</section>
+<section id="static-maps" class="level3">
+<h3 class="anchored" data-anchor-id="static-maps">9.2 Static maps</h3>
+<ul>
+<li>Most common type of geo-computation output, stored as <code>.png</code> (raster) and <code>.pdf</code> (vector).</li>
+<li>Base R’s <code>plot()</code> is the fastest way to create static maps from <a href="https://r-spatial.github.io/sf/"><code>sf</code></a> or <a href="https://rspatial.github.io/terra/"><code>terra</code></a>, ideal for quick visual checks.</li>
+<li><a href="https://r-tmap.github.io/tmap/"><code>tmap</code></a> package offers:
+<ul>
+<li>Simple, ggplot2-like syntax.</li>
+<li>Static and interactive maps with <code>tmap_mode()</code>.</li>
+<li>Support for multiple spatial classes (<code>sf</code>, <code>terra</code>).</li>
+</ul></li>
+</ul>
+</section>
+<section id="tmap-basics" class="level3">
+<h3 class="anchored" data-anchor-id="tmap-basics">9.2.1 <code>tmap</code> basics</h3>
+<ul>
+<li>Grammar of graphics: Like <a href="https://ggplot2.tidyverse.org/">ggplot2</a>, <a href="https://r-tmap.github.io/">tmap</a> follows a structured approach, separating input data from aesthetics (visual properties).</li>
+<li>Basic structure: Uses <code>tm_shape()</code> to define the input dataset (vector or raster), followed by layer elements like <code>tm_fill()</code> and <code>tm_borders()</code>.</li>
+<li>Layering approach:
+<ul>
+<li><code>tm_fill()</code>: Fills (multi)polygon areas.</li>
+<li><code>tm_borders()</code>: Adds border outlines to (multi)polygons.</li>
+<li><code>tm_polygons()</code>: Combines fill and border.</li>
+<li><code>tm_lines()</code>: Draws lines for (multi)linestrings.</li>
+<li><code>tm_symbols()</code>: Adds symbols for points, lines, and polygons.</li>
+<li><code>tm_raster()</code>: Displays raster data.</li>
+<li><code>tm_rgb()</code>: Handles multi-layer rasters.</li>
+<li><code>tm_text()</code>: Adds text labels.</li>
+</ul></li>
+<li>Layering operator: The <code>+</code> operator is used to add multiple layers.</li>
+<li>Quick maps: <code>qtm()</code> provides a fast way to generate thematic maps (<code>qtm(nz)</code> ≈ <code>tm_shape(nz) + tm_fill() + tm_borders()</code>).
+<ul>
+<li>Limitations of qtm(): Less control over aesthetics, so not covered in detail in this chapter.</li>
+</ul></li>
+</ul>
+</section>
+<section id="map-objects" class="level3">
+<h3 class="anchored" data-anchor-id="map-objects">9.2.2 Map objects</h3>
+<ul>
+<li>{tmap} allows storing maps as objects, enabling modifications and layer additions.</li>
+<li>Use <a href="https://r-tmap.github.io/tmap/reference/tm_polygons.html"><code>tm_polygons()</code></a> to create a map object, combining <code>tm_fill()</code> and <code>tm_borders()</code>.</li>
+<li>Stored maps can be plotted later by simply calling the object.</li>
+<li>Additional layers are added using <code>+ tm_shape(new_obj)</code>, where <code>new_obj</code> represents a new spatial object.</li>
+<li>Aesthetic functions apply to the most recently added shape until another is introduced.</li>
+<li>Spatial objects can be manipulated with <a href="https://r-spatial.github.io/sf/"><code>sf</code></a>, e.g., <code>st_union()</code>, <code>st_buffer()</code>, and <code>st_cast()</code>.</li>
+<li>Multiple layers can be added, such as:
+<ul>
+<li>Raster elevation (<code>tm_raster()</code>)</li>
+<li>Territorial waters (<code>tm_lines()</code>)</li>
+<li>High points (<code>tm_symbols()</code>)</li>
+</ul></li>
+<li><a href="https://r-tmap.github.io/tmap/reference/tmap_arrange.html"><code>tmap_arrange()</code></a> combines multiple <code>tmap</code> objects into a single visualization.</li>
+<li>The <code>+</code> operator adds layers, but aesthetics are controlled within layer functions.</li>
+</ul>
+</section>
+<section id="visual-variables" class="level3">
+<h3 class="anchored" data-anchor-id="visual-variables">9.2.3 Visual variables</h3>
+<ul>
+<li>Default aesthetics in tmap:
+<ul>
+<li><code>tm_fill()</code> and <code>tm_symbols()</code> use gray shades.</li>
+<li><code>tm_lines()</code> uses a continuous black line.</li>
+<li>Defaults can be overridden for customization.</li>
+</ul></li>
+<li>Types of map aesthetics:
+<ul>
+<li>Variable-dependent aesthetics (change with data).</li>
+<li>Fixed aesthetics (constant values).</li>
+</ul></li>
+<li>Key aesthetic arguments in tmap:
+<ul>
+<li><code>fill</code>: Polygon fill color.</li>
+<li><code>col</code>: Border, line, point, or raster color.</li>
+<li><code>lwd</code>: Line width.</li>
+<li><code>lty</code>: Line type.</li>
+<li><code>size</code>: Symbol size.</li>
+<li><code>shape</code>: Symbol shape.</li>
+<li><code>fill_alpha</code>, <code>col_alpha</code>: Transparency for fill and border.</li>
+</ul></li>
+<li>Applying aesthetics:
+<ul>
+<li>Use a column name to map a variable. Pass a character string referring to a column name.</li>
+<li>Use a fixed value for constant aesthetics.</li>
+</ul></li>
+<li>Additional arguments for visual variables:
+<ul>
+<li><code>.scale</code>: Controls representation on the map and legend.</li>
+<li><code>.legend</code>: Customizes legend settings.</li>
+<li><code>.free</code>: Defines whether each facet uses the same or different scales.</li>
+</ul></li>
+</ul>
+</section>
+<section id="scales" class="level3">
+<h3 class="anchored" data-anchor-id="scales">9.2.4 Scales</h3>
+<ul>
+<li>Scales define how values are visually represented in maps and legends, depending on the selected visual variable (e.g., <code>fill.scale</code>, <code>col.scale</code>, <code>size.scale</code>).</li>
+<li>Default scale is <a href="https://r-tmap.github.io/tmap/reference/tm_scale.html"><code>tm_scale()</code></a>, which auto-selects settings based on input data type (factor, numeric, integer).</li>
+<li>Colour settings impact spatial variability; customization options include:
+<ul>
+<li><code>breaks</code>: manually set classification thresholds.</li>
+<li><code>n</code>: define the number of bins.</li>
+<li><code>values</code>: assign colour schemes (e.g., <code>"BuGn"</code>).</li>
+</ul></li>
+<li><strong>Family of scale functions in <em>tmap</em>:</strong>
+<ul>
+<li><a href="https://r-tmap.github.io/tmap/reference/tm_scale_intervals.html"><code>tm_scale_intervals()</code></a>: splits values into intervals using predefined styles (<code>"pretty"</code>, <code>"equal"</code>, <code>"quantile"</code>, <code>"jenks"</code>, <code>"log10_pretty"</code>).</li>
+<li><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html"><code>tm_scale_continuous()</code></a>: creates continuous colour fields, suitable for rasters.</li>
+<li><a href="https://r-tmap.github.io/tmap/reference/tm_scale_categorical.html"><code>tm_scale_categorical()</code></a>: assigns unique colours to categorical values.</li>
+</ul></li>
+<li>Colour palettes are key for readability and should be carefully chosen:
+<ul>
+<li><a href="https://mtennekes.github.io/cols4all/"><code>cols4all::c4a_gui()</code></a> helps find suitable palettes.</li>
+<li>Default values for visual variables can be checked with <a href="https://r-tmap.github.io/tmap/reference/tmap_options.html"><code>tmap_options()</code></a>.</li>
+</ul></li>
+<li>Three main colour palette types:
+<ul>
+<li>Categorical: distinct colours for unordered categories (e.g., land cover classes).</li>
+<li>Sequential: gradient from light to dark, for continuous numeric variables.</li>
+<li>Diverging: two sequential palettes meeting at a neutral reference point (e.g., temperature anomalies).</li>
+</ul></li>
+<li>Key considerations for colour choices:
+<ul>
+<li>Perceptibility: colours should match common associations (e.g., blue for water, green for vegetation).</li>
+<li>Accessibility: use colour-blind-friendly palettes where possible.</li>
+</ul></li>
+</ul>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0">
+<div id="ref-tmap" class="csl-entry">
+Tennekes, Martijn. 2018. <span>“<span></span>Tmap<span></span>: Thematic Maps in <span></span>r<span></span>”</span> 84. <a href="https://doi.org/10.18637/jss.v084.i06">https://doi.org/10.18637/jss.v084.i06</a>.
+</div>
+<div id="ref-cols4all" class="csl-entry">
+Tennekes, Martijn, and Marco J. H. Puts. 2023. <span>“<span></span>Cols4all<span></span>: A Color Palette Analysis Tool.”</span> <em>EuroVis (Short Papers)</em>. <a href="https://doi.org/10.2312/evs.20231040">https://doi.org/10.2312/evs.20231040</a>.
+</div>
+<div id="ref-ggplot2-2" class="csl-entry">
+Wickham, Hadley. 2016. <span>“Ggplot2: Elegant Graphics for Data Analysis.”</span> <a href="https://ggplot2.tidyverse.org">https://ggplot2.tidyverse.org</a>.
+</div>
+</div></section></div> ]]></description>
+  <category>Geocomputation with R</category>
+  <category>Textbook Solutions</category>
+  <guid>https://aditya-dahiya.github.io/visage/index.html/book_solutions/chapter9.html</guid>
+  <pubDate>Sat, 01 Mar 2025 18:30:00 GMT</pubDate>
+</item>
 <item>
   <title>Chapter 8: Geographic data I/O</title>
   <dc:creator>Aditya Dahiya</dc:creator>
