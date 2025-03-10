@@ -255,4 +255,56 @@ ggsave(
 )
 ```
 
-![](images/ggmap_terra_1.png)
+![A raster tile maps of Stamen Toner Background for London area, plotted at the base. London Boroughs' borders plotted on top of it, along with names of the boroughs.](images/ggmap_terra_1.png)
+
+```{r}
+
+# haryana <- geodata::gadm(
+#   country = "India",
+#   level = 3,
+#   path = tempdir()
+# )
+# 
+# haryana |> 
+#   janitor::clean_names() |> 
+#   filter(name_1 == "Haryana") |> 
+#   st_as_sf() |> 
+#   ggplot() +
+#   geom_sf() +
+#   geom_sf_text(
+#     size = 3,
+#     mapping = aes(label = name_3)
+#   )
+
+haryana <- read_sf(
+  here::here(
+    "data", "haryana_map",
+    "HARYANA_SUBDISTRICT_BDY.shp"
+  )
+) |> 
+  janitor::clean_names() |> 
+  mutate(
+    district = str_replace_all(district, ">", "A"),
+    district = str_replace_all(district, "\\|", "I"),
+    district = str_to_title(district),
+    tehsil = str_replace_all(tehsil, ">", "A"),
+    tehsil = str_replace_all(tehsil, "\\|", "I"),
+    tehsil = str_to_title(tehsil)
+  ) |> 
+  st_simplify(dTolerance = 100) |> 
+  select(-state, -shape_leng, -shape_area)
+
+haryana_boundary
+
+haryana |> 
+  st_union() |> 
+  st_cast("POLYGON") |> 
+  st_as_sf() |> 
+  slice(1) |> 
+  ggplot() +
+  geom_sf()
+
+  
+ggplot() +
+  geom_sf(data = haryana_boundary)
+```
