@@ -53,6 +53,7 @@ library(tidyterra)  # Helper functions for using terra with ggplot2
 
 # Getting raster tiles
 library(ggmap)      # Getting map raster tiles
+library(osmdata)    # Get Open Street Maps
 
 # Final plot tools
 library(scales)               # Nice Scales for ggplot2
@@ -61,7 +62,7 @@ library(ggtext)               # Markdown text in ggplot2
 library(showtext)             # Display fonts in ggplot2
 library(patchwork)            # Composing Plots
 
-bts = 42 # Base Text Size
+bts = 12 # Base Text Size
 sysfonts::font_add_google("Roboto Condensed", "body_font")
 sysfonts::font_add_google("Oswald", "title_font")
 sysfonts::font_add_google("Saira Extra Condensed", "caption_font")
@@ -307,4 +308,78 @@ haryana |>
   
 ggplot() +
   geom_sf(data = haryana_boundary)
+```
+
+Mapping a Coastal Town, Vladivostok (Russia) to highlight coastline, elevation and urban landscape in R
+
+[Inspiration Code](https://aditya-dahiya.github.io/visage/book_solutions/chapter7.html#fig-9_2) for custom CRS projections, written by me for another page.
+
+[May Style Library](https://docs.stadiamaps.com/themes/) (for the StadiaMaps)
+
+```{r}
+
+city_bb <- osmdata::getbb("Vladivostok")
+
+city_map <- opq(bbox = city_bb) |> 
+  add_osm_feature(
+    key = "boundary",
+    value = "administrative"
+  ) |> 
+  osmdata_sf()
+
+new_crs <- paste0(
+  "+proj=laea +x_0=0 +y_0=0 +lon_0=", mean(city_bb[1, 1], city_bb[1, 2]), 
+  " +lat_0=", mean(city_bb[2, 1], city_bb[2, 2])
+)
+
+# register_stadiamaps("your-key-here")
+# Convert bbox to a polygon
+coords <- matrix(c(
+  city_bb["x", "min"], city_bb["y", "min"],  # bottom-left
+  city_bb["x", "max"], city_bb["y", "min"],  # bottom-right
+  city_bb["x", "max"], city_bb["y", "max"],  # top-right
+  city_bb["x", "min"], city_bb["y", "max"],  # top-left
+  city_bb["x", "min"], city_bb["y", "min"]   # back to start to close polygon
+), ncol = 2, byrow = TRUE)
+
+# Create sf polygon object
+city_poly <- st_polygon(list(coords)) %>%
+  st_sfc() |>                     # create simple feature collection
+  st_sf() |>                      # convert to sf object
+  st_set_crs("EPSG:4326")
+rm(coords)
+
+city_map1 <- city_map$osm_multipolygons |>
+  select(osm_id, name, admin_level, geometry) |> 
+  filter(admin_level == 9)
+
+city_border <- city_map1 |> 
+  st_geometry() |> 
+  st_union()
+
+raw_rast <- get_stadiamap(
+  bbox = st_bbox(city_border),
+  zoom = 8,
+  maptype = "stamen_toner_background"
+)
+
+ggplot(
+  data = city_map1,
+  ) +
+  geom_sf(
+    alpha = 0.3
+  ) +
+  geom_sf(
+    data =  city_poly,
+    fill = NA
+  )
+
+ggplot() +
+  geom_sf(
+    data = city_map1
+  ) +
+  coord_sf(
+    crs = "EPSG:4326"
+  ) +
+  ggthemes::theme_map()
 ```
