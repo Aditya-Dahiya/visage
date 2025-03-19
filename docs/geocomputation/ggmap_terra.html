@@ -195,6 +195,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#loading-libraries" id="toc-loading-libraries" class="nav-link active" data-scroll-target="#loading-libraries">Loading Libraries</a></li>
   <li><a href="#getting-cropping-masking-and-plotting-raster-maps" id="toc-getting-cropping-masking-and-plotting-raster-maps" class="nav-link" data-scroll-target="#getting-cropping-masking-and-plotting-raster-maps">Getting, cropping, masking and plotting raster maps</a></li>
+  <li><a href="#mapping-a-coastal-town---vladivostok" id="toc-mapping-a-coastal-town---vladivostok" class="nav-link" data-scroll-target="#mapping-a-coastal-town---vladivostok">Mapping a Coastal Town - Vladivostok</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/ggmap_terra.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -258,73 +259,74 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Getting raster tiles</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggmap)      <span class="co"># Getting map raster tiles</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Final plot tools</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)               <span class="co"># Nice Scales for ggplot2</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fontawesome)          <span class="co"># Icons display in ggplot2</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggtext)               <span class="co"># Markdown text in ggplot2</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(showtext)             <span class="co"># Display fonts in ggplot2</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)            <span class="co"># Composing Plots</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>bts <span class="ot">=</span> <span class="dv">42</span> <span class="co"># Base Text Size</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>sysfonts<span class="sc">::</span><span class="fu">font_add_google</span>(<span class="st">"Roboto Condensed"</span>, <span class="st">"body_font"</span>)</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>sysfonts<span class="sc">::</span><span class="fu">font_add_google</span>(<span class="st">"Oswald"</span>, <span class="st">"title_font"</span>)</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>sysfonts<span class="sc">::</span><span class="fu">font_add_google</span>(<span class="st">"Saira Extra Condensed"</span>, <span class="st">"caption_font"</span>)</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>showtext<span class="sc">::</span><span class="fu">showtext_auto</span>()</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># A base Colour</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>bg_col <span class="ot">&lt;-</span> <span class="st">"white"</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>seecolor<span class="sc">::</span><span class="fu">print_color</span>(bg_col)</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Colour for highlighted text</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>text_hil <span class="ot">&lt;-</span> <span class="st">"grey30"</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>seecolor<span class="sc">::</span><span class="fu">print_color</span>(text_hil)</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Colour for the text</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>text_col <span class="ot">&lt;-</span> <span class="st">"grey20"</span></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>seecolor<span class="sc">::</span><span class="fu">print_color</span>(text_col)</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_size =</span> bts,</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_family =</span> <span class="st">"body_font"</span></span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(</span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>      <span class="at">text =</span> <span class="fu">element_text</span>(</span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>        <span class="at">colour =</span> <span class="st">"grey30"</span>,</span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>        <span class="at">lineheight =</span> <span class="fl">0.3</span>,</span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>        <span class="at">margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>, <span class="st">"pt"</span>)</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>      ),</span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>        <span class="at">hjust =</span> <span class="fl">0.5</span></span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>      ),</span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(</span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>        <span class="at">hjust =</span> <span class="fl">0.5</span></span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a><span class="co"># Caption stuff for the plot</span></span>
-<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>sysfonts<span class="sc">::</span><span class="fu">font_add</span>(</span>
-<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"Font Awesome 6 Brands"</span>,</span>
-<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>  <span class="at">regular =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"docs"</span>, <span class="st">"Font Awesome 6 Brands-Regular-400.otf"</span>)</span>
-<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>github <span class="ot">&lt;-</span> <span class="st">"&amp;#xf09b"</span></span>
-<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>github_username <span class="ot">&lt;-</span> <span class="st">"aditya-dahiya"</span></span>
-<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>xtwitter <span class="ot">&lt;-</span> <span class="st">"&amp;#xe61b"</span></span>
-<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>xtwitter_username <span class="ot">&lt;-</span> <span class="st">"@adityadahiyaias"</span></span>
-<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>social_caption_1 <span class="ot">&lt;-</span> glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"&lt;span style='font-family:</span><span class="sc">\"</span><span class="st">Font Awesome 6 Brands</span><span class="sc">\"</span><span class="st">;'&gt;{github};&lt;/span&gt; &lt;span style='color: {text_hil}'&gt;{github_username}  &lt;/span&gt;"</span>)</span>
-<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>social_caption_2 <span class="ot">&lt;-</span> glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"&lt;span style='font-family:</span><span class="sc">\"</span><span class="st">Font Awesome 6 Brands</span><span class="sc">\"</span><span class="st">;'&gt;{xtwitter};&lt;/span&gt; &lt;span style='color: {text_hil}'&gt;{xtwitter_username}&lt;/span&gt;"</span>)</span>
-<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>plot_caption <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
-<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>  <span class="st">"**Data**:  StadiaMaps &amp; Open Street Maps"</span>,</span>
-<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>  <span class="st">"  |  **Code:** "</span>, </span>
-<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>  social_caption_1, </span>
-<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>  <span class="st">" |  **Graphics:** "</span>, </span>
-<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>  social_caption_2</span>
-<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(github, github_username, xtwitter, </span>
-<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>   xtwitter_username, social_caption_1, </span>
-<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>   social_caption_2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(osmdata)    <span class="co"># Get Open Street Maps</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Final plot tools</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)               <span class="co"># Nice Scales for ggplot2</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fontawesome)          <span class="co"># Icons display in ggplot2</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggtext)               <span class="co"># Markdown text in ggplot2</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(showtext)             <span class="co"># Display fonts in ggplot2</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)            <span class="co"># Composing Plots</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>bts <span class="ot">=</span> <span class="dv">12</span> <span class="co"># Base Text Size</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>sysfonts<span class="sc">::</span><span class="fu">font_add_google</span>(<span class="st">"Roboto Condensed"</span>, <span class="st">"body_font"</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>sysfonts<span class="sc">::</span><span class="fu">font_add_google</span>(<span class="st">"Oswald"</span>, <span class="st">"title_font"</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>sysfonts<span class="sc">::</span><span class="fu">font_add_google</span>(<span class="st">"Saira Extra Condensed"</span>, <span class="st">"caption_font"</span>)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>showtext<span class="sc">::</span><span class="fu">showtext_auto</span>()</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># A base Colour</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>bg_col <span class="ot">&lt;-</span> <span class="st">"white"</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>seecolor<span class="sc">::</span><span class="fu">print_color</span>(bg_col)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Colour for highlighted text</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>text_hil <span class="ot">&lt;-</span> <span class="st">"grey30"</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>seecolor<span class="sc">::</span><span class="fu">print_color</span>(text_hil)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Colour for the text</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>text_col <span class="ot">&lt;-</span> <span class="st">"grey20"</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>seecolor<span class="sc">::</span><span class="fu">print_color</span>(text_col)</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_size =</span> bts,</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_family =</span> <span class="st">"body_font"</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>      <span class="at">text =</span> <span class="fu">element_text</span>(</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>        <span class="at">colour =</span> <span class="st">"grey30"</span>,</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>        <span class="at">lineheight =</span> <span class="fl">0.3</span>,</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>        <span class="at">margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>, <span class="st">"pt"</span>)</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>        <span class="at">hjust =</span> <span class="fl">0.5</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>        <span class="at">hjust =</span> <span class="fl">0.5</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a><span class="co"># Caption stuff for the plot</span></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>sysfonts<span class="sc">::</span><span class="fu">font_add</span>(</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"Font Awesome 6 Brands"</span>,</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>  <span class="at">regular =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"docs"</span>, <span class="st">"Font Awesome 6 Brands-Regular-400.otf"</span>)</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>github <span class="ot">&lt;-</span> <span class="st">"&amp;#xf09b"</span></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>github_username <span class="ot">&lt;-</span> <span class="st">"aditya-dahiya"</span></span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>xtwitter <span class="ot">&lt;-</span> <span class="st">"&amp;#xe61b"</span></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>xtwitter_username <span class="ot">&lt;-</span> <span class="st">"@adityadahiyaias"</span></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>social_caption_1 <span class="ot">&lt;-</span> glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"&lt;span style='font-family:</span><span class="sc">\"</span><span class="st">Font Awesome 6 Brands</span><span class="sc">\"</span><span class="st">;'&gt;{github};&lt;/span&gt; &lt;span style='color: {text_hil}'&gt;{github_username}  &lt;/span&gt;"</span>)</span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>social_caption_2 <span class="ot">&lt;-</span> glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"&lt;span style='font-family:</span><span class="sc">\"</span><span class="st">Font Awesome 6 Brands</span><span class="sc">\"</span><span class="st">;'&gt;{xtwitter};&lt;/span&gt; &lt;span style='color: {text_hil}'&gt;{xtwitter_username}&lt;/span&gt;"</span>)</span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>plot_caption <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>  <span class="st">"**Data**:  StadiaMaps &amp; Open Street Maps"</span>,</span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>  <span class="st">"  |  **Code:** "</span>, </span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>  social_caption_1, </span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>  <span class="st">" |  **Graphics:** "</span>, </span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>  social_caption_2</span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(github, github_username, xtwitter, </span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>   xtwitter_username, social_caption_1, </span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>   social_caption_2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
@@ -461,7 +463,250 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-125"><a href="#cb2-125" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p><a href="images/ggmap_terra_1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="images/ggmap_terra_1.png" class="img-fluid"></a></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/ggmap_terra_1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="A raster tile maps of Stamen Toner Background for London area, plotted at the base. London Boroughs’ borders plotted on top of it, along with names of the boroughs."><img src="images/ggmap_terra_1.png" class="img-fluid figure-img" alt="A raster tile maps of Stamen Toner Background for London area, plotted at the base. London Boroughs’ borders plotted on top of it, along with names of the boroughs."></a></p>
+<figcaption>A raster tile maps of Stamen Toner Background for London area, plotted at the base. London Boroughs’ borders plotted on top of it, along with names of the boroughs.</figcaption>
+</figure>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># haryana &lt;- geodata::gadm(</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   country = "India",</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   level = 3,</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   path = tempdir()</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># )</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># haryana |&gt; </span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   janitor::clean_names() |&gt; </span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(name_1 == "Haryana") |&gt; </span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#   st_as_sf() |&gt; </span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#   ggplot() +</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_sf() +</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_sf_text(</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#     size = 3,</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#     mapping = aes(label = name_3)</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#   )</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>haryana <span class="ot">&lt;-</span> <span class="fu">read_sf</span>(</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  here<span class="sc">::</span><span class="fu">here</span>(</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"data"</span>, <span class="st">"haryana_map"</span>,</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"HARYANA_SUBDISTRICT_BDY.shp"</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">district =</span> <span class="fu">str_replace_all</span>(district, <span class="st">"&gt;"</span>, <span class="st">"A"</span>),</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">district =</span> <span class="fu">str_replace_all</span>(district, <span class="st">"</span><span class="sc">\\</span><span class="st">|"</span>, <span class="st">"I"</span>),</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">district =</span> <span class="fu">str_to_title</span>(district),</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">tehsil =</span> <span class="fu">str_replace_all</span>(tehsil, <span class="st">"&gt;"</span>, <span class="st">"A"</span>),</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">tehsil =</span> <span class="fu">str_replace_all</span>(tehsil, <span class="st">"</span><span class="sc">\\</span><span class="st">|"</span>, <span class="st">"I"</span>),</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">tehsil =</span> <span class="fu">str_to_title</span>(tehsil)</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_simplify</span>(<span class="at">dTolerance =</span> <span class="dv">100</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>state, <span class="sc">-</span>shape_leng, <span class="sc">-</span>shape_area)</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>haryana_boundary</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>haryana <span class="sc">|&gt;</span> </span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_union</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_cast</span>(<span class="st">"POLYGON"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">1</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>()</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> haryana_boundary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="mapping-a-coastal-town---vladivostok" class="level3">
+<h3 class="anchored" data-anchor-id="mapping-a-coastal-town---vladivostok">Mapping a Coastal Town - Vladivostok</h3>
+<p>This code showcases the creation of a detailed administrative map of Vladivostok using a powerful combination of R spatial packages. The workflow begins by retrieving administrative boundary data via the <a href="https://docs.ropensci.org/osmdata/">osmdata</a> package, then processes these geometries using <a href="https://r-spatial.github.io/sf/">sf</a> for spatial operations. The map incorporates a stylish dark basemap from Stadia Maps, accessed through <a href="https://github.com/dkahle/ggmap">ggmap</a>, which is then carefully cropped and masked to the city boundaries using <a href="https://rspatial.org/terra/">terra</a> functions. The visualization layer, built with <a href="https://ggplot2.tidyverse.org/">ggplot2</a>, combines the raster basemap with vector boundaries and elegantly positioned labels using <a href="https://ggrepel.slowkow.com/">ggrepel</a>. The code demonstrates a sophisticated integration of multiple spatial data processing techniques—from acquisition to transformation to visualization—resulting in a professional-quality map that highlights Vladivostok’s administrative regions with both Russian and English labels. The approach illustrates modern R spatial data visualization practices, combining the strengths of multiple packages to handle different aspects of the geospatial workflow.</p>
+<p><a href="https://aditya-dahiya.github.io/visage/book_solutions/chapter7.html#fig-9_2">Inspiration Code</a> for custom CRS projections, written by me for another page. <a href="https://docs.stadiamaps.com/themes/">May Style Library</a> (for the StadiaMaps)</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Background Colour</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>bg_col <span class="ot">&lt;-</span> <span class="st">"white"</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>city_bb <span class="ot">&lt;-</span> osmdata<span class="sc">::</span><span class="fu">getbb</span>(<span class="st">"Vladivostok"</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>city_map <span class="ot">&lt;-</span> <span class="fu">opq</span>(<span class="at">bbox =</span> city_bb) <span class="sc">|&gt;</span> </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_osm_feature</span>(</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">key =</span> <span class="st">"boundary"</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">value =</span> <span class="st">"administrative"</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">osmdata_sf</span>()</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>new_crs <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">"+proj=laea +x_0=0 +y_0=0 +lon_0="</span>, <span class="fu">mean</span>(city_bb[<span class="dv">1</span>, <span class="dv">1</span>], city_bb[<span class="dv">1</span>, <span class="dv">2</span>]), </span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">" +lat_0="</span>, <span class="fu">mean</span>(city_bb[<span class="dv">2</span>, <span class="dv">1</span>], city_bb[<span class="dv">2</span>, <span class="dv">2</span>])</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># register_stadiamaps("your-key-here")</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert bbox to a polygon</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>coords <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  city_bb[<span class="st">"x"</span>, <span class="st">"min"</span>], city_bb[<span class="st">"y"</span>, <span class="st">"min"</span>],  <span class="co"># bottom-left</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  city_bb[<span class="st">"x"</span>, <span class="st">"max"</span>], city_bb[<span class="st">"y"</span>, <span class="st">"min"</span>],  <span class="co"># bottom-right</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  city_bb[<span class="st">"x"</span>, <span class="st">"max"</span>], city_bb[<span class="st">"y"</span>, <span class="st">"max"</span>],  <span class="co"># top-right</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  city_bb[<span class="st">"x"</span>, <span class="st">"min"</span>], city_bb[<span class="st">"y"</span>, <span class="st">"max"</span>],  <span class="co"># top-left</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  city_bb[<span class="st">"x"</span>, <span class="st">"min"</span>], city_bb[<span class="st">"y"</span>, <span class="st">"min"</span>]   <span class="co"># back to start to close polygon</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Create sf polygon object</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>city_poly <span class="ot">&lt;-</span> <span class="fu">st_polygon</span>(<span class="fu">list</span>(coords)) <span class="sc">%&gt;%</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_sfc</span>() <span class="sc">|&gt;</span>                     <span class="co"># create simple feature collection</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_sf</span>() <span class="sc">|&gt;</span>                      <span class="co"># convert to sf object</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_set_crs</span>(<span class="st">"EPSG:4326"</span>)</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(coords)</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>city_map1 <span class="ot">&lt;-</span> city_map<span class="sc">$</span>osm_multipolygons <span class="sc">|&gt;</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(osm_id, name, admin_level, geometry, <span class="st">`</span><span class="at">name:en</span><span class="st">`</span>, name) <span class="sc">|&gt;</span> </span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(admin_level <span class="sc">==</span> <span class="dv">9</span>)</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>city_border <span class="ot">&lt;-</span> city_map1 <span class="sc">|&gt;</span> </span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_geometry</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_union</span>()</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>stadia_bbox <span class="ot">&lt;-</span> <span class="fu">st_bbox</span>(city_border)</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(stadia_bbox) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"left"</span>, <span class="st">"bottom"</span>, <span class="st">"right"</span>, <span class="st">"top"</span>)</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>raw_rast <span class="ot">&lt;-</span> <span class="fu">get_stadiamap</span>(</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">bbox =</span> stadia_bbox,</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">zoom =</span> <span class="dv">12</span>,</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>  <span class="at">maptype =</span> <span class="st">"alidade_smooth_dark"</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>rast <span class="ot">&lt;-</span> raw_rast <span class="sc">|&gt;</span> </span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>  terra<span class="sc">::</span><span class="fu">rast</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>  terra<span class="sc">::</span><span class="fu">crop</span>(city_map1) <span class="sc">|&gt;</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>  terra<span class="sc">::</span><span class="fu">mask</span>(city_map1, <span class="at">touches =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>city_map<span class="sc">$</span>osm_multipolygons <span class="sc">|&gt;</span> </span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">`</span><span class="at">name:en</span><span class="st">`</span>, name, osm_id)</span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>city_names <span class="ot">&lt;-</span> city_map<span class="sc">$</span>osm_multipolygons <span class="sc">|&gt;</span> </span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_centroid</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(name, <span class="st">`</span><span class="at">name:en</span><span class="st">`</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_crop</span>(city_poly)</span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_spatraster_rgb</span>(</span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> rast,</span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>    <span class="at">maxcell =</span> <span class="fl">1e8</span></span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> city_map1,</span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="cn">NA</span>,</span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="fu">alpha</span>(<span class="st">"white"</span>, <span class="fl">0.2</span>),</span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="fl">0.5</span></span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>  ggrepel<span class="sc">::</span><span class="fu">geom_label_repel</span>(</span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> city_map1,</span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> <span class="fu">paste0</span>(name, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>,<span class="st">`</span><span class="at">name:en</span><span class="st">`</span>),</span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>      <span class="at">geometry =</span> geometry</span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="st">"body_font"</span>,</span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>    <span class="at">lineheight =</span> <span class="fl">0.3</span>,</span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="fu">alpha</span>(<span class="st">"white"</span>, <span class="fl">0.9</span>),</span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a>    <span class="at">stat =</span> <span class="st">"sf_coordinates"</span>,</span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"grey20"</span>,</span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">12</span>,</span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a>    <span class="at">hjust =</span> <span class="dv">0</span>,</span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a>    <span class="at">label.size =</span> <span class="cn">NA</span>,</span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a>    <span class="at">nudge_x =</span> <span class="fl">0.15</span>,</span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a>    <span class="at">direction =</span> <span class="st">"y"</span>,</span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a>    <span class="at">arrow =</span> <span class="fu">arrow</span>(</span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a>      <span class="at">length =</span> <span class="fu">unit</span>(<span class="dv">5</span>, <span class="st">"pt"</span>)</span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a>    ), </span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a>    <span class="at">segment.colour =</span> <span class="st">"grey"</span></span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(</span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a>    <span class="at">geom =</span> <span class="st">"label"</span>,</span>
+<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fl">131.7</span>,</span>
+<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fl">43.33</span>,</span>
+<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="st">"Владивосток</span><span class="sc">\n</span><span class="st">(Vladivostok)"</span>,</span>
+<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="st">"title_font"</span>,</span>
+<span id="cb4-104"><a href="#cb4-104" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">60</span>,</span>
+<span id="cb4-105"><a href="#cb4-105" aria-hidden="true" tabindex="-1"></a>    <span class="at">hjust =</span> <span class="dv">0</span>,</span>
+<span id="cb4-106"><a href="#cb4-106" aria-hidden="true" tabindex="-1"></a>    <span class="at">vjust =</span> <span class="dv">1</span>,</span>
+<span id="cb4-107"><a href="#cb4-107" aria-hidden="true" tabindex="-1"></a>    <span class="at">lineheight =</span> <span class="fl">0.3</span>,</span>
+<span id="cb4-108"><a href="#cb4-108" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> text_hil,</span>
+<span id="cb4-109"><a href="#cb4-109" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="fu">alpha</span>(bg_col, <span class="fl">0.7</span>),</span>
+<span id="cb4-110"><a href="#cb4-110" aria-hidden="true" tabindex="-1"></a>    <span class="at">label.padding =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"lines"</span>),</span>
+<span id="cb4-111"><a href="#cb4-111" aria-hidden="true" tabindex="-1"></a>    <span class="at">label.size =</span> <span class="cn">NA</span></span>
+<span id="cb4-112"><a href="#cb4-112" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-113"><a href="#cb4-113" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(</span>
+<span id="cb4-114"><a href="#cb4-114" aria-hidden="true" tabindex="-1"></a>    <span class="at">geom =</span> <span class="st">"label"</span>,</span>
+<span id="cb4-115"><a href="#cb4-115" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fl">132.3</span>,</span>
+<span id="cb4-116"><a href="#cb4-116" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fl">42.93</span>,</span>
+<span id="cb4-117"><a href="#cb4-117" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="fu">str_wrap</span>(<span class="st">"Administrative boundaries of Vladivostok visualized using ggplot2, sf, and tidyterra, with administrative region names and boundaries obtained via osmdata's add_osm_feature(). Map uses 'Alidade Smooth Dark' basemap from Stadia Maps via ggmap's get_stadiamap(), processed with terra's mask() and crop(), then rendered with ggplot(), geom_sf(), and geom_spatraster_rgb()."</span>, <span class="dv">50</span>),</span>
+<span id="cb4-118"><a href="#cb4-118" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="st">"body_font"</span>,</span>
+<span id="cb4-119"><a href="#cb4-119" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">18</span>,</span>
+<span id="cb4-120"><a href="#cb4-120" aria-hidden="true" tabindex="-1"></a>    <span class="at">hjust =</span> <span class="dv">1</span>,</span>
+<span id="cb4-121"><a href="#cb4-121" aria-hidden="true" tabindex="-1"></a>    <span class="at">vjust =</span> <span class="dv">0</span>,</span>
+<span id="cb4-122"><a href="#cb4-122" aria-hidden="true" tabindex="-1"></a>    <span class="at">lineheight =</span> <span class="fl">0.32</span>,</span>
+<span id="cb4-123"><a href="#cb4-123" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="fu">alpha</span>(bg_col, <span class="fl">0.7</span>),</span>
+<span id="cb4-124"><a href="#cb4-124" aria-hidden="true" tabindex="-1"></a>    <span class="at">label.padding =</span> <span class="fu">unit</span>(<span class="fl">0.1</span>, <span class="st">"lines"</span>),</span>
+<span id="cb4-125"><a href="#cb4-125" aria-hidden="true" tabindex="-1"></a>    <span class="at">label.size =</span> <span class="cn">NA</span>,</span>
+<span id="cb4-126"><a href="#cb4-126" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> text_hil</span>
+<span id="cb4-127"><a href="#cb4-127" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-128"><a href="#cb4-128" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb4-129"><a href="#cb4-129" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>,</span>
+<span id="cb4-130"><a href="#cb4-130" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> plot_caption</span>
+<span id="cb4-131"><a href="#cb4-131" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-132"><a href="#cb4-132" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(</span>
+<span id="cb4-133"><a href="#cb4-133" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="fl">131.68</span>, <span class="fl">132.32</span>),</span>
+<span id="cb4-134"><a href="#cb4-134" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="fl">131.7</span>, <span class="fl">132.2</span>, <span class="fl">0.05</span>)</span>
+<span id="cb4-135"><a href="#cb4-135" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-136"><a href="#cb4-136" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(</span>
+<span id="cb4-137"><a href="#cb4-137" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="fl">42.9</span>, <span class="fl">43.33</span>),</span>
+<span id="cb4-138"><a href="#cb4-138" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="fl">42.9</span>, <span class="fl">43.3</span>, <span class="fl">0.05</span>)</span>
+<span id="cb4-139"><a href="#cb4-139" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-140"><a href="#cb4-140" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(</span>
+<span id="cb4-141"><a href="#cb4-141" aria-hidden="true" tabindex="-1"></a>    <span class="at">expand =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb4-142"><a href="#cb4-142" aria-hidden="true" tabindex="-1"></a>    <span class="at">default_crs =</span> <span class="st">"EPSG:4326"</span></span>
+<span id="cb4-143"><a href="#cb4-143" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-144"><a href="#cb4-144" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(</span>
+<span id="cb4-145"><a href="#cb4-145" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_size =</span> <span class="dv">40</span>,</span>
+<span id="cb4-146"><a href="#cb4-146" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_family =</span> <span class="st">"body_font"</span></span>
+<span id="cb4-147"><a href="#cb4-147" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-148"><a href="#cb4-148" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb4-149"><a href="#cb4-149" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid =</span> <span class="fu">element_line</span>(</span>
+<span id="cb4-150"><a href="#cb4-150" aria-hidden="true" tabindex="-1"></a>      <span class="at">linewidth =</span> <span class="fl">0.3</span>,</span>
+<span id="cb4-151"><a href="#cb4-151" aria-hidden="true" tabindex="-1"></a>      <span class="at">linetype =</span> <span class="dv">3</span>,</span>
+<span id="cb4-152"><a href="#cb4-152" aria-hidden="true" tabindex="-1"></a>      <span class="at">colour =</span> <span class="st">"grey"</span></span>
+<span id="cb4-153"><a href="#cb4-153" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb4-154"><a href="#cb4-154" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.ticks =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb4-155"><a href="#cb4-155" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.ticks.length =</span> <span class="fu">unit</span>(<span class="dv">0</span>, <span class="st">"pt"</span>),</span>
+<span id="cb4-156"><a href="#cb4-156" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.caption =</span> <span class="fu">element_textbox</span>(</span>
+<span id="cb4-157"><a href="#cb4-157" aria-hidden="true" tabindex="-1"></a>      <span class="at">hjust =</span> <span class="fl">0.5</span>,</span>
+<span id="cb4-158"><a href="#cb4-158" aria-hidden="true" tabindex="-1"></a>      <span class="at">halign =</span> <span class="fl">0.5</span>,</span>
+<span id="cb4-159"><a href="#cb4-159" aria-hidden="true" tabindex="-1"></a>      <span class="at">margin =</span> <span class="fu">margin</span>(<span class="dv">25</span>,<span class="dv">0</span>,<span class="dv">20</span>,<span class="dv">0</span>, <span class="st">"pt"</span>),</span>
+<span id="cb4-160"><a href="#cb4-160" aria-hidden="true" tabindex="-1"></a>      <span class="at">colour =</span> text_hil</span>
+<span id="cb4-161"><a href="#cb4-161" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-162"><a href="#cb4-162" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-163"><a href="#cb4-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-164"><a href="#cb4-164" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb4-165"><a href="#cb4-165" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"geocomputation"</span>, </span>
+<span id="cb4-166"><a href="#cb4-166" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"images"</span>, </span>
+<span id="cb4-167"><a href="#cb4-167" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"ggmap_terra_2.png"</span>),</span>
+<span id="cb4-168"><a href="#cb4-168" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb4-169"><a href="#cb4-169" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">3000</span>,</span>
+<span id="cb4-170"><a href="#cb4-170" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">3000</span>,</span>
+<span id="cb4-171"><a href="#cb4-171" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span>,</span>
+<span id="cb4-172"><a href="#cb4-172" aria-hidden="true" tabindex="-1"></a>  <span class="at">bg =</span> <span class="st">"grey98"</span></span>
+<span id="cb4-173"><a href="#cb4-173" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p><img src="images/ggmap_terra_2.png" class="img-fluid" alt="This visualization highlights the administrative districts of Vladivostok, Russia, with both Russian and English labels to enhance accessibility. The dark basemap creates a striking contrast with the white boundary lines, emphasizing the city’s complex geography where land meets the Sea of Japan. Each district is clearly delineated, revealing how Vladivostok’s urban structure has been shaped by its mountainous peninsula location and its historical importance as Russia’s major Pacific port."><br>
+</p>
 
 
 </section>
@@ -893,7 +1138,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 <footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/geocomputation/ggmap_terra.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><div class="page-columns page-rows-contents page-layout-article"><div class="social-share"><a href="https://twitter.com/share?url=https://aditya-dahiya.github.io/visage/geocomputation/ggmap_terra.html&amp;text=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="twitter"><i class="fab fa-twitter fa-fw fa-lg"></i></a><a href="https://www.linkedin.com/shareArticle?url=https://aditya-dahiya.github.io/visage/geocomputation/ggmap_terra.html&amp;title=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="linkedin"><i class="fa-brands fa-linkedin-in fa-fw fa-lg"></i></a>  <a href="mailto:?subject=Visualizing Information and Spatial Analysis with ggplot2 Extensions&amp;body=Check out this link:https://aditya-dahiya.github.io/visage/geocomputation/ggmap_terra.html" target="_blank" class="email"><i class="fa-solid fa-envelope fa-fw fa-lg"></i></a><a href="https://www.facebook.com/sharer.php?u=https://aditya-dahiya.github.io/visage/geocomputation/ggmap_terra.html" target="_blank" class="facebook"><i class="fab fa-facebook-f fa-fw fa-lg"></i></a><a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' &amp;&amp; mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=Visualizing Information and Spatial Analysis with ggplot2 Extensions https://aditya-dahiya.github.io/visage/geocomputation/ggmap_terra.html'}else{return false;}" target="_blank" class="mastodon"><i class="fa-brands fa-mastodon fa-fw fa-lg"></i></a></div></div>
-<script>var lightboxQuarto = GLightbox({"descPosition":"bottom","openEffect":"zoom","closeEffect":"zoom","loop":false,"selector":".lightbox"});
+<script>var lightboxQuarto = GLightbox({"descPosition":"bottom","loop":false,"closeEffect":"zoom","openEffect":"zoom","selector":".lightbox"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

@@ -310,14 +310,16 @@ ggplot() +
   geom_sf(data = haryana_boundary)
 ```
 
-Mapping a Coastal Town, Vladivostok (Russia) to highlight coastline, elevation and urban landscape in R
+### Mapping a Coastal Town - Vladivostok
 
-[Inspiration Code](https://aditya-dahiya.github.io/visage/book_solutions/chapter7.html#fig-9_2) for custom CRS projections, written by me for another page.
+This code showcases the creation of a detailed administrative map of Vladivostok using a powerful combination of R spatial packages. The workflow begins by retrieving administrative boundary data via the [osmdata](https://docs.ropensci.org/osmdata/) package, then processes these geometries using [sf](https://r-spatial.github.io/sf/) for spatial operations. The map incorporates a stylish dark basemap from Stadia Maps, accessed through [ggmap](https://github.com/dkahle/ggmap), which is then carefully cropped and masked to the city boundaries using [terra](https://rspatial.org/terra/) functions. The visualization layer, built with [ggplot2](https://ggplot2.tidyverse.org/), combines the raster basemap with vector boundaries and elegantly positioned labels using [ggrepel](https://ggrepel.slowkow.com/). The code demonstrates a sophisticated integration of multiple spatial data processing techniques—from acquisition to transformation to visualization—resulting in a professional-quality map that highlights Vladivostok's administrative regions with both Russian and English labels. The approach illustrates modern R spatial data visualization practices, combining the strengths of multiple packages to handle different aspects of the geospatial workflow.
 
-[May Style Library](https://docs.stadiamaps.com/themes/) (for the StadiaMaps)
+[Inspiration Code](https://aditya-dahiya.github.io/visage/book_solutions/chapter7.html#fig-9_2) for custom CRS projections, written by me for another page. [May Style Library](https://docs.stadiamaps.com/themes/) (for the StadiaMaps)
 
 ```{r}
 
+# Background Colour
+bg_col <- "white"
 city_bb <- osmdata::getbb("Vladivostok")
 
 city_map <- opq(bbox = city_bb) |> 
@@ -350,36 +352,145 @@ city_poly <- st_polygon(list(coords)) %>%
 rm(coords)
 
 city_map1 <- city_map$osm_multipolygons |>
-  select(osm_id, name, admin_level, geometry) |> 
+  select(osm_id, name, admin_level, geometry, `name:en`, name) |> 
   filter(admin_level == 9)
 
 city_border <- city_map1 |> 
   st_geometry() |> 
   st_union()
 
+stadia_bbox <- st_bbox(city_border)
+names(stadia_bbox) <- c("left", "bottom", "right", "top")
+
 raw_rast <- get_stadiamap(
-  bbox = st_bbox(city_border),
-  zoom = 8,
-  maptype = "stamen_toner_background"
+  bbox = stadia_bbox,
+  zoom = 12,
+  maptype = "alidade_smooth_dark"
 )
 
-ggplot(
-  data = city_map1,
-  ) +
-  geom_sf(
-    alpha = 0.3
-  ) +
-  geom_sf(
-    data =  city_poly,
-    fill = NA
-  )
+rast <- raw_rast |> 
+  terra::rast() |> 
+  terra::crop(city_map1) |>
+  terra::mask(city_map1, touches = FALSE)
 
-ggplot() +
+city_map$osm_multipolygons |> 
+  st_drop_geometry() |> 
+  as_tibble() |> 
+  select(`name:en`, name, osm_id)
+
+city_names <- city_map$osm_multipolygons |> 
+  st_centroid() |> 
+  select(name, `name:en`) |> 
+  st_crop(city_poly)
+
+g <- ggplot() +
+  geom_spatraster_rgb(
+    data = rast,
+    maxcell = 1e8
+  ) +
   geom_sf(
-    data = city_map1
+    data = city_map1,
+    fill = NA,
+    colour = alpha("white", 0.2),
+    linewidth = 0.5
+  ) +
+  ggrepel::geom_label_repel(
+    data = city_map1,
+    mapping = aes(
+      label = paste0(name, "\n",`name:en`),
+      geometry = geometry
+    ),
+    family = "body_font",
+    lineheight = 0.3,
+    fill = alpha("white", 0.9),
+    stat = "sf_coordinates",
+    colour = "grey20",
+    size = 12,
+    hjust = 0,
+    label.size = NA,
+    nudge_x = 0.15,
+    direction = "y",
+    arrow = arrow(
+      length = unit(5, "pt")
+    ), 
+    segment.colour = "grey"
+  ) +
+  annotate(
+    geom = "label",
+    x = 131.7,
+    y = 43.33,
+    label = "Владивосток\n(Vladivostok)",
+    family = "title_font",
+    size = 60,
+    hjust = 0,
+    vjust = 1,
+    lineheight = 0.3,
+    colour = text_hil,
+    fill = alpha(bg_col, 0.7),
+    label.padding = unit(0.02, "lines"),
+    label.size = NA
+  ) +
+  annotate(
+    geom = "label",
+    x = 132.3,
+    y = 42.93,
+    label = str_wrap("Administrative boundaries of Vladivostok visualized using ggplot2, sf, and tidyterra, with administrative region names and boundaries obtained via osmdata's add_osm_feature(). Map uses 'Alidade Smooth Dark' basemap from Stadia Maps via ggmap's get_stadiamap(), processed with terra's mask() and crop(), then rendered with ggplot(), geom_sf(), and geom_spatraster_rgb().", 50),
+    family = "body_font",
+    size = 18,
+    hjust = 1,
+    vjust = 0,
+    lineheight = 0.32,
+    fill = alpha(bg_col, 0.7),
+    label.padding = unit(0.1, "lines"),
+    label.size = NA,
+    colour = text_hil
+  ) +
+  labs(
+    x = NULL, y = NULL,
+    caption = plot_caption
+  ) +
+  scale_x_continuous(
+    limits = c(131.68, 132.32),
+    breaks = seq(131.7, 132.2, 0.05)
+  ) +
+  scale_y_continuous(
+    limits = c(42.9, 43.33),
+    breaks = seq(42.9, 43.3, 0.05)
   ) +
   coord_sf(
-    crs = "EPSG:4326"
+    expand = FALSE,
+    default_crs = "EPSG:4326"
   ) +
-  ggthemes::theme_map()
+  theme_minimal(
+    base_size = 40,
+    base_family = "body_font"
+  ) +
+  theme(
+    panel.grid = element_line(
+      linewidth = 0.3,
+      linetype = 3,
+      colour = "grey"
+    ),
+    axis.ticks = element_blank(),
+    axis.ticks.length = unit(0, "pt"),
+    plot.caption = element_textbox(
+      hjust = 0.5,
+      halign = 0.5,
+      margin = margin(25,0,20,0, "pt"),
+      colour = text_hil
+    )
+  )
+
+ggsave(
+  filename = here::here("geocomputation", 
+                        "images", 
+                        "ggmap_terra_2.png"),
+  plot = g,
+  height = 3000,
+  width = 3000,
+  units = "px",
+  bg = "grey98"
+)
 ```
+
+![This visualization highlights the administrative districts of Vladivostok, Russia, with both Russian and English labels to enhance accessibility. The dark basemap creates a striking contrast with the white boundary lines, emphasizing the city's complex geography where land meets the Sea of Japan. Each district is clearly delineated, revealing how Vladivostok's urban structure has been shaped by its mountainous peninsula location and its historical importance as Russia's major Pacific port.](images/ggmap_terra_2.png)\
