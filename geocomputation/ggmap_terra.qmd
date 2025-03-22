@@ -256,7 +256,7 @@ ggsave(
 )
 ```
 
-![A raster tile maps of Stamen Toner Background for London area, plotted at the base. London Boroughs' borders plotted on top of it, along with names of the boroughs.](images/ggmap_terra_1.png)
+![A raster tile maps of Stamen Toner Background for London area, plotted at the base. London Boroughs' borders plotted on top of it, along with names of the boroughs.](images/ggmap_terra_1.png){#fig-1}
 
 ```{r}
 
@@ -493,4 +493,157 @@ ggsave(
 )
 ```
 
-![This visualization highlights the administrative districts of Vladivostok, Russia, with both Russian and English labels to enhance accessibility. The dark basemap creates a striking contrast with the white boundary lines, emphasizing the city's complex geography where land meets the Sea of Japan. Each district is clearly delineated, revealing how Vladivostok's urban structure has been shaped by its mountainous peninsula location and its historical importance as Russia's major Pacific port.](images/ggmap_terra_2.png)\
+![This visualization highlights the administrative districts of Vladivostok, Russia, with both Russian and English labels to enhance accessibility. The dark basemap creates a striking contrast with the white boundary lines, emphasizing the city's complex geography where land meets the Sea of Japan. Each district is clearly delineated, revealing how Vladivostok's urban structure has been shaped by its mountainous peninsula location and its historical importance as Russia's major Pacific port.](images/ggmap_terra_2.png){#fig-2}
+
+### Stylized Maps with {ggmap} and {osmdata}
+
+This code extracts the boundary of the *City of London* from the [`spData`](https://cran.r-project.org/package=spData) package and processes it using [`sf`](https://r-spatial.github.io/sf/) functions. It defines a bounding box for the area and retrieves a watercolor-style basemap from [`get_stadiamap()`](https://github.com/rCarto/stadiamaps). Using [`osmdata`](https://cran.r-project.org/package=osmdata), historical sites within the City of London—such as castles, memorials, and ruins—are queried from OpenStreetMap. The extracted data is filtered, transformed, and plotted with [`ggplot2`](https://ggplot2.tidyverse.org/), overlaying the historical landmarks on the base map. Labels are added using [`ggrepel`](https://cran.r-project.org/package=ggrepel) to improve readability. The final visualization is saved using [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html).
+
+```{r}
+
+city_of_london <- spData::lnd |> 
+  janitor::clean_names() |> 
+  filter(name == "City of London") |> 
+  st_transform("EPSG:4326")
+
+# Obtain the bounding box of London Boroughs
+london_bbox <- sf::st_bbox(city_of_london)
+london_bbox2 <- sf::st_bbox(city_of_london)
+
+# A bounding box in the format c(lowerleftlon, lowerleftlat, upperrightlon, upperrightlat)
+london_bbox <- c(
+  left = london_bbox$xmin,
+  right = london_bbox$xmax,
+  bottom = london_bbox$ymin,
+  top = london_bbox$ymax
+)
+names(london_bbox) <- c("left", "right", "bottom", "top")
+
+# Register stadia maps API key
+# register_stadiamaps("Your-Key-Here")
+
+london_city_base <- get_stadiamap(
+  bbox = london_bbox,
+  zoom = 16,
+  maptype = "stamen_watercolor"
+)
+
+base1 <- rast(london_city_base) |> 
+  crop(city_of_london) |> 
+  mask(city_of_london, touches = FALSE)
+
+df1 <- osmdata::opq(bbox = london_bbox2) |> 
+  osmdata::add_osm_feature(
+    key = "historic",
+    value = c("archaeological_site", "battlefield", "boundary_stone", "building", "castle", "city_gate", "citywalls", "fort", "manor", "memorial", "milestone", "monument", "ruins", "ship", "tomb", "wayside_cross", "wayside_shrine")
+
+  ) |> 
+  osmdata_sf()
+
+
+df2 <- bind_rows(
+  # df1$osm_multipolygons |> 
+  #   filter(!is.na(name)) |> 
+  #   select(name),
+  
+  df1$osm_polygons |> 
+    filter(!is.na(name)) |> 
+    select(name, historic) |> 
+    st_centroid(),
+
+  df1$osm_points |> 
+    filter(!is.na(name)) |> 
+    select(name, historic),
+) |>
+  st_transform("EPSG:4326") |> 
+  st_intersection(city_of_london) |> 
+  select(name, historic) |> 
+  mutate(size_var = if_else(historic == "memorial", 5, 15))
+
+df2 |> 
+  st_drop_geometry() |> 
+  as_tibble() |> 
+  count(historic)
+
+g <- ggplot() +
+  geom_spatraster_rgb(
+    data = base1,
+    maxcell = Inf,
+    alpha = 0.75
+  ) +
+  geom_sf(
+    data = city_of_london,
+    fill = NA,
+    linewidth = 1.5,
+    alpha = 0.5,
+    linejoin = "bevel"
+  ) +
+  geom_sf(
+    data = df2,
+    fill =  NA,
+    alpha = 0.5,
+    size = 1
+  ) +
+  ggrepel::geom_text_repel(
+    data = df2,
+    mapping = aes(
+      label = str_wrap(name, 10, whitespace_only = F),
+      geometry = geometry,
+      size = size_var
+    ),
+    lineheight = 0.25,
+    family = "body_font",
+    stat = "sf_coordinates",
+    min.segment.length = unit(0, "pt"),
+    force = 1,
+    force_pull = 0.5,
+    seed = 42,
+    linewidth = 0.1
+  ) +
+  scale_size_identity() +
+  labs(
+    x = NULL, y = NULL,
+    caption = plot_caption,
+    title = "Historical Sites in the City of London",
+    subtitle = "A historic borough within London filled with centuries-old landmarks."
+  ) +
+  ggthemes::theme_map(
+    base_family = "body_font",
+    base_size = 60
+  ) +
+  theme(
+    plot.caption = element_textbox(
+      hjust = 0.5,
+      halign = 0.5,
+      family = "caption_font",
+      margin = margin(0,0,0,0, "pt")
+    ),
+    plot.title = element_text(
+      margin = margin(10,0,5,0, "pt"),
+      size = 180,
+      family = "caption_font",
+      hjust = 0.5
+    ),
+    plot.subtitle = element_text(
+      margin = margin(5,0,0,0, "pt"),
+      size = 100,
+      hjust = 0.5,
+      family = "caption_font"
+    ),
+    plot.margin = margin(0,-10,0,-10, "pt")
+  )
+ 
+
+ggsave(
+  filename = here::here("geocomputation", 
+                        "images", 
+                        "ggmap_terra_3.png"),
+  plot = g,
+  height = 3000,
+  width = 3000,
+  units = "px",
+  bg = "white"
+)
+```
+
+![Map of historical sites in the City of London, overlaid on a watercolor-style basemap. The visualization highlights key landmarks such as castles, monuments, and memorials, with point sizes indicating their type and significance.](images/ggmap_terra_3.png){#fig-3}
