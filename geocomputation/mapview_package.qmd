@@ -40,6 +40,7 @@ share:
 
 ```{r}
 #| label: setup
+#| eval: true
 
 # Spatial data handling
 library(sf)         # Import, export, and manipulate vector data
@@ -52,14 +53,84 @@ library(tidyterra)  # Helper functions for using terra with ggplot2
 library(tidyverse)  # Data manipulation & visualization
 library(mapview)    # Interactive Maps
 
+library(osmdata)    # Getting Open Street Maps data
+
 # Final plot tools
 library(scales)               # Nice Scales for ggplot2
 library(fontawesome)          # Icons display in ggplot2
 library(ggtext)               # Markdown text in ggplot2
 library(showtext)             # Display fonts in ggplot2
 library(patchwork)            # Composing Plots
+```
 
-bts = 42 # Base Text Size
+### Getting data
+
+```{r}
+#| eval: true
+#| label: get-data
+
+
+# Get Haryana Map from GADM / {geodata} with geodata::gadm()
+# District Wise Map
+# haryana_map <- geodata::gadm(
+#   country = "India",
+#   level = 2,
+#   path = tempdir()
+# ) |> 
+#   st_as_sf() |> 
+#   janitor::clean_names() |> 
+#   filter(name_1 == "Haryana") |> 
+#   rename(district = name_2) |> 
+#   select(district, geometry)
+# 
+# # Overall Boundary Map
+# haryana_boundary <- geodata::gadm(
+#   country = "India",
+#   level = 1,
+#   path = tempdir()
+# ) |> 
+#   st_as_sf() |> 
+#   janitor::clean_names() |> 
+#   filter(name_1 == "Haryana") |> 
+#   select(geometry)
+
+# Survey of India Map
+haryana_soi_map <- read_sf(here::here("data", "haryana_map", "HARYANA_DISTRICT_BDY.shp")) |> 
+  janitor::clean_names() |> 
+  mutate(
+    district = str_replace_all(district, ">", "A"),
+    district = str_replace_all(district, "\\|", "I"),
+    state = str_replace_all(state, ">", "A"),
+    district = str_to_title(district)
+  ) |> 
+  select(district, geometry) |> 
+  st_transform("EPSG:4326")
+
+# Get historical sites in Haryana (India)
+haryana_raw_historic <- opq(st_bbox(haryana_soi_map)) |> 
+  add_osm_feature(
+    key = "historic",
+    value = c("archaeological_site", "building", "castle",
+              "church", "city_gate", "fort", "house",
+              "monument", "ruins", "temple")
+  ) |> 
+  osmdata_sf()
+
+haryana_historic <- haryana_raw_historic$osm_points |> 
+  st_intersection(haryana_soi_map) |> 
+  select(osm_id, name, district, geometry) |> 
+  st_transform("EPSG:4326") |> 
+  mutate(
+    name = snakecase::to_title_case(name)
+  )
+```
+
+### Plotting a static map
+
+```{r}
+# Visualization Parameters
+
+bts = 12 # Base Text Size
 sysfonts::font_add_google("Saira Condensed", "body_font")
 sysfonts::font_add_google("Saira", "title_font")
 sysfonts::font_add_google("Saira Extra Condensed", "caption_font")
@@ -108,7 +179,7 @@ xtwitter_username <- "@adityadahiyaias"
 social_caption_1 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{github};</span> <span style='color: {text_hil}'>{github_username}  </span>")
 social_caption_2 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{xtwitter};</span> <span style='color: {text_hil}'>{xtwitter_username}</span>")
 plot_caption <- paste0(
-  "**Data**:  Open Street Maps through {osmextract}",
+  "**Data**:  Open Street Maps",
   "  |  **Code:** ", 
   social_caption_1, 
   " |  **Graphics:** ", 
@@ -118,49 +189,107 @@ rm(github, github_username, xtwitter,
    xtwitter_username, social_caption_1, 
    social_caption_2)
 
-```
+size_var = 1000
 
-### Getting data
-
-```{r}
-
-# Get Haryana Map from GADM / {geodata} with geodata::gadm()
-# District Wise Map
-haryana_map <- geodata::gadm(
-  country = "India",
-  level = 2,
-  path = tempdir()
-) |> 
-  st_as_sf() |> 
-  janitor::clean_names() |> 
-  filter(name_1 == "Haryana") |> 
-  rename(district = name_2) |> 
-  select(district, geometry)
-
-# Overall Boundary Map
-haryana_boundary <- geodata::gadm(
-  country = "India",
-  level = 1,
-  path = tempdir()
-) |> 
-  st_as_sf() |> 
-  janitor::clean_names() |> 
-  filter(name_1 == "Haryana") |> 
-  select(geometry)
-
-# Survey of India Map
-haryana_soi_map <- read_sf(here::here("data", "haryana_map", "HARYANA_DISTRICT_BDY.shp")) |> 
-  janitor::clean_names() |> 
-  mutate(
-    district = str_replace_all(district, ">", "A"),
-    district = str_replace_all(district, "\\|", "I"),
-    state = str_replace_all(state, ">", "A"),
-    district = str_to_title(district)
+# Actual Plot ---------------------------------------------------
+g <- ggplot() +
+  geom_sf(
+    data = haryana_soi_map,
+    fill = NA,
+    linewidth = 0.2,
+    colour = "grey40"
+  ) +
+  geom_sf(
+    data = haryana_historic |> st_jitter(0.025),
+    alpha = 0.4,
+    size = 0.2,
+    colour = alpha("darkorange", 0.5)
+  ) +
+  ggrepel::geom_label_repel(
+    data = haryana_historic,
+    mapping = aes(label = name, geometry = geometry),
+    stat = "sf_coordinates",
+    family = "body_font",
+    colour = text_col,
+    size = bts / 2,
+    fill = alpha(bg_col, 0.7),
+    label.size = NA,
+    label.padding = unit(0.15, "lines"),
+    segment.width = 0.1,
+    force = 0.1,
+    force_pull = 10
+  ) +
+  ggspatial::annotation_north_arrow(
+    location = "tr",
+    height = unit(size_var / 50, "pt"),
+    width = unit(size_var / 50, "pt"),
+    style = ggspatial::north_arrow_orienteering(
+      line_col = text_hil,
+      text_col = text_hil,
+      text_family = "body_font",
+      fill = c(bg_col, text_hil),
+      text_size = bts * 1.5
+    )
+  ) +
+  ggspatial::annotation_scale(
+    location = "bl",
+    bar_cols = c(bg_col, text_hil),
+    text_family = "body_font",
+    text_cex = bts / 5,
+    text_col = text_hil,
+    line_col = text_hil
+  ) +
+  coord_sf(expand = FALSE) +
+  labs(
+    title = "Historical Places: Haryana (India)",
+    caption = plot_caption
+  ) +
+  ggthemes::theme_map(
+    base_size = bts * 2,
+    base_family = "body_font"
+  ) +
+  theme(
+    plot.title = element_text(
+      hjust = 0.1,
+      margin = margin(size_var/40,0,-size_var/30,0, "pt"),
+      size = bts * 3.5,
+      colour = text_hil
+    ),
+    plot.caption = element_textbox(
+      hjust = 0.5, 
+      halign = 0.5,
+      size = bts
+    ),
+    plot.margin = margin(0,0,0,0, "pt")
   )
 
-haryana_soi_map |> 
-  st_crs()
+ggsave(
+  plot = g,
+  filename = here::here("geocomputation", "images",
+                        "mapview_package_1.png"),
+  width = size_var,
+  height = (5/4) * size_var,
+  units = "px",
+  bg = bg_col
+)
 
-haryana_map |> 
-  st_crs()
+```
+
+![](images/mapview_package_1.png)
+
+### Interactive Map with {mapview}
+
+```{r}
+#| eval: true
+
+mapview(
+  haryana_soi_map, 
+  color = "grey20", 
+  col.regions = alpha("white", 0.2),
+  zcol = NULL,
+  legend = FALSE,
+  map.types = "CartoDB.Positron"
+  )
+
+mapview(haryana_historic)
 ```
