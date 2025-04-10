@@ -52,6 +52,8 @@ library(tidyterra)  # Helper functions for using terra with ggplot2
 # Data wrangling & visualization
 library(tidyverse)  # Data manipulation & visualization
 library(mapview)    # Interactive Maps
+library(leaflet)    # Extensions to mapview
+library(leafpop)    # Pop-up customization
 
 library(osmdata)    # Getting Open Street Maps data
 
@@ -191,19 +193,42 @@ rm(github, github_username, xtwitter,
 
 size_var = 1000
 
-# Actual Plot ---------------------------------------------------
+# A base raster map for Haryana
+library(ggmap)
+basemap_bbox <- st_bbox(haryana_soi_map)
+names(basemap_bbox) <- c("left", "bottom", "right", "top")
+# register_stadiamaps()
+base_map <- get_stadiamap(
+  bbox = basemap_bbox,
+  zoom = 9,
+  maptype = "outdoors"
+)
+
+base_map_plot <- base_map |> 
+  rast() |> 
+  crop(haryana_soi_map) |> 
+  mask(haryana_soi_map)
+
+# Actual Plot ------------------------------------------------
 g <- ggplot() +
+  geom_spatraster_rgb(
+    data = base_map_plot,
+    maxcell = Inf
+  ) +
   geom_sf(
     data = haryana_soi_map,
     fill = NA,
-    linewidth = 0.2,
-    colour = "grey40"
+    linewidth = 0.1,
+    colour = "grey30"
   ) +
   geom_sf(
     data = haryana_historic |> st_jitter(0.025),
     alpha = 0.4,
-    size = 0.2,
-    colour = alpha("darkorange", 0.5)
+    size = 0.8,
+    fill = alpha("darkorange", 0.5),
+    pch = 21,
+    colour = "grey10",
+    stroke = 0.1
   ) +
   ggrepel::geom_label_repel(
     data = haryana_historic,
@@ -215,9 +240,9 @@ g <- ggplot() +
     fill = alpha(bg_col, 0.7),
     label.size = NA,
     label.padding = unit(0.15, "lines"),
-    segment.width = 0.1,
     force = 0.1,
-    force_pull = 10
+    force_pull = 10,
+    min.segment.length = unit(0, "pt")
   ) +
   ggspatial::annotation_north_arrow(
     location = "tr",
@@ -258,7 +283,8 @@ g <- ggplot() +
     plot.caption = element_textbox(
       hjust = 0.5, 
       halign = 0.5,
-      size = bts
+      size = bts,
+      margin = margin(-5,0,5,0, "pt")
     ),
     plot.margin = margin(0,0,0,0, "pt")
   )
@@ -285,11 +311,19 @@ ggsave(
 mapview(
   haryana_soi_map, 
   color = "grey20", 
-  col.regions = alpha("white", 0.2),
+  col.regions = alpha("white", 0.05),
+  alpha.regions = 0.2,
   zcol = NULL,
   legend = FALSE,
-  map.types = "CartoDB.Positron"
+  map.types = "OpenStreetMap"
+  ) +
+  mapview(
+    haryana_historic,
+    col.regions = alpha("darkorange", 0.5),
+    popup = popupTable(
+      haryana_historic,
+      zcol = c("osm_id", "district")
+    ),
+    legend = FALSE
   )
-
-mapview(haryana_historic)
 ```
