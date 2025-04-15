@@ -1199,7 +1199,7 @@ unlink(here::here("geocomputation",
 
 ## Interactive Map
 
-This interactive visualization leverages the [**leaflet**](https://rstudio.github.io/leaflet/) package via [**mapview**](https://r-spatial.github.io/mapview/) to create an explorable UTMB route map. Dynamic popups at waypoints display key metrics like elevation and segment distances using [**sf**](https://r-spatial.github.io/sf/)-processed spatial data. The base map utilizes [StadiaMaps' Stamen Terrain](https://www.stadiamaps.com/) tiles, with options to toggle to OpenStreetMap or OpenTopoMap layers. Clickable markers reveal race statistics via `popupTable`, while elevation trends are derived from [**elevatr**](https://github.com/jhollist/elevatr)-generated DEM data.
+This interactive visualization leverages the [**`leaflet`**](https://rstudio.github.io/leaflet/) package via [**`mapview`**](https://r-spatial.github.io/mapview/) to create an explorable [UTMB](https://montblanc.utmb.world/) route map. Dynamic popups at waypoints display elevation, distances etc. using [**`sf`**](https://r-spatial.github.io/sf/)-processed spatial data. The base map utilizes OpenStreetMap or OpenTopoMap layers. Elevation trends are derived from [**`elevatr`**](https://github.com/jhollist/elevatr)-generated DEM data.
 
 ```{r}
 #| eval: true
@@ -1404,7 +1404,7 @@ mapview(
   color = "red", 
   alpha = 0.9,
   legend = FALSE,
-  map.types = c("Stadia.StamenTerrain", "OpenStreetMap.Mapnik",
+  map.types = c("OpenStreetMap.Mapnik",
                  "OpenTopoMap"),
   lwd = 4,
   popup = FALSE
