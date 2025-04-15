@@ -816,7 +816,7 @@ ggsave(
 
 ![](images/utmb_ultramarathon_4.png){#fig-4}
 
-### **Composing Final Plot**
+### Composing Final Plot
 
 This code creates a comprehensive visual representation of the UTMB ultramarathon route, combining a shaded relief elevation map with the race path and country borders. It utilizes [**ggplot2**](https://ggplot2.tidyverse.org/) for plotting, [**sf**](https://r-spatial.github.io/sf/) for spatial data manipulation, and [**terra**](https://rspatial.github.io/terra/) for raster processing. The map includes annotations for key points such as the start, highest, and lowest elevations, along with manually selected waypoints. An inset elevation profile, created using [**ggblend**](https://mjskay.github.io/ggblend/) for layer blending, provides additional context. The final plot is customized with detailed themes and annotations to enhance readability and visual appeal.
 
@@ -1197,28 +1197,236 @@ unlink(here::here("geocomputation",
                    "temp_utmb_ultramarathon.tiff"))
 ```
 
-### Interactive Map with {mapview}
+## Interactive Map
+
+This interactive visualization leverages the [**leaflet**](https://rstudio.github.io/leaflet/) package via [**mapview**](https://r-spatial.github.io/mapview/) to create an explorable UTMB route map. Dynamic popups at waypoints display key metrics like elevation and segment distances using [**sf**](https://r-spatial.github.io/sf/)-processed spatial data. The base map utilizes [StadiaMaps' Stamen Terrain](https://www.stadiamaps.com/) tiles, with options to toggle to OpenStreetMap or OpenTopoMap layers. Clickable markers reveal race statistics via `popupTable`, while elevation trends are derived from [**elevatr**](https://github.com/jhollist/elevatr)-generated DEM data.
 
 ```{r}
-#| eval: false
+#| eval: true
+#| label: fig-interactive-utmb-map
+#| fig-cap: "Interactive Version of the Ultra-Trail du Mont-Blanc (UTMB) Route, with selected way-points"
+#| fig-height: 2
+#| fig-width: 2
+
+### THE ACTUAL CODE USED TO PRODUCE A CONSICE OUTPUT SF OBJECT
+### TO SAVE RENDERING TIME, THE OUTPUT OBJECT IS SAVED
+
+# # An sf object to use for cropping rasters and vectors
+# map_boundary_crop_vector <- utmb_route |> 
+#       slice(1) |> 
+#       st_geometry() |> 
+#       # Add a buffer of 1 km around race track for raster
+#       st_buffer(dist = 1000)
+# 
+# raw_raster <- elevatr::get_elev_raster(
+#   utmb_route,
+#   z = 10
+# )
+# 
+# elevation_raster <- raw_raster |> 
+#   rast() |> 
+#   terra::crop(
+#     map_boundary_crop_vector, 
+#     extend = TRUE,
+#   )
+# 
+# path_points <- utmb_route |> 
+#   
+#   # Keep only the main route
+#   slice(1) |> 
+#   select(name, geometry) |> 
+#   
+#   # Convert to non-geographic CRS to save huge computational time
+#   st_transform("EPSG:3857") |> 
+#   
+#   # Convert multi-linestring to line-string
+#   st_cast("LINESTRING") |> 
+#   
+#   # Break into line segments of 100 metres each
+#   st_segmentize(dfMaxLength = 100) |> 
+#   
+#   # Convert each line segment into a central point
+#   # to be able to extract its elevation
+#   st_cast("POINT")
+#   
+# # Obtain Coordinates of each point
+# point_coordinates <- st_coordinates(path_points)
+# 
+# # compute distance of each point from the start  
+# point_distances <- c(
+#   0, 
+#   cumsum(
+#     sqrt(
+#       rowSums(
+#         diff(point_coordinates)^2
+#         )
+#       )
+#     )
+#   
+#   )
+# 
+# 
+# # Extract only the first column (i.e. the distance from
+#   # first point alone). Otherwise, st_distance() 
+#   # returns a distance matrix As expected, distance grows 
+#   # by approx. less than dfMaxLength amount per points
+# path_points <- path_points |> 
+#   mutate(dist = point_distances) |> 
+#   st_transform("EPSG:4326")
+# 
+# # Get corresponding elevation values for each point along race route
+# elevation_raw_values <- terra::extract(
+#   elevation_raster, path_points
+#   ) |> 
+#   as_tibble() |> 
+#   select(2) |> 
+#   pull()
+# 
+# # Final elevation data
+# route_elevation <- path_points |> 
+#   mutate(
+#     elev_value = elevation_raw_values,
+#     dist = as.numeric(dist),
+#     id = row_number()
+#   ) |> 
+#   select(-name) |> 
+#   relocate(id)
+# 
+# rm(elevation_raw_values,
+#    path_points)
+# 
+# 
+# # Check "dist" variable
+# ggplot(route_elevation) +
+#   geom_point(
+#     aes(x = id, y = dist)
+#   )
+# # It Works!!
+# 
+# # Check the Elevation Variable
+# ggplot(route_elevation) +
+#   geom_point(aes(x = id, y = elev_value))
+# # It Works!!
+# 
+# # Get Additional Information -------------------------------------
+# # Lowest and highest points along the route
+# route_extremes <- route_elevation |> 
+#   slice_min(elev_value, n = 1, with_ties = FALSE) |> 
+#   bind_rows(
+#     route_elevation |> 
+#       slice_max(elev_value, n = 1, with_ties = FALSE)
+#   ) |>
+#   st_drop_geometry() |> 
+#   mutate(
+#     extreme_points = TRUE
+#   )
+# 
+# 
+# # Manually select the route trend points
+# # A basic ggplot2 to get top most points
+# route_elevation |>
+#   arrange(desc(elev_value)) |>
+#   ggplot(aes(id, elev_value)) +
+#   geom_line() +
+#   geom_text(
+#     aes(label = id),
+#     check_overlap = T
+#   )
+# 
+# selected_points_high <- c(651, 2246, 3099, 3536, 4431, 
+#                           5289, 7082, 7738, 8604)
+# # A basic ggplot2 to get lowest points
+# route_elevation |>
+#   arrange(elev_value) |>
+#   ggplot(aes(id, elev_value)) +
+#   geom_line() +
+#   geom_text(
+#     aes(label = id),
+#     check_overlap = T
+#   )
+# 
+# selected_points_low <- c(292, 962, 2579, 3372, 4054, 5026, 
+#                          6243, 6722, 7421, 8021, 8944)
+# 
+# route_elevation_df <- route_elevation |> 
+#   mutate(
+#     waypoint_type = case_when(
+#       id %in% selected_points_high ~ "High Point",
+#       id %in% selected_points_low ~ "Low Point",
+#       .default = NA
+#     )
+#   ) |> 
+#   left_join(route_extremes)
+# 
+# # Save the complete analysis resutl (to save computation time)
+# saveRDS(
+#   route_elevation_df,
+#   file = here::here("data", "utmb_route_elevation.rds")
+# )
+
+route_elevation_df <- readRDS(here::here("data", "utmb_route_elevation.rds"))
+
+# Get data: distance between selected waypoints
+waypoints_df <- route_elevation_df |> 
+  filter(!is.na(waypoint_type) | id == 1) |> 
+  mutate(
+    xmin_var = id,
+    xmax_var = lead(id),
+    xmean_var = (xmax_var + xmin_var)/2,
+    xlab_var = round((dist - lag(dist))/1e3, 1)
+  ) |> 
+  mutate(
+    waypoint_type = if_else(is.na(waypoint_type), 
+                            "Starting Point",
+                            waypoint_type),
+    xlab_var = if_else(id == 1, 0, xlab_var),
+    waypoint_label = LETTERS[1:nrow(
+      route_elevation_df |> 
+        filter(!is.na(waypoint_type) | id == 1)
+    )]
+  ) |> 
+  mutate(
+    `Waypoint Name` = waypoint_label,
+    `Distance from Starting Point` = paste0(round(dist / 1e3, 1),
+                                            " km"),
+    `Elevation` = paste0(elev_value, " metres"),
+    `Distance from last waypoint` = paste0(round(xlab_var, 1),
+                                           " km")
+  )
+
+`UTMB Race Route` <- utmb_route |> 
+  slice(1) |> 
+  select(geometry)
+
 
 mapview(
-  ......................., 
-  color = "grey20", 
-  col.regions = alpha("white", 0.05),
-  alpha.regions = 0.2,
-  zcol = NULL,
+  `UTMB Race Route`, 
+  color = "red", 
+  alpha = 0.9,
   legend = FALSE,
-  map.types = "OpenStreetMap"
+  map.types = c("Stadia.StamenTerrain", "OpenStreetMap.Mapnik",
+                 "OpenTopoMap"),
+  lwd = 4,
+  popup = FALSE
   ) +
   mapview(
-    haryana_historic,
-    col.regions = alpha("darkorange", 0.5),
+    waypoints_df,
+    zcol = "waypoint_type",
+    col.regions = c("darkred", "blue", "green"),
+    alpha = 0.9,
     popup = popupTable(
-      haryana_historic,
-      zcol = c("osm_id", "district")
+      waypoints_df,
+      zcol = c("Waypoint Name", 
+               "Distance from Starting Point", 
+               "Elevation", 
+               "Distance from last waypoint"),
+      feature.id = FALSE,
+      row.numbers = FALSE
     ),
-    legend = FALSE
+    layer.name = "Waypoints",
+    legend = TRUE,
+    legend.pos = "bottomright",
+    legend.opacity = 0.5
   )
 ```
 
