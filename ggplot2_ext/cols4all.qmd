@@ -1,0 +1,162 @@
+---
+title: "Exploring the package {cols4all} - Colour Palettes for ggplot2 graphics"
+author: "Aditya Dahiya"
+subtitle: "......................"
+date: "2025-04-16"
+bibliography: references.bib
+format:
+  html:
+    code-fold: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: false
+categories:
+  - "ggplot2"
+  - "Colours"
+  - "Colour Palette"
+  - "{cols4all}"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/ggplot2_ext/cols4all.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+## Exploring the {cols4all} package
+
+Loading required packages
+
+```{r}
+#| label: setup
+#| eval: true
+
+# Data Import and Wrangling Tools
+library(tidyverse)            # All things tidy
+# library(sf)                   # Handling simple features in R
+# library(terra)                # Handling rasters in R
+# library(tidyterra)            # Rasters with ggplot2
+
+# Final plot tools
+library(scales)               # Nice Scales for ggplot2
+library(fontawesome)          # Icons display in ggplot2
+library(ggtext)               # Markdown text in ggplot2
+library(showtext)             # Display fonts in ggplot2
+library(colorspace)           # Lighten and Darken colours
+library(seecolor)             # To print colours
+
+library(cols4all)             # The Colour Palette package to explore
+
+bts = 12 # Base Text Size
+sysfonts::font_add_google("Saira Condensed", "body_font")
+showtext::showtext_auto()
+theme_set(
+  theme_minimal(
+    base_size = bts,
+    base_family = "body_font"
+  ) +
+    theme(
+      text = element_text(
+        colour = "grey20",
+        lineheight = 0.3,
+        margin = margin(0,0,0,0, "pt")
+      )
+    )
+)
+
+# Some basic caption stuff
+# A base Colour
+bg_col <- "white"
+seecolor::print_color(bg_col)
+
+# Colour for highlighted text
+text_hil <- "grey30"
+seecolor::print_color(text_hil)
+
+# Colour for the text
+text_col <- "grey20"
+seecolor::print_color(text_col)
+
+
+# Caption stuff for the plot
+sysfonts::font_add(
+  family = "Font Awesome 6 Brands",
+  regular = here::here("docs", "Font Awesome 6 Brands-Regular-400.otf")
+)
+github <- "&#xf09b"
+github_username <- "aditya-dahiya"
+xtwitter <- "&#xe61b"
+xtwitter_username <- "@adityadahiyaias"
+social_caption_1 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{github};</span> <span style='color: {text_hil}'>{github_username}  </span>")
+social_caption_2 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{xtwitter};</span> <span style='color: {text_hil}'>{xtwitter_username}</span>")
+plot_caption <- paste0(
+  "**Data**: {geodata} package  ",
+  "  |  **Code:** ", 
+  social_caption_1, 
+  " |  **Graphics:** ", 
+  social_caption_2
+  )
+rm(github, github_username, xtwitter, 
+   xtwitter_username, social_caption_1, 
+   social_caption_2)
+```
+
+Data to use: Updated `penguins` dataset, now included with Base `R`, version \> 4.50
+
+```{r}
+#| eval: true
+#| tbl-cap: "The `penguins` dataframe, now included with Base R"
+
+penguins_raw |> 
+  as_tibble() |> 
+  gt::gt() |> 
+  gtExtras::gt_theme_538() |> 
+  gt::opt_interactive(
+    page_size_default = 5
+  ) |> 
+  gt::tab_options(
+    table.font.size = "small"  # Set font size to small
+  )
+```
+
+Exploring the `col4all` GUI for the palette selector
+
+```{r}
+
+# cols4all::c4a_gui()
+
+penguins |> 
+  as_tibble() |> 
+  ggplot(
+    aes(
+      x = species,
+      y = body_mass,
+      fill = species
+    )
+  ) +
+  geom_boxplot(
+    staplewidth = 0.5
+  ) +
+  scale_fill_discrete_c4a_cat("line7")
+```
+
+Getting colours from a palette: `c4a()` and printing the results
+
+```{r}
+
+c4a("line7") |> 
+  print_color(type = "m", blank.len = 8)
+
+c4a_gui()
+```
