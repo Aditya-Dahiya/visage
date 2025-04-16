@@ -587,10 +587,8 @@ point_distances <- c(
   
   )
 
-# Extract only the first column (i.e. the distance from
-  # first point alone). Otherwise, st_distance() 
-  # returns a distance matrix As expected, distance grows 
-  # by approx. less than dfMaxLength amount per points
+# Add distance from starting point as a column, and
+# re-convert back to Geographic CRS
 path_points <- path_points |> 
   mutate(dist = point_distances) |> 
   st_transform("EPSG:4326")
