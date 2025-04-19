@@ -61,7 +61,17 @@ library(gt)        # Display GT tables with R
 
 # A nice way to pick colour palettes for maps etc.
 # cols4all::c4a_gui()
-cols4all::c4a_palettes()
+cols4all::c4a_palettes() |> 
+  as_tibble()
+
+cols4all::c4a_series() |> 
+  as_tibble()
+
+cols4all::c4a_data()
+
+cols4all::c4a_gui()
+
+cols4all::scale_fill_binned_c4a_div()
 
 cols4all::c4a(palette = "powerbi.highrise") |> 
   seecolor::print_color()
