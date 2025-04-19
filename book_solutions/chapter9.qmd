@@ -33,20 +33,34 @@ share:
   facebook: true
 ---
 
-In this chapter, I use **{ggplot2}** [@ggplot2-2] to produce equivalent maps, as produced by **{tmap}** [@tmap] in the textbook. In addition, I use **{cols4all}** [@cols4all] palettes for colour and fill scales.
+In this chapter, I use {**tmap**} [@tmap-2], but I also use **{ggplot2}** [@ggplot2-2] to produce equivalent maps, as produced by **{tmap}** [@tmap] in the textbook. In addition, I use **{cols4all}** [@cols4all] palettes for colour and fill scales.
+
+Using `pacman` for quick loading and updating of packages.
 
 ```{r}
 #| label: setup
 #| eval: true
 
-library(sf)        # Simple Features in R
-library(terra)     # Handling rasters in R
-library(tidyterra) # For plotting rasters in ggplot2
-library(magrittr)  # Using pipes with raster objects
-library(tidyverse) # All things tidy; Data Wrangling
-library(spData)    # Spatial Datasets
-library(patchwork) # Composing plots
-library(gt)        # Display GT tables with R
+pacman::p_load(
+  sf,          # Simple Features in R
+  terra,       # Handling rasters in R
+  tidyterra,   # For plotting rasters in ggplot2
+  tidyverse,   # All things tidy; Data Wrangling
+  magrittr,    # Using pipes with raster objects
+  
+  spData,      # Spatial Datasets
+  spDataLarge, # Large Spatial Datasets
+  
+  patchwork,   # Composing plots
+  gt,          # Display GT tables with R
+  
+  tmap         # Using {tmap} for maps
+)
+
+nz_elev = rast(system.file("raster/nz_elev.tif", package = "spDataLarge"))
+
+# install.packages("spDataLarge", repos = "https://geocompr.r-universe.dev")
+
 ```
 
 ### 9.1 Introduction
@@ -54,27 +68,39 @@ library(gt)        # Display GT tables with R
 -   Cartography is a crucial aspect of geographic research, blending communication, detail, and creativity.
 -   Static maps in R can be created using the [`plot()`](https://r.geocompx.org/adv-map.html#base-r-maps) function, but advanced cartography benefits from dedicated packages.
 -   The chapter focuses in-depth on the [`tmap`](https://r-tmap.github.io/) package rather than multiple tools superficially.
+-   Some example colour palettes to use in maps is shown below in @tbl-1.
 
 ```{r}
-# install.packages("colorblindcheck")
+#| tbl-cap: "Avaialable palettes in {cols4all}"
+#| label: tbl-1
+
 # install.packages("cols4all")
 
 # A nice way to pick colour palettes for maps etc.
 # cols4all::c4a_gui()
-cols4all::c4a_palettes() |> 
-  as_tibble()
+# pacman::p_load(cols4all)
 
-cols4all::c4a_series() |> 
-  as_tibble()
+cols4all::c4a_overview() |> 
+  as_tibble() |>
+  pivot_longer(
+    cols = -c(1, 2),
+    names_to = "type",
+    values_to = "value"
+  ) |> 
+  left_join(cols4all::c4a_types() |> rename(val_name = description)) |> 
+  select(-type) |> 
+  pivot_wider(
+    id_cols = c(1, 2),
+    names_from = val_name,
+    values_from = value
+  ) |> 
+  gt::gt() |> 
+  gt::tab_style(
+    style = cell_text(font = "monospace", weight = "bold"),
+    locations = cells_body(columns = "series")
+  ) |> 
+  gtExtras::gt_theme_espn()
 
-cols4all::c4a_data()
-
-cols4all::c4a_gui()
-
-cols4all::scale_fill_binned_c4a_div()
-
-cols4all::c4a(palette = "powerbi.highrise") |> 
-  seecolor::print_color()
 ```
 
 ### 9.2 Static maps
@@ -88,7 +114,7 @@ cols4all::c4a(palette = "powerbi.highrise") |>
 
 ### 9.2.1 `tmap` basics
 
--   Grammar of graphics: Like [ggplot2](https://ggplot2.tidyverse.org/), [tmap](https://r-tmap.github.io/) follows a structured approach, separating input data from aesthetics (visual properties).
+-   Grammar of graphics: Like [ggplot2](https://ggplot2.tidyverse.org/), [tmap](https://r-tmap.github.io/) follows a structured approach, separating input data from aesthetics (visual properties). Example, shown in @fig-1 .
 -   Basic structure: Uses `tm_shape()` to define the input dataset (vector or raster), followed by layer elements like `tm_fill()` and `tm_borders()`.
 -   Layering approach:
     -   `tm_fill()`: Fills (multi)polygon areas.
@@ -102,6 +128,65 @@ cols4all::c4a(palette = "powerbi.highrise") |>
 -   Layering operator: The `+` operator is used to add multiple layers.
 -   Quick maps: `qtm()` provides a fast way to generate thematic maps (`qtm(nz)` ≈ `tm_shape(nz) + tm_fill() + tm_borders()`).
     -   Limitations of qtm(): Less control over aesthetics, so not covered in detail in this chapter.
+
+```{r}
+
+g1 <- nz |> 
+  ggplot() +
+  geom_sf(
+    colour = "grey",
+    fill = "grey"
+  ) +
+  ggthemes::theme_map() +
+  theme(
+    panel.background = element_rect()
+  )
+
+
+g2 <- nz |> 
+  ggplot() +
+  geom_sf(
+    colour = "black",
+    fill = "white"
+  ) +
+  ggthemes::theme_map() +
+  theme(
+    panel.background = element_rect()
+  )
+
+
+g3 <- nz |> 
+  ggplot() +
+  geom_sf(
+    colour = "black",
+    fill = "grey"
+  ) +
+  ggthemes::theme_map() +
+  theme(
+    panel.background = element_rect()
+  )
+
+g <- g1 + g2 + g3 +
+  plot_annotation(
+    title = "Using `colour` and `fill` arguments in geom_sf() to\nachieve same results as {tmap} with {ggplot2}",
+    theme = theme(
+      plot.title = element_text(
+        hjust = 0.5,
+        lineheight = 0.9
+      )
+    )
+  )
+
+ggsave(
+  filename = here::here("book_solutions", "images", "chapter9-2-1.png"),
+  plot = g,
+  height = 1000,
+  width  = 2000,
+  units = "px"
+)
+```
+
+![](images/chapter9-2-1.png){#fig-1}
 
 ### 9.2.2 Map objects
 
@@ -117,6 +202,78 @@ cols4all::c4a(palette = "powerbi.highrise") |>
     -   High points (`tm_symbols()`)
 -   [`tmap_arrange()`](https://r-tmap.github.io/tmap/reference/tmap_arrange.html) combines multiple `tmap` objects into a single visualization.
 -   The `+` operator adds layers, but aesthetics are controlled within layer functions.
+
+```{r}
+g1 <- ggplot() +
+  geom_spatraster(
+    data = nz_elev,
+    alpha = 0.5
+  ) +
+  geom_sf(
+    data = nz,
+    fill = NA
+  ) +
+  scale_fill_stepsn(
+    colours = c4a("brewer.blues", n = 5),
+    name = "Elevation (metres)",
+    na.value = "transparent"
+  ) +
+  ggthemes::theme_map() +
+  theme(
+    legend.position = "bottom",
+    panel.background = element_rect()
+  )
+
+
+g2 <- g1 + 
+  geom_sf(
+    data = st_buffer(
+      st_union(nz), 22200
+    ),
+    fill = NA,
+    colour = "black"
+  )
+
+g3 <- g2 +
+  geom_sf(
+    data = nz_height,
+    size = 4,
+    colour = "grey10",
+    fill = "grey",
+    pch = 21
+  )
+
+
+g <- g1 + g2 + g3 +
+  plot_layout(
+    guides = "collect"
+  ) +
+  plot_annotation(
+    title = "Using added geom_sf() and st_buffer() to\nachieve same results as {tmap} with {ggplot2}",
+    theme = theme(
+      plot.title = element_text(
+        hjust = 0.5,
+        lineheight = 0.9
+      )
+    )
+  ) &
+  theme(
+    legend.position = "bottom",
+    legend.direction = "horizontal",
+    legend.margin = margin(0,0,0,0, "pt"),
+    legend.key.width = unit(50, "pt")
+  )
+
+ggsave(
+  filename = here::here("book_solutions", "images", "chapter9-2-2.png"),
+  plot = g,
+  height = 1000,
+  width  = 2000,
+  units = "px"
+)
+```
+
+![](images/chapter9-2-2.png){#fig-2}
 
 ### 9.2.3 Visual variables
 
@@ -142,6 +299,64 @@ cols4all::c4a(palette = "powerbi.highrise") |>
     -   `.scale`: Controls representation on the map and legend.
     -   `.legend`: Customizes legend settings.
     -   `.free`: Defines whether each facet uses the same or different scales.
+
+```{r}
+
+
+g1 <- ggplot() +
+  geom_sf(
+    data = nz,
+    mapping = aes(fill = Land_area),
+    colour = "transparent"
+  ) +
+  scale_fill_stepsn(
+    colors = c4a(palette = "brewer.blues", type = "seq"),
+    name = "Land Area"
+  ) +
+  ggthemes::theme_map() +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0.9, 0.1),
+    legend.justification = c(1, 0),
+    panel.background = element_rect()
+  )
+
+g2 <- ggplot() +
+  geom_sf(
+    data = nz,
+    mapping = aes(fill = Land_area),
+    colour = "black"
+  ) +
+  ggthemes::theme_map() +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0.9, 0.1),
+    legend.justification = c(1, 0),
+    panel.background = element_rect()
+  ) +
+  scale_fill_viridis_b(option = "C")
+
+g <- g1 + g2 +
+  plot_annotation(
+    title = "Using scale_fill_stepsn() & scale_fill_viridis_b() to\nachieve same results as {tmap} with {ggplot2}",
+    theme = theme(
+      plot.title = element_text(
+        hjust = 0.5,
+        lineheight = 0.9
+      )
+    )
+  )
+
+ggsave(
+  filename = here::here("book_solutions", "images", "chapter9-2-3.png"),
+  plot = g,
+  height = 2000,
+  width  = 3000,
+  units = "px"
+)
+```
+
+![](images/chapter9-2-3.png){#fig-3}
 
 ### 9.2.4 Scales
 
