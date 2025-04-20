@@ -60,26 +60,19 @@ font-style: inherit;"># Composing plots</span></span>
 background-color: null;
 font-style: inherit;"># Display GT tables with R</span></span>
 <span id="cb1-13">  </span>
-<span id="cb1-14">  tmap         <span class="co" style="color: #5E5E5E;
+<span id="cb1-14">  tmap,        <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Using {tmap} for maps</span></span>
-<span id="cb1-15">)</span>
-<span id="cb1-16"></span>
-<span id="cb1-17">nz_elev <span class="ot" style="color: #003B4F;
+<span id="cb1-15">  cols4all     <span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+font-style: inherit;"># Colour Palettes</span></span>
+<span id="cb1-16">)</span>
+<span id="cb1-17"></span>
+<span id="cb1-18"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">rast</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">system.file</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"raster/nz_elev.tif"</span>, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">package =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"spDataLarge"</span>))</span>
-<span id="cb1-18"></span>
-<span id="cb1-19"><span class="co" style="color: #5E5E5E;
+font-style: inherit;"># nz_elev = rast(system.file("raster/nz_elev.tif", package = "spDataLarge"))</span></span>
+<span id="cb1-19"></span>
+<span id="cb1-20"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># install.packages("spDataLarge", repos = "https://geocompr.r-universe.dev")</span></span></code></pre></div>
 </details>
@@ -92,12 +85,7 @@ font-style: inherit;"># install.packages("spDataLarge", repos = "https://geocomp
 <li>The chapter focuses in-depth on the <a href="https://r-tmap.github.io/"><code>tmap</code></a> package rather than multiple tools superficially.</li>
 <li>Some example colour palettes to use in maps is shown below in Table&nbsp;1.</li>
 </ul>
-<div id="tbl-1" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;1: Avaialable palettes in
-</figcaption>
-<div aria-describedby="tbl-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="co" style="color: #5E5E5E;
@@ -237,10 +225,496 @@ font-style: inherit;">|&gt;</span> </span>
 background-color: null;
 font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">gt_theme_espn</span>()</span></code></pre></div>
+font-style: inherit;">gt_theme_espn</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-27">  gt<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">opt_interactive</span>(</span>
+<span id="cb2-28">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">page_size_default =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span></span>
+<span id="cb2-29">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb2-30">  gt<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cols_label_with</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fn =</span> snakecase<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span>to_title_case)</span></code></pre></div>
 </details>
+<div id="tbl-1" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Avaialable palettes in
+</figcaption>
+<div aria-describedby="tbl-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="sjhrkuqsvr" class=".gt_table" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+#sjhrkuqsvr table {
+  font-family: Lato, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#sjhrkuqsvr thead, #sjhrkuqsvr tbody, #sjhrkuqsvr tfoot, #sjhrkuqsvr tr, #sjhrkuqsvr td, #sjhrkuqsvr th {
+  border-style: none;
+}
+
+#sjhrkuqsvr p {
+  margin: 0;
+  padding: 0;
+}
+
+#sjhrkuqsvr .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 3px;
+  border-top-color: #FFFFFF;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#sjhrkuqsvr .gt_title {
+  color: #333333;
+  font-size: 24px;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#sjhrkuqsvr .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#sjhrkuqsvr .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#sjhrkuqsvr .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#sjhrkuqsvr .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#sjhrkuqsvr .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#sjhrkuqsvr .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#sjhrkuqsvr .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#sjhrkuqsvr .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#sjhrkuqsvr .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#sjhrkuqsvr .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#sjhrkuqsvr .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#sjhrkuqsvr .gt_row {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #F6F7F7;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#sjhrkuqsvr .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sjhrkuqsvr .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#sjhrkuqsvr .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#sjhrkuqsvr .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#sjhrkuqsvr .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sjhrkuqsvr .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#sjhrkuqsvr .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sjhrkuqsvr .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_striped {
+  background-color: #FAFAFA;
+}
+
+#sjhrkuqsvr .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sjhrkuqsvr .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_sourcenote {
+  font-size: 12px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sjhrkuqsvr .gt_left {
+  text-align: left;
+}
+
+#sjhrkuqsvr .gt_center {
+  text-align: center;
+}
+
+#sjhrkuqsvr .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#sjhrkuqsvr .gt_font_normal {
+  font-weight: normal;
+}
+
+#sjhrkuqsvr .gt_font_bold {
+  font-weight: bold;
+}
+
+#sjhrkuqsvr .gt_font_italic {
+  font-style: italic;
+}
+
+#sjhrkuqsvr .gt_super {
+  font-size: 65%;
+}
+
+#sjhrkuqsvr .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#sjhrkuqsvr .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#sjhrkuqsvr .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#sjhrkuqsvr .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#sjhrkuqsvr .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#sjhrkuqsvr .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#sjhrkuqsvr .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#sjhrkuqsvr .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#sjhrkuqsvr div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<div id="sjhrkuqsvr" class="reactable html-widget" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="sjhrkuqsvr">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"series":["brewer","carto","cols4all","hcl","kovesi","matplotlib","met","misc","parks","poly","powerbi","scico","seaborn","stevens","tableau","tol","wes"],"description":["ColorBrewer palettes","Palettes designed by CARTO","cols4all palettes (in development)","Palettes from the Hue Chroma Luminance color space","Palettes designed by Peter Kovesi","Palettes from the Python library matplotlib","Palettes inspired by The Metropolitan Museum of Art","Miscellaneous palettes","Palettes inspired by National Parks","Qualitative palettes with many colors","Palettes from Microsoft Power BI","Scientific colour maps by Fabio Crameri","Palettes from the Python library Seaborn","Bivariate palettes by Joshua Stevens","Palettes designed by Tableau","Palettes designed by Paul Tol","Palettes from Wes Anderson movies"],"categorical":[8,6,14,9,0,0,33,5,22,9,19,21,6,0,29,8,23],"sequential":[18,21,0,23,28,51,8,0,5,0,1,21,4,0,23,8,0],"diverging":[9,7,2,11,14,12,14,0,3,0,4,10,2,0,28,4,1],"cyclic":[0,0,0,6,8,3,0,0,0,0,0,5,0,0,0,0,0],"bivariate (sequential x sequential)":[2,0,2,0,0,0,0,0,0,0,0,0,0,5,0,0,0],"bivariate (sequential x categorical)":[2,0,0,0,0,0,1,3,0,0,0,2,0,0,3,0,0],"bivariate (sequential x diverging)":[1,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"bivariate (sequential x desaturated)":[0,0,5,0,0,0,0,0,0,0,0,1,0,0,0,0,0]},"columns":[{"id":"series","name":"Series","type":"character","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"left"},{"id":"description","name":"Description","type":"character","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"left"},{"id":"categorical","name":"Categorical","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"sequential","name":"Sequential","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"diverging","name":"Diverging","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"cyclic","name":"Cyclic","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"bivariate (sequential x sequential)","name":"Bivariate Sequential x Sequential","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"bivariate (sequential x categorical)","name":"Bivariate Sequential x Categorical","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"bivariate (sequential x diverging)","name":"Bivariate Sequential x Diverging","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"bivariate (sequential x desaturated)","name":"Bivariate Sequential x Desaturated","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"}],"defaultPageSize":5,"showPageSizeOptions":false,"pageSizeOptions":[10,25,50,100],"paginationType":"numbers","showPagination":true,"showPageInfo":true,"minRows":1,"striped":true,"height":"auto","theme":{"color":"#333333","backgroundColor":"#FFFFFF","stripedColor":"#fafafa","style":{"font-family":"Lato, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif","fontSize":"16px"},"tableStyle":{"borderTopStyle":"solid","borderTopWidth":"2px","borderTopColor":"#D3D3D3"},"headerStyle":{"fontWeight":"bolder","backgroundColor":"transparent","borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"#D3D3D3"},"groupHeaderStyle":{"fontWeight":"bolder","backgroundColor":"transparent","borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"#D3D3D3"},"cellStyle":{"fontWeight":"normal"}},"elementId":"sjhrkuqsvr","dataKey":"64794bc851a63d36b6e011225e797b59"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.style","tag.attribs.columns.1.style","tag.attribs.columns.2.style","tag.attribs.columns.3.style","tag.attribs.columns.4.style","tag.attribs.columns.5.style","tag.attribs.columns.6.style","tag.attribs.columns.7.style","tag.attribs.columns.8.style","tag.attribs.columns.9.style"],"jsHooks":[]}</script>
+</div>
+</div>
 </div>
 </figure>
+</div>
 </div>
 </section>
 <section id="static-maps" class="level3">
@@ -1028,17 +1502,306 @@ font-style: inherit;">option =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"C"</span>)</span>
 <span id="cb5-33"></span>
-<span id="cb5-34">g <span class="ot" style="color: #003B4F;
+<span id="cb5-34"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># If we want to replicate the {tmap} style bin labels, wiht {ggplot2},</span></span>
+<span id="cb5-35"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># some manual code in required (Credits: Grok3)</span></span>
+<span id="cb5-36"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Load the New Zealand data</span></span>
+<span id="cb5-37">nz <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> spData<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span>nz</span>
+<span id="cb5-38"></span>
+<span id="cb5-39"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define bin width</span></span>
+<span id="cb5-40">bin_width <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10000</span></span>
+<span id="cb5-41"></span>
+<span id="cb5-42"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Determine breaks based on the data range</span></span>
+<span id="cb5-43">breaks <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq</span>(</span>
+<span id="cb5-44">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">from =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">floor</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">min</span>(nz<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>Land_area) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> bin_width) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> bin_width, </span>
+<span id="cb5-45">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">to =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ceiling</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">max</span>(nz<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>Land_area) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> bin_width) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> bin_width, </span>
+<span id="cb5-46">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> bin_width</span>
+<span id="cb5-47">  )</span>
+<span id="cb5-48"></span>
+<span id="cb5-49"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create labels for the bins</span></span>
+<span id="cb5-50">labels <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(</span>
+<span id="cb5-51">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">format</span>(breaks[<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(breaks)], <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">big.mark =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">","</span>), </span>
+<span id="cb5-52">  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">" - "</span>, </span>
+<span id="cb5-53">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">format</span>(breaks[<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>] <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">big.mark =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">","</span>)</span>
+<span id="cb5-54">  )</span>
+<span id="cb5-55"></span>
+<span id="cb5-56"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Bin the land area data</span></span>
+<span id="cb5-57">nz <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> nz <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb5-58">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb5-59">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">binned_land_area =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cut</span>(</span>
+<span id="cb5-60">      nz<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>Land_area, </span>
+<span id="cb5-61">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">breaks =</span> breaks, </span>
+<span id="cb5-62">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">labels =</span> labels, </span>
+<span id="cb5-63">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">include.lowest =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span></span>
+<span id="cb5-64">    )</span>
+<span id="cb5-65">  )</span>
+<span id="cb5-66"></span>
+<span id="cb5-67"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Generate colors for the bins</span></span>
+<span id="cb5-68">n_bins <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">levels</span>(nz<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>binned_land_area))</span>
+<span id="cb5-69">mypal <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> cols4all<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c4a</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">palette =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"brewer.blues"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> n_bins)</span>
+<span id="cb5-70"></span>
+<span id="cb5-71">g3 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-72">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>(</span>
+<span id="cb5-73">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> nz,</span>
+<span id="cb5-74">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapping =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> binned_land_area),</span>
+<span id="cb5-75">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transparent"</span></span>
+<span id="cb5-76">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-77">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_manual</span>(</span>
+<span id="cb5-78">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values =</span> mypal,</span>
+<span id="cb5-79">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">name =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Land Area"</span></span>
+<span id="cb5-80">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-81">  ggthemes<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_map</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb5-82">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb5-83">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"inside"</span>,</span>
+<span id="cb5-84">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position.inside =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.9</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>),</span>
+<span id="cb5-85">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.justification =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>),</span>
+<span id="cb5-86">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">panel.background =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_rect</span>(),</span>
+<span id="cb5-87">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pt"</span>),</span>
+<span id="cb5-88">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.key =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_rect</span>(</span>
+<span id="cb5-89">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span></span>
+<span id="cb5-90">    ),</span>
+<span id="cb5-91">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb5-92">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">hjust =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span></span>
+<span id="cb5-93">    )</span>
+<span id="cb5-94">  )</span>
+<span id="cb5-95"></span>
+<span id="cb5-96"></span>
+<span id="cb5-97"></span>
+<span id="cb5-98">g <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> g1 <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span> g2 <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb5-35">  <span class="fu" style="color: #4758AB;
+font-style: inherit;">+</span> g3 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb5-99">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">plot_annotation</span>(</span>
-<span id="cb5-36">    <span class="at" style="color: #657422;
+<span id="cb5-100">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_levels =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"I"</span>,</span>
+<span id="cb5-101">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
 background-color: null;
@@ -1047,34 +1810,75 @@ background-color: null;
 font-style: inherit;">\n</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">achieve same results as {tmap} with {ggplot2}"</span>,</span>
-<span id="cb5-37">    <span class="at" style="color: #657422;
+<span id="cb5-102">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">theme =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">theme</span>(</span>
-<span id="cb5-38">      <span class="at" style="color: #657422;
+<span id="cb5-103">      <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">plot.title =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">element_text</span>(</span>
-<span id="cb5-39">        <span class="at" style="color: #657422;
+<span id="cb5-104">        <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">hjust =</span> <span class="fl" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0.5</span>,</span>
-<span id="cb5-40">        <span class="at" style="color: #657422;
+<span id="cb5-105">        <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">lineheight =</span> <span class="fl" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">0.9</span></span>
-<span id="cb5-41">      )</span>
-<span id="cb5-42">    )</span>
-<span id="cb5-43">  )</span>
-<span id="cb5-44"></span>
-<span id="cb5-45"><span class="fu" style="color: #4758AB;
+font-style: inherit;">0.9</span>,</span>
+<span id="cb5-106">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span></span>
+<span id="cb5-107">      )</span>
+<span id="cb5-108">    )</span>
+<span id="cb5-109">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span></span>
+<span id="cb5-110">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb5-111">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.tag.location =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"panel"</span>,</span>
+<span id="cb5-112">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.tag.position =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.9</span>),</span>
+<span id="cb5-113">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.tag =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb5-114">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">face =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span>,</span>
+<span id="cb5-115">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span></span>
+<span id="cb5-116">    )</span>
+<span id="cb5-117">  )</span>
+<span id="cb5-118"></span>
+<span id="cb5-119"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggsave</span>(</span>
-<span id="cb5-46">  <span class="at" style="color: #657422;
+<span id="cb5-120">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -1087,25 +1891,25 @@ background-color: null;
 font-style: inherit;">"images"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"chapter9-2-3.png"</span>),</span>
-<span id="cb5-47">  <span class="at" style="color: #657422;
+<span id="cb5-121">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">plot =</span> g,</span>
-<span id="cb5-48">  <span class="at" style="color: #657422;
+<span id="cb5-122">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">2000</span>,</span>
-<span id="cb5-49">  <span class="at" style="color: #657422;
+font-style: inherit;">1800</span>,</span>
+<span id="cb5-123">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">width  =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">3000</span>,</span>
-<span id="cb5-50">  <span class="at" style="color: #657422;
+font-style: inherit;">4000</span>,</span>
+<span id="cb5-124">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"px"</span></span>
-<span id="cb5-51">)</span></code></pre></div>
+<span id="cb5-125">)</span></code></pre></div>
 </details>
 </div>
 <div id="fig-3" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -1153,6 +1957,641 @@ Figure&nbsp;3
 <li>Accessibility: use colour-blind-friendly palettes where possible.</li>
 </ul></li>
 </ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Use of <code>classInt::classify_intervals()</code> for Binned Data in Maps
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The <a href="https://www.rdocumentation.org/packages/classInt/versions/0.4-10/topics/classify_intervals"><code>classify_intervals()</code></a> function from the <a href="https://cran.r-project.org/web/packages/classInt/index.html"><code>classInt</code></a> package in R is a powerful tool for visualizing continuous data in maps, such as choropleth maps. It assigns values of a continuous variable—like population density or income levels—to discrete intervals based on break points calculated by methods like Jenks or quantiles using <a href="https://www.rdocumentation.org/packages/classInt/versions/0.4-10/topics/classIntervals"><code>classIntervals()</code></a>. This classification enables the data to be paired with a discrete color scale, simplifying the interpretation of spatial patterns and variations across regions. For instance, after determining breaks with <code>classIntervals()</code>, <code>classify_intervals()</code> can categorize each region’s value into a bin, producing a factor suitable for plotting with libraries like <a href="https://ggplot2.tidyverse.org/"><strong>ggplot2</strong></a> or <a href="https://cran.r-project.org/web/packages/tmap/index.html"><strong>tmap</strong></a>, enhancing map readability with clear legend ranges (e.g., “10,000 - 20,000”).</p>
+<section id="available-styles-in-classintervals-and-their-uses" class="level3">
+<h3 class="anchored" data-anchor-id="available-styles-in-classintervals-and-their-uses">Available Styles in <code>classIntervals()</code> and Their Uses</h3>
+<p>Below is a table summarizing the classification styles available in <code>classIntervals()</code> and their practical applications:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 38%">
+<col style="width: 38%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Style</strong></th>
+<th><strong>Description</strong></th>
+<th><strong>Use Case</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>fixed</code></td>
+<td>Uses user-defined, fixed break points.</td>
+<td>Custom intervals, such as policy-driven thresholds.</td>
+</tr>
+<tr class="even">
+<td><code>equal</code></td>
+<td>Splits the data range into equal-width intervals.</td>
+<td>Uniformly distributed data or when equal ranges are significant.</td>
+</tr>
+<tr class="odd">
+<td><code>pretty</code></td>
+<td>Rounds breaks to “nice” numbers for readability.</td>
+<td>Visually appealing breaks for general audience maps.</td>
+</tr>
+<tr class="even">
+<td><code>quantile</code></td>
+<td>Ensures each interval has roughly equal observation counts.</td>
+<td>Skewed data distributions to show spread effectively.</td>
+</tr>
+<tr class="odd">
+<td><code>jenks</code></td>
+<td>Minimizes within-class variance, maximizes between-class variance.</td>
+<td>Identifying natural clusters or groupings in the data.</td>
+</tr>
+<tr class="even">
+<td><code>hclust</code></td>
+<td>Uses hierarchical clustering for break points.</td>
+<td>Exploring hierarchical data structures or groupings.</td>
+</tr>
+<tr class="odd">
+<td><code>kmeans</code></td>
+<td>Applies k-means clustering to define breaks.</td>
+<td>Data with distinct clusters needing clear separation.</td>
+</tr>
+<tr class="even">
+<td><code>sd</code></td>
+<td>Sets breaks based on standard deviations from the mean.</td>
+<td>Normally distributed data to highlight deviations.</td>
+</tr>
+<tr class="odd">
+<td><code>bclust</code></td>
+<td>Employs bagged clustering for break determination.</td>
+<td>Noisy data requiring robust, stable classification.</td>
+</tr>
+<tr class="even">
+<td><code>fisher</code></td>
+<td>Optimizes variance within classes, similar to Jenks.</td>
+<td>Alternative to Jenks for natural breaks classification.</td>
+</tr>
+</tbody>
+</table>
+</section>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># classInt::classify_intervals(nz$Median_income)</span></span>
+<span id="cb6-2"></span>
+<span id="cb6-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># classInt::classIntervals(nz$Median_income, style = "jenks")</span></span>
+<span id="cb6-4"></span>
+<span id="cb6-5">custom_plot <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">my_style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pretty"</span>){</span>
+<span id="cb6-6">  nz <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-7">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb6-8">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">median_income_binned =</span> classInt<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">classify_intervals</span>(</span>
+<span id="cb6-9">        Median_income,</span>
+<span id="cb6-10">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,</span>
+<span id="cb6-11">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> my_style</span>
+<span id="cb6-12">      )</span>
+<span id="cb6-13">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-14">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> median_income_binned)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-15">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-16">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_manual</span>(</span>
+<span id="cb6-17">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c4a</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"brewer.blues"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>)[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>]</span>
+<span id="cb6-18">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-19">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb6-20">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"style = `"</span>, my_style, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"`"</span>),</span>
+<span id="cb6-21">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Median Income (NZ $)"</span></span>
+<span id="cb6-22">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-23">    ggthemes<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_map</span>()</span>
+<span id="cb6-24">}</span>
+<span id="cb6-25"></span>
+<span id="cb6-26">g1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> nz <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-27">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb6-28">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">median_income_binned =</span> classInt<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">classify_intervals</span>(</span>
+<span id="cb6-29">        Median_income,</span>
+<span id="cb6-30">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pretty"</span></span>
+<span id="cb6-31">      )</span>
+<span id="cb6-32">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-33">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> median_income_binned)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-34">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-35">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_manual</span>(</span>
+<span id="cb6-36">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c4a</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"brewer.blues"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>)</span>
+<span id="cb6-37">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-38">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb6-39">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"style = `pretty`"</span>),</span>
+<span id="cb6-40">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Median Income (NZ $)"</span></span>
+<span id="cb6-41">    ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-42">    ggthemes<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_map</span>()</span>
+<span id="cb6-43"></span>
+<span id="cb6-44">g2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">custom_plot</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"equal"</span>)</span>
+<span id="cb6-45">g3 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">custom_plot</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"quantile"</span>)</span>
+<span id="cb6-46">g4 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">custom_plot</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"jenks"</span>)</span>
+<span id="cb6-47"></span>
+<span id="cb6-48">g5 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> nz <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-49">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> Population)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-50">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-51">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_stepsn</span>(</span>
+<span id="cb6-52">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colours =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c4a</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"brewer.bu_pu"</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>),</span>
+<span id="cb6-53">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">transform =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"log10"</span>,</span>
+<span id="cb6-54">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">breaks =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1e4</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1e5</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1e6</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1e7</span>),</span>
+<span id="cb6-55">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">limits =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1e4</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1e7</span>),</span>
+<span id="cb6-56">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">labels =</span> scales<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">label_number</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">big.mark =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">","</span>)</span>
+<span id="cb6-57">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-58">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb6-59">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"style = `log10_pretty`"</span>),</span>
+<span id="cb6-60">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Population"</span></span>
+<span id="cb6-61">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-62">  ggthemes<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_map</span>()</span>
+<span id="cb6-63"></span>
+<span id="cb6-64">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> g1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g2 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g3 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g4 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> g5 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-65">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_layout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ncol =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-66">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_annotation</span>(</span>
+<span id="cb6-67">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tag_levels =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"I"</span>,</span>
+<span id="cb6-68">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Using {ggplot2} + {cols4all} + {classInt} to replicate</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">{tmap}'s tm_scale_intervals() function's style = `` argument"</span>,</span>
+<span id="cb6-69">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">theme =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb6-70">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb6-71">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">hjust =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>,</span>
+<span id="cb6-72">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lineheight =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.9</span>,</span>
+<span id="cb6-73">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span></span>
+<span id="cb6-74">      )</span>
+<span id="cb6-75">    )</span>
+<span id="cb6-76">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span></span>
+<span id="cb6-77">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb6-78">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.tag.location =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"panel"</span>,</span>
+<span id="cb6-79">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.tag.position =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.9</span>),</span>
+<span id="cb6-80">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.tag =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb6-81">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">face =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span>,</span>
+<span id="cb6-82">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span></span>
+<span id="cb6-83">    ),</span>
+<span id="cb6-84">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb6-85">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>,</span>
+<span id="cb6-86">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pt"</span>)</span>
+<span id="cb6-87">    ),</span>
+<span id="cb6-88">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"inside"</span>,</span>
+<span id="cb6-89">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position.inside =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>),</span>
+<span id="cb6-90">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.justification =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>),</span>
+<span id="cb6-91">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.margin =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">margin</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pt"</span>),</span>
+<span id="cb6-92">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.key =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_rect</span>(</span>
+<span id="cb6-93">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span></span>
+<span id="cb6-94">      ),</span>
+<span id="cb6-95">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(</span>
+<span id="cb6-96">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">hjust =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span></span>
+<span id="cb6-97">      )</span>
+<span id="cb6-98">  )</span>
+<span id="cb6-99"></span>
+<span id="cb6-100"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggsave</span>(</span>
+<span id="cb6-101">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filename =</span> here<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">here</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"book_solutions"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"images"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"chapter9-2-4.png"</span>),</span>
+<span id="cb6-102">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot =</span> g,</span>
+<span id="cb6-103">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3500</span>,</span>
+<span id="cb6-104">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width  =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3500</span>,</span>
+<span id="cb6-105">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span></span>
+<span id="cb6-106">)</span></code></pre></div>
+</details>
+</div>
+<div id="fig-4" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/chapter9-2-4.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Figure&nbsp;4: "><img src="https://aditya-dahiya.github.io/visage/index.html/book_solutions/images/chapter9-2-4.png" id="fig-4" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4
+</figcaption>
+</figure>
+</div>
 
 
 

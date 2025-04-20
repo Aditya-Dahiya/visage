@@ -128,6 +128,20 @@ div.csl-indent {
     "search-label": "Search"
   }
 }</script>
+<script src="../site_libs/core-js-2.5.3/shim.min.js"></script>
+
+<script src="../site_libs/react-18.2.0/react.min.js"></script>
+
+<script src="../site_libs/react-18.2.0/react-dom.min.js"></script>
+
+<script src="../site_libs/reactwidget-2.0.0/react-tools.js"></script>
+
+<script src="../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+
+<link href="../site_libs/reactable-0.4.4/reactable.css" rel="stylesheet">
+
+<script src="../site_libs/reactable-binding-0.4.4/reactable.js"></script>
+
 
 
 <link rel="stylesheet" href="../styles.css">
@@ -279,12 +293,13 @@ div.csl-indent {
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  patchwork,   <span class="co"># Composing plots</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  gt,          <span class="co"># Display GT tables with R</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  tmap         <span class="co"># Using {tmap} for maps</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>nz_elev <span class="ot">=</span> <span class="fu">rast</span>(<span class="fu">system.file</span>(<span class="st">"raster/nz_elev.tif"</span>, <span class="at">package =</span> <span class="st">"spDataLarge"</span>))</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("spDataLarge", repos = "https://geocompr.r-universe.dev")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  tmap,        <span class="co"># Using {tmap} for maps</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  cols4all     <span class="co"># Colour Palettes</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># nz_elev = rast(system.file("raster/nz_elev.tif", package = "spDataLarge"))</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("spDataLarge", repos = "https://geocompr.r-universe.dev")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <section id="introduction" class="level3">
@@ -295,12 +310,7 @@ div.csl-indent {
 <li>The chapter focuses in-depth on the <a href="https://r-tmap.github.io/"><code>tmap</code></a> package rather than multiple tools superficially.</li>
 <li>Some example colour palettes to use in maps is shown below in <a href="#tbl-1" class="quarto-xref">Table&nbsp;1</a>.</li>
 </ul>
-<div id="tbl-1" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;1: Avaialable palettes in
-</figcaption>
-<div aria-describedby="tbl-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("cols4all")</span></span>
@@ -328,10 +338,476 @@ Table&nbsp;1: Avaialable palettes in
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">style =</span> <span class="fu">cell_text</span>(<span class="at">font =</span> <span class="st">"monospace"</span>, <span class="at">weight =</span> <span class="st">"bold"</span>),</span>
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">locations =</span> <span class="fu">cells_body</span>(<span class="at">columns =</span> <span class="st">"series"</span>)</span>
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  gtExtras<span class="sc">::</span><span class="fu">gt_theme_espn</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  gtExtras<span class="sc">::</span><span class="fu">gt_theme_espn</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">opt_interactive</span>(</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">page_size_default =</span> <span class="dv">5</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">cols_label_with</span>(<span class="at">fn =</span> snakecase<span class="sc">::</span>to_title_case)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div id="tbl-1" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Avaialable palettes in
+</figcaption>
+<div aria-describedby="tbl-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="sjhrkuqsvr" class=".gt_table" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+#sjhrkuqsvr table {
+  font-family: Lato, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#sjhrkuqsvr thead, #sjhrkuqsvr tbody, #sjhrkuqsvr tfoot, #sjhrkuqsvr tr, #sjhrkuqsvr td, #sjhrkuqsvr th {
+  border-style: none;
+}
+
+#sjhrkuqsvr p {
+  margin: 0;
+  padding: 0;
+}
+
+#sjhrkuqsvr .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 3px;
+  border-top-color: #FFFFFF;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#sjhrkuqsvr .gt_title {
+  color: #333333;
+  font-size: 24px;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#sjhrkuqsvr .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#sjhrkuqsvr .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#sjhrkuqsvr .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#sjhrkuqsvr .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#sjhrkuqsvr .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#sjhrkuqsvr .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#sjhrkuqsvr .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#sjhrkuqsvr .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#sjhrkuqsvr .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#sjhrkuqsvr .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#sjhrkuqsvr .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#sjhrkuqsvr .gt_row {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #F6F7F7;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#sjhrkuqsvr .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sjhrkuqsvr .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#sjhrkuqsvr .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#sjhrkuqsvr .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#sjhrkuqsvr .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sjhrkuqsvr .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#sjhrkuqsvr .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sjhrkuqsvr .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_striped {
+  background-color: #FAFAFA;
+}
+
+#sjhrkuqsvr .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sjhrkuqsvr .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#sjhrkuqsvr .gt_sourcenote {
+  font-size: 12px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sjhrkuqsvr .gt_left {
+  text-align: left;
+}
+
+#sjhrkuqsvr .gt_center {
+  text-align: center;
+}
+
+#sjhrkuqsvr .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#sjhrkuqsvr .gt_font_normal {
+  font-weight: normal;
+}
+
+#sjhrkuqsvr .gt_font_bold {
+  font-weight: bold;
+}
+
+#sjhrkuqsvr .gt_font_italic {
+  font-style: italic;
+}
+
+#sjhrkuqsvr .gt_super {
+  font-size: 65%;
+}
+
+#sjhrkuqsvr .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#sjhrkuqsvr .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#sjhrkuqsvr .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#sjhrkuqsvr .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#sjhrkuqsvr .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#sjhrkuqsvr .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#sjhrkuqsvr .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#sjhrkuqsvr .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#sjhrkuqsvr div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<div id="sjhrkuqsvr" class="reactable html-widget" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="sjhrkuqsvr">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"series":["brewer","carto","cols4all","hcl","kovesi","matplotlib","met","misc","parks","poly","powerbi","scico","seaborn","stevens","tableau","tol","wes"],"description":["ColorBrewer palettes","Palettes designed by CARTO","cols4all palettes (in development)","Palettes from the Hue Chroma Luminance color space","Palettes designed by Peter Kovesi","Palettes from the Python library matplotlib","Palettes inspired by The Metropolitan Museum of Art","Miscellaneous palettes","Palettes inspired by National Parks","Qualitative palettes with many colors","Palettes from Microsoft Power BI","Scientific colour maps by Fabio Crameri","Palettes from the Python library Seaborn","Bivariate palettes by Joshua Stevens","Palettes designed by Tableau","Palettes designed by Paul Tol","Palettes from Wes Anderson movies"],"categorical":[8,6,14,9,0,0,33,5,22,9,19,21,6,0,29,8,23],"sequential":[18,21,0,23,28,51,8,0,5,0,1,21,4,0,23,8,0],"diverging":[9,7,2,11,14,12,14,0,3,0,4,10,2,0,28,4,1],"cyclic":[0,0,0,6,8,3,0,0,0,0,0,5,0,0,0,0,0],"bivariate (sequential x sequential)":[2,0,2,0,0,0,0,0,0,0,0,0,0,5,0,0,0],"bivariate (sequential x categorical)":[2,0,0,0,0,0,1,3,0,0,0,2,0,0,3,0,0],"bivariate (sequential x diverging)":[1,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"bivariate (sequential x desaturated)":[0,0,5,0,0,0,0,0,0,0,0,1,0,0,0,0,0]},"columns":[{"id":"series","name":"Series","type":"character","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"left"},{"id":"description","name":"Description","type":"character","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"left"},{"id":"categorical","name":"Categorical","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"sequential","name":"Sequential","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"diverging","name":"Diverging","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"cyclic","name":"Cyclic","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"bivariate (sequential x sequential)","name":"Bivariate Sequential x Sequential","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"bivariate (sequential x categorical)","name":"Bivariate Sequential x Categorical","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"bivariate (sequential x diverging)","name":"Bivariate Sequential x Diverging","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"bivariate (sequential x desaturated)","name":"Bivariate Sequential x Desaturated","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"}],"defaultPageSize":5,"showPageSizeOptions":false,"pageSizeOptions":[10,25,50,100],"paginationType":"numbers","showPagination":true,"showPageInfo":true,"minRows":1,"striped":true,"height":"auto","theme":{"color":"#333333","backgroundColor":"#FFFFFF","stripedColor":"#fafafa","style":{"font-family":"Lato, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif","fontSize":"16px"},"tableStyle":{"borderTopStyle":"solid","borderTopWidth":"2px","borderTopColor":"#D3D3D3"},"headerStyle":{"fontWeight":"bolder","backgroundColor":"transparent","borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"#D3D3D3"},"groupHeaderStyle":{"fontWeight":"bolder","backgroundColor":"transparent","borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"#D3D3D3"},"cellStyle":{"fontWeight":"normal"}},"elementId":"sjhrkuqsvr","dataKey":"64794bc851a63d36b6e011225e797b59"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.style","tag.attribs.columns.1.style","tag.attribs.columns.2.style","tag.attribs.columns.3.style","tag.attribs.columns.4.style","tag.attribs.columns.5.style","tag.attribs.columns.6.style","tag.attribs.columns.7.style","tag.attribs.columns.8.style","tag.attribs.columns.9.style"],"jsHooks":[]}</script>
+</div>
+</div>
 </div>
 </figure>
+</div>
 </div>
 </section>
 <section id="static-maps" class="level3">
@@ -611,24 +1087,98 @@ Figure&nbsp;2
 <span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
 <span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_b</span>(<span class="at">option =</span> <span class="st">"C"</span>)</span>
 <span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> g1 <span class="sc">+</span> g2 <span class="sc">+</span></span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_annotation</span>(</span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Using scale_fill_stepsn() &amp; scale_fill_viridis_b() to</span><span class="sc">\n</span><span class="st">achieve same results as {tmap} with {ggplot2}"</span>,</span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">theme =</span> <span class="fu">theme</span>(</span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>        <span class="at">hjust =</span> <span class="fl">0.5</span>,</span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>        <span class="at">lineheight =</span> <span class="fl">0.9</span></span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
-<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"book_solutions"</span>, <span class="st">"images"</span>, <span class="st">"chapter9-2-3.png"</span>),</span>
-<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
-<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">2000</span>,</span>
-<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">width  =</span> <span class="dv">3000</span>,</span>
-<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
-<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="co"># If we want to replicate the {tmap} style bin labels, wiht {ggplot2},</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="co"># some manual code in required (Credits: Grok3)</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the New Zealand data</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>nz <span class="ot">&lt;-</span> spData<span class="sc">::</span>nz</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a><span class="co"># Define bin width</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>bin_width <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a><span class="co"># Determine breaks based on the data range</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>breaks <span class="ot">&lt;-</span> <span class="fu">seq</span>(</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">from =</span> <span class="fu">floor</span>(<span class="fu">min</span>(nz<span class="sc">$</span>Land_area) <span class="sc">/</span> bin_width) <span class="sc">*</span> bin_width, </span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">to =</span> <span class="fu">ceiling</span>(<span class="fu">max</span>(nz<span class="sc">$</span>Land_area) <span class="sc">/</span> bin_width) <span class="sc">*</span> bin_width, </span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">by =</span> bin_width</span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a><span class="co"># Create labels for the bins</span></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>labels <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">format</span>(breaks[<span class="sc">-</span><span class="fu">length</span>(breaks)], <span class="at">big.mark =</span> <span class="st">","</span>), </span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>  <span class="st">" - "</span>, </span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">format</span>(breaks[<span class="sc">-</span><span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span>, <span class="at">big.mark =</span> <span class="st">","</span>)</span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a><span class="co"># Bin the land area data</span></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>nz <span class="ot">&lt;-</span> nz <span class="sc">|&gt;</span> </span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">binned_land_area =</span> <span class="fu">cut</span>(</span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>      nz<span class="sc">$</span>Land_area, </span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>      <span class="at">breaks =</span> breaks, </span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>      <span class="at">labels =</span> labels, </span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>      <span class="at">include.lowest =</span> <span class="cn">TRUE</span></span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate colors for the bins</span></span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a>n_bins <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">levels</span>(nz<span class="sc">$</span>binned_land_area))</span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a>mypal <span class="ot">&lt;-</span> cols4all<span class="sc">::</span><span class="fu">c4a</span>(<span class="at">palette =</span> <span class="st">"brewer.blues"</span>, <span class="at">n =</span> n_bins)</span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>g3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> nz,</span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">fill =</span> binned_land_area),</span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"transparent"</span></span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(</span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> mypal,</span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Land Area"</span></span>
+<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a>  ggthemes<span class="sc">::</span><span class="fu">theme_map</span>() <span class="sc">+</span></span>
+<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"inside"</span>,</span>
+<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position.inside =</span> <span class="fu">c</span>(<span class="fl">0.9</span>, <span class="fl">0.1</span>),</span>
+<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.justification =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.background =</span> <span class="fu">element_rect</span>(),</span>
+<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>, <span class="st">"pt"</span>),</span>
+<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.key =</span> <span class="fu">element_rect</span>(</span>
+<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a>      <span class="at">colour =</span> <span class="cn">NA</span></span>
+<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.text =</span> <span class="fu">element_text</span>(</span>
+<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a>      <span class="at">hjust =</span> <span class="dv">0</span></span>
+<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> g1 <span class="sc">+</span> g2 <span class="sc">+</span> g3 <span class="sc">+</span> </span>
+<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_annotation</span>(</span>
+<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a>    <span class="at">tag_levels =</span> <span class="st">"I"</span>,</span>
+<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Using scale_fill_stepsn() &amp; scale_fill_viridis_b() to</span><span class="sc">\n</span><span class="st">achieve same results as {tmap} with {ggplot2}"</span>,</span>
+<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a>    <span class="at">theme =</span> <span class="fu">theme</span>(</span>
+<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
+<span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a>        <span class="at">hjust =</span> <span class="fl">0.5</span>,</span>
+<span id="cb5-105"><a href="#cb5-105" aria-hidden="true" tabindex="-1"></a>        <span class="at">lineheight =</span> <span class="fl">0.9</span>,</span>
+<span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a>        <span class="at">size =</span> <span class="dv">20</span></span>
+<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb5-108"><a href="#cb5-108" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">&amp;</span></span>
+<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.tag.location =</span> <span class="st">"panel"</span>,</span>
+<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.tag.position =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.9</span>),</span>
+<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.tag =</span> <span class="fu">element_text</span>(</span>
+<span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a>      <span class="at">face =</span> <span class="st">"bold"</span>,</span>
+<span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">20</span></span>
+<span id="cb5-116"><a href="#cb5-116" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-117"><a href="#cb5-117" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-118"><a href="#cb5-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-119"><a href="#cb5-119" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb5-120"><a href="#cb5-120" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"book_solutions"</span>, <span class="st">"images"</span>, <span class="st">"chapter9-2-3.png"</span>),</span>
+<span id="cb5-121"><a href="#cb5-121" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb5-122"><a href="#cb5-122" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">1800</span>,</span>
+<span id="cb5-123"><a href="#cb5-123" aria-hidden="true" tabindex="-1"></a>  <span class="at">width  =</span> <span class="dv">4000</span>,</span>
+<span id="cb5-124"><a href="#cb5-124" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
+<span id="cb5-125"><a href="#cb5-125" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div id="fig-3" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -676,6 +1226,210 @@ Figure&nbsp;3
 <li>Accessibility: use colour-blind-friendly palettes where possible.</li>
 </ul></li>
 </ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Use of <code>classInt::classify_intervals()</code> for Binned Data in Maps
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The <a href="https://www.rdocumentation.org/packages/classInt/versions/0.4-10/topics/classify_intervals"><code>classify_intervals()</code></a> function from the <a href="https://cran.r-project.org/web/packages/classInt/index.html"><code>classInt</code></a> package in R is a powerful tool for visualizing continuous data in maps, such as choropleth maps. It assigns values of a continuous variable—like population density or income levels—to discrete intervals based on break points calculated by methods like Jenks or quantiles using <a href="https://www.rdocumentation.org/packages/classInt/versions/0.4-10/topics/classIntervals"><code>classIntervals()</code></a>. This classification enables the data to be paired with a discrete color scale, simplifying the interpretation of spatial patterns and variations across regions. For instance, after determining breaks with <code>classIntervals()</code>, <code>classify_intervals()</code> can categorize each region’s value into a bin, producing a factor suitable for plotting with libraries like <a href="https://ggplot2.tidyverse.org/"><strong>ggplot2</strong></a> or <a href="https://cran.r-project.org/web/packages/tmap/index.html"><strong>tmap</strong></a>, enhancing map readability with clear legend ranges (e.g., “10,000 - 20,000”).</p>
+<section id="available-styles-in-classintervals-and-their-uses" class="level3">
+<h3 class="anchored" data-anchor-id="available-styles-in-classintervals-and-their-uses">Available Styles in <code>classIntervals()</code> and Their Uses</h3>
+<p>Below is a table summarizing the classification styles available in <code>classIntervals()</code> and their practical applications:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 38%">
+<col style="width: 38%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Style</strong></th>
+<th><strong>Description</strong></th>
+<th><strong>Use Case</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>fixed</code></td>
+<td>Uses user-defined, fixed break points.</td>
+<td>Custom intervals, such as policy-driven thresholds.</td>
+</tr>
+<tr class="even">
+<td><code>equal</code></td>
+<td>Splits the data range into equal-width intervals.</td>
+<td>Uniformly distributed data or when equal ranges are significant.</td>
+</tr>
+<tr class="odd">
+<td><code>pretty</code></td>
+<td>Rounds breaks to “nice” numbers for readability.</td>
+<td>Visually appealing breaks for general audience maps.</td>
+</tr>
+<tr class="even">
+<td><code>quantile</code></td>
+<td>Ensures each interval has roughly equal observation counts.</td>
+<td>Skewed data distributions to show spread effectively.</td>
+</tr>
+<tr class="odd">
+<td><code>jenks</code></td>
+<td>Minimizes within-class variance, maximizes between-class variance.</td>
+<td>Identifying natural clusters or groupings in the data.</td>
+</tr>
+<tr class="even">
+<td><code>hclust</code></td>
+<td>Uses hierarchical clustering for break points.</td>
+<td>Exploring hierarchical data structures or groupings.</td>
+</tr>
+<tr class="odd">
+<td><code>kmeans</code></td>
+<td>Applies k-means clustering to define breaks.</td>
+<td>Data with distinct clusters needing clear separation.</td>
+</tr>
+<tr class="even">
+<td><code>sd</code></td>
+<td>Sets breaks based on standard deviations from the mean.</td>
+<td>Normally distributed data to highlight deviations.</td>
+</tr>
+<tr class="odd">
+<td><code>bclust</code></td>
+<td>Employs bagged clustering for break determination.</td>
+<td>Noisy data requiring robust, stable classification.</td>
+</tr>
+<tr class="even">
+<td><code>fisher</code></td>
+<td>Optimizes variance within classes, similar to Jenks.</td>
+<td>Alternative to Jenks for natural breaks classification.</td>
+</tr>
+</tbody>
+</table>
+</section>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># classInt::classify_intervals(nz$Median_income)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># classInt::classIntervals(nz$Median_income, style = "jenks")</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>custom_plot <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">my_style =</span> <span class="st">"pretty"</span>){</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  nz <span class="sc">|&gt;</span> </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">median_income_binned =</span> classInt<span class="sc">::</span><span class="fu">classify_intervals</span>(</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        Median_income,</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">n =</span> <span class="dv">5</span>,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">style =</span> my_style</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> </span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">fill =</span> median_income_binned)) <span class="sc">+</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_manual</span>(</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">values =</span> <span class="fu">c4a</span>(<span class="st">"brewer.blues"</span>, <span class="at">n =</span> <span class="dv">6</span>)[<span class="dv">2</span><span class="sc">:</span><span class="dv">6</span>]</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">title =</span> <span class="fu">paste0</span>(<span class="st">"style = `"</span>, my_style, <span class="st">"`"</span>),</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">fill =</span> <span class="st">"Median Income (NZ $)"</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    ggthemes<span class="sc">::</span><span class="fu">theme_map</span>()</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>g1 <span class="ot">&lt;-</span> nz <span class="sc">|&gt;</span> </span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>      <span class="at">median_income_binned =</span> classInt<span class="sc">::</span><span class="fu">classify_intervals</span>(</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>        Median_income,</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>        <span class="at">style =</span> <span class="st">"pretty"</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> </span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">fill =</span> median_income_binned)) <span class="sc">+</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_manual</span>(</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>      <span class="at">values =</span> <span class="fu">c4a</span>(<span class="st">"brewer.blues"</span>, <span class="at">n =</span> <span class="dv">6</span>)</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>      <span class="at">title =</span> <span class="fu">paste0</span>(<span class="st">"style = `pretty`"</span>),</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>      <span class="at">fill =</span> <span class="st">"Median Income (NZ $)"</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>    ggthemes<span class="sc">::</span><span class="fu">theme_map</span>()</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>g2 <span class="ot">&lt;-</span> <span class="fu">custom_plot</span>(<span class="st">"equal"</span>)</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>g3 <span class="ot">&lt;-</span> <span class="fu">custom_plot</span>(<span class="st">"quantile"</span>)</span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>g4 <span class="ot">&lt;-</span> <span class="fu">custom_plot</span>(<span class="st">"jenks"</span>)</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>g5 <span class="ot">&lt;-</span> nz <span class="sc">|&gt;</span> </span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Population)) <span class="sc">+</span></span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_stepsn</span>(</span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">colours =</span> <span class="fu">c4a</span>(<span class="st">"brewer.bu_pu"</span>, <span class="dv">3</span>),</span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">transform =</span> <span class="st">"log10"</span>,</span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">c</span>(<span class="fl">1e4</span>, <span class="fl">1e5</span>, <span class="fl">1e6</span>, <span class="fl">1e7</span>),</span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="fl">1e4</span>, <span class="fl">1e7</span>),</span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_number</span>(<span class="at">big.mark =</span> <span class="st">","</span>)</span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="fu">paste0</span>(<span class="st">"style = `log10_pretty`"</span>),</span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Population"</span></span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>  ggthemes<span class="sc">::</span><span class="fu">theme_map</span>()</span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> g1 <span class="sc">+</span> g2 <span class="sc">+</span> g3 <span class="sc">+</span> g4 <span class="sc">+</span> g5 <span class="sc">+</span></span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_annotation</span>(</span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>    <span class="at">tag_levels =</span> <span class="st">"I"</span>,</span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Using {ggplot2} + {cols4all} + {classInt} to replicate</span><span class="sc">\n</span><span class="st">{tmap}'s tm_scale_intervals() function's style = `` argument"</span>,</span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>    <span class="at">theme =</span> <span class="fu">theme</span>(</span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>        <span class="at">hjust =</span> <span class="fl">0.5</span>,</span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>        <span class="at">lineheight =</span> <span class="fl">0.9</span>,</span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>        <span class="at">size =</span> <span class="dv">20</span></span>
+<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">&amp;</span></span>
+<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.tag.location =</span> <span class="st">"panel"</span>,</span>
+<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.tag.position =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.9</span>),</span>
+<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.tag =</span> <span class="fu">element_text</span>(</span>
+<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a>      <span class="at">face =</span> <span class="st">"bold"</span>,</span>
+<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">20</span></span>
+<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
+<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">20</span>,</span>
+<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a>      <span class="at">margin =</span> <span class="fu">margin</span>(<span class="dv">30</span>,<span class="dv">0</span>,<span class="sc">-</span><span class="dv">15</span>,<span class="dv">0</span>, <span class="st">"pt"</span>)</span>
+<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"inside"</span>,</span>
+<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.position.inside =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.justification =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>, <span class="st">"pt"</span>),</span>
+<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.key =</span> <span class="fu">element_rect</span>(</span>
+<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a>        <span class="at">colour =</span> <span class="cn">NA</span></span>
+<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.text =</span> <span class="fu">element_text</span>(</span>
+<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a>        <span class="at">hjust =</span> <span class="dv">0</span></span>
+<span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-99"><a href="#cb6-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb6-101"><a href="#cb6-101" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"book_solutions"</span>, <span class="st">"images"</span>, <span class="st">"chapter9-2-4.png"</span>),</span>
+<span id="cb6-102"><a href="#cb6-102" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb6-103"><a href="#cb6-103" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">3500</span>,</span>
+<span id="cb6-104"><a href="#cb6-104" aria-hidden="true" tabindex="-1"></a>  <span class="at">width  =</span> <span class="dv">3500</span>,</span>
+<span id="cb6-105"><a href="#cb6-105" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
+<span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="fig-4" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/chapter9-2-4.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Figure&nbsp;4: "><img src="images/chapter9-2-4.png" id="fig-4" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4
+</figcaption>
+</figure>
+</div>
 
 
 
@@ -1121,7 +1875,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 <footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/book_solutions/chapter9.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><div class="page-columns page-rows-contents page-layout-article"><div class="social-share"><a href="https://twitter.com/share?url=https://aditya-dahiya.github.io/visage/book_solutions/chapter9.html&amp;text=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="twitter"><i class="fab fa-twitter fa-fw fa-lg"></i></a><a href="https://www.linkedin.com/shareArticle?url=https://aditya-dahiya.github.io/visage/book_solutions/chapter9.html&amp;title=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="linkedin"><i class="fa-brands fa-linkedin-in fa-fw fa-lg"></i></a>  <a href="mailto:?subject=Visualizing Information and Spatial Analysis with ggplot2 Extensions&amp;body=Check out this link:https://aditya-dahiya.github.io/visage/book_solutions/chapter9.html" target="_blank" class="email"><i class="fa-solid fa-envelope fa-fw fa-lg"></i></a><a href="https://www.facebook.com/sharer.php?u=https://aditya-dahiya.github.io/visage/book_solutions/chapter9.html" target="_blank" class="facebook"><i class="fab fa-facebook-f fa-fw fa-lg"></i></a><a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' &amp;&amp; mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=Visualizing Information and Spatial Analysis with ggplot2 Extensions https://aditya-dahiya.github.io/visage/book_solutions/chapter9.html'}else{return false;}" target="_blank" class="mastodon"><i class="fa-brands fa-mastodon fa-fw fa-lg"></i></a></div></div>
-<script>var lightboxQuarto = GLightbox({"loop":false,"closeEffect":"zoom","descPosition":"bottom","selector":".lightbox","openEffect":"zoom"});
+<script>var lightboxQuarto = GLightbox({"loop":false,"descPosition":"bottom","openEffect":"zoom","selector":".lightbox","closeEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

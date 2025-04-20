@@ -54,10 +54,11 @@ pacman::p_load(
   patchwork,   # Composing plots
   gt,          # Display GT tables with R
   
-  tmap         # Using {tmap} for maps
+  tmap,        # Using {tmap} for maps
+  cols4all     # Colour Palettes
 )
 
-nz_elev = rast(system.file("raster/nz_elev.tif", package = "spDataLarge"))
+# nz_elev = rast(system.file("raster/nz_elev.tif", package = "spDataLarge"))
 
 # install.packages("spDataLarge", repos = "https://geocompr.r-universe.dev")
 
@@ -73,6 +74,7 @@ nz_elev = rast(system.file("raster/nz_elev.tif", package = "spDataLarge"))
 ```{r}
 #| tbl-cap: "Avaialable palettes in {cols4all}"
 #| label: tbl-1
+#| eval: true
 
 # install.packages("cols4all")
 
@@ -99,7 +101,11 @@ cols4all::c4a_overview() |>
     style = cell_text(font = "monospace", weight = "bold"),
     locations = cells_body(columns = "series")
   ) |> 
-  gtExtras::gt_theme_espn()
+  gtExtras::gt_theme_espn() |> 
+  gt::opt_interactive(
+    page_size_default = 5
+  ) |> 
+  gt::cols_label_with(fn = snakecase::to_title_case)
 
 ```
 
@@ -336,24 +342,99 @@ g2 <- ggplot() +
   ) +
   scale_fill_viridis_b(option = "C")
 
-g <- g1 + g2 +
+# If we want to replicate the {tmap} style bin labels, wiht {ggplot2},
+# some manual code in required (Credits: Grok3)
+# Load the New Zealand data
+nz <- spData::nz
+
+# Define bin width
+bin_width <- 10000
+
+# Determine breaks based on the data range
+breaks <- seq(
+  from = floor(min(nz$Land_area) / bin_width) * bin_width, 
+  to = ceiling(max(nz$Land_area) / bin_width) * bin_width, 
+  by = bin_width
+  )
+
+# Create labels for the bins
+labels <- paste0(
+  format(breaks[-length(breaks)], big.mark = ","), 
+  " - ", 
+  format(breaks[-1] - 1, big.mark = ",")
+  )
+
+# Bin the land area data
+nz <- nz |> 
+  mutate(
+    binned_land_area = cut(
+      nz$Land_area, 
+      breaks = breaks, 
+      labels = labels, 
+      include.lowest = TRUE
+    )
+  )
+
+# Generate colors for the bins
+n_bins <- length(levels(nz$binned_land_area))
+mypal <- cols4all::c4a(palette = "brewer.blues", n = n_bins)
+
+g3 <- ggplot() +
+  geom_sf(
+    data = nz,
+    mapping = aes(fill = binned_land_area),
+    colour = "transparent"
+  ) +
+  scale_fill_manual(
+    values = mypal,
+    name = "Land Area"
+  ) +
+  ggthemes::theme_map() +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0.9, 0.1),
+    legend.justification = c(1, 0),
+    panel.background = element_rect(),
+    legend.margin = margin(0,0,0,0, "pt"),
+    legend.key = element_rect(
+      colour = NA
+    ),
+    legend.text = element_text(
+      hjust = 0
+    )
+  )
+
+
+
+g <- g1 + g2 + g3 + 
   plot_annotation(
+    tag_levels = "I",
     title = "Using scale_fill_stepsn() & scale_fill_viridis_b() to\nachieve same results as {tmap} with {ggplot2}",
     theme = theme(
       plot.title = element_text(
         hjust = 0.5,
-        lineheight = 0.9
+        lineheight = 0.9,
+        size = 20
       )
+    )
+  ) &
+  theme(
+    plot.tag.location = "panel",
+    plot.tag.position = c(0.1, 0.9),
+    plot.tag = element_text(
+      face = "bold",
+      size = 20
     )
   )
 
 ggsave(
   filename = here::here("book_solutions", "images", "chapter9-2-3.png"),
   plot = g,
-  height = 2000,
-  width  = 3000,
+  height = 1800,
+  width  = 4000,
   units = "px"
 )
+
 ```
 
 ![](images/chapter9-2-3.png){#fig-3}
@@ -380,3 +461,138 @@ ggsave(
 -   Key considerations for colour choices:
     -   Perceptibility: colours should match common associations (e.g., blue for water, green for vegetation).
     -   Accessibility: use colour-blind-friendly palettes where possible.
+
+::: callout-tip
+### Use of `classInt::classify_intervals()` for Binned Data in Maps
+
+The [`classify_intervals()`](https://www.rdocumentation.org/packages/classInt/versions/0.4-10/topics/classify_intervals) function from the [`classInt`](https://cran.r-project.org/web/packages/classInt/index.html) package in R is a powerful tool for visualizing continuous data in maps, such as choropleth maps. It assigns values of a continuous variable—like population density or income levels—to discrete intervals based on break points calculated by methods like Jenks or quantiles using [`classIntervals()`](https://www.rdocumentation.org/packages/classInt/versions/0.4-10/topics/classIntervals). This classification enables the data to be paired with a discrete color scale, simplifying the interpretation of spatial patterns and variations across regions. For instance, after determining breaks with `classIntervals()`, `classify_intervals()` can categorize each region's value into a bin, producing a factor suitable for plotting with libraries like [**ggplot2**](https://ggplot2.tidyverse.org/) or [**tmap**](https://cran.r-project.org/web/packages/tmap/index.html), enhancing map readability with clear legend ranges (e.g., "10,000 - 20,000").
+
+### Available Styles in `classIntervals()` and Their Uses
+
+Below is a table summarizing the classification styles available in `classIntervals()` and their practical applications:
+
+| **Style** | **Description** | **Use Case** |
+|-----------------|----------------------------|----------------------------|
+| `fixed` | Uses user-defined, fixed break points. | Custom intervals, such as policy-driven thresholds. |
+| `equal` | Splits the data range into equal-width intervals. | Uniformly distributed data or when equal ranges are significant. |
+| `pretty` | Rounds breaks to "nice" numbers for readability. | Visually appealing breaks for general audience maps. |
+| `quantile` | Ensures each interval has roughly equal observation counts. | Skewed data distributions to show spread effectively. |
+| `jenks` | Minimizes within-class variance, maximizes between-class variance. | Identifying natural clusters or groupings in the data. |
+| `hclust` | Uses hierarchical clustering for break points. | Exploring hierarchical data structures or groupings. |
+| `kmeans` | Applies k-means clustering to define breaks. | Data with distinct clusters needing clear separation. |
+| `sd` | Sets breaks based on standard deviations from the mean. | Normally distributed data to highlight deviations. |
+| `bclust` | Employs bagged clustering for break determination. | Noisy data requiring robust, stable classification. |
+| `fisher` | Optimizes variance within classes, similar to Jenks. | Alternative to Jenks for natural breaks classification. |
+:::
+
+```{r}
+
+# classInt::classify_intervals(nz$Median_income)
+
+# classInt::classIntervals(nz$Median_income, style = "jenks")
+
+custom_plot <- function(my_style = "pretty"){
+  nz |> 
+    mutate(
+      median_income_binned = classInt::classify_intervals(
+        Median_income,
+        n = 5,
+        style = my_style
+      )
+    ) |> 
+    ggplot(aes(fill = median_income_binned)) +
+    geom_sf() +
+    scale_fill_manual(
+      values = c4a("brewer.blues", n = 6)[2:6]
+    ) +
+    labs(
+      title = paste0("style = `", my_style, "`"),
+      fill = "Median Income (NZ $)"
+    ) +
+    ggthemes::theme_map()
+}
+
+g1 <- nz |> 
+    mutate(
+      median_income_binned = classInt::classify_intervals(
+        Median_income,
+        style = "pretty"
+      )
+    ) |> 
+    ggplot(aes(fill = median_income_binned)) +
+    geom_sf() +
+    scale_fill_manual(
+      values = c4a("brewer.blues", n = 6)
+    ) +
+    labs(
+      title = paste0("style = `pretty`"),
+      fill = "Median Income (NZ $)"
+    ) +
+    ggthemes::theme_map()
+
+g2 <- custom_plot("equal")
+g3 <- custom_plot("quantile")
+g4 <- custom_plot("jenks")
+
+g5 <- nz |> 
+  ggplot(aes(fill = Population)) +
+  geom_sf() +
+  scale_fill_stepsn(
+    colours = c4a("brewer.bu_pu", 3),
+    transform = "log10",
+    breaks = c(1e4, 1e5, 1e6, 1e7),
+    limits = c(1e4, 1e7),
+    labels = scales::label_number(big.mark = ",")
+  ) +
+  labs(
+    title = paste0("style = `log10_pretty`"),
+    fill = "Population"
+  ) +
+  ggthemes::theme_map()
+
+g <- g1 + g2 + g3 + g4 + g5 +
+  plot_layout(nrow = 2, ncol = 3) +
+  plot_annotation(
+    tag_levels = "I",
+    title = "Using {ggplot2} + {cols4all} + {classInt} to replicate\n{tmap}'s tm_scale_intervals() function's style = `` argument",
+    theme = theme(
+      plot.title = element_text(
+        hjust = 0.5,
+        lineheight = 0.9,
+        size = 20
+      )
+    )
+  ) &
+  theme(
+    plot.tag.location = "panel",
+    plot.tag.position = c(0.1, 0.9),
+    plot.tag = element_text(
+      face = "bold",
+      size = 20
+    ),
+    plot.title = element_text(
+      size = 20,
+      margin = margin(30,0,-15,0, "pt")
+    ),
+    legend.position = "inside",
+      legend.position.inside = c(1, 0),
+      legend.justification = c(1, 0),
+      legend.margin = margin(0,0,0,0, "pt"),
+      legend.key = element_rect(
+        colour = NA
+      ),
+      legend.text = element_text(
+        hjust = 0
+      )
+  )
+
+ggsave(
+  filename = here::here("book_solutions", "images", "chapter9-2-4.png"),
+  plot = g,
+  height = 3500,
+  width  = 3500,
+  units = "px"
+)
+```
+
+![](images/chapter9-2-4.png){#fig-4}

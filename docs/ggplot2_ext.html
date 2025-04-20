@@ -80,9 +80,9 @@ ul.task-list li input[type="checkbox"] {
     }
 
     const options = {
-      valueNames: ['listing-date','listing-title','listing-subtitle',{ data: ['index'] },{ data: ['categories'] }],
+      valueNames: ['listing-date','listing-title','listing-subtitle',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-title-sort'] }],
       
-      searchColumns: [],
+      searchColumns: ["listing-date","listing-title","listing-author"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
@@ -161,15 +161,15 @@ window.Quarto = {
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./geocomputation.html"> 
-<span class="menu-text">Geo-Computation</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link active" href="./ggplot2_ext.html" aria-current="page"> 
-<span class="menu-text">ggplot2 Extensions</span></a>
+<span class="menu-text">Geocomputation</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./book_solutions.html"> 
 <span class="menu-text">Book Solutions</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./ggplot2_ext.html" aria-current="page"> 
+<span class="menu-text">ggplot2 Extensions</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./about.html"> 
@@ -209,7 +209,7 @@ window.Quarto = {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(0)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Colour Palette">Colour Palette <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Colours">Colours <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ggplot2">ggplot2 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="{cols4all}">{cols4all} <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
@@ -244,6 +244,22 @@ window.Quarto = {
 
 <div class="quarto-listing quarto-listing-container-table" id="listing-listing">
 <div class="listing-actions-group">
+   <div class="input-group input-group-sm quarto-listing-sort">
+     <span class="input-group-text"><i class="bi bi-sort-down"></i></span>
+     <select id="listing-listing-sort" class="form-select" aria-label="Order By" onchange="window['quarto-listings']['listing-listing'].sort(this.options[this.selectedIndex].value, { order: this.options[this.selectedIndex].getAttribute('data-direction')})">
+       <option value="" disabled="" selected="" hidden="">Order By</option>
+       <option value="index" data-direction="asc">Default</option>
+         <option value="listing-date-sort" data-direction="asc">
+          Date - Oldest
+        </option>
+         <option value="listing-date-sort" data-direction="desc">
+          Date - Newest
+        </option>
+         <option value="listing-title-sort" data-direction="asc">
+          Title
+        </option>
+     </select>
+  </div>
     <div class="input-group input-group-sm quarto-listing-filter">
       <span class="input-group-text"><i class="bi bi-search"></i></span>
       <input type="text" class="search form-control" placeholder="Filter">
@@ -253,10 +269,10 @@ window.Quarto = {
 <thead>
 <tr>
 <th>
-Date
+<a class="sort" data-sort="listing-date-sort" onclick="if (this.classList.contains('sort-asc')) { this.classList.add('sort-desc'); this.classList.remove('sort-asc') } else { this.classList.add('sort-asc'); this.classList.remove('sort-desc')} return false;">Date</a>
 </th>
 <th>
-Title
+<a class="sort" data-sort="listing-title-sort" onclick="if (this.classList.contains('sort-asc')) { this.classList.add('sort-desc'); this.classList.remove('sort-asc') } else { this.classList.add('sort-asc'); this.classList.remove('sort-desc')} return false;">Title</a>
 </th>
 <th>
 Subtitle
@@ -264,6 +280,18 @@ Subtitle
 </tr>
 </thead>
 <tbody class="list">
+<tr data-index="0" data-categories="ggplot2,Colours,Colour Palette,{cols4all}" data-listing-date-sort="1744741800000" data-listing-file-modified-sort="1745132730189" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="551" data-listing-title-sort="Exploring the package {cols4all} - Colour Palettes for ggplot2 graphics" data-listing-filename-sort="cols4all.qmd" onclick="href = this.querySelector('a').getAttribute('href');
+ if (href) { window.location=href ; return false; }">
+<td>
+<span class="listing-date">Apr 16, 2025</span>
+</td>
+<td>
+<a href="./ggplot2_ext/cols4all.html" class="title listing-title">Exploring the package {cols4all} - Colour Palettes for ggplot2 graphics</a>
+</td>
+<td>
+<span class="listing-subtitle">………………….</span>
+</td>
+</tr>
 </tbody>
 </table>
 <div class="listing-no-matching d-none">
