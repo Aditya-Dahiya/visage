@@ -228,11 +228,15 @@ div.csl-indent {
    
   <ul>
   <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">9.1 Introduction</a></li>
-  <li><a href="#static-maps" id="toc-static-maps" class="nav-link" data-scroll-target="#static-maps">9.2 Static maps</a></li>
+  <li><a href="#static-maps" id="toc-static-maps" class="nav-link" data-scroll-target="#static-maps">9.2 Static maps</a>
+  <ul class="collapse">
   <li><a href="#tmap-basics" id="toc-tmap-basics" class="nav-link" data-scroll-target="#tmap-basics">9.2.1 <code>tmap</code> basics</a></li>
   <li><a href="#map-objects" id="toc-map-objects" class="nav-link" data-scroll-target="#map-objects">9.2.2 Map objects</a></li>
   <li><a href="#visual-variables" id="toc-visual-variables" class="nav-link" data-scroll-target="#visual-variables">9.2.3 Visual variables</a></li>
   <li><a href="#scales" id="toc-scales" class="nav-link" data-scroll-target="#scales">9.2.4 Scales</a></li>
+  <li><a href="#legends" id="toc-legends" class="nav-link" data-scroll-target="#legends">9.2.5 Legends</a></li>
+  <li><a href="#layouts" id="toc-layouts" class="nav-link" data-scroll-target="#layouts">9.2.6 Layouts</a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/book_solutions/chapter9.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -275,8 +279,7 @@ div.csl-indent {
 </header>
 
 
-<p>In this chapter, I use {<strong>tmap</strong>} <span class="citation" data-cites="tmap-2">(<a href="#ref-tmap-2" role="doc-biblioref">Tennekes 2018a</a>)</span>, but I also use <strong>{ggplot2}</strong> <span class="citation" data-cites="ggplot2-2">(<a href="#ref-ggplot2-2" role="doc-biblioref">Wickham 2016</a>)</span> to produce equivalent maps, as produced by <strong>{tmap}</strong> <span class="citation" data-cites="tmap">(<a href="#ref-tmap" role="doc-biblioref">Tennekes 2018b</a>)</span> in the textbook. In addition, I use <strong>{cols4all}</strong> <span class="citation" data-cites="cols4all">(<a href="#ref-cols4all" role="doc-biblioref">Tennekes and Puts 2023</a>)</span> palettes for colour and fill scales.</p>
-<p>Using <code>pacman</code> for quick loading and updating of packages.</p>
+<p>In this chapter, I use {<strong>tmap</strong>} <span class="citation" data-cites="tmap-2">(<a href="#ref-tmap-2" role="doc-biblioref">Tennekes 2018a</a>)</span>, but I also use <strong>{ggplot2}</strong> <span class="citation" data-cites="ggplot2-2">(<a href="#ref-ggplot2-2" role="doc-biblioref">Wickham 2016</a>)</span> to produce equivalent maps, as produced by <strong>{tmap}</strong> <span class="citation" data-cites="tmap">(<a href="#ref-tmap" role="doc-biblioref">Tennekes 2018b</a>)</span> in the textbook. In addition, I use <strong>{cols4all}</strong> <span class="citation" data-cites="cols4all">(<a href="#ref-cols4all" role="doc-biblioref">Tennekes and Puts 2023</a>)</span> palettes for colour and fill scales. I am using <code>pacman</code> for quick loading and updating of packages.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -302,8 +305,8 @@ div.csl-indent {
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("spDataLarge", repos = "https://geocompr.r-universe.dev")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<section id="introduction" class="level3">
-<h3 class="anchored" data-anchor-id="introduction">9.1 Introduction</h3>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">9.1 Introduction</h2>
 <ul>
 <li>Cartography is a crucial aspect of geographic research, blending communication, detail, and creativity.</li>
 <li>Static maps in R can be created using the <a href="https://r.geocompx.org/adv-map.html#base-r-maps"><code>plot()</code></a> function, but advanced cartography benefits from dedicated packages.</li>
@@ -351,24 +354,24 @@ Table&nbsp;1: Avaialable palettes in
 </figcaption>
 <div aria-describedby="tbl-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="sjhrkuqsvr" class=".gt_table" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="gixynuldqz" class=".gt_table" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#sjhrkuqsvr table {
+#gixynuldqz table {
   font-family: Lato, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#sjhrkuqsvr thead, #sjhrkuqsvr tbody, #sjhrkuqsvr tfoot, #sjhrkuqsvr tr, #sjhrkuqsvr td, #sjhrkuqsvr th {
+#gixynuldqz thead, #gixynuldqz tbody, #gixynuldqz tfoot, #gixynuldqz tr, #gixynuldqz td, #gixynuldqz th {
   border-style: none;
 }
 
-#sjhrkuqsvr p {
+#gixynuldqz p {
   margin: 0;
   padding: 0;
 }
 
-#sjhrkuqsvr .gt_table {
+#gixynuldqz .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -394,12 +397,12 @@ Table&nbsp;1: Avaialable palettes in
   border-left-color: #D3D3D3;
 }
 
-#sjhrkuqsvr .gt_caption {
+#gixynuldqz .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#sjhrkuqsvr .gt_title {
+#gixynuldqz .gt_title {
   color: #333333;
   font-size: 24px;
   font-weight: initial;
@@ -411,7 +414,7 @@ Table&nbsp;1: Avaialable palettes in
   border-bottom-width: 0;
 }
 
-#sjhrkuqsvr .gt_subtitle {
+#gixynuldqz .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -423,7 +426,7 @@ Table&nbsp;1: Avaialable palettes in
   border-top-width: 0;
 }
 
-#sjhrkuqsvr .gt_heading {
+#gixynuldqz .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -435,13 +438,13 @@ Table&nbsp;1: Avaialable palettes in
   border-right-color: #D3D3D3;
 }
 
-#sjhrkuqsvr .gt_bottom_border {
+#gixynuldqz .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#sjhrkuqsvr .gt_col_headings {
+#gixynuldqz .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -456,7 +459,7 @@ Table&nbsp;1: Avaialable palettes in
   border-right-color: #D3D3D3;
 }
 
-#sjhrkuqsvr .gt_col_heading {
+#gixynuldqz .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 80%;
@@ -476,7 +479,7 @@ Table&nbsp;1: Avaialable palettes in
   overflow-x: hidden;
 }
 
-#sjhrkuqsvr .gt_column_spanner_outer {
+#gixynuldqz .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 80%;
@@ -488,15 +491,15 @@ Table&nbsp;1: Avaialable palettes in
   padding-right: 4px;
 }
 
-#sjhrkuqsvr .gt_column_spanner_outer:first-child {
+#gixynuldqz .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#sjhrkuqsvr .gt_column_spanner_outer:last-child {
+#gixynuldqz .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#sjhrkuqsvr .gt_column_spanner {
+#gixynuldqz .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -508,11 +511,11 @@ Table&nbsp;1: Avaialable palettes in
   width: 100%;
 }
 
-#sjhrkuqsvr .gt_spanner_row {
+#gixynuldqz .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#sjhrkuqsvr .gt_group_heading {
+#gixynuldqz .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -538,7 +541,7 @@ Table&nbsp;1: Avaialable palettes in
   text-align: left;
 }
 
-#sjhrkuqsvr .gt_empty_group_heading {
+#gixynuldqz .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -553,15 +556,15 @@ Table&nbsp;1: Avaialable palettes in
   vertical-align: middle;
 }
 
-#sjhrkuqsvr .gt_from_md > :first-child {
+#gixynuldqz .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#sjhrkuqsvr .gt_from_md > :last-child {
+#gixynuldqz .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#sjhrkuqsvr .gt_row {
+#gixynuldqz .gt_row {
   padding-top: 7px;
   padding-bottom: 7px;
   padding-left: 5px;
@@ -580,7 +583,7 @@ Table&nbsp;1: Avaialable palettes in
   overflow-x: hidden;
 }
 
-#sjhrkuqsvr .gt_stub {
+#gixynuldqz .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 80%;
@@ -593,7 +596,7 @@ Table&nbsp;1: Avaialable palettes in
   padding-right: 5px;
 }
 
-#sjhrkuqsvr .gt_stub_row_group {
+#gixynuldqz .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -607,15 +610,15 @@ Table&nbsp;1: Avaialable palettes in
   vertical-align: top;
 }
 
-#sjhrkuqsvr .gt_row_group_first td {
+#gixynuldqz .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#sjhrkuqsvr .gt_row_group_first th {
+#gixynuldqz .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#sjhrkuqsvr .gt_summary_row {
+#gixynuldqz .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -625,16 +628,16 @@ Table&nbsp;1: Avaialable palettes in
   padding-right: 5px;
 }
 
-#sjhrkuqsvr .gt_first_summary_row {
+#gixynuldqz .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#sjhrkuqsvr .gt_first_summary_row.thick {
+#gixynuldqz .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#sjhrkuqsvr .gt_last_summary_row {
+#gixynuldqz .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -644,7 +647,7 @@ Table&nbsp;1: Avaialable palettes in
   border-bottom-color: #D3D3D3;
 }
 
-#sjhrkuqsvr .gt_grand_summary_row {
+#gixynuldqz .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -654,7 +657,7 @@ Table&nbsp;1: Avaialable palettes in
   padding-right: 5px;
 }
 
-#sjhrkuqsvr .gt_first_grand_summary_row {
+#gixynuldqz .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -664,7 +667,7 @@ Table&nbsp;1: Avaialable palettes in
   border-top-color: #D3D3D3;
 }
 
-#sjhrkuqsvr .gt_last_grand_summary_row_top {
+#gixynuldqz .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -674,11 +677,11 @@ Table&nbsp;1: Avaialable palettes in
   border-bottom-color: #D3D3D3;
 }
 
-#sjhrkuqsvr .gt_striped {
+#gixynuldqz .gt_striped {
   background-color: #FAFAFA;
 }
 
-#sjhrkuqsvr .gt_table_body {
+#gixynuldqz .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -687,7 +690,7 @@ Table&nbsp;1: Avaialable palettes in
   border-bottom-color: #D3D3D3;
 }
 
-#sjhrkuqsvr .gt_footnotes {
+#gixynuldqz .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -701,7 +704,7 @@ Table&nbsp;1: Avaialable palettes in
   border-right-color: #D3D3D3;
 }
 
-#sjhrkuqsvr .gt_footnote {
+#gixynuldqz .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -710,7 +713,7 @@ Table&nbsp;1: Avaialable palettes in
   padding-right: 5px;
 }
 
-#sjhrkuqsvr .gt_sourcenotes {
+#gixynuldqz .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -724,7 +727,7 @@ Table&nbsp;1: Avaialable palettes in
   border-right-color: #D3D3D3;
 }
 
-#sjhrkuqsvr .gt_sourcenote {
+#gixynuldqz .gt_sourcenote {
   font-size: 12px;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -732,77 +735,77 @@ Table&nbsp;1: Avaialable palettes in
   padding-right: 5px;
 }
 
-#sjhrkuqsvr .gt_left {
+#gixynuldqz .gt_left {
   text-align: left;
 }
 
-#sjhrkuqsvr .gt_center {
+#gixynuldqz .gt_center {
   text-align: center;
 }
 
-#sjhrkuqsvr .gt_right {
+#gixynuldqz .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#sjhrkuqsvr .gt_font_normal {
+#gixynuldqz .gt_font_normal {
   font-weight: normal;
 }
 
-#sjhrkuqsvr .gt_font_bold {
+#gixynuldqz .gt_font_bold {
   font-weight: bold;
 }
 
-#sjhrkuqsvr .gt_font_italic {
+#gixynuldqz .gt_font_italic {
   font-style: italic;
 }
 
-#sjhrkuqsvr .gt_super {
+#gixynuldqz .gt_super {
   font-size: 65%;
 }
 
-#sjhrkuqsvr .gt_footnote_marks {
+#gixynuldqz .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#sjhrkuqsvr .gt_asterisk {
+#gixynuldqz .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#sjhrkuqsvr .gt_indent_1 {
+#gixynuldqz .gt_indent_1 {
   text-indent: 5px;
 }
 
-#sjhrkuqsvr .gt_indent_2 {
+#gixynuldqz .gt_indent_2 {
   text-indent: 10px;
 }
 
-#sjhrkuqsvr .gt_indent_3 {
+#gixynuldqz .gt_indent_3 {
   text-indent: 15px;
 }
 
-#sjhrkuqsvr .gt_indent_4 {
+#gixynuldqz .gt_indent_4 {
   text-indent: 20px;
 }
 
-#sjhrkuqsvr .gt_indent_5 {
+#gixynuldqz .gt_indent_5 {
   text-indent: 25px;
 }
 
-#sjhrkuqsvr .katex-display {
+#gixynuldqz .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#sjhrkuqsvr div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#gixynuldqz div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<div id="sjhrkuqsvr" class="reactable html-widget" style="width:auto;height:auto;"></div>
-<script type="application/json" data-for="sjhrkuqsvr">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"series":["brewer","carto","cols4all","hcl","kovesi","matplotlib","met","misc","parks","poly","powerbi","scico","seaborn","stevens","tableau","tol","wes"],"description":["ColorBrewer palettes","Palettes designed by CARTO","cols4all palettes (in development)","Palettes from the Hue Chroma Luminance color space","Palettes designed by Peter Kovesi","Palettes from the Python library matplotlib","Palettes inspired by The Metropolitan Museum of Art","Miscellaneous palettes","Palettes inspired by National Parks","Qualitative palettes with many colors","Palettes from Microsoft Power BI","Scientific colour maps by Fabio Crameri","Palettes from the Python library Seaborn","Bivariate palettes by Joshua Stevens","Palettes designed by Tableau","Palettes designed by Paul Tol","Palettes from Wes Anderson movies"],"categorical":[8,6,14,9,0,0,33,5,22,9,19,21,6,0,29,8,23],"sequential":[18,21,0,23,28,51,8,0,5,0,1,21,4,0,23,8,0],"diverging":[9,7,2,11,14,12,14,0,3,0,4,10,2,0,28,4,1],"cyclic":[0,0,0,6,8,3,0,0,0,0,0,5,0,0,0,0,0],"bivariate (sequential x sequential)":[2,0,2,0,0,0,0,0,0,0,0,0,0,5,0,0,0],"bivariate (sequential x categorical)":[2,0,0,0,0,0,1,3,0,0,0,2,0,0,3,0,0],"bivariate (sequential x diverging)":[1,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"bivariate (sequential x desaturated)":[0,0,5,0,0,0,0,0,0,0,0,1,0,0,0,0,0]},"columns":[{"id":"series","name":"Series","type":"character","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"left"},{"id":"description","name":"Description","type":"character","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"left"},{"id":"categorical","name":"Categorical","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"sequential","name":"Sequential","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"diverging","name":"Diverging","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"cyclic","name":"Cyclic","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"bivariate (sequential x sequential)","name":"Bivariate Sequential x Sequential","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"bivariate (sequential x categorical)","name":"Bivariate Sequential x Categorical","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"bivariate (sequential x diverging)","name":"Bivariate Sequential x Diverging","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"bivariate (sequential x desaturated)","name":"Bivariate Sequential x Desaturated","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"}],"defaultPageSize":5,"showPageSizeOptions":false,"pageSizeOptions":[10,25,50,100],"paginationType":"numbers","showPagination":true,"showPageInfo":true,"minRows":1,"striped":true,"height":"auto","theme":{"color":"#333333","backgroundColor":"#FFFFFF","stripedColor":"#fafafa","style":{"font-family":"Lato, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif","fontSize":"16px"},"tableStyle":{"borderTopStyle":"solid","borderTopWidth":"2px","borderTopColor":"#D3D3D3"},"headerStyle":{"fontWeight":"bolder","backgroundColor":"transparent","borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"#D3D3D3"},"groupHeaderStyle":{"fontWeight":"bolder","backgroundColor":"transparent","borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"#D3D3D3"},"cellStyle":{"fontWeight":"normal"}},"elementId":"sjhrkuqsvr","dataKey":"64794bc851a63d36b6e011225e797b59"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.style","tag.attribs.columns.1.style","tag.attribs.columns.2.style","tag.attribs.columns.3.style","tag.attribs.columns.4.style","tag.attribs.columns.5.style","tag.attribs.columns.6.style","tag.attribs.columns.7.style","tag.attribs.columns.8.style","tag.attribs.columns.9.style"],"jsHooks":[]}</script>
+<div id="gixynuldqz" class="reactable html-widget" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="gixynuldqz">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"series":["brewer","carto","cols4all","hcl","kovesi","matplotlib","met","misc","parks","poly","powerbi","scico","seaborn","stevens","tableau","tol","wes"],"description":["ColorBrewer palettes","Palettes designed by CARTO","cols4all palettes (in development)","Palettes from the Hue Chroma Luminance color space","Palettes designed by Peter Kovesi","Palettes from the Python library matplotlib","Palettes inspired by The Metropolitan Museum of Art","Miscellaneous palettes","Palettes inspired by National Parks","Qualitative palettes with many colors","Palettes from Microsoft Power BI","Scientific colour maps by Fabio Crameri","Palettes from the Python library Seaborn","Bivariate palettes by Joshua Stevens","Palettes designed by Tableau","Palettes designed by Paul Tol","Palettes from Wes Anderson movies"],"categorical":[8,6,14,9,0,0,33,5,22,9,19,21,6,0,29,8,23],"sequential":[18,21,0,23,28,51,8,0,5,0,1,21,4,0,23,8,0],"diverging":[9,7,2,11,14,12,14,0,3,0,4,10,2,0,28,4,1],"cyclic":[0,0,0,6,8,3,0,0,0,0,0,5,0,0,0,0,0],"bivariate (sequential x sequential)":[2,0,2,0,0,0,0,0,0,0,0,0,0,5,0,0,0],"bivariate (sequential x categorical)":[2,0,0,0,0,0,1,3,0,0,0,2,0,0,3,0,0],"bivariate (sequential x diverging)":[1,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"bivariate (sequential x desaturated)":[0,0,5,0,0,0,0,0,0,0,0,1,0,0,0,0,0]},"columns":[{"id":"series","name":"Series","type":"character","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"left"},{"id":"description","name":"Description","type":"character","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"left"},{"id":"categorical","name":"Categorical","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"sequential","name":"Sequential","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"diverging","name":"Diverging","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"cyclic","name":"Cyclic","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"bivariate (sequential x sequential)","name":"Bivariate Sequential x Sequential","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"bivariate (sequential x categorical)","name":"Bivariate Sequential x Categorical","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"bivariate (sequential x diverging)","name":"Bivariate Sequential x Diverging","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"},{"id":"bivariate (sequential x desaturated)","name":"Bivariate Sequential x Desaturated","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\nif (colInfo.id === 'series' & rowIndex === 1) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 2) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 3) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 4) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 5) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 6) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 7) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 8) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 9) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 10) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 11) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 12) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 13) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 14) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 15) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 16) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\nif (colInfo.id === 'series' & rowIndex === 17) {\n  return { fontFamily: 'monospace', fontWeight: 'bold' }\n}\n\n}","html":true,"align":"right"}],"defaultPageSize":5,"showPageSizeOptions":false,"pageSizeOptions":[10,25,50,100],"paginationType":"numbers","showPagination":true,"showPageInfo":true,"minRows":1,"striped":true,"height":"auto","theme":{"color":"#333333","backgroundColor":"#FFFFFF","stripedColor":"#fafafa","style":{"font-family":"Lato, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif","fontSize":"16px"},"tableStyle":{"borderTopStyle":"solid","borderTopWidth":"2px","borderTopColor":"#D3D3D3"},"headerStyle":{"fontWeight":"bolder","backgroundColor":"transparent","borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"#D3D3D3"},"groupHeaderStyle":{"fontWeight":"bolder","backgroundColor":"transparent","borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"#D3D3D3"},"cellStyle":{"fontWeight":"normal"}},"elementId":"gixynuldqz","dataKey":"64794bc851a63d36b6e011225e797b59"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.style","tag.attribs.columns.1.style","tag.attribs.columns.2.style","tag.attribs.columns.3.style","tag.attribs.columns.4.style","tag.attribs.columns.5.style","tag.attribs.columns.6.style","tag.attribs.columns.7.style","tag.attribs.columns.8.style","tag.attribs.columns.9.style"],"jsHooks":[]}</script>
 </div>
 </div>
 </div>
@@ -810,8 +813,8 @@ Table&nbsp;1: Avaialable palettes in
 </div>
 </div>
 </section>
-<section id="static-maps" class="level3">
-<h3 class="anchored" data-anchor-id="static-maps">9.2 Static maps</h3>
+<section id="static-maps" class="level2">
+<h2 class="anchored" data-anchor-id="static-maps">9.2 Static maps</h2>
 <ul>
 <li>Most common type of geo-computation output, stored as <code>.png</code> (raster) and <code>.pdf</code> (vector).</li>
 <li>Base R’s <code>plot()</code> is the fastest way to create static maps from <a href="https://r-spatial.github.io/sf/"><code>sf</code></a> or <a href="https://rspatial.github.io/terra/"><code>terra</code></a>, ideal for quick visual checks.</li>
@@ -822,7 +825,6 @@ Table&nbsp;1: Avaialable palettes in
 <li>Support for multiple spatial classes (<code>sf</code>, <code>terra</code>).</li>
 </ul></li>
 </ul>
-</section>
 <section id="tmap-basics" class="level3">
 <h3 class="anchored" data-anchor-id="tmap-basics">9.2.1 <code>tmap</code> basics</h3>
 <ul>
@@ -1237,14 +1239,13 @@ Use of <code>classInt::classify_intervals()</code> for Binned Data in Maps
 </div>
 <div class="callout-body-container callout-body">
 <p>The <a href="https://www.rdocumentation.org/packages/classInt/versions/0.4-10/topics/classify_intervals"><code>classify_intervals()</code></a> function from the <a href="https://cran.r-project.org/web/packages/classInt/index.html"><code>classInt</code></a> package in R is a powerful tool for visualizing continuous data in maps, such as choropleth maps. It assigns values of a continuous variable—like population density or income levels—to discrete intervals based on break points calculated by methods like Jenks or quantiles using <a href="https://www.rdocumentation.org/packages/classInt/versions/0.4-10/topics/classIntervals"><code>classIntervals()</code></a>. This classification enables the data to be paired with a discrete color scale, simplifying the interpretation of spatial patterns and variations across regions. For instance, after determining breaks with <code>classIntervals()</code>, <code>classify_intervals()</code> can categorize each region’s value into a bin, producing a factor suitable for plotting with libraries like <a href="https://ggplot2.tidyverse.org/"><strong>ggplot2</strong></a> or <a href="https://cran.r-project.org/web/packages/tmap/index.html"><strong>tmap</strong></a>, enhancing map readability with clear legend ranges (e.g., “10,000 - 20,000”).</p>
-<section id="available-styles-in-classintervals-and-their-uses" class="level3">
-<h3 class="anchored" data-anchor-id="available-styles-in-classintervals-and-their-uses">Available Styles in <code>classIntervals()</code> and Their Uses</h3>
+<p><strong>Available Styles in <code>classIntervals()</code> and Their Uses</strong></p>
 <p>Below is a table summarizing the classification styles available in <code>classIntervals()</code> and their practical applications:</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 23%">
-<col style="width: 38%">
-<col style="width: 38%">
+<col style="width: 26%">
+<col style="width: 36%">
+<col style="width: 36%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -1306,7 +1307,6 @@ Use of <code>classInt::classify_intervals()</code> for Binned Data in Maps
 </tr>
 </tbody>
 </table>
-</section>
 </div>
 </div>
 <div class="cell">
@@ -1430,9 +1430,169 @@ Figure&nbsp;4
 </figcaption>
 </figure>
 </div>
+</section>
+<section id="legends" class="level3">
+<h3 class="anchored" data-anchor-id="legends">9.2.5 Legends</h3>
+<ul>
+<li>Use <a href="https://rdrr.io/pkg/tmap/man/tm_legend.html"><code>tm_legend()</code></a> to customize map legends in <a href="https://cran.r-project.org/package=tmap"><code>tmap</code></a>, including:
+<ul>
+<li><code>title</code>: sets a custom legend title (e.g., using <code>expression()</code> for formatting units or superscripts).</li>
+<li><code>orientation</code>: choose between <code>"portrait"</code> (default) or <code>"landscape"</code>.</li>
+<li><code>position</code>: defines legend location using helper functions.</li>
+</ul></li>
+<li>Customize legend placement with:
+<ul>
+<li><code>tm_pos_out()</code>: places legend <em>outside</em> the map frame; accepts <code>"left"</code>, <code>"center"</code>, <code>"right"</code> (horizontal) and <code>"bottom"</code>, <code>"center"</code>, <code>"top"</code> (vertical).</li>
+<li><code>tm_pos_in()</code>: places legend <em>inside</em> the map frame using similar position arguments or a numeric vector (between 0 and 1).</li>
+</ul></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># nz &lt;- nz</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># cols4all::c4a_gui()</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> nz <span class="sc">|&gt;</span> </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Land_area), <span class="at">colour =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">colours =</span> <span class="fu">c4a</span>(<span class="st">"carto.purp_or"</span>),</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_number</span>(<span class="at">big.mark =</span> <span class="st">","</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="fu">expression</span>(<span class="st">"Area (km"</span><span class="sc">^</span><span class="dv">2</span><span class="sc">*</span><span class="st">")"</span>),</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Using expression() to get</span><span class="sc">\n</span><span class="st">super-scripts in legend title"</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  ggthemes<span class="sc">::</span><span class="fu">theme_map</span>() <span class="sc">+</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.tag.location =</span> <span class="st">"panel"</span>,</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.tag.position =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.9</span>),</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.tag =</span> <span class="fu">element_text</span>(</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">face =</span> <span class="st">"bold"</span>,</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">20</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">hjust =</span> <span class="fl">0.5</span>,</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>, <span class="st">"pt"</span>)</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"inside"</span>,</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.position.inside =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.justification =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>, <span class="st">"pt"</span>),</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.key =</span> <span class="fu">element_rect</span>(</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>        <span class="at">colour =</span> <span class="cn">NA</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.text =</span> <span class="fu">element_text</span>(</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>        <span class="at">hjust =</span> <span class="dv">0</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"book_solutions"</span>, <span class="st">"images"</span>, <span class="st">"chapter9-2-5.png"</span>),</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">1200</span>,</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">width  =</span> <span class="dv">1000</span>,</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="fig-5" class="quarto-float quarto-figure quarto-figure-center anchored" width="400">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/chapter9-2-5.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5" title="Figure&nbsp;5: "><img src="images/chapter9-2-5.png" id="fig-5" class="img-fluid figure-img" width="400"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="layouts" class="level3">
+<h3 class="anchored" data-anchor-id="layouts">9.2.6 Layouts</h3>
+<ul>
+<li>A <strong>map layout</strong> combines multiple visual elements—such as data layers, grids, scale bars, titles, and margins—into a coherent design.</li>
+<li>Visual appeal and interpretability can be significantly influenced by both <strong>color settings</strong> (palette and breakpoints) and layout elements.</li>
+<li>Key layout-enhancing functions in the <a href="https://cran.r-project.org/package=tmap"><code>tmap</code></a> package include:
+<ul>
+<li><a href="https://rdrr.io/pkg/tmap/man/tm_graticules.html"><code>tm_graticules()</code></a>: adds graticule lines (latitude/longitude grid).</li>
+<li><a href="https://rdrr.io/pkg/tmap/man/tm_compass.html"><code>tm_compass()</code></a>: inserts a north arrow, with customizable styles and positioning.</li>
+<li><a href="https://rdrr.io/pkg/tmap/man/tm_scalebar.html"><code>tm_scalebar()</code></a>: adds a scale bar with user-defined breaks and text size.</li>
+<li><a href="https://rdrr.io/pkg/tmap/man/tm_title.html"><code>tm_title()</code></a>: adds a title to the map.</li>
+</ul></li>
+<li>The main function for layout customization is <a href="https://rdrr.io/pkg/tmap/man/tm_layout.html"><code>tm_layout()</code></a>, which controls numerous settings such as:
+<ul>
+<li><code>scale</code> (e.g., magnifying all map elements),</li>
+<li><code>bg.color</code> (e.g., background color),</li>
+<li><code>frame</code> (e.g., toggling the frame around the map).</li>
+</ul></li>
+<li>Refer to <a href="https://rdrr.io/pkg/tmap/man/tm_layout.html"><code>args(tm_layout)</code></a> or <code>?tm_layout</code> for the full list of available options.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> nz <span class="sc">|&gt;</span> </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.75</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="fl">0.5</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Adding lines every 2 degrees of latitude and longitude</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">162</span>, <span class="dv">180</span>, <span class="dv">2</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">32</span>, <span class="sc">-</span><span class="dv">48</span>, <span class="sc">-</span><span class="dv">2</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  ggspatial<span class="sc">::</span><span class="fu">annotation_north_arrow</span>(</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">style =</span> ggspatial<span class="sc">::</span><span class="fu">north_arrow_nautical</span>(),</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">location =</span> <span class="st">"topleft"</span>, </span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  ggspatial<span class="sc">::</span><span class="fu">annotation_scale</span>(</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">location =</span> <span class="st">"tl"</span>,</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">width_hint =</span> <span class="fl">0.3</span>,</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">style  =</span> <span class="st">"bar"</span>,</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">pad_y =</span> <span class="fu">unit</span>(<span class="dv">60</span>, <span class="st">"pt"</span>)</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Replicating {tmap}'s annotations in {ggplot2}</span><span class="sc">\n</span><span class="st">with {ggspatial}"</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">default_crs =</span> <span class="st">"EPSG:4326"</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid =</span> <span class="fu">element_line</span>(</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>      <span class="at">colour =</span> <span class="fu">alpha</span>(<span class="st">"grey20"</span>, <span class="fl">0.7</span>),</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>      <span class="at">linewidth =</span> <span class="fl">0.1</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"book_solutions"</span>, <span class="st">"images"</span>, <span class="st">"chapter9-2-6.png"</span>),</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> g,</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">1800</span>,</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">width  =</span> <span class="dv">1500</span>,</span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"px"</span></span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="fig-6" class="quarto-float quarto-figure quarto-figure-center anchored" width="500">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="images/chapter9-2-6.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6" title="Figure&nbsp;6: "><img src="images/chapter9-2-6.png" id="fig-6" class="img-fluid figure-img" width="500"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6
+</figcaption>
+</figure>
+</div>
 
 
 
+</section>
 </section>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
@@ -1875,7 +2035,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 <footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Aditya-Dahiya/visage/edit/main/book_solutions/chapter9.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Aditya-Dahiya/visage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><div class="page-columns page-rows-contents page-layout-article"><div class="social-share"><a href="https://twitter.com/share?url=https://aditya-dahiya.github.io/visage/book_solutions/chapter9.html&amp;text=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="twitter"><i class="fab fa-twitter fa-fw fa-lg"></i></a><a href="https://www.linkedin.com/shareArticle?url=https://aditya-dahiya.github.io/visage/book_solutions/chapter9.html&amp;title=Visualizing Information and Spatial Analysis with ggplot2 Extensions" target="_blank" class="linkedin"><i class="fa-brands fa-linkedin-in fa-fw fa-lg"></i></a>  <a href="mailto:?subject=Visualizing Information and Spatial Analysis with ggplot2 Extensions&amp;body=Check out this link:https://aditya-dahiya.github.io/visage/book_solutions/chapter9.html" target="_blank" class="email"><i class="fa-solid fa-envelope fa-fw fa-lg"></i></a><a href="https://www.facebook.com/sharer.php?u=https://aditya-dahiya.github.io/visage/book_solutions/chapter9.html" target="_blank" class="facebook"><i class="fab fa-facebook-f fa-fw fa-lg"></i></a><a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' &amp;&amp; mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=Visualizing Information and Spatial Analysis with ggplot2 Extensions https://aditya-dahiya.github.io/visage/book_solutions/chapter9.html'}else{return false;}" target="_blank" class="mastodon"><i class="fa-brands fa-mastodon fa-fw fa-lg"></i></a></div></div>
-<script>var lightboxQuarto = GLightbox({"loop":false,"descPosition":"bottom","openEffect":"zoom","selector":".lightbox","closeEffect":"zoom"});
+<script>var lightboxQuarto = GLightbox({"descPosition":"bottom","closeEffect":"zoom","openEffect":"zoom","loop":false,"selector":".lightbox"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

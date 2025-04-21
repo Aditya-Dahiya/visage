@@ -33,9 +33,7 @@ share:
   facebook: true
 ---
 
-In this chapter, I use {**tmap**} [@tmap-2], but I also use **{ggplot2}** [@ggplot2-2] to produce equivalent maps, as produced by **{tmap}** [@tmap] in the textbook. In addition, I use **{cols4all}** [@cols4all] palettes for colour and fill scales.
-
-Using `pacman` for quick loading and updating of packages.
+In this chapter, I use {**tmap**} [@tmap-2], but I also use **{ggplot2}** [@ggplot2-2] to produce equivalent maps, as produced by **{tmap}** [@tmap] in the textbook. In addition, I use **{cols4all}** [@cols4all] palettes for colour and fill scales. I am using `pacman` for quick loading and updating of packages.
 
 ```{r}
 #| label: setup
@@ -64,7 +62,7 @@ pacman::p_load(
 
 ```
 
-### 9.1 Introduction
+## 9.1 Introduction
 
 -   Cartography is a crucial aspect of geographic research, blending communication, detail, and creativity.
 -   Static maps in R can be created using the [`plot()`](https://r.geocompx.org/adv-map.html#base-r-maps) function, but advanced cartography benefits from dedicated packages.
@@ -109,7 +107,7 @@ cols4all::c4a_overview() |>
 
 ```
 
-### 9.2 Static maps
+## 9.2 Static maps
 
 -   Most common type of geo-computation output, stored as `.png` (raster) and `.pdf` (vector).
 -   Base R's `plot()` is the fastest way to create static maps from [`sf`](https://r-spatial.github.io/sf/) or [`terra`](https://rspatial.github.io/terra/), ideal for quick visual checks.
@@ -467,12 +465,12 @@ ggsave(
 
 The [`classify_intervals()`](https://www.rdocumentation.org/packages/classInt/versions/0.4-10/topics/classify_intervals) function from the [`classInt`](https://cran.r-project.org/web/packages/classInt/index.html) package in R is a powerful tool for visualizing continuous data in maps, such as choropleth maps. It assigns values of a continuous variable—like population density or income levels—to discrete intervals based on break points calculated by methods like Jenks or quantiles using [`classIntervals()`](https://www.rdocumentation.org/packages/classInt/versions/0.4-10/topics/classIntervals). This classification enables the data to be paired with a discrete color scale, simplifying the interpretation of spatial patterns and variations across regions. For instance, after determining breaks with `classIntervals()`, `classify_intervals()` can categorize each region's value into a bin, producing a factor suitable for plotting with libraries like [**ggplot2**](https://ggplot2.tidyverse.org/) or [**tmap**](https://cran.r-project.org/web/packages/tmap/index.html), enhancing map readability with clear legend ranges (e.g., "10,000 - 20,000").
 
-### Available Styles in `classIntervals()` and Their Uses
+**Available Styles in `classIntervals()` and Their Uses**
 
 Below is a table summarizing the classification styles available in `classIntervals()` and their practical applications:
 
 | **Style** | **Description** | **Use Case** |
-|-----------------|----------------------------|----------------------------|
+|-------------------|---------------------------|---------------------------|
 | `fixed` | Uses user-defined, fixed break points. | Custom intervals, such as policy-driven thresholds. |
 | `equal` | Splits the data range into equal-width intervals. | Uniformly distributed data or when equal ranges are significant. |
 | `pretty` | Rounds breaks to "nice" numbers for readability. | Visually appealing breaks for general audience maps. |
@@ -596,3 +594,132 @@ ggsave(
 ```
 
 ![](images/chapter9-2-4.png){#fig-4}
+
+### 9.2.5 Legends
+
+-   Use [`tm_legend()`](https://rdrr.io/pkg/tmap/man/tm_legend.html) to customize map legends in [`tmap`](https://cran.r-project.org/package=tmap), including:
+    -   `title`: sets a custom legend title (e.g., using `expression()` for formatting units or superscripts).
+    -   `orientation`: choose between `"portrait"` (default) or `"landscape"`.
+    -   `position`: defines legend location using helper functions.
+-   Customize legend placement with:
+    -   `tm_pos_out()`: places legend *outside* the map frame; accepts `"left"`, `"center"`, `"right"` (horizontal) and `"bottom"`, `"center"`, `"top"` (vertical).
+    -   `tm_pos_in()`: places legend *inside* the map frame using similar position arguments or a numeric vector (between 0 and 1).
+
+```{r}
+
+# nz <- nz
+# cols4all::c4a_gui()
+
+g <- nz |> 
+  ggplot() +
+  geom_sf(aes(fill = Land_area), colour = "white") +
+  scale_fill_gradientn(
+    colours = c4a("carto.purp_or"),
+    labels = scales::label_number(big.mark = ",")
+  ) +
+  labs(
+    fill = expression("Area (km"^2*")"),
+    title = "Using expression() to get\nsuper-scripts in legend title"
+  ) +
+  ggthemes::theme_map() +
+  theme(
+    plot.tag.location = "panel",
+    plot.tag.position = c(0.1, 0.9),
+    plot.tag = element_text(
+      face = "bold",
+      size = 20
+    ),
+    plot.title = element_text(
+      hjust = 0.5,
+      margin = margin(0,0,0,0, "pt")
+    ),
+    legend.position = "inside",
+      legend.position.inside = c(1, 0),
+      legend.justification = c(1, 0),
+      legend.margin = margin(0,0,0,0, "pt"),
+      legend.key = element_rect(
+        colour = NA
+      ),
+      legend.text = element_text(
+        hjust = 0
+      )
+  )
+
+ggsave(
+  filename = here::here("book_solutions", "images", "chapter9-2-5.png"),
+  plot = g,
+  height = 1200,
+  width  = 1000,
+  units = "px"
+)
+```
+
+![](images/chapter9-2-5.png){#fig-5 width="400"}
+
+### 9.2.6 Layouts
+
+-   A **map layout** combines multiple visual elements—such as data layers, grids, scale bars, titles, and margins—into a coherent design.
+-   Visual appeal and interpretability can be significantly influenced by both **color settings** (palette and breakpoints) and layout elements.
+-   Key layout-enhancing functions in the [`tmap`](https://cran.r-project.org/package=tmap) package include:
+    -   [`tm_graticules()`](https://rdrr.io/pkg/tmap/man/tm_graticules.html): adds graticule lines (latitude/longitude grid).
+    -   [`tm_compass()`](https://rdrr.io/pkg/tmap/man/tm_compass.html): inserts a north arrow, with customizable styles and positioning.
+    -   [`tm_scalebar()`](https://rdrr.io/pkg/tmap/man/tm_scalebar.html): adds a scale bar with user-defined breaks and text size.
+    -   [`tm_title()`](https://rdrr.io/pkg/tmap/man/tm_title.html): adds a title to the map.
+-   The main function for layout customization is [`tm_layout()`](https://rdrr.io/pkg/tmap/man/tm_layout.html), which controls numerous settings such as:
+    -   `scale` (e.g., magnifying all map elements),
+    -   `bg.color` (e.g., background color),
+    -   `frame` (e.g., toggling the frame around the map).
+-   Refer to [`args(tm_layout)`](https://rdrr.io/pkg/tmap/man/tm_layout.html) or `?tm_layout` for the full list of available options.
+
+```{r}
+
+g <- nz |> 
+  ggplot() +
+  geom_sf(
+    alpha = 0.75,
+    linewidth = 0.5
+  ) +
+  
+  # Adding lines every 2 degrees of latitude and longitude
+  scale_x_continuous(
+    breaks = seq(162, 180, 2)
+  ) +
+  scale_y_continuous(
+    breaks = seq(-32, -48, -2)
+  ) +
+  ggspatial::annotation_north_arrow(
+    style = ggspatial::north_arrow_nautical(),
+    location = "topleft", 
+    
+  ) +
+  ggspatial::annotation_scale(
+    location = "tl",
+    width_hint = 0.3,
+    style  = "bar",
+    pad_y = unit(60, "pt")
+  ) +
+  labs(
+    title = "Replicating {tmap}'s annotations in {ggplot2}\nwith {ggspatial}"
+  ) +
+  
+  coord_sf(
+    default_crs = "EPSG:4326"
+  ) +
+  theme_bw() +
+  theme(
+    panel.grid = element_line(
+      colour = alpha("grey20", 0.7),
+      linewidth = 0.1
+    )
+  )
+
+ggsave(
+  filename = here::here("book_solutions", "images", "chapter9-2-6.png"),
+  plot = g,
+  height = 1800,
+  width  = 1500,
+  units = "px"
+)
+```
+
+![](images/chapter9-2-6.png){#fig-6 width="500"}
