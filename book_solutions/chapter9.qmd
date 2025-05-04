@@ -723,3 +723,218 @@ ggsave(
 ```
 
 ![](images/chapter9-2-6.png){#fig-6 width="500"}
+
+### 9.2.7 Faceted Maps
+
+-   **Faceted maps**, or *small multiples*, display multiple maps side-by-side (or stacked) to show spatial changes across a variable like time.
+
+-   Useful for visualizing temporal evolution — e.g., urban population growth over decades — with each panel representing a different time slice.
+
+-   Although time could be encoded via color, this can clutter the map since geographic features (like cities) don’t shift location.
+
+-   Commonly, the **same geometry** (e.g., country outlines) is repeated across facets, while the **attribute data** (e.g., population) varies.
+
+-   Faceted maps can also illustrate **changing geometries**, such as shifting point patterns over time (e.g., urban centers expanding).
+
+-   [`tm_facets_wrap()`](https://rdrr.io/cran/tmap/man/tm_facets.html):
+
+    -   Used to create faceted maps by specifying a variable (`by = "year"`) and layout (`nrow`, `ncol`).
+    -   Non-faceted layers (e.g., world polygons) are repeated in all panels.
+
+-   [`tm_facets_grid()`](https://rdrr.io/cran/tmap/man/tm_facets.html) allows faceting by **multiple variables** (e.g., one per row, one per column, and one for pagination).
+
+-   These maps are particularly useful for preparing **animated maps**, discussed in [Section 9.3](https://geocompr.robinlovelace.net/adv-map.html#animation).
+
+-   Creating the same map, as in the textbook, with `ggplot2`
+
+```{r}
+
+bts = 20
+g <- ggplot() +
+  geom_sf(
+    data = world,
+    fill = "grey80",
+    colour = "grey10",
+    linewidth = 0.2
+  ) +
+  geom_sf(
+    data = urban_agglomerations |> 
+            filter(year %in% c(1970, 1990, 2010, 2030)),
+    mapping = aes(
+      size = population_millions
+    ),
+    fill = "grey5",
+    colour = "white",
+    linewidth = 0.05,
+    pch = 21
+  ) +
+  facet_wrap(~year) +
+  coord_sf(crs = "ESRI:54030", expand = F) +
+  
+  theme_void(
+    base_family = "body_font",
+    base_size = bts,
+    base_line_size = bts / 40,
+    base_rect_size = bts / 40
+  ) +
+  theme(
+    legend.position = "bottom",
+    strip.background = element_rect(
+      fill = "grey90"
+    )
+  )
+
+
+ggsave(
+  filename = here::here("book_solutions", "images", "chapter9-2-7.png"),
+  plot = g,
+  height = 1800,
+  width  = 2500,
+  units = "px"
+)
+```
+
+![Faceted map showing the top 30 largest urban agglomerations from 1970 to 2030 based on population projections by the United Nations.](images/chapter9-2-7.png){#fig-9-2-7}
+
+### 9.2.8 Inset maps
+
+-   Inset maps are smaller maps embedded within or alongside a main map to provide geographic context, focus on specific areas, or represent non-contiguous regions.
+
+-   **Common Uses**:
+
+    -   Show the **location of a zoomed-in area** within a larger region.
+    -   **Compare non-contiguous areas**, such as Hawaii and Alaska with the mainland USA.
+    -   Display **complementary information** on the same area (e.g., different themes or topics).
+
+-   **Creating an Inset Map in R** (using [`tmap`](https://r-tmap.github.io/)):
+
+    1.  **Define the area of interest** using a spatial bounding box (e.g., a subregion of New Zealand).
+
+    2.  **Render the main map** showing detailed spatial data (e.g., elevation, symbols).
+
+    3.  **Create the inset map** that:
+
+        -   Shows the broader region.
+        -   Highlights the zoomed-in region using borders or shading.
+
+    4.  **Calculate aspect ratios** for correct map rendering using the `norm_dim()` function.
+
+    5.  **Define viewports** for main and inset maps using `grid::viewport()`:
+
+        -   Main viewport shows the detailed map.
+        -   Inset viewport places the smaller contextual map in a corner.
+
+-   **Combining Maps**:
+
+    -   Use `grid.newpage()` and `print()` with defined viewports to place inset maps over the main map canvas.
+    -   Save the result using `tmap_save()` with `insets_tm` and `insets_vp` arguments.
+
+-   **Special Case – USA Map**:
+
+    -   Often includes **non-contiguous states** (Hawaii, Alaska) as insets.
+    -   Requires **separate projections** for accuracy (e.g., [EPSG:9311 – US National Atlas Equal Area](https://epsg.io/9311)).
+    -   Combine three maps (mainland, Hawaii, Alaska) using individual viewports.
+
+-   **Caveats**:
+
+    -   Ensure **appropriate scale and placement** to avoid misleading spatial interpretation (e.g., Alaska often appears larger than it is).
+    -   See the [`geocompkg` us-map vignette](https://github.com/Nowosad/geocompkg) for a refined approach to US inset maps.
+
+-   Creating the same map, as in the textbook, with `ggplot2`
+
+```{r}
+
+nz_region <- st_bbox(
+  c(
+    xmin = 1340000, 
+    xmax = 1450000,
+    ymin = 5130000, 
+    ymax = 5210000
+  ),
+  crs = st_crs(nz_height)
+  ) |> 
+  st_as_sfc()
+
+
+g_base <- ggplot() +
+  geom_spatraster(
+    data = nz_elev |> terra::crop(nz_region)
+  ) +
+  geom_sf(
+    data = nz_height |> st_crop(nz_region),
+    pch = 2, 
+    colour = "red",
+    size = 8
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::Green-Yellow",
+    direction = -1,
+    na.value = "white",
+    name = "Elevation\n(metres)"
+  ) +
+  ggspatial::annotation_scale(
+    location = "bl",
+    width_hint = 0.5
+  ) +
+  coord_sf(
+    expand = FALSE
+  ) +
+  theme_void() +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0.05, 0.95),
+    legend.key.height = unit(30, "pt"),
+    legend.justification = c(0, 1),
+    legend.direction = "vertical",
+    legend.background = element_rect(
+      fill = NA, colour = "black"
+    ),
+    legend.margin = margin(5,5,5,5, "pt"),
+    plot.background = element_rect(
+
+    )
+  )
+  
+g_inset <- ggplot() +
+  geom_sf(
+    data = nz,
+    fill = "grey80"
+  ) +
+  geom_sf(
+    data = nz_height,
+    pch = 2,
+    colour = "red",
+    size = 2
+  ) +
+  coord_sf(expand = F) +
+  theme_void() +
+  theme(
+    panel.background = element_rect(
+      fill = "lightblue",
+      colour = "black"
+    )
+  )
+
+# pacman::p_load(patchwork)
+
+g <- g_base +
+  inset_element(
+    p = g_inset,
+    left = 0.7,
+    right = 0.95,
+    bottom = 0.05,
+    top = 0.5,
+    align_to = "panel"
+  )
+
+
+ggsave(
+  filename = here::here("book_solutions", "images", "chapter9-2-8.png"),
+  plot = g,
+  height = 1600,
+  width  = 2000,
+  units = "px"
+)
+```
+
+![Inset map providing a context – location of the central part of the Southern Alps in New Zealand.](images/chapter9-2-8.png){#fig-9-2-8}
