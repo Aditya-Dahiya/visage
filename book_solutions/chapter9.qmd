@@ -906,6 +906,12 @@ g_inset <- ggplot() +
     colour = "red",
     size = 2
   ) +
+  geom_sf(
+    data = nz_region,
+    colour = "black",
+    linewidth = 0.5,
+    fill = NA
+  ) +
   coord_sf(expand = F) +
   theme_void() +
   theme(
@@ -938,3 +944,204 @@ ggsave(
 ```
 
 ![Inset map providing a context – location of the central part of the Southern Alps in New Zealand.](images/chapter9-2-8.png){#fig-9-2-8}
+
+## 9.3 Animated maps
+
+-   **Animated maps address limitations of faceted maps**
+
+    -   Faceted maps (e.g., from [Section 9.2.7](https://geocompr.robinlovelace.net/adv-map.html#faceted-maps)) become cramped and hard to interpret when too many panels are displayed.
+    -   Animation overcomes this by displaying one time slice at a time, preserving clarity and focus.
+
+-   **Digital-first, but useful even in print**
+
+    -   Though animations require digital formats, they can complement printed materials via links to online versions.
+
+-   **Creating animated maps using `tmap`**
+
+    -   Built on familiar `tmap` syntax, similar to that used for faceted maps.
+    -   Instead of displaying all time points at once, animated maps iterate through them sequentially.
+
+-   **Key parameters for animation in `tm_facets_wrap()`**:
+
+    -   `nrow = 1, ncol = 1`: ensures only one frame/map is visible at a time.
+    -   `free.coords = FALSE`: maintains consistent spatial extent across frames for comparability.
+
+-   **Animation generation with `tmap_animation()`**
+
+    -   Once the animation object (e.g., `urb_anim`) is created, it is exported as a `.gif` using tmap_animation().
+
+-   The following code chunks produce animated maps with {ggplot2} and {gganimate} using examples from the book:
+
+```{r}
+# urban_agglomerations |> 
+#   visdat::vis_miss()
+
+urban_agglomerations |> 
+  pull(year) |> 
+  range()
+
+pacman::p_load(gganimate)
+
+# Clean data outside ggplot
+urban_clean <- urban_agglomerations |>
+  mutate(year = as.numeric(year)) |>
+  filter(!is.na(year))
+
+g <- ggplot(data = urban_clean) +
+  geom_sf(
+    data = world,
+    fill = "grey80",
+    colour = "grey10",
+    linewidth = 0.05
+  ) +
+  geom_sf(
+    mapping = aes(size = population_millions),
+    colour = "red",
+    alpha = 0.5
+  ) +
+  scale_size_continuous(
+    range = c(0.5, 10),
+    name = "Population\n(million)"
+  ) +
+  coord_sf(crs = "ESRI:54030") +
+  labs(title = "Year: {floor(frame_time)}") +
+  theme_void() +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0.05, 0.2),
+    legend.justification = c(0, 0),
+    legend.direction = "horizontal",
+    legend.title.position = "top",
+    legend.text.position = "bottom",
+    plot.title = element_text(
+      hjust = 0.5,
+      size = 24
+    )
+  ) +
+  transition_time(year) +
+  ease_aes("linear")
+
+anim_save(
+  animation = g,
+  filename = here::here("book_solutions", "images", "chapter9-2-9.gif"),
+  height = 400,
+  width = 600,
+  duration = 10,
+  end_pause = 10
+)
+
+```
+
+![Global Urban Agglomerations (1950–2030): Shows the evolution of the world's 30 largest cities.](images/chapter9-2-9.gif){#fig-9-3-1}
+
+```{r}
+
+pacman::p_load(
+  tidyverse,
+  sf,
+  historydata,
+  lubridate,
+  gganimate,
+  scales
+)
+# pacman::p_install_gh("ropensci/USAboundaries")
+
+pacman::p_load_gh("ropensci/USAboundaries")
+
+# Step 1: Dates up to year 2000
+unique_years <- unique(historydata::us_state_populations$year)
+dates <- as.Date(paste0(unique_years, "-01-01"))
+dates <- dates[dates <= as.Date("2000-12-31")]
+
+# Step 2: Prepare population data
+state_pop <- us_state_populations %>%
+  select(year, state, population) %>%
+  rename(name = state)
+
+# Step 3: Fetch and join boundaries by year
+boundary_list <- map(dates, function(date) {
+  states <- us_states(map_date = date)
+  year_val <- year(date)
+  if (date == as.Date("2000-12-31")) year_val <- 2010
+  states <- states %>%
+    mutate(year = year_val) %>%
+    left_join(state_pop %>% filter(year == year_val), by = c("name", "year"))
+})
+
+# Step 4: Combine all years
+usb_all <- bind_rows(boundary_list)
+
+# Step 5: Filter contiguous US and project
+usb_all <- usb_all %>%
+  filter(!str_detect(name, "Alaska|Hawaii")) %>%
+  # Convert to NAD27 / US National Atlas Equal Area projection
+  st_transform("EPSG:9311") |> 
+  select(name, area_sqmi, terr_type, year, population) |> 
+  drop_na()
+
+rm(boundary_list, state_pop, dates, unique_years)
+
+# Can we make it simpler for easier animation plotting
+object.size(usb_all) |> print(units = "Kb")
+
+usb_all |> 
+  st_simplify(dTolerance = 5000) |> 
+  object.size() |> 
+  print(units = "Kb")
+
+year_levels <- usb_all |> 
+  st_drop_geometry() |> 
+  distinct(year) |> 
+  pull(year) |> 
+  as.character()
+
+plotdf <- usb_all |> 
+  st_simplify(dTolerance = 5000) |> 
+  mutate(year = fct(as.character(year), levels = year_levels))
+
+g <- plotdf |> 
+  ggplot() +
+  geom_sf(
+    mapping = aes(fill = population)
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 6,
+    nice.breaks = T,
+    limits = c(0, 30e6),
+    oob = scales::squish,
+    colours = paletteer::paletteer_d("ggprism::viridis", direction = -1),
+    name = "Population",
+    labels = scales::label_number(scale_cut = cut_short_scale())
+  ) +
+  labs(title = "US State Populations in {closest_state}") +
+  theme_void(
+    base_size = 16
+  ) +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0.02, 0.02),
+    legend.justification = c(0,0),
+    legend.direction = "vertical",
+    legend.title.position = "top",
+    legend.text.position = "right",
+    plot.title = element_text(
+      hjust = 0.5,
+      size = 30
+    ),
+    legend.key.size = unit(30, "pt")
+  ) +
+  transition_states(year)
+
+anim_save(
+  g, 
+  width = 900, 
+  height = 600, 
+  filename = here::here("book_solutions", 
+                        "images", "chapter9-2-10.gif"),
+  fps = 4, 
+  duration = 15,
+  end_pause = 2
+  )
+```
+
+![U.S. States Development (1790–2010): Depicts U.S. state formation and population growth over time.](images/chapter9-2-10.gif){#fig-9-3-2}
