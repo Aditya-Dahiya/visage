@@ -38,6 +38,9 @@ In this chapter, I use {**tmap**} [@tmap-2], but I also use **{ggplot2}** [@ggpl
 ```{r}
 #| label: setup
 #| eval: true
+#| message: false
+#| warning: false
+#| error: false  
 
 pacman::p_load(
   sf,          # Simple Features in R
@@ -1145,3 +1148,37 @@ anim_save(
 ```
 
 ![U.S. States Development (1790–2010): Depicts U.S. state formation and population growth over time.](images/chapter9-2-10.gif){#fig-9-3-2}
+
+### 9.4 Interactive Maps
+
+-   **Interactive maps** enhance user engagement beyond static or animated maps by enabling actions like zooming, panning, clicking for pop-ups, tilting, and linking sub-plots ([Pezanowski et al., 2018](https://doi.org/10.3390/ijgi7020047)).
+
+-   **Slippy maps**, or interactive web maps, are the most important kind. They became popular in R after the release of the [`leaflet`](https://rstudio.github.io/leaflet/) package in 2015, which wraps the Leaflet.js library.
+
+-   Several R packages build on Leaflet:
+
+    -   [`tmap`](https://r-tmap.github.io/): Offers both static and interactive maps using the same syntax.
+
+        -   Use `tmap_mode("view")` to switch to interactive mode.
+        -   Interactive features include `tm_basemap()` and synchronized facets with `tm_facets_wrap(sync = TRUE)`.
+        -   Switch back with `tmap_mode("plot")`.
+
+    -   [`mapview`](https://r-spatial.github.io/mapview/): A user-friendly one-liner for quick interactive visualization.
+
+        -   Provides GIS-like features (mouse position, scale bar, attribute queries).
+        -   Supports layering via `+` operator and works well with `sf`/`SpatRaster` objects.
+        -   Can auto-color attributes with `zcol` and supports alternate rendering backends (`leafgl`, `mapdeck`).
+
+    -   [`mapdeck`](https://symbolixau.github.io/mapdeck/): Leverages [Deck.gl](https://deck.gl/) and WebGL for high-performance visualization.
+
+        -   Supports 2.5D views (tilt, rotate, extrude data).
+        -   Suitable for very large datasets (millions of points).
+        -   Requires [Mapbox access token](https://docs.mapbox.com/help/glossary/access-token/).
+
+    -   [`leaflet`](https://rstudio.github.io/leaflet/): The most mature and flexible package.
+
+        -   Offers fine-grained control over interactive features.
+        -   Supports adding layers, legends, mini-maps, and custom styling.
+        -   Based on the popular [Leaflet.js](https://leafletjs.com/) library.
+
+-   All interactive maps are rendered in the browser and are highly extensible and responsive, suitable for exploratory data analysis and presentation.
