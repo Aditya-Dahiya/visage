@@ -41,8 +41,8 @@ share:
 
 pacman::p_load(
   sf,
-  terra, 
-  tidyterra,
+  #terra, 
+  #tidyterra,
   
   tidyverse,
   
@@ -52,9 +52,11 @@ pacman::p_load(
   ggtext,
   fontawesome,
   
-  geodata,
-  ggmap,
-  mapdeck
+  #geodata,
+  #ggmap,
+  
+  mapdeck,
+  nycflights13
 )
 ```
 
@@ -124,185 +126,23 @@ rm(github, github_username, xtwitter,
 
 ```
 
-### Creating Base Map of London with {leaflet}
+### A basic map with {mapdeck}
 
 ```{r}
 #| eval: true
 #| label: fig-1
 #| fig-cap: "An interactive base map of London"
 
+london_boroughs <- spData::lnd |> 
+  janitor::clean_names() |> 
+  select(name, geometry) |> 
+  st_transform("EPSG:4326")
 
-london_boroughs <- spData::lnd
+london_cycles <- spData::cycle_hire |> 
+  select(id, name, nbikes, nempty) |> 
+  st_transform("EPSG:4326")
 
-london_outline_map <- spData::lnd |> 
-  st_union()
 
-map_centre <- st_centroid(london_outline_map) |> 
-  st_coordinates() |> 
-  as.numeric()
-
-leaflet() |> 
-  
-  # Add Base Map 1
-  addTiles(group = "Open Street Maps") |>
-  
-  # Add Base Map 2
-  addProviderTiles(
-    provider = providers$Esri.WorldImagery,
-    group = "ESRI Satellite"
-  ) |> 
-  
-  # Add Base Map 3
-  addProviderTiles(
-    provider = providers$CartoDB.Positron,
-    group = "CartoDB Positron"
-  ) |> 
-  
-  # Add Base Maps' Layers Control
-  addLayersControl(
-    baseGroups = c("Open Street Maps", "ESRI Satellite", 
-                   "CartoDB Positron"),
-    options = layersControlOptions(collapsed = TRUE)
-  ) |>
-  
-  setView(
-    lng = map_centre[1],
-    lat = map_centre[2],
-    zoom = 10
-  ) |> 
-  
-  # Add an inset map
-  addMiniMap(
-    position = "bottomright",
-    zoomLevelOffset = -4,
-    toggleDisplay = TRUE
-  ) |> 
-  
-  # Add Graticule, i.e. LAtitudes and Longitudes in map units
-  addGraticule(
-    interval = 0.1,
-    style = list(weight = 0.5, color = "#7f7f7f"),
-  ) |> 
-  
-  # Add measurement tool to map
-  addMeasure(
-    primaryLengthUnit = "kilometers",
-    primaryAreaUnit = "acres",
-    activeColor = "darkred",
-    completedColor = "grey20"
-  ) |> 
-  
-  # Add a Scale Bar
-  addScaleBar(
-    position = "bottomleft",
-    options = scaleBarOptions(
-      imperial = TRUE,
-      metric = TRUE,
-      maxWidth = 200
-    )
-  )
-
-```
-
-### Adding London Boroughs
-
-```{r}
-#| eval: true
-#| fig-cap: "Interactive Map of London showing its Boroughs"
-#| label: fig-2
-# RColorBrewer::brewer.pal(3, "Set3")
-# RColorBrewer::brewer.pal.info
-# cols4all::c4a_gui()
-pal1 <- colorFactor("Spectral", london_boroughs$NAME)
-
-leaflet() |> 
-  
-  setView(
-    lng = map_centre[1],
-    lat = map_centre[2],
-    zoom = 9
-  ) |> 
-
-  # Add Base Map 3
-  addProviderTiles(
-    provider = providers$CartoDB.Positron,
-    group = "CartoDB Positron"
-  ) |> 
-  
-    # Add Base Map 2
-  addProviderTiles(
-    provider = providers$Esri.WorldImagery,
-    group = "ESRI Satellite"
-  ) |> 
-  
-  # Add Base Map 1
-  addProviderTiles(
-    provider = providers$OpenStreetMap,
-    group = "Open Street Maps"
-    ) |>
-  
-  # Add Base Maps' Layers Control
-  addLayersControl(
-    baseGroups = c("CartoDB Positron",
-                   "Open Street Maps", 
-                   "ESRI Satellite"
-                   ),
-    options = layersControlOptions(collapsed = TRUE)
-  ) |>
-  
-  # Add an inset map
-  addMiniMap(
-    position = "bottomright",
-    zoomLevelOffset = -4,
-    toggleDisplay = TRUE,
-    tiles = providers$CartoDB.Positron
-  ) |> 
-  
-  # Add measurement tool to map
-  addMeasure(
-    primaryLengthUnit = "kilometers",
-    primaryAreaUnit = "acres",
-    activeColor = "darkred",
-    completedColor = "grey20"
-  ) |> 
-  
-  # Add a Scale Bar
-  addScaleBar(
-    position = "bottomleft",
-    options = scaleBarOptions(
-      imperial = TRUE,
-      metric = TRUE,
-      maxWidth = 100
-    )
-  ) |> 
-  
-  # Add London Boroughs Data
-  addPolygons(
-    data = london_boroughs,
-    group = "Boroughs",
-    
-    # Edges
-    color = "#262626",
-    weight = 1,
-    opacity = 0.8,
-    
-    # Inside
-    fillColor = ~pal1(NAME),
-    fillOpacity = 0.15,
-    
-    # Pop-up
-    # label = ~NAME,
-    popup = ~NAME
-  ) |> 
-  
-  # Add Base Maps' Layers Control
-  addLayersControl(
-    baseGroups = c("CartoDB Positron",
-                   "Open Street Maps", 
-                   "ESRI Satellite" 
-                   ),
-    options = layersControlOptions(collapsed = TRUE)
-  )
 ```
 
 Saving Static Plots
