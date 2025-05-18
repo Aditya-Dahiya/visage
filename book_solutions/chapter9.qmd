@@ -473,7 +473,7 @@ The [`classify_intervals()`](https://www.rdocumentation.org/packages/classInt/ve
 Below is a table summarizing the classification styles available in `classIntervals()` and their practical applications:
 
 | **Style** | **Description** | **Use Case** |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | `fixed` | Uses user-defined, fixed break points. | Custom intervals, such as policy-driven thresholds. |
 | `equal` | Splits the data range into equal-width intervals. | Uniformly distributed data or when equal ranges are significant. |
 | `pretty` | Rounds breaks to "nice" numbers for readability. | Visually appealing breaks for general audience maps. |
@@ -1149,7 +1149,7 @@ anim_save(
 
 ![U.S. States Development (1790–2010): Depicts U.S. state formation and population growth over time.](images/chapter9-2-10.gif){#fig-9-3-2}
 
-### 9.4 Interactive Maps
+## 9.4 Interactive Maps
 
 -   **Interactive maps** enhance user engagement beyond static or animated maps by enabling actions like zooming, panning, clicking for pop-ups, tilting, and linking sub-plots ([Pezanowski et al., 2018](https://doi.org/10.3390/ijgi7020047)).
 
@@ -1182,3 +1182,183 @@ anim_save(
         -   Based on the popular [Leaflet.js](https://leafletjs.com/) library.
 
 -   All interactive maps are rendered in the browser and are highly extensible and responsive, suitable for exploratory data analysis and presentation.
+
+## 9.5 Mapping Applications
+
+-   **Limitations of Static Web Maps**
+
+    -   While interactive web maps (e.g., those made with [Leaflet](https://rstudio.github.io/leaflet/)) allow panning, zooming, and clicking, they are inherently *static* in terms of content and interface.
+    -   Web maps struggle to scale with large datasets.
+    -   Creating dashboards or visualizations with additional interactivity (e.g., graphs, filters) is difficult within the static web map paradigm.
+
+-   **Server-Based Alternatives for Scalable Mapping**
+
+    -   Scalable solutions like [GeoDjango](https://docs.djangoproject.com/en/stable/ref/contrib/gis/), [MapServer](https://mapserver.org/), and [GeoServer](https://geoserver.org/) can serve thousands of users.
+    -   These platforms require substantial setup, technical expertise, and often a team with roles like geospatial DBAs.
+
+-   **Enter `shiny`: Interactive Web Apps with R**
+
+    -   [`shiny`](https://shiny.posit.co/) allows R programmers to build full-featured interactive web applications, including embedded maps using `leaflet::renderLeaflet()`.
+
+    -   Every shiny app consists of:
+
+        -   **UI (User Interface)**: Layout and input widgets (e.g., `sliderInput`, `leafletOutput`)
+        -   **Server**: Backend logic using reactive programming to generate outputs based on inputs.
+
+-   **Use shiny for Prototyping**
+
+    -   shiny enables **rapid prototyping** of mapping tools in R — making it easier and quicker to test ideas.
+    -   Larger applications, like the [Propensity to Cycle Tool (PCT)](https://www.pct.bike/), demonstrate shiny’s scalability and impact, even with 1000+ lines of code.
+
+-   **Caution: Plan Before Coding**
+
+    -   Despite shiny’s power, avoid jumping into coding too early.
+    -   Start by sketching out the interface and goals on **pen and paper** — design should lead the code, not the other way around.
+
+-   🔗 **Resources**
+
+    -   [Mastering Shiny (by Hadley Wickham)](https://mastering-shiny.org/)
+    -   [RStudio’s shiny documentation](https://shiny.posit.co/r/getstarted/shiny-basics/overview/)
+    -   [RStudio leaflet documentation](https://rstudio.github.io/leaflet/shiny.html)
+    -   [shiny-server GitHub](https://github.com/rstudio/shiny-server)
+
+## 9.6 Other Mapping Packages
+
+-   **Base R plotting with `plot()`**
+
+    -   Mature and flexible option for static maps using base `plot()` methods from the [`sf`](https://r-spatial.github.io/sf/) and [`terra`](https://rspatial.org/pkg/terra/) packages.
+    -   Can combine vector (`sf`) and raster (`terra`) data in a single plot.
+    -   Use `?plot` and the [`sf5 vignette`](https://r-spatial.github.io/sf/articles/sf5.html) for advanced customization.
+
+-   **Mapping with `ggplot2` and `geom_sf()`**
+
+    -   Uses a layered approach to map-making; `geom_sf()` works seamlessly with `sf` objects.
+    -   Graticules are plotted by default; their appearance can be customized with `coord_sf()` or `scale_x/y_continuous()`.
+    -   Offers strong flexibility and aesthetic control.
+
+-   **Interactivity with `plotly`**
+
+    -   Use [`plotly::ggplotly()`](https://plotly-r.com/ggplotly.html) to convert static `ggplot2` maps into interactive maps.
+    -   More interactive functions at [blog.cpsievert.me](https://blog.cpsievert.me/).
+
+-   **Enhancements with `ggspatial`**
+
+    -   Adds elements like north arrows (`annotation_north_arrow()`), scale bars (`annotation_scale()`), and background map tiles.
+    -   Works with both `sf` and `terra` data using `layer_spatial()`.
+
+-   **General-purpose mapping packages** A selection of versatile R packages:
+
+    | Package | Description |
+    |---------------|-----------------------------------------------|
+    | [`ggplot2`](https://ggplot2.tidyverse.org/) | Grammar of graphics framework for elegant visualizations |
+    | [`googleway`](https://cran.r-project.org/package=googleway) | Interface to Google Maps APIs |
+    | [`ggspatial`](https://cran.r-project.org/package=ggspatial) | Adds spatial elements to ggplot2 |
+    | [`leaflet`](https://rstudio.github.io/leaflet/) | Create interactive maps with Leaflet.js |
+    | [`mapview`](https://r-spatial.github.io/mapview/) | Quick interactive viewing of spatial objects |
+    | [`plotly`](https://plotly.com/ggplot2/) | Interactive visualizations using plotly.js |
+    | [`rasterVis`](https://oscarperpinan.github.io/rastervis/) | Advanced raster data visualization |
+    | [`tmap`](https://r-tmap.github.io/tmap/) | Thematic mapping with static and interactive modes |
+
+-   **Specific-purpose mapping packages** For specialized map types:
+
+    | Package | Purpose |
+    |--------------|------------------------------------------------|
+    | [`cartogram`](https://github.com/sjewo/cartogram) | Create contiguous/non-contiguous/Dorling cartograms |
+    | [`geogrid`](https://github.com/azithinkiam/geogrid) | Transform polygons into hexagonal or regular grids |
+    | [`geofacet`](https://hafen.github.io/geofacet/) | Geographically arranged faceting for ggplot2 |
+    | [`linemap`](https://github.com/riatelab/linemap) | Create artistic line maps |
+    | [`tanaka`](https://github.com/riatelab/tanaka) | Shaded contour (Tanaka) maps |
+    | [`rayshader`](https://www.rayshader.com/) | 2D and 3D terrain visualization |
+
+-   **Cartograms with `cartogram` package**
+
+    -   Supports **contiguous** (`cartogram_cont()`), **non-contiguous** (`cartogram_ncont()`), and **Dorling** (`cartogram_dorling()`) cartograms.
+    -   Works with `sf` objects; visual output can be plotted using any mapping package like `tmap` or `ggplot2`.
+
+## 9.7 Exercises
+
+### E1. 
+
+**Create a map showing the geographic distribution of the Human Development Index (`HDI`) across Africa with base graphics (hint: use [`plot()`](https://rspatial.github.io/terra/reference/plot.html)) and tmap packages (hint: use `tm_shape(africa) + ...`).**
+
+-   **Name two advantages of each based on the experience.**
+
+-   **Name three other mapping packages and an advantage of each.**
+
+-   **Bonus: create three more maps of Africa using these three other packages.**
+
+### E2. 
+
+**Extend the tmap created for the previous exercise so the legend has three bins: “High” (`HDI` above 0.7), “Medium” (`HDI` between 0.55 and 0.7) and “Low” (`HDI` below 0.55). Bonus: improve the map aesthetics, for example by changing the legend title, class labels and color palette.**
+
+### E3. 
+
+**Represent `africa`’s subregions on the map. Change the default color palette and legend title. Next, combine this map and the map created in the previous exercise into a single plot.**
+
+### E4. 
+
+**Create a land cover map of Zion National Park.**
+
+-   **Change the default colors to match your perception of the land cover categories**
+
+-   **Add a scale bar and north arrow and change the position of both to improve the map’s aesthetic appeal**
+
+-   **Bonus: Add an inset map of Zion National Park’s location in the context of the state of Utah. (Hint: an object representing Utah can be subset from the `us_states` dataset.)**
+
+### E5. 
+
+**Create facet maps of countries in Eastern Africa:**
+
+-   **With one facet showing HDI and the other representing population growth (hint: using variables `HDI` and `pop_growth`, respectively)**
+
+-   **With a ‘small multiple’ per country**
+
+### E6. 
+
+**Building on the previous facet map examples, create animated maps of East Africa:**
+
+-   **Showing each country in order**
+
+-   **Showing each country in order with a legend showing the HDI**
+
+### E7. 
+
+**Create an interactive map of HDI in Africa:**
+
+-   **With tmap**
+
+-   **With mapview**
+
+-   **With leaflet**
+
+-   **Bonus: For each approach, add a legend (if not automatically provided) and a scale bar**
+
+### E8. 
+
+**Sketch on paper ideas for a web mapping application that could be used to make transport or land-use policies more evidence-based:**
+
+-   **In the city you live, for a couple of users per day**
+
+-   **In the country you live, for dozens of users per day**
+
+-   **Worldwide for hundreds of users per day and large data serving requirements**
+
+### E9.
+
+**Update the code in `coffeeApp/app.R` so that instead of centering on Brazil the user can select which country to focus on:**
+
+-   **Using [`textInput()`](https://rdrr.io/pkg/shiny/man/textInput.html)**
+
+-   **Using [`selectInput()`](https://rdrr.io/pkg/shiny/man/selectInput.html)**
+
+### E10.
+
+**Reproduce Figure 9.1 and Figure 9.7 as closely as possible using the ggplot2 package.**
+
+### E11.
+
+**Join `us_states` and `us_states_df` together and calculate a poverty rate for each state using the new dataset. Next, construct a continuous area cartogram based on total population. Finally, create and compare two maps of the poverty rate: (1) a standard choropleth map and (2) a map using the created cartogram boundaries. What is the information provided by the first and the second map? How do they differ from each other?**
+
+### E12. 
+
+**Visualize population growth in Africa. Next, compare it with the maps of a hexagonal and regular grid created using the geogrid package.**
