@@ -63,6 +63,7 @@ pacman::p_load(
 
 # install.packages("spDataLarge", repos = "https://geocompr.r-universe.dev")
 
+
 ```
 
 ## 9.1 Introduction
@@ -1249,7 +1250,7 @@ anim_save(
 -   **General-purpose mapping packages** A selection of versatile R packages:
 
     | Package | Description |
-    |---------------|-----------------------------------------------|
+    |------------------|------------------------------------------------------|
     | [`ggplot2`](https://ggplot2.tidyverse.org/) | Grammar of graphics framework for elegant visualizations |
     | [`googleway`](https://cran.r-project.org/package=googleway) | Interface to Google Maps APIs |
     | [`ggspatial`](https://cran.r-project.org/package=ggspatial) | Adds spatial elements to ggplot2 |
@@ -1262,7 +1263,7 @@ anim_save(
 -   **Specific-purpose mapping packages** For specialized map types:
 
     | Package | Purpose |
-    |--------------|------------------------------------------------|
+    |------------------|------------------------------------------------------|
     | [`cartogram`](https://github.com/sjewo/cartogram) | Create contiguous/non-contiguous/Dorling cartograms |
     | [`geogrid`](https://github.com/azithinkiam/geogrid) | Transform polygons into hexagonal or regular grids |
     | [`geofacet`](https://hafen.github.io/geofacet/) | Geographically arranged faceting for ggplot2 |
@@ -1277,7 +1278,24 @@ anim_save(
 
 ## 9.7 Exercises
 
-### E1. 
+```{r}
+pacman::p_load(spData, spDataLarge)
+
+devtools::install_github("geocompr/geocompkg")
+
+africa <- world |> 
+  filter(continent == "Africa", !is.na(iso_a2)) |> 
+  left_join(worldbank_df, by = "iso_a2") |> 
+  select(name, subregion, gdpPercap, HDI, pop_growth) |> 
+  st_transform("ESRI:102022") |> 
+  st_make_valid() |> 
+  st_collection_extract("POLYGON")
+
+zion <- read_sf((system.file("vector/zion.gpkg", package = "spDataLarge")))
+nlcd <- rast(system.file("raster/nlcd.tif", package = "spDataLarge"))
+```
+
+### E1.
 
 **Create a map showing the geographic distribution of the Human Development Index (`HDI`) across Africa with base graphics (hint: use [`plot()`](https://rspatial.github.io/terra/reference/plot.html)) and tmap packages (hint: use `tm_shape(africa) + ...`).**
 
@@ -1287,15 +1305,56 @@ anim_save(
 
 -   **Bonus: create three more maps of Africa using these three other packages.**
 
-### E2. 
+```{r}
+
+g <- africa |> 
+  mutate(area = as.numeric(st_area(geom))) |> 
+  ggplot() +
+  geom_sf(
+    aes(fill = HDI),
+    colour = "grey5"
+  ) +
+  geom_sf_text(
+    aes(label = str_wrap(name, 9), size = area),
+    colour = "grey5",
+    lineheight = 0.7,
+    family = "body_font"
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "grDevices::Hawaii",
+    direction = 1,
+    na.value = "white",
+    name = "Human\nDevelopment\nIndex"
+  ) +
+  scale_size_continuous(range = c(0.5, 3)) +
+  guides(size = "none") +
+  ggthemes::theme_map() +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0.1, 0.1)
+  )
+
+
+ggsave(
+  filename = here::here("book_solutions", "images", "chapter9-7-1.png"),
+  plot = g,
+  height = 1600,
+  width  = 1200,
+  units = "px"
+)
+```
+
+![](images/chapter9-7-1.png){width="400"}
+
+### E2.
 
 **Extend the tmap created for the previous exercise so the legend has three bins: “High” (`HDI` above 0.7), “Medium” (`HDI` between 0.55 and 0.7) and “Low” (`HDI` below 0.55). Bonus: improve the map aesthetics, for example by changing the legend title, class labels and color palette.**
 
-### E3. 
+### E3.
 
 **Represent `africa`’s subregions on the map. Change the default color palette and legend title. Next, combine this map and the map created in the previous exercise into a single plot.**
 
-### E4. 
+### E4.
 
 **Create a land cover map of Zion National Park.**
 
@@ -1305,7 +1364,7 @@ anim_save(
 
 -   **Bonus: Add an inset map of Zion National Park’s location in the context of the state of Utah. (Hint: an object representing Utah can be subset from the `us_states` dataset.)**
 
-### E5. 
+### E5.
 
 **Create facet maps of countries in Eastern Africa:**
 
@@ -1313,7 +1372,7 @@ anim_save(
 
 -   **With a ‘small multiple’ per country**
 
-### E6. 
+### E6.
 
 **Building on the previous facet map examples, create animated maps of East Africa:**
 
@@ -1321,7 +1380,7 @@ anim_save(
 
 -   **Showing each country in order with a legend showing the HDI**
 
-### E7. 
+### E7.
 
 **Create an interactive map of HDI in Africa:**
 
@@ -1333,7 +1392,7 @@ anim_save(
 
 -   **Bonus: For each approach, add a legend (if not automatically provided) and a scale bar**
 
-### E8. 
+### E8.
 
 **Sketch on paper ideas for a web mapping application that could be used to make transport or land-use policies more evidence-based:**
 
@@ -1359,6 +1418,6 @@ anim_save(
 
 **Join `us_states` and `us_states_df` together and calculate a poverty rate for each state using the new dataset. Next, construct a continuous area cartogram based on total population. Finally, create and compare two maps of the poverty rate: (1) a standard choropleth map and (2) a map using the created cartogram boundaries. What is the information provided by the first and the second map? How do they differ from each other?**
 
-### E12. 
+### E12.
 
 **Visualize population growth in Africa. Next, compare it with the maps of a hexagonal and regular grid created using the geogrid package.**
