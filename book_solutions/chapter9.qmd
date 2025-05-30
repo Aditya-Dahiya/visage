@@ -1250,7 +1250,7 @@ anim_save(
 -   **General-purpose mapping packages** A selection of versatile R packages:
 
     | Package | Description |
-    |------------------|------------------------------------------------------|
+    |-------------------|-----------------------------------------------------|
     | [`ggplot2`](https://ggplot2.tidyverse.org/) | Grammar of graphics framework for elegant visualizations |
     | [`googleway`](https://cran.r-project.org/package=googleway) | Interface to Google Maps APIs |
     | [`ggspatial`](https://cran.r-project.org/package=ggspatial) | Adds spatial elements to ggplot2 |
@@ -1263,7 +1263,7 @@ anim_save(
 -   **Specific-purpose mapping packages** For specialized map types:
 
     | Package | Purpose |
-    |------------------|------------------------------------------------------|
+    |-------------------|-----------------------------------------------------|
     | [`cartogram`](https://github.com/sjewo/cartogram) | Create contiguous/non-contiguous/Dorling cartograms |
     | [`geogrid`](https://github.com/azithinkiam/geogrid) | Transform polygons into hexagonal or regular grids |
     | [`geofacet`](https://hafen.github.io/geofacet/) | Geographically arranged faceting for ggplot2 |
@@ -1281,7 +1281,7 @@ anim_save(
 ```{r}
 pacman::p_load(spData, spDataLarge)
 
-devtools::install_github("geocompr/geocompkg")
+# devtools::install_github("geocompr/geocompkg")
 
 africa <- world |> 
   filter(continent == "Africa", !is.na(iso_a2)) |> 
@@ -1349,6 +1349,54 @@ ggsave(
 ### E2.
 
 **Extend the tmap created for the previous exercise so the legend has three bins: “High” (`HDI` above 0.7), “Medium” (`HDI` between 0.55 and 0.7) and “Low” (`HDI` below 0.55). Bonus: improve the map aesthetics, for example by changing the legend title, class labels and color palette.**
+
+```{r}
+df1 <- africa |> 
+  janitor::clean_names() |> 
+  mutate(
+    hdi = case_when(
+      is.na(hdi) ~ NA,
+      hdi > 0.7 ~ "High",
+      hdi >= 0.55 ~ "Medium",
+      hdi >= 0 ~ "Low",
+      .default = NA
+    )
+  ) |> 
+  filter(!is.na(hdi)) |> 
+  mutate(
+    hdi = fct(hdi, levels = c("Low", "Medium", "High")),
+    area = as.numeric(st_area(geom))
+  )
+
+df1 |> 
+  ggplot() +
+  geom_sf(
+    aes(fill = hdi),
+    colour = "grey5"
+  ) +
+  geom_sf_text(
+    aes(label = str_wrap(name, 9), size = area),
+    colour = "grey5",
+    lineheight = 0.7,
+    family = "body_font"
+  ) +
+  scale_size_continuous(range = c(0.5, 3)) +
+  guides(size = "none") +
+  ggthemes::theme_map() +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0.1, 0.1)
+  )
+
+
+ggsave(
+  filename = here::here("book_solutions", "images", "chapter9-7-1.png"),
+  plot = g,
+  height = 1600,
+  width  = 1200,
+  units = "px"
+)
+```
 
 ### E3.
 
