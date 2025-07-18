@@ -1250,7 +1250,7 @@ anim_save(
 -   **General-purpose mapping packages** A selection of versatile R packages:
 
     | Package | Description |
-    |-------------------|-----------------------------------------------------|
+    |----------------------|--------------------------------------------------|
     | [`ggplot2`](https://ggplot2.tidyverse.org/) | Grammar of graphics framework for elegant visualizations |
     | [`googleway`](https://cran.r-project.org/package=googleway) | Interface to Google Maps APIs |
     | [`ggspatial`](https://cran.r-project.org/package=ggspatial) | Adds spatial elements to ggplot2 |
@@ -1263,7 +1263,7 @@ anim_save(
 -   **Specific-purpose mapping packages** For specialized map types:
 
     | Package | Purpose |
-    |-------------------|-----------------------------------------------------|
+    |----------------------|--------------------------------------------------|
     | [`cartogram`](https://github.com/sjewo/cartogram) | Create contiguous/non-contiguous/Dorling cartograms |
     | [`geogrid`](https://github.com/azithinkiam/geogrid) | Transform polygons into hexagonal or regular grids |
     | [`geofacet`](https://hafen.github.io/geofacet/) | Geographically arranged faceting for ggplot2 |
@@ -1280,6 +1280,7 @@ anim_save(
 
 ```{r}
 pacman::p_load(spData, spDataLarge)
+pacman::p_load(ggspatial)
 
 # devtools::install_github("geocompr/geocompkg")
 
@@ -1304,6 +1305,8 @@ nlcd <- rast(system.file("raster/nlcd.tif", package = "spDataLarge"))
 -   **Name three other mapping packages and an advantage of each.**
 
 -   **Bonus: create three more maps of Africa using these three other packages.**
+
+This solution creates a choropleth map of Africa showing the Human Development Index (HDI) distribution using ggplot2 and the geom_sf() function. The code demonstrates advanced mapping techniques by combining filled polygons colored by HDI values with country labels sized proportionally to their geographic area. Key features include using the Hawaii color palette for an aesthetically pleasing gradient, wrapping long country names for better readability, and positioning the legend strategically to avoid overlapping with the continent.
 
 ```{r}
 
@@ -1350,6 +1353,8 @@ ggsave(
 
 **Extend the tmap created for the previous exercise so the legend has three bins: “High” (`HDI` above 0.7), “Medium” (`HDI` between 0.55 and 0.7) and “Low” (`HDI` below 0.55). Bonus: improve the map aesthetics, for example by changing the legend title, class labels and color palette.**
 
+This solution transforms the continuous HDI values into categorical bins using `case_when()` to create three meaningful groups: "High" (above 0.7), "Medium" (0.55-0.7), and "Low" (below 0.55). The code enhances the map's visual appeal by implementing a custom color palette from the `paletteer` package, positioning the legend inside the plot area, and adding country labels with text wrapping and size scaling based on country area for better readability.
+
 ```{r}
 df1 <- africa |> 
   janitor::clean_names() |> 
@@ -1368,11 +1373,11 @@ df1 <- africa |>
     area = as.numeric(st_area(geom))
   )
 
-df1 |> 
+g <- df1 |> 
   ggplot() +
   geom_sf(
     aes(fill = hdi),
-    colour = "grey5"
+    colour = "grey95"
   ) +
   geom_sf_text(
     aes(label = str_wrap(name, 9), size = area),
@@ -1381,8 +1386,12 @@ df1 |>
     family = "body_font"
   ) +
   scale_size_continuous(range = c(0.5, 3)) +
+  scale_fill_manual(
+    values = paletteer::paletteer_d("beyonce::X41")[3:5]
+  ) +
   guides(size = "none") +
   ggthemes::theme_map() +
+  labs(fill = "Human Development\nIndex") +
   theme(
     legend.position = "inside",
     legend.position.inside = c(0.1, 0.1)
@@ -1390,7 +1399,7 @@ df1 |>
 
 
 ggsave(
-  filename = here::here("book_solutions", "images", "chapter9-7-1.png"),
+  filename = here::here("book_solutions", "images", "chapter9-7-2.png"),
   plot = g,
   height = 1600,
   width  = 1200,
@@ -1398,9 +1407,61 @@ ggsave(
 )
 ```
 
+![](images/chapter9-7-2.png)
+
 ### E3.
 
 **Represent `africa`’s subregions on the map. Change the default color palette and legend title. Next, combine this map and the map created in the previous exercise into a single plot.**
+
+This solution creates a choropleth map of Africa colored by subregion, using a custom color palette and positioned legend, then combines it with the previous HDI map using patchwork. The code calculates country areas to size the text labels appropriately, applies the "sylvie" color palette from the paletteer package for better visual distinction between subregions, and uses `plot_annotation()` to add a unified title across both maps in the composite visualization.
+
+```{r}
+g2 <- africa |> 
+  mutate(area = as.numeric(st_area(geom))) |> 
+  ggplot() +
+  geom_sf(
+    mapping = aes(
+      fill = subregion
+    ),
+    colour = "grey95"
+  ) +
+  geom_sf_text(
+    aes(label = str_wrap(name, 9), size = area),
+    colour = "grey5",
+    lineheight = 0.7,
+    family = "body_font"
+  ) +
+  scale_size_continuous(range = c(0.5, 3)) +
+  scale_fill_manual(values = paletteer::paletteer_d("ltc::sylvie")) +
+  guides(size = "none") +
+  ggthemes::theme_map() +
+  labs(fill = "Subregion of Africa") +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0.1, 0.1)
+  )
+
+g_composite <- g + g2 +
+  plot_annotation(
+    title = "African countries' HDI vs. Subregions of Africa",
+    theme = theme(
+      plot.title = element_text(
+        hjust = 0.5,
+        size = 18
+      )
+    )
+  )
+
+ggsave(
+  filename = here::here("book_solutions", "images", "chapter9-7-3.png"),
+  plot = g_composite,
+  height = 1600,
+  width  = 2400,
+  units = "px"
+)
+```
+
+![](images/chapter9-7-3.png)
 
 ### E4.
 
@@ -1411,6 +1472,61 @@ ggsave(
 -   **Add a scale bar and north arrow and change the position of both to improve the map’s aesthetic appeal**
 
 -   **Bonus: Add an inset map of Zion National Park’s location in the context of the state of Utah. (Hint: an object representing Utah can be subset from the `us_states` dataset.)**
+
+This solution creates a land cover map of Zion National Park by masking the National Land Cover Database (NLCD) raster data to the park boundaries and applying custom colors that intuitively represent different land cover types. The code transforms the park boundary to match the raster's coordinate reference system, extracts the relevant land cover categories, and assigns meaningful colors (red for developed areas, various greens for vegetation types, blue for water, etc.). The map includes essential cartographic elements like a scale bar and north arrow positioned in the top-right corner, with the legend placed in the bottom-left to optimize the overall layout and visual appeal.
+
+```{r}
+
+rast1 <- nlcd |> 
+  terra::mask(
+    zion |> 
+      st_transform(crs = crs(nlcd))
+  )
+
+custom_levels <- levels(rast1)[[1]] |> 
+  as_tibble() |> 
+  pull(levels) 
+custom_levels <- custom_levels[c(3,4,5,6,7,8,9)]
+  
+g <- ggplot() +
+  geom_spatraster(
+    data = rast1,
+    maxcell = 1e5
+  ) +
+  geom_sf(
+    data = zion,
+    fill = NA,
+    linewidth = 0.5,
+    colour = "black"
+  ) +
+  scale_fill_manual(
+    breaks = custom_levels,
+    values = c("red", "grey80", "#01360f", "#9db334",
+               "lightgreen", "seagreen", "#76a0e8"),
+    na.value = "transparent"
+  ) +
+  labs(fill = NULL) +
+  annotation_scale(location = "tr", pad_y = unit(60, "pt")) +
+  annotation_north_arrow(location = "tr") +
+  ggthemes::theme_map() +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0,0),
+    legend.justification = c(0,0),
+    legend.direction = "vertical",
+    legend.key.spacing.y = unit(5, "pt")
+  )
+
+ggsave(
+  filename = here::here("book_solutions", "images", "chapter9-7-4.png"),
+  plot = g,
+  height = 1600,
+  width  = 1200,
+  units = "px"
+)
+```
+
+![](images/chapter9-7-4.png)
 
 ### E5.
 
