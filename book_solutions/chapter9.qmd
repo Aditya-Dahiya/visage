@@ -1250,7 +1250,7 @@ anim_save(
 -   **General-purpose mapping packages** A selection of versatile R packages:
 
     | Package | Description |
-    |----------------------|--------------------------------------------------|
+    |-----------------------|-------------------------------------------------|
     | [`ggplot2`](https://ggplot2.tidyverse.org/) | Grammar of graphics framework for elegant visualizations |
     | [`googleway`](https://cran.r-project.org/package=googleway) | Interface to Google Maps APIs |
     | [`ggspatial`](https://cran.r-project.org/package=ggspatial) | Adds spatial elements to ggplot2 |
@@ -1263,7 +1263,7 @@ anim_save(
 -   **Specific-purpose mapping packages** For specialized map types:
 
     | Package | Purpose |
-    |----------------------|--------------------------------------------------|
+    |-----------------------|-------------------------------------------------|
     | [`cartogram`](https://github.com/sjewo/cartogram) | Create contiguous/non-contiguous/Dorling cartograms |
     | [`geogrid`](https://github.com/azithinkiam/geogrid) | Transform polygons into hexagonal or regular grids |
     | [`geofacet`](https://hafen.github.io/geofacet/) | Geographically arranged faceting for ggplot2 |
@@ -1535,6 +1535,82 @@ ggsave(
 -   **With one facet showing HDI and the other representing population growth (hint: using variables `HDI` and `pop_growth`, respectively)**
 
 -   **With a ‘small multiple’ per country**
+
+```{r}
+
+africa |> 
+  filter(subregion == "Eastern Africa") |> 
+  select(name, HDI, pop_growth) |> 
+  pivot_longer(
+    cols = c(HDI, pop_growth),
+    names_to = "facet_var",
+    values_to = "value"
+  ) |> 
+  ggplot(
+    mapping = aes(fill = value)
+  ) +
+  geom_sf() +
+  facet_wrap(
+    ~facet_var
+  ) +
+  labs(
+    title = "ggplot2 will not allow free scales on `fill`",
+    subtitle = "Right So! That defeats the purpose of a faceted graph!",
+    fill = "Value (HDI or Population Growth)"
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "viridis::turbo",
+    na.value = "white"
+  ) +
+  ggthemes::theme_map() +
+  theme(
+    legend.position = "bottom",
+    legend.title.position = "top"
+  )
+
+africa |> 
+  filter(subregion == "Eastern Africa") |> 
+  ggplot(
+    mapping = aes(fill = HDI)
+  ) +
+  geom_sf() +
+  paletteer::scale_fill_paletteer_c(
+    "viridis::viridis",
+    na.value = "white"
+  ) +
+  labs(
+    title = "HDI",
+    subtitle = "Eastern Africa",
+    fill = "HDI"
+  ) +
+  ggthemes::theme_map() +
+  theme(
+    legend.position = "bottom",
+    legend.title.position = "top"
+  )
+
+africa |> 
+  filter(subregion == "Eastern Africa") |> 
+  ggplot(
+    mapping = aes(fill = pop_growth)
+  ) +
+  geom_sf() +
+  paletteer::scale_fill_paletteer_c(
+    "pals::kovesi.rainbow_bgyr_35_85_c72",
+    na.value = "white"
+  ) +
+  labs(
+    title = "Population GRowth",
+    subtitle = "Eastern Africa",
+    fill = "Population Growth (%)"
+  ) +
+  ggthemes::theme_map() +
+  theme(
+    legend.position = "bottom",
+    legend.title.position = "top"
+  )
+
+```
 
 ### E6.
 
