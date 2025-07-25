@@ -1,0 +1,345 @@
+---
+title: "Creating Fishnet and Honeycomb Maps of Japan with R"
+author: "Aditya Dahiya"
+subtitle: "Transforming prefecture boundaries into geometric grids using sf, terra, tidyterra, and ggplot2 in R"
+date: "2025-07-25"
+bibliography: references.bib
+format:
+  html:
+    code-fold: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: false
+categories:
+  - "Maps"
+  - "{sf}"
+  - "Fishnet MAps"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/geocomputation/fishnet_maps.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+This mapping script is inspired by the insightful blog post “[Beautiful Maps with R – I](https://dieghernan.github.io/201906_Beautiful1/)” by **Diego Hernangómez**, where he demonstrates how to craft minimalist and visually striking maps in R. Diego leverages packages such as **`sf`** for spatial data handling, **`terra`** for raster/vector operations, **`tidyterra`** for tidy‑verse–style plotting with **`ggplot2`**, and [**`rnaturalearth`**](https://github.com/ropensci/rnaturalearth) for base map data. His approach blends `sf::st_read()` spatial workflows, `terra::rast()` raster processing, and mapping aesthetics via `ggplot2` and `tidyterra::geom_spatraster()` to achieve clean, elegant results. By studying Diego’s tutorial, this code adapts and practices techniques such as layering spatial objects, customizing color palettes, and styling map themes—fully crediting Hernandez for the conceptual technique and step-by-step inspiration.
+
+Diego Hernangómez credits his inspiration to the excellent blog post “[Fishnets and Honeycomb: Square vs. Hexagonal Spatial Grids](https://strimas.com/post/hexagonal-grids/)” by [**Matt Strimas-Mackey**](https://strimas.com/#about). In that article, Matt explores the use of alternative spatial geometries—such as square and hexagonal grids—for visualizing geographic data in more abstract or symbolic ways. His clear explanation and visual comparison of spatial tessellations sparked the idea of using simplified geometries to produce elegant map layouts. For anyone interested in innovative spatial visualization, Matt’s [blog](http://strimas.com/#posts) is a treasure trove of creative and technical insight.
+
+### Load packages
+
+```{r}
+#| label: setup
+
+pacman::p_load(
+  sf,
+  terra, 
+  tidyterra,
+  
+  
+  tidyverse,
+  
+  
+  showtext,
+  ggtext,
+  fontawesome,
+  
+  patchwork
+)
+```
+
+### Visualization Parameters
+
+```{r}
+# Visualization Parameters
+
+bts = 12 # Base Text Size
+sysfonts::font_add_google("Saira Condensed", "body_font")
+sysfonts::font_add_google("Saira", "title_font")
+sysfonts::font_add_google("Saira Extra Condensed", "caption_font")
+showtext::showtext_auto()
+# A base Colour
+bg_col <- "white"
+seecolor::print_color(bg_col)
+
+# Colour for highlighted text
+text_hil <- "grey30"
+seecolor::print_color(text_hil)
+
+# Colour for the text
+text_col <- "grey20"
+seecolor::print_color(text_col)
+
+theme_set(
+  theme_minimal(
+    base_size = bts,
+    base_family = "body_font"
+  ) +
+    theme(
+      text = element_text(
+        colour = "grey30",
+        lineheight = 0.3,
+        margin = margin(0,0,0,0, "pt")
+      ),
+      plot.title = element_text(
+        hjust = 0.5
+      ),
+      plot.subtitle = element_text(
+        hjust = 0.5
+      )
+    )
+)
+
+# Caption stuff for the plot
+sysfonts::font_add(
+  family = "Font Awesome 6 Brands",
+  regular = here::here("docs", "Font Awesome 6 Brands-Regular-400.otf")
+)
+github <- "&#xf09b"
+github_username <- "aditya-dahiya"
+xtwitter <- "&#xe61b"
+xtwitter_username <- "@adityadahiyaias"
+social_caption_1 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{github};</span> <span style='color: {text_hil}'>{github_username}  </span>")
+social_caption_2 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{xtwitter};</span> <span style='color: {text_hil}'>{xtwitter_username}</span>")
+plot_caption <- paste0(
+  "**Data**:  {geodata}",
+  "  |  **Code:** ", 
+  social_caption_1, 
+  " |  **Graphics:** ", 
+  social_caption_2
+  )
+rm(github, github_username, xtwitter, 
+   xtwitter_username, social_caption_1, 
+   social_caption_2)
+
+```
+
+### An example fishnet map for the 47 prefectures of Japan
+
+```{r}
+
+# Download a Basic Country Map of Japan, and transform it into
+# Japan Plane Rectangular CS (EPSG:30169 or Tokyo / Japan Plane Rectangular 
+# CS IX) projection
+
+base_map <- geodata::gadm(
+  country = "Japan",
+  level = 1,
+  path = tempdir()
+) |> 
+  st_as_sf() |> 
+  janitor::clean_names() |> 
+  select(name_1,engtype_1) |> 
+  st_simplify(dTolerance = 1000) |> 
+  st_transform("EPSG:30169")
+
+# base_map <- rnaturalearth::ne_countries(
+#   country = "Japan",
+#   returnclass = "sf",
+#   scale = 50
+# ) |> 
+#   select(geometry) |> 
+#   st_transform("EPSG:30169")
+
+# A basic plot
+# ggplot(base_map) +
+#   geom_sf()
+
+# Get hex points for the bounding box of the base map of Japan
+# Then, keep only the hex points that fall within the map of Japan
+japan_points <- base_map |> 
+  st_make_grid(
+    cellsize = 25 * 1000,     # Cell Size fo 50 km each
+    crs = st_crs(base_map),
+    what = "centers"
+  ) |> 
+  st_as_sf() |> 
+  mutate(id = row_number()) |> 
+  relocate(id) |> 
+  
+  # Keep only the points that are within Japan
+  st_join(base_map, left = F)
+
+
+plot_jp_map <- function(data_japan, plot_title = ".."){
+  ggplot(data_japan) +
+  geom_sf(
+    mapping = aes(fill = name_1),
+    size = 0.2,
+    colour = bg_col,
+    pch = 21
+  ) +
+  # annotate(
+  #   geom = "text",
+  #   label = "Prefectures of Japan",
+  #   x = 123, y = 40,
+  #   size = 8,
+  #   hjust = 0,
+  #   family = "title_font"
+  # ) +
+  annotate(
+    geom = "text",
+    label = plot_title,
+    x = 123.2, y = 39,
+    size = 8,
+    hjust = 0,
+    family = "body_font",
+    lineheight = 0.3
+  ) +
+  coord_sf(
+    default_crs = "EPSG:4326",
+    expand = FALSE
+  ) + 
+  ggthemes::theme_map(
+    base_family = "body_font"
+  ) +
+  theme(
+    legend.position = "none"
+  )
+}
+
+g1 <- base_map |> 
+  st_make_grid(
+    cellsize = 25 * 1000,     # Cell Size fo 50 km each
+    crs = st_crs(base_map),
+    what = "polygons"
+  ) |> 
+  st_as_sf() |> 
+  mutate(id = row_number()) |> 
+  relocate(id) |> 
+  
+  # Keep only the points that are within Japan
+  st_join(base_map, left = F) |> 
+  plot_jp_map(plot_title = "Fishnet Map\n(Squares)")
+
+
+g2 <- base_map |> 
+  st_make_grid(
+    cellsize = 25 * 1000,     # Cell Size fo 50 km each
+    crs = st_crs(base_map),
+    what = "polygons",
+    square = FALSE
+  ) |> 
+  st_as_sf() |> 
+  mutate(id = row_number()) |> 
+  relocate(id) |> 
+  
+  # Keep only the points that are within Japan
+  st_join(base_map, left = F) |> 
+  plot_jp_map(plot_title = "Honeycomb Map\n(Hexagons)")
+
+temp_df <- base_map |> 
+  st_make_grid(
+    cellsize = 25 * 1000,     # Cell Size fo 50 km each
+    crs = st_crs(base_map),
+    what = "polygons",
+    square = FALSE
+  ) |> 
+  st_as_sf() |> 
+  mutate(id = row_number()) |> 
+  relocate(id) |> 
+  # Keep only the points that are within Japan
+  st_join(base_map, left = F)
+  
+  
+temp_df_2 <- temp_df |> 
+  aggregate(
+    by = list(temp_df$name_1), 
+    FUN = min
+  )
+
+g3 <- temp_df_2 |> 
+  plot_jp_map(plot_title = "A Hexbin Map\n(hexagons)")  +
+  ggrepel::geom_text_repel(
+    data = temp_df_2,
+    mapping = aes(label = name_1, geometry = geometry),
+    size = 3,
+    stat = "sf_coordinates",
+    force = 0.5,
+    force_pull = 10,
+    max.overlaps = 10,
+    min.segment.length = unit(100, 'pt')
+  )
+
+
+temp_df <- base_map |> 
+  st_make_grid(
+    cellsize = 25 * 1000,     # Cell Size fo 50 km each
+    crs = st_crs(base_map),
+    what = "polygons"
+  ) |> 
+  st_as_sf() |> 
+  mutate(id = row_number()) |> 
+  relocate(id) |> 
+  # Keep only the points that are within Japan
+  st_join(base_map, left = F)
+  
+temp_df_2 <- temp_df |> 
+  aggregate(
+    by = list(temp_df$name_1), 
+    FUN = min
+  )
+  
+g4 <- temp_df_2 |> 
+  plot_jp_map(plot_title = "A Puzzle Map\n(squares)") +
+  ggrepel::geom_text_repel(
+    data = temp_df_2,
+    mapping = aes(label = name_1, geometry = geometry),
+    size = 3,
+    stat = "sf_coordinates",
+    force = 0.5,
+    force_pull = 10,
+    max.overlaps = 10,
+    min.segment.length = unit(100, 'pt')
+  )
+
+library(patchwork)
+
+g <- g1 + g2 + g3 + g4 +
+  plot_annotation(
+    title = "Prefectures of Japan",
+    caption = plot_caption,
+    theme = theme(
+      plot.title = element_text(
+        size = 42
+      ),
+      plot.caption = element_textbox(
+        hjust = 0.5
+      )
+    )
+  )
+```
+
+### Saving the map
+
+```{r}
+
+size_var = 1000
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", 
+    "images",
+    "fishnet_maps_1.png"
+  ),
+  width = size_var,
+  height = (5/4) * size_var,
+  units = "px",
+  bg = bg_col
+)
+
+```
+
+![Four innovative visualization approaches transform Japan's administrative boundaries into abstract geometric patterns. The fishnet map (top left) uses regular square grids, while the honeycomb map (top right) employs hexagonal tessellations for smoother visual flow. The hexbin and puzzle maps (bottom panels) aggregate these geometric shapes by prefecture, creating simplified representations where each administrative unit is depicted as a single polygon with labeled centroids, offering cleaner cartographic alternatives to traditional boundary maps.](images/fishnet_maps_1.png){#fig-1}
