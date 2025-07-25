@@ -1250,7 +1250,7 @@ anim_save(
 -   **General-purpose mapping packages** A selection of versatile R packages:
 
     | Package | Description |
-    |-----------------------|-------------------------------------------------|
+    |------------------------|------------------------------------------------|
     | [`ggplot2`](https://ggplot2.tidyverse.org/) | Grammar of graphics framework for elegant visualizations |
     | [`googleway`](https://cran.r-project.org/package=googleway) | Interface to Google Maps APIs |
     | [`ggspatial`](https://cran.r-project.org/package=ggspatial) | Adds spatial elements to ggplot2 |
@@ -1263,7 +1263,7 @@ anim_save(
 -   **Specific-purpose mapping packages** For specialized map types:
 
     | Package | Purpose |
-    |-----------------------|-------------------------------------------------|
+    |------------------------|------------------------------------------------|
     | [`cartogram`](https://github.com/sjewo/cartogram) | Create contiguous/non-contiguous/Dorling cartograms |
     | [`geogrid`](https://github.com/azithinkiam/geogrid) | Transform polygons into hexagonal or regular grids |
     | [`geofacet`](https://hafen.github.io/geofacet/) | Geographically arranged faceting for ggplot2 |
@@ -1538,7 +1538,7 @@ ggsave(
 
 ```{r}
 
-africa |> 
+g1 <- africa |> 
   filter(subregion == "Eastern Africa") |> 
   select(name, HDI, pop_growth) |> 
   pivot_longer(
@@ -1555,7 +1555,7 @@ africa |>
   ) +
   labs(
     title = "ggplot2 will not allow free scales on `fill`",
-    subtitle = "Right So! That defeats the purpose of a faceted graph!",
+    subtitle = "That defeats the purpose of a faceted graph!",
     fill = "Value (HDI or Population Growth)"
   ) +
   paletteer::scale_fill_paletteer_c(
@@ -1568,7 +1568,7 @@ africa |>
     legend.title.position = "top"
   )
 
-africa |> 
+g2 <- africa |> 
   filter(subregion == "Eastern Africa") |> 
   ggplot(
     mapping = aes(fill = HDI)
@@ -1589,7 +1589,7 @@ africa |>
     legend.title.position = "top"
   )
 
-africa |> 
+g3 <- africa |> 
   filter(subregion == "Eastern Africa") |> 
   ggplot(
     mapping = aes(fill = pop_growth)
@@ -1610,7 +1610,132 @@ africa |>
     legend.title.position = "top"
   )
 
+my_design = "AAAA#BBCC"
+
+g <- patchwork::wrap_plots(
+  g1, g2, g3
+) +
+  plot_layout(
+    design = my_design
+  ) &
+  theme(
+    plot.title = element_text(
+      hjust = 0.5, 
+      margin = margin(0,0,0,0, "pt")
+    ),
+    plot.subtitle = element_text(
+      hjust = 0.5,
+      margin = margin(0,0,0,0, "pt")
+    ),
+    legend.margin = margin(0,0,0,0, "pt"),
+    legend.box.margin = margin(0,0,0,0, "pt"),
+    legend.justification = c(0.5, 1)
+  )
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", "chapter9-7-5.png"),
+  plot = g,
+  height = 1200,
+  width  = 3800,
+  units = "px"
+)
 ```
+
+![](images/chapter9-7-5.png)
+
+With a small mutiples per country using {patchwork}
+
+```{r}
+
+df_temp <- africa |> 
+  filter(subregion == "Eastern Africa") |> 
+  select(name, HDI, pop_growth) |> 
+  mutate(id = row_number()) |> 
+  relocate(id) |> 
+  pivot_longer(
+    cols = c(HDI, pop_growth),
+    names_to = "facet_var",
+    values_to = "value"
+  ) |> 
+  mutate(
+    facet_var = if_else(
+      facet_var == "pop_growth",
+      "Pop. Growth",
+      facet_var
+    )
+  )
+
+i <- 3
+
+for (i in 1:nrow(distinct(df_temp, name))) {
+  assign(
+    paste0("g", i),
+    df_temp |> 
+      filter(id == i) |> 
+      ggplot(
+        mapping = aes(fill = value)
+      ) +
+      geom_sf() +
+      geom_sf_text(
+        mapping = aes(
+          label = paste0(
+            facet_var,"\n",
+            round(value, 2)
+          )
+        ),
+        lineheight = 1
+      ) +
+      facet_wrap(~facet_var) +
+      paletteer::scale_fill_paletteer_c(
+        "viridis::turbo",
+        na.value = "white",
+        limits = c(0, 4)
+      ) +
+      labs(
+        title = df_temp |> 
+                  filter(id == i) |> 
+                  distinct(name) |> 
+                  pull(name)
+      ) +
+      coord_sf(expand = FALSE) +
+      theme_void() +
+      theme(
+        plot.title = element_text(
+          hjust = 0.5
+        ),
+        strip.text = element_blank()
+      )
+  )  
+}
+
+g <- wrap_plots(
+  g1, g2, g3, g4, g5,
+  g6, g7, g8, g9, g10,
+  g11, g12, g13, g14, g15
+) +
+  plot_layout(
+    ncol = 5,
+    nrow = 3,
+    guides = "collect"
+  ) &
+  theme(
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    legend.key.width = unit(100, "pt")
+  )
+
+ggsave(
+  filename = here::here("book_solutions", 
+                        "images", "chapter9-7-5-2.png"),
+  plot = g,
+  height = 2800,
+  width  = 3800,
+  units = "px"
+)  
+```
+
+![](images/chapter9-7-5-2.png)
 
 ### E6.
 
