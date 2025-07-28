@@ -43,12 +43,12 @@ Diego Hernangómez credits his inspiration to the excellent blog post “[Fishne
 #| label: setup
 
 pacman::p_load(
-  sf,
-  terra, 
-  tidyterra,
+  sf,          # Handling simple features objects
+  terra,       # Manipulating rasters in R
+  tidyterra,   # Plotting rasters with ggplot2
   
   
-  tidyverse,
+  tidyverse,   # Data wrangling in R
   
   
   showtext,
@@ -211,7 +211,7 @@ plot_jp_map <- function(data_japan, plot_title = ".."){
 
 g1 <- base_map |> 
   st_make_grid(
-    cellsize = 25 * 1000,     # Cell Size fo 50 km each
+    cellsize = 40 * 1000,     # Cell Size of 40 km each
     crs = st_crs(base_map),
     what = "polygons"
   ) |> 
@@ -226,7 +226,7 @@ g1 <- base_map |>
 
 g2 <- base_map |> 
   st_make_grid(
-    cellsize = 25 * 1000,     # Cell Size fo 50 km each
+    cellsize = 40 * 1000,     # Cell Size of 40 km each
     crs = st_crs(base_map),
     what = "polygons",
     square = FALSE
@@ -241,7 +241,7 @@ g2 <- base_map |>
 
 temp_df <- base_map |> 
   st_make_grid(
-    cellsize = 25 * 1000,     # Cell Size fo 50 km each
+    cellsize = 40 * 1000,     # Cell Size of 40 km each
     crs = st_crs(base_map),
     what = "polygons",
     square = FALSE
@@ -275,7 +275,7 @@ g3 <- temp_df_2 |>
 
 temp_df <- base_map |> 
   st_make_grid(
-    cellsize = 25 * 1000,     # Cell Size fo 50 km each
+    cellsize = 40 * 1000,     # Cell Size of 40 km each
     crs = st_crs(base_map),
     what = "polygons"
   ) |> 
@@ -342,4 +342,4 @@ ggsave(
 
 ```
 
-![Four innovative visualization approaches transform Japan's administrative boundaries into abstract geometric patterns. The fishnet map (top left) uses regular square grids, while the honeycomb map (top right) employs hexagonal tessellations for smoother visual flow. The hexbin and puzzle maps (bottom panels) aggregate these geometric shapes by prefecture, creating simplified representations where each administrative unit is depicted as a single polygon with labeled centroids, offering cleaner cartographic alternatives to traditional boundary maps.](images/fishnet_maps_1.png){#fig-1}
+![Four visualization approaches to transform Japan's administrative boundaries into abstract geometric patterns. The fishnet map (top left) uses regular square grids, while the honeycomb map (top right) employs hexagonal tessellations for smoother visual flow. The hexbin and puzzle maps (bottom panels) aggregate these geometric shapes by prefecture, creating simplified representations where each administrative unit is depicted as a single polygon with labeled centroids, offering cleaner cartographic alternatives to traditional boundary maps.](images/fishnet_maps_1.png){#fig-1}
