@@ -158,18 +158,42 @@ base_map <- geodata::gadm(
 
 # Get hex points for the bounding box of the base map of Japan
 # Then, keep only the hex points that fall within the map of Japan
+# Create a grid of points covering Japan with 25km spacing
 japan_points <- base_map |> 
+  
+  # Generate a regular grid over the extent of the base_map geometry
   st_make_grid(
-    cellsize = 25 * 1000,     # Cell Size fo 50 km each
+    
+    # Set each grid cell to be 25 kilometers (25 * 1000 meters) in size
+    cellsize = 25 * 1000,     # Cell Size fo 25 km each
+    
+    # Use the same coordinate reference system as the base_map 
+    # to ensure proper alignment
     crs = st_crs(base_map),
+    
+    
+    # Generate center points of grid cells instead of 
+    # polygons for easier point-based analysis
     what = "centers"
   ) |> 
+  
+  # Convert the grid points from a simple feature 
+  # collection to a proper sf data frame
   st_as_sf() |> 
+  
+  
+  # Add a unique identifier column with sequential 
+  # row numbers for each grid point
   mutate(id = row_number()) |> 
+  
+  # Move the id column to the first position 
+  # in the data frame for better visualization of tibble when inspecting
   relocate(id) |> 
   
   # Keep only the points that are within Japan
-  st_join(base_map, left = F)
+  # Perform a spatial join  - only keep those that intersect with base map
+  # left = FALSE means we exclude points that don't have a match
+  st_join(base_map, left = FALSE)
 
 
 plot_jp_map <- function(data_japan, plot_title = ".."){
@@ -343,3 +367,198 @@ ggsave(
 ```
 
 ![Four visualization approaches to transform Japan's administrative boundaries into abstract geometric patterns. The fishnet map (top left) uses regular square grids, while the honeycomb map (top right) employs hexagonal tessellations for smoother visual flow. The hexbin and puzzle maps (bottom panels) aggregate these geometric shapes by prefecture, creating simplified representations where each administrative unit is depicted as a single polygon with labeled centroids, offering cleaner cartographic alternatives to traditional boundary maps.](images/fishnet_maps_1.png){#fig-1}
+
+### An example for Map of India and its states
+
+This R script creates a visually striking "honeycomb map" of India by overlaying a hexagonal grid pattern on the country's state boundaries. The code primarily leverages the powerful [**{sf}**](https://r-spatial.github.io/sf/) (Simple Features) package for spatial data manipulation and geometric operations, including reading shapefiles with `read_sf()`, creating hexagonal grids with `st_make_grid()`, and performing spatial joins with `st_join()`. The visualization is built using [**{ggplot2}**](https://ggplot2.tidyverse.org/) with its spatial extension `geom_sf()` for mapping, while [**{ggrepel}**](https://ggrepel.slowkow.com/) handles intelligent label positioning to avoid overlaps. Additional functionality comes from [**{paletteer}**](https://emilhvitfeldt.github.io/paletteer/) for accessing a diverse color palette, [**{janitor}**](https://sfirke.github.io/janitor/) for data cleaning with `clean_names()`, and [**{here}**](https://here.r-lib.org/) for robust file path management. The result is an aesthetically pleasing cartographic representation where each hexagonal cell is colored according to the Indian state it overlaps with most, creating a unique geometric interpretation of India's political geography.
+
+```{r}
+
+india <- read_sf(
+  here::here(
+    "data",
+    "india_map",
+    "India_State_Boundary.shp"
+  )
+) |> 
+  janitor::clean_names()
+
+object.size(india) |> print(units = "Kb")
+
+st_crs(india)
+
+mypal <- paletteer::paletteer_d("Polychrome::palette36")
+
+# Create a grid of points covering Japan with 25km spacing
+india_fishnet <- india |> 
+  
+  # Simplyfy the geometry to make processing quick and avoid slivers
+  st_simplify(dTolerance = 10000) |> 
+  
+  # Generate a regular grid over the extent of the base_map geometry
+  st_make_grid(
+    
+    # Set each grid cell to be specified kilometers (... * 1000 meters) in size
+    cellsize = 30 * 1000,     # Cell Size 
+    
+    # Use the same coordinate reference system as the base_map 
+    # to ensure proper alignment
+    crs = st_crs(india),
+    
+    
+    # Generate center points of grid cells instead of 
+    # polygons for easier point-based analysis
+    what = "polygons",
+    
+    # Whether to make it square or hex
+    square = FALSE
+  ) |> 
+  
+  # Convert the grid points from a simple feature 
+  # collection to a proper sf data frame
+  st_as_sf() |> 
+  
+  
+  # Add a unique identifier column with sequential 
+  # row numbers for each grid point
+  mutate(id = row_number()) |> 
+  
+  # Move the id column to the first position 
+  # in the data frame for better visualization of tibble when inspecting
+  relocate(id) |> 
+  
+  # Keep only the points that are within Japan
+  # Perform a spatial join  - only keep those that intersect with base map
+  # left = FALSE means we exclude points that don't have a match
+  st_join(
+    india,
+    
+    # Only return the state that has the largest overlap with a hexagon
+    largest = TRUE,
+    
+    # To perform a left join, i.e. retain the hexagons that intersect with
+    # each state
+    left = FALSE
+  )
+
+
+######
+# Caption stuff for the plot
+sysfonts::font_add(
+  family = "Font Awesome 6 Brands",
+  regular = here::here("docs", "Font Awesome 6 Brands-Regular-400.otf")
+)
+github <- "&#xf09b"
+github_username <- "aditya-dahiya"
+xtwitter <- "&#xe61b"
+xtwitter_username <- "@adityadahiyaias"
+social_caption_1 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{github};</span> <span style='color: {text_hil}'>{github_username}  </span>")
+social_caption_2 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{xtwitter};</span> <span style='color: {text_hil}'>{xtwitter_username}</span>")
+plot_caption <- paste0(
+  "**Data**:  Survey of India",
+  "  |  **Code:** ", 
+  social_caption_1, 
+  " |  **Graphics:** ", 
+  social_caption_2
+  )
+rm(github, github_username, xtwitter, 
+   xtwitter_username, social_caption_1, 
+   social_caption_2)
+
+######
+g <- india_fishnet |> 
+  ggplot() +
+  geom_sf(
+    data = india,
+    linewidth = 0.6,
+    alpha = 0.2, 
+    fill = NA,
+    colour = alpha("black", 0.2)
+  ) +
+  geom_sf(
+    mapping = aes(
+      fill = state_name
+    ),
+    colour = bg_col,
+    linewidth = 0.2,
+    alpha = 0.6
+  ) +
+  ggrepel::geom_text_repel(
+    data = india |> mutate(state_area = as.numeric(st_area(geometry))),
+    mapping = aes(
+      label = str_wrap(state_name, 15),
+      geometry = geometry,
+      size = state_area
+    ),
+    stat = "sf_coordinates",
+    box.padding = 0.1,
+    min.segment.length = unit(100, "pt"),
+    family = "body_font",
+    seed = 42,
+    colour = text_col,
+    lineheight = 0.25
+  ) +
+  
+  annotate(
+    geom = "text",
+    x = 82,
+    y = 33,
+    label = "A Honeycomb Map\n(India)",
+    size = 4 * bts,
+    hjust = 0, vjust = 0,
+    family = "body_font",
+    lineheight = 0.3
+  ) +
+  annotate(
+    geom = "text",
+    x = 82,
+    y = 32.3,
+    label = "Different States are depicted\nin different colours",
+    size = 2 * bts,
+    hjust = 0, vjust = 1,
+    family = "body_font",
+    lineheight = 0.3
+  ) +
+  coord_sf(
+    expand = FALSE,
+    default_crs = "EPSG:4326"
+  ) +
+  scale_fill_manual(
+    values = mypal
+  ) +
+  scale_colour_manual(
+    values = mypal
+  ) +
+  scale_size_continuous(range = c(bts / 2, bts * 2), trans = "sqrt") +
+  labs(caption = plot_caption) +
+  ggthemes::theme_map(
+    base_family = "body_font",
+    base_size = bts * 4
+  ) +
+  theme(
+    legend.position = "none",
+    plot.caption = element_textbox(
+      hjust = 0.5, 
+      margin = margin(-10,0,0,0, "pt"),
+      colour = text_hil
+    )
+  )
+
+size_var = 3000
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", 
+    "images",
+    "fishnet_maps_2.png"
+  ),
+  width = size_var,
+  height = (5/4) * size_var,
+  units = "px",
+  bg = bg_col
+)
+
+```
+
+![](images/fishnet_maps_2.png)
