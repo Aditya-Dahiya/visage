@@ -1,0 +1,412 @@
+---
+title: "What % of population lives near rivers in a country?"
+author: "Aditya Dahiya"
+subtitle: ".................."
+date: "2025-07-30"
+bibliography: references.bib
+format:
+  html:
+    code-fold: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  error: false
+  message: false
+  warning: false
+  eval: false
+categories:
+  - "Maps"
+  - "Geocomputation"
+  - "{geodata}"
+  - "Open Street Maps"
+comments:
+  giscus: 
+    repo: Aditya-Dahiya/visage
+filters:
+  - social-share
+share:
+  permalink: "https://aditya-dahiya.github.io/visage/geocomputation/rivers_pop_density.html"
+  description: "Visualizing Information and Spatial Analysis with ggplot2 Extensions"
+  twitter: true
+  linkedin: true
+  email: true
+  mastodon: true
+  facebook: true
+---
+
+## Introduction
+
+```{r}
+#| label: setup
+
+# Data wrangling & visualization
+library(tidyverse)  # Data manipulation & visualization
+
+# Spatial data handling
+library(sf)         # Import, export, and manipulate vector data
+library(terra)      # Import, export, and manipulate raster data
+
+# ggplot2 extensions
+library(tidyterra)  # Helper functions for using terra with ggplot2
+
+# Final plot tools
+library(scales)               # Nice Scales for ggplot2
+library(fontawesome)          # Icons display in ggplot2
+library(ggtext)               # Markdown text in ggplot2
+library(showtext)             # Display fonts in ggplot2
+library(patchwork)            # Composing Plots
+
+bts = 42 # Base Text Size
+sysfonts::font_add_google("Roboto Condensed", "body_font")
+sysfonts::font_add_google("Oswald", "title_font")
+sysfonts::font_add_google("Saira Extra Condensed", "caption_font")
+showtext::showtext_auto()
+# A base Colour
+bg_col <- "white"
+seecolor::print_color(bg_col)
+
+# Colour for highlighted text
+text_hil <- "grey30"
+seecolor::print_color(text_hil)
+
+# Colour for the text
+text_col <- "grey20"
+seecolor::print_color(text_col)
+
+theme_set(
+  theme_minimal(
+    base_size = bts,
+    base_family = "body_font"
+  ) +
+    theme(
+      text = element_text(
+        colour = "grey30",
+        lineheight = 0.3,
+        margin = margin(0,0,0,0, "pt")
+      ),
+      plot.title = element_text(
+        hjust = 0.5
+      ),
+      plot.subtitle = element_text(
+        hjust = 0.5
+      )
+    )
+)
+
+# Caption stuff for the plot
+sysfonts::font_add(
+  family = "Font Awesome 6 Brands",
+  regular = here::here("docs", "Font Awesome 6 Brands-Regular-400.otf")
+)
+github <- "&#xf09b"
+github_username <- "aditya-dahiya"
+xtwitter <- "&#xe61b"
+xtwitter_username <- "@adityadahiyaias"
+social_caption_1 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{github};</span> <span style='color: {text_hil}'>{github_username}  </span>")
+social_caption_2 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{xtwitter};</span> <span style='color: {text_hil}'>{xtwitter_username}</span>")
+plot_caption <- paste0(
+  "**Data**:  Open Street Maps, {geodata}",
+  "  |  **Code:** ", 
+  social_caption_1, 
+  " |  **Graphics:** ", 
+  social_caption_2
+  )
+rm(github, github_username, xtwitter, 
+   xtwitter_username, social_caption_1, 
+   social_caption_2)
+
+```
+
+Attempt 1: Failed! UK
+
+```{r}
+uk_raw_map <- geodata::gadm(
+  country = c("GBR", "IRL"),
+  path = tempdir()
+) |> 
+  st_as_sf() |> 
+  janitor::clean_names() |> 
+  select(country, name_1, varname_1, geometry)
+
+uk_raw_map |> 
+  object.size() |> 
+  print(units = "Mb")
+
+uk_map1 <- uk_raw_map |> 
+  st_simplify(dTolerance = 1000) |> 
+  filter(country == "United Kingdom")
+
+map2 <- geodata::gadm(
+  country = c("GBR", "IRL"),
+  path = tempdir(),
+  level = 2
+) |> 
+  st_as_sf() |> 
+  janitor::clean_names()
+
+dublin <- map2 |> 
+  select(name_1, name_2, type_2, geometry) |> 
+  #st_drop_geometry() |> 
+  filter(name_1 == "Dublin")
+
+# uk_map1 |> 
+#   ggplot() +
+#   geom_sf()
+
+uk_map1 |> 
+  object.size() |> 
+  print(units = "Mb")
+
+# Get Rivers for UK
+library(osmdata)
+
+# uk_rivers_raw <- osmdata::opq(
+#   bbox = st_bbox(uk_map1)
+# ) |>
+#   osmdata::add_osm_feature(
+#     key = "water",
+#     value = "river"
+#   ) |>
+#   osmdata_sf()
+
+dublin_rivers <- osmdata::opq(
+  bbox = st_bbox(dublin)
+) |>
+  osmdata::add_osm_feature(
+    key = "water",
+    value = "river"
+  ) |>
+  osmdata_sf()
+
+dublin_rivers$osm_multipolygons |> 
+  ggplot() +
+  geom_sf(
+    colour = "blue"
+  ) +
+  geom_sf(
+    data = dublin, 
+    fill = NA
+  )
+
+# Learning: {osmdata} is not a great source to plot rivers as it splits them
+# into points, lines, polygons and multipolygons.
+
+
+```
+
+### 33-year population density rasters
+
+Getting Population Density Rasters. [Code](https://github.com/lulingliu/GlobPOP) from researchers on how the data was compiled.
+
+```{r}
+# 1990 to 2022 year Global Population Density 30 sec arc resolution
+# Set Working Directory to a temporary one ---------------------------
+rast_2022 <- terra::rast("GlobPOP_Count_30arc_2022_I32.tiff") |> 
+  # Reduce the granularity of the data to make it easier on computation and good to plot also
+  terra::aggregate(fact = 10)
+
+# ggplot() +
+#   geom_spatraster(data = rast_2022)
+```
+
+### Data on Country Boundaries and Rivers
+
+```{r}
+# Get boundaries of different countries using {rnaturalearth}
+library(rnaturalearth)
+library(rnaturalearthdata)
+# Get the world boundaries
+# This will be used to plot the population density
+
+countries_boundaries <- ne_countries(
+  scale = "medium", 
+  returnclass = "sf"
+) |> 
+  st_transform(crs(rast_2022)) |> 
+  select(name, iso_a3, geometry) |> 
+  arrange(name) |> 
+  mutate(id = row_number())
+
+global_map <- countries_boundaries |> 
+  
+  # To save time: perform geocomputation in projected CRS
+  st_transform("EPSG:3857") |> 
+  st_union() |> 
+  
+  # Re-project back to Raster CRS
+  st_transform(crs(rast_2022)) |> 
+  st_as_sf()
+
+object.size(global_map) |> 
+  print(units = "Mb")
+
+# Get global rivers data
+rivers <- ne_download(
+  scale = "medium", type = 'rivers_lake_centerlines', 
+  category = 'physical', returnclass = "sf"
+) |> 
+  select(name_en, geometry) |> 
+  st_transform(crs(rast_2022))
+
+rivers |> 
+  object.size() |> 
+  print(units = "Mb")
+
+
+```
+
+## Geocomputation
+
+```{r}
+
+# Generate a buffer of 1 km around the rivers
+# This will be used to calculate the population density near rivers
+rivers_buffer_zone <- rivers |> 
+  
+  # Buffer operations in Geographic CRS are very very slow. Convert to a
+  # projected CRS
+  st_transform("EPSG:3857") |> 
+  st_buffer(dist = 1000) |> 
+  st_union()
+
+coast_buffer_zone <- coastline110 |> 
+  
+  # Buffer operations in Geographic CRS are very very slow. Convert to a
+  # projected CRS
+  st_transform("EPSG:3857") |> 
+  st_buffer(dist = 1000) |> 
+  st_union()
+
+# zone all over the world within 1 km of a water body: river or sea or lake
+water_buffer_zone <- st_union(
+  rivers_buffer_zone,
+  coast_buffer_zone
+) |> 
+  # Retransform back to Geographic CRS of the population raster
+  st_transform(crs(rast_2022))
+```
+
+### Raster - Vector Interaction Operations
+
+```{r}
+
+# Extract total population data for each country with country names
+total_population <- rast_2022 |> 
+  terra::extract(
+  countries_boundaries, 
+  fun = sum, 
+  na.rm = TRUE, 
+  bind = TRUE
+) |> 
+  as_tibble() |> 
+  rename(pop = GlobPOP_Count_30arc_2022_I32) |> 
+  
+  # By observation, I see that the data is off by a factor of 100, so multiply
+  mutate(pop = pop * 100) |> 
+  arrange(desc(pop))
+
+# Extract total population density for each country with country names
+population_density <- rast_2022 |> 
+  terra::extract(
+  countries_boundaries, 
+  fun = mean, 
+  na.rm = TRUE, 
+  bind = TRUE
+) |> 
+  as_tibble() |> 
+  rename(density = GlobPOP_Count_30arc_2022_I32) |> 
+  arrange(desc(density))
+
+### Extract a raster of world population that lives within 1 km of a waterbody ###
+rast_water <- rast_2022 |> 
+  terra::mask(st_as_sf(water_buffer_zone))
+
+# Extract total population of each country within 1 km of a water body
+total_population_water <- rast_water |> 
+  terra::extract(
+  countries_boundaries, 
+  fun = sum, 
+  na.rm = TRUE, 
+  bind = TRUE
+) |> 
+  as_tibble() |> 
+  rename(pop_water = GlobPOP_Count_30arc_2022_I32) |> 
+  
+  # By observation, I see that the data is off by a factor of 100, so multiply
+  mutate(pop_water = pop_water * 100) |> 
+  arrange(desc(pop_water))
+
+# Extract total population density for 1 km near water body for each country
+population_density_water <- rast_water |> 
+  terra::extract(
+  countries_boundaries, 
+  fun = mean, 
+  na.rm = TRUE, 
+  bind = TRUE
+) |> 
+  as_tibble() |> 
+  rename(density_water = GlobPOP_Count_30arc_2022_I32) |> 
+  arrange(desc(density_water))
+
+# Create a final tibble for population, its density, and near water body for each country
+plotdf <- total_population |> 
+  left_join(total_population_water) |> 
+  mutate(perc_pop_water = pop_water / pop) |> 
+  left_join(population_density) |> 
+  left_join(population_density_water) |> 
+  mutate(ratio_density = density_water / density)
+```
+
+### Making plots to show results
+
+```{r}
+
+g <- ggplot() +
+  geom_spatraster(data = rast_2022) +
+  geom_sf(
+    data = countries_boundaries,
+    fill = NA,
+    linewidth = 0.3,
+    colour = "black"
+  ) +
+  paletteer::scale_fill_paletteer_c(
+    "scico::batlowW",
+    direction = -1,
+    na.value = "transparent",
+    transform = "sqrt",
+    limits = c(0, 1000),
+    oob = scales::squish
+  ) +
+  coord_sf(
+    crs = "ESRI:54030",
+    # ylim = c(-55, 80),
+    default_crs = "EPSG:4326"
+  ) +
+  labs(
+    fill = expression("Population Density (persons / km"^2*")")
+  ) +
+  # ggthemes::theme_map() +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0.65, 0.05),
+    legend.justification = c(0.5, 0),
+    legend.direction = "horizontal",
+    legend.title.position = "top"
+  )
+
+size_var = 200
+
+ggsave(
+  plot = g,
+  filename = here::here(
+    "geocomputation", "images",
+    "rivers_pop_density_1.png"
+  ),
+  height = 9 * size_var,
+  width = 16 * size_var,
+  units = "px",
+  bg = "white"
+)
+```
+
+![](images/rivers_pop_density_1.png)
