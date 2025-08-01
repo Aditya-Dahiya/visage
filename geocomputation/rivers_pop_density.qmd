@@ -1,8 +1,8 @@
 ---
-title: "What % of population lives near rivers in a country?"
+title: "How Close Does Humanity Live to Water?"
 author: "Aditya Dahiya"
-subtitle: ".................."
-date: "2025-07-30"
+subtitle: "Geospatial analysis of global population density patterns near rivers, lakes, and coastlines"
+date: "2025-08-01"
 bibliography: references.bib
 format:
   html:
@@ -17,8 +17,8 @@ execute:
 categories:
   - "Maps"
   - "Geocomputation"
-  - "{geodata}"
-  - "Open Street Maps"
+  - "{terra}"
+  - "Raster"
 comments:
   giscus: 
     repo: Aditya-Dahiya/visage
@@ -34,7 +34,17 @@ share:
   facebook: true
 ---
 
+This geospatial analysis reveals fascinating patterns about humanity's relationship with water bodies across the globe. The visualization combines a world map displaying population density gradients with major river systems, alongside comparative charts showing how different nations cluster around water sources.
+
+![Global population distribution relative to water bodies (2022). (A) World map showing population density with major rivers (blue lines), revealing concentration along waterways like the Nile, Ganges, and coastal areas. (B) Percentage of national populations living within 1 km of water bodies - island nations show near 100% while landlocked countries have much lower rates. (C) Ratio of population density near water versus inland areas, with some countries showing over 10-fold concentration differences. Analysis limited to countries \>1 million population. Data: GlobPOP dataset (Liu et al., 2024).](images/rivers_pop_density_1.png)
+
+The map clearly illustrates that the highest population densities (shown in darker colors) often align with major river corridors like the Nile, Ganges-Brahmaputra, Yangtze, and coastal regions, demonstrating the enduring importance of water access for human settlement. The analysis, built using the [GlobPOP dataset](https://github.com/lulingliu/GlobPOP) developed by Luling Liu and colleagues, quantifies this relationship by calculating what percentage of each country's population lives within 1 kilometer of rivers, lakes, or coastlines.
+
+The charts reveal striking global variations: island nations and coastal countries show nearly 100% of their populations living near water, while landlocked countries with sparse river networks show much lower percentages. More intriguingly, the density ratio analysis exposes countries where population concentrates disproportionately near water sources - with some nations showing density ratios exceeding 10:1 between water-adjacent and inland areas. This pattern reflects both historical settlement preferences driven by agriculture, trade, and transportation needs, as well as contemporary economic advantages of water access. The analysis uses R's powerful geospatial packages including [{sf}](https://r-spatial.github.io/sf/), [{terra}](https://rspatial.org/terra/), and [{rnaturalearth}](https://docs.ropensci.org/rnaturalearth/) to process global raster data and perform complex buffer operations around water features.
+
 ## Introduction
+
+This initial setup loads all the essential R packages needed for geospatial analysis and visualization. The code imports [{tidyverse}](https://www.tidyverse.org/) for data manipulation, [{sf}](https://r-spatial.github.io/sf/) for vector spatial data handling, and [{terra}](https://rspatial.org/terra/) for raster operations. Additional packages like [{tidyterra}](https://dieghernan.github.io/tidyterra/) bridge the gap between terra objects and ggplot2, while [{scales}](https://scales.r-lib.org/), [{ggtext}](https://wilkelab.org/ggtext/), and [{patchwork}](https://patchwork.data-imaginist.com/) enhance the final visualization. The setup also configures custom fonts using [{showtext}](https://github.com/yixuan/showtext) and establishes a consistent color palette that will be used throughout the analysis.
 
 ```{r}
 #| label: setup
@@ -56,42 +66,22 @@ library(ggtext)               # Markdown text in ggplot2
 library(showtext)             # Display fonts in ggplot2
 library(patchwork)            # Composing Plots
 
-bts = 42 # Base Text Size
+bts = 90 # Base Text Size
 sysfonts::font_add_google("Roboto Condensed", "body_font")
 sysfonts::font_add_google("Oswald", "title_font")
 sysfonts::font_add_google("Saira Extra Condensed", "caption_font")
 showtext::showtext_auto()
 # A base Colour
-bg_col <- "white"
+bg_col <- "lightblue"
 seecolor::print_color(bg_col)
 
 # Colour for highlighted text
-text_hil <- "grey30"
+text_hil <- "grey20"
 seecolor::print_color(text_hil)
 
 # Colour for the text
-text_col <- "grey20"
+text_col <- "grey10"
 seecolor::print_color(text_col)
-
-theme_set(
-  theme_minimal(
-    base_size = bts,
-    base_family = "body_font"
-  ) +
-    theme(
-      text = element_text(
-        colour = "grey30",
-        lineheight = 0.3,
-        margin = margin(0,0,0,0, "pt")
-      ),
-      plot.title = element_text(
-        hjust = 0.5
-      ),
-      plot.subtitle = element_text(
-        hjust = 0.5
-      )
-    )
-)
 
 # Caption stuff for the plot
 sysfonts::font_add(
@@ -105,7 +95,7 @@ xtwitter_username <- "@adityadahiyaias"
 social_caption_1 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{github};</span> <span style='color: {text_hil}'>{github_username}  </span>")
 social_caption_2 <- glue::glue("<span style='font-family:\"Font Awesome 6 Brands\";'>{xtwitter};</span> <span style='color: {text_hil}'>{xtwitter_username}</span>")
 plot_caption <- paste0(
-  "**Data**:  Open Street Maps, {geodata}",
+  "**Data**:  Luling Liu et al, {rnaturalearth}",
   "  |  **Code:** ", 
   social_caption_1, 
   " |  **Graphics:** ", 
@@ -117,7 +107,9 @@ rm(github, github_username, xtwitter,
 
 ```
 
-Attempt 1: Failed! UK
+### **Failed UK Rivers Attempt**
+
+This code chunk represents an initial attempt to extract river data for the UK using [{osmdata}](https://docs.ropensci.org/osmdata/) from OpenStreetMap. The approach involved downloading administrative boundaries using [{geodata}](https://github.com/rspatial/geodata) and then querying OSM for water features. However, this method proved problematic because OSM data fragments rivers into multiple geometric types (points, lines, polygons, multipolygons), making it difficult to create a coherent river network visualization. This failed attempt led to switching to the more reliable [{rnaturalearth}](https://docs.ropensci.org/rnaturalearth/) package for global river data.
 
 ```{r}
 uk_raw_map <- geodata::gadm(
@@ -194,9 +186,11 @@ dublin_rivers$osm_multipolygons |>
 
 ```
 
-### 33-year population density rasters
+## 33-year population density rasters
 
-Getting Population Density Rasters. [Code](https://github.com/lulingliu/GlobPOP) from researchers on how the data was compiled.
+This graphic draws on the **GlobPOP** dataset developed by **Luling Liu**, **Xin Cao**, **Shijie Li**, and **Na Jie**, and published in *Scientific Data* in 2024 (Sci Data 11:124). They created a continuous global gridded population product spanning **1990 to 2020** (with an extended version through 2022), at approximately 1 km spatial resolution (30 arc‑seconds), in both **population count** and **density** formats ([github.com](https://github.com/lulingliu/GlobPOP "GlobPOP: A 33-year (1990-2022) global gridded population dataset ...")). Their methodology fused five existing population products—GHS‑POP, GRUMP, GPWv4, LandScan, and WorldPop—via a three‑stage framework of preprocessing, cluster analysis, and statistical learning (quantile regression), calibrated to official census data from the UN World Population Prospects 2022. They then validated the results using rigorous spatial and temporal assessments across 217 countries and eight representative countries and cities, demonstrating high accuracy overall.
+
+The raster is aggregated by a factor of 10 using [`terra::aggregate()`](https://rspatial.org/terra/reference/aggregate.html) to reduce computational complexity while maintaining sufficient detail for global-scale analysis.
 
 ```{r}
 # 1990 to 2022 year Global Population Density 30 sec arc resolution
@@ -209,12 +203,17 @@ rast_2022 <- terra::rast("GlobPOP_Count_30arc_2022_I32.tiff") |>
 #   geom_spatraster(data = rast_2022)
 ```
 
-### Data on Country Boundaries and Rivers
+## Data on Country Boundaries and Rivers
+
+This section acquires the spatial reference data needed to contextualize the population raster. Using [{rnaturalearth}](https://docs.ropensci.org/rnaturalearth/), I download medium-scale country boundaries and major river centerlines. The [`ne_countries()`](https://docs.ropensci.org/rnaturalearth/reference/ne_countries.html) function provides clean national boundaries, while [`ne_download()`](https://docs.ropensci.org/rnaturalearth/reference/ne_download.html) retrieves the river network data. All spatial data is transformed to match the coordinate reference system of the population raster using [`st_transform()`](https://r-spatial.github.io/sf/reference/st_transform.html) to ensure proper alignment for subsequent analysis.
 
 ```{r}
 # Get boundaries of different countries using {rnaturalearth}
-library(rnaturalearth)
-library(rnaturalearthdata)
+pacman::p_load(
+  rnaturalearth,
+  rnaturalearthdata
+)
+
 # Get the world boundaries
 # This will be used to plot the population density
 
@@ -252,10 +251,12 @@ rivers |>
   object.size() |> 
   print(units = "Mb")
 
-
+coastline50 <- rnaturalearthdata::coastline50
 ```
 
-## Geocomputation
+## Creating Water Proximity Buffers
+
+The core geocomputation involves creating 1-kilometer buffer zones around all water bodies (rivers and coastlines) to define "near water" areas. Using [`st_buffer()`](https://r-spatial.github.io/sf/reference/geos_unary.html), I generate these zones after transforming to a projected coordinate system (EPSG:3857) for accurate distance calculations. The [`st_union()`](https://r-spatial.github.io/sf/reference/geos_combine.html) function combines overlapping buffers into a single unified zone. This buffer zone becomes the key spatial mask for distinguishing populations living near versus away from water sources.
 
 ```{r}
 
@@ -269,7 +270,7 @@ rivers_buffer_zone <- rivers |>
   st_buffer(dist = 1000) |> 
   st_union()
 
-coast_buffer_zone <- coastline110 |> 
+coast_buffer_zone <- coastline50 |> 
   
   # Buffer operations in Geographic CRS are very very slow. Convert to a
   # projected CRS
@@ -286,7 +287,11 @@ water_buffer_zone <- st_union(
   st_transform(crs(rast_2022))
 ```
 
-### Raster - Vector Interaction Operations
+## Extracting Population Statistics by Country
+
+This crucial step uses [`terra::extract()`](https://rspatial.org/terra/reference/extract.html) to calculate population statistics for each country. The function aggregates raster values within country boundaries using different summary functions - `sum` for total population counts and `mean` for average density. I perform separate extractions for the full population raster and the water-masked raster to quantify how much of each country's population lives within the 1km water buffer zone. The population values are multiplied by 100 to correct for an observed scaling factor in the original dataset.
+
+The final data processing step combines all extracted statistics into a comprehensive dataset using [`left_join()`](https://dplyr.tidyverse.org/reference/mutate-joins.html) operations. Key metrics calculated include the percentage of each country's population living near water (`perc_pop_water`) and the ratio of population density near water versus away from water (`ratio_density`). The data is filtered to include only countries with populations exceeding 1 million and those with complete data, while adding ISO country codes using [{countrycode}](https://github.com/vincentarelbundock/countrycode) for flag visualization.
 
 ```{r}
 
@@ -355,58 +360,326 @@ plotdf <- total_population |>
   left_join(population_density) |> 
   left_join(population_density_water) |> 
   mutate(ratio_density = density_water / density)
+
+# Only show countries with alteast 1 million population
+plotdf2 <- plotdf |> 
+  filter(pop > 1e6) |> 
+  filter(!is.na(perc_pop_water)) |> 
+  filter(!is.na(ratio_density)) |> 
+  mutate(
+    iso2 = countrycode::countrycode(
+      sourcevar = iso_a3,
+      origin = "iso3c",
+      destination = "iso2c"
+    ),
+    iso2 = str_to_lower(iso2)
+  ) |> 
+  filter(!(name %in% c("Somaliland", "Palestine"))) |> 
+  filter(ratio_density != 0)
+
+
+# What percentage of world population lives near water
+
+world_percentage <- (plotdf |> pull(pop_water) |> sum(na.rm = T)) / (plotdf |> pull(pop) |> sum(na.rm = T))
+
+world_percentage
+
+plotdf |> 
+  summarise(
+    ratio = weighted.mean(perc_pop_water, w = pop, na.rm = T)
+  )
 ```
 
-### Making plots to show results
+## Creating the World Population Density Map
+
+This section builds the main world map visualization using [`geom_spatraster()`](https://dieghernan.github.io/tidyterra/reference/geom_spatraster.html) from tidyterra to display the population raster, overlaid with country boundaries and river networks. The color palette uses [{paletteer}](https://emilhvitfeldt.github.io/paletteer/) to apply a scientifically-designed color scale with square root transformation to better visualize the highly skewed population density distribution. The map is cropped to exclude Antarctica and styled with a clean theme using [{ggthemes}](https://jrnold.github.io/ggthemes/).
 
 ```{r}
 
-g <- ggplot() +
-  geom_spatraster(data = rast_2022) +
+g1 <- ggplot() +
+  geom_spatraster(
+    data = rast_2022,
+    maxcell = 1e6
+  ) +
   geom_sf(
     data = countries_boundaries,
     fill = NA,
-    linewidth = 0.3,
-    colour = "black"
+    linewidth = 0.1,
+    colour = "grey20"
+  ) +
+  geom_sf(
+    data = rivers,
+    colour = bg_col,
+    linewidth = 0.4
   ) +
   paletteer::scale_fill_paletteer_c(
     "scico::batlowW",
     direction = -1,
     na.value = "transparent",
     transform = "sqrt",
-    limits = c(0, 1000),
+    limits = c(0, 800),
+    breaks = c(0, 10, 50, 200, 500),
     oob = scales::squish
   ) +
   coord_sf(
-    crs = "ESRI:54030",
-    # ylim = c(-55, 80),
+    expand = FALSE,
+    ylim = c(-55, 85),
     default_crs = "EPSG:4326"
   ) +
   labs(
-    fill = expression("Population Density (persons / km"^2*")")
+    fill = expression("Population Density (persons / km"^2*")"),
+    subtitle = expression("Global Population Density shown along with Major River Systems")
   ) +
-  # ggthemes::theme_map() +
+  ggthemes::theme_map(
+    base_size = bts * 0.8,
+    base_family = "body_font"
+  ) +
   theme(
     legend.position = "inside",
-    legend.position.inside = c(0.65, 0.05),
-    legend.justification = c(0.5, 0),
+    legend.position.inside = c(0.65, 0),
+    legend.justification = c(0.5, 0.5),
     legend.direction = "horizontal",
-    legend.title.position = "top"
+    legend.title.position = "top",
+    legend.key.width = unit(2, "cm"),
+    legend.text = element_text(
+      margin = margin(2,2,2,2, "mm")
+    ),
+    legend.title = element_text(
+      margin = margin(0,0,2,0, "mm")
+    ),
+    legend.background = element_rect(fill = NA, colour = NA),
+    legend.box.background = element_rect(fill = NA, colour = NA),
+    legend.ticks = element_line(linewidth = 1, colour = bg_col),
+    plot.subtitle = element_text(
+      margin = margin(0,0,0,0, "mm"),
+      size = bts,
+      family = "body_font",
+      colour = text_col
+    )
   )
 
-size_var = 200
+```
+
+## Custom Theme and Country Ranking Charts
+
+Here I define a custom ggplot2 theme and create comparative bar charts showing the top and bottom 10 countries for both water proximity metrics. The charts use [{ggflags}](https://github.com/jimjam-slam/ggflags) to display country flags alongside country names, making the visualization more engaging and easier to interpret. The data is ranked and filtered to highlight the most extreme cases - countries where populations are most and least concentrated near water sources.
+
+```{r}
+
+theme_mycustom <- function(...) {
+  theme_minimal(
+    base_family = "body_font",
+    base_size = bts
+  ) +
+  theme(
+    text = element_text(
+      colour = text_col
+    ),
+    axis.ticks = element_blank(),
+    axis.ticks.length = unit(0, "mm"),
+    panel.background = element_rect(fill = NA, colour = NA),
+    plot.background = element_rect(colour = NA, fill = NA),
+    axis.text.x = element_text(
+      margin = margin(3,0,0,0, "mm"),
+      colour = text_col,
+      size = 0.7 * bts
+    ),
+    axis.text.y = element_text(
+      margin = margin(0,0,0,-3, "mm"),
+      size = bts * 0.75,
+      colour = text_col,
+      family = "caption_font"
+    ),
+    strip.text = element_text(
+      margin = margin(0,0,0,0, "mm"),
+      colour = text_col,
+      size = 0.8 * bts,
+      face = "bold"
+    ),
+    panel.grid = element_blank(),
+    plot.title = element_text(
+      lineheight = 0.3,
+      margin = margin(0,0,2,0, "mm"),
+      size = 0.7 * bts,
+      colour = text_col
+    ),
+    plot.margin = margin(0,0,0,0, "mm"),
+    axis.line.x = element_line(
+      colour = text_col,
+      linewidth = 0.3,
+      arrow = arrow(length = unit(5, "mm"))
+    )
+  )  
+}
+
+g2 <- plotdf2 |> 
+  arrange(desc(perc_pop_water)) |> 
+  mutate(rank = row_number()) |> 
+  filter(
+    rank <= 10 | rank > nrow(plotdf2)-10
+  ) |> 
+  mutate(
+    type = if_else(
+      rank <= 10,
+      "Highest",
+      "Lowest"
+    )
+  ) |> 
+  ggplot(
+    mapping = aes(
+      x = perc_pop_water,
+      y = reorder(name, perc_pop_water)
+    )
+  ) +
+  ggflags::geom_flag(
+    mapping = aes(
+      country = iso2,
+      x = -0.05
+    ),
+    size = 10
+  ) +
+  geom_col(
+    fill = "white",
+    colour = NA
+  ) +
+  geom_text(
+    mapping = aes(
+      label = paste0(round(100 * perc_pop_water, 1), " %")
+    ),
+    hjust = 0,
+    nudge_x = 0.02,
+    size = bts / 5.5,
+    family = "body_font",
+    family = text_col
+  ) +
+  facet_wrap(~type, ncol = 1, scales = "free_y") +
+  scale_x_continuous(
+    expand = expansion(c(0.05, 0)),
+    labels = scales::label_percent()
+  ) +
+  coord_cartesian(
+    clip = "off"
+  ) +
+  labs(
+    x = NULL, 
+    y = NULL,
+    title = "Percentage of popualation that lives\nwithin 1 km of river / lake / sea"
+    ) +
+  theme_mycustom()
+
+
+g3 <- plotdf2 |> 
+  arrange(desc(ratio_density)) |> 
+  mutate(rank = row_number()) |> 
+  filter(
+    rank <= 10 | rank > nrow(plotdf2)-10
+  ) |> 
+  mutate(
+    type = if_else(
+      rank <= 10,
+      "Highest Ratio",
+      "Lowest Ratio"
+    )
+  ) |> 
+  ggplot(
+    mapping = aes(
+      x = ratio_density,
+      y = reorder(name, ratio_density)
+    )
+  ) +
+  ggflags::geom_flag(
+    mapping = aes(
+      country = iso2,
+      x = -2.5
+    ),
+    size = 8
+  ) +
+  geom_col(
+    fill = "white",
+    colour = NA
+  ) +
+  geom_text(
+    mapping = aes(
+      label = round(ratio_density, 1)
+    ),
+    hjust = 0,
+    nudge_x = 0.4,
+    size = bts / 5.5,
+    family = "body_font",
+    family = text_col
+  ) +
+  facet_wrap(~type, ncol = 1, scales = "free_y") +
+  scale_x_continuous(
+    expand = expansion(c(0.05, 0))
+  ) +
+  coord_cartesian(
+    clip = "off"
+  ) +
+  labs(
+    x = NULL, 
+    y = NULL,
+    title = "Ratio of population density in areas near\nwater to areas away from water"
+  ) +
+  theme_mycustom()
+```
+
+## Final Plot Composition and Export
+
+The final step uses [{patchwork}](https://patchwork.data-imaginist.com/) to combine all visualization elements into a cohesive infographic layout. The [`wrap_plots()`](https://patchwork.data-imaginist.com/reference/wrap_plots.html) function arranges the world map and comparative charts using a custom design matrix, while [`plot_annotation()`](https://patchwork.data-imaginist.com/reference/plot_annotation.html) adds titles, subtitles, and data attribution. The final graphic is exported using [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html) with specific dimensions optimized for high-resolution display and sharing.
+
+```{r}
+
+my_design <- ("
+AA
+BC
+")
+
+g4 <- wrap_plots(g1, g2, g3) +
+  plot_layout(design = my_design, height = c(0.6, 1)) +
+  plot_annotation(
+    title = "9% of Humanity lives <1 km of a water body",
+    subtitle = str_wrap("Global analysis on what % of the world's population lives within 1 km of major rivers, lakes, or coastlines. Some countries show population densities near water that are 10 times higher than inland areas.", 110),
+    caption = plot_caption,
+    theme = theme(
+      plot.title = element_text(
+        margin = margin(5,0,5,0, "mm"),
+        size = 2 * bts,
+        hjust = 0.5,
+        family = "body_font",
+        face = "bold"
+      ),
+      plot.subtitle = element_text(
+        margin = margin(2,0,0,0, "mm"),
+        hjust = 0.5,
+        family = "body_font",
+        lineheight = 0.3,
+        size = bts * 0.9
+      ),
+      plot.caption = element_textbox(
+        hjust = 0.5,
+        halign = 0.5,
+        size = 0.6 * bts,
+        family = "caption_font",
+        margin = margin(5,0,0,0,"mm")
+      ),
+      plot.margin = margin(5,5,5,5, "mm")
+    )
+  ) &
+  theme(
+    plot.background = element_rect(fill = NA, colour = NA),
+    panel.background = element_rect(fill = NA, colour = NA),
+    panel.spacing.y = unit(2, "mm")
+  )
 
 ggsave(
-  plot = g,
+  plot = g4,
   filename = here::here(
     "geocomputation", "images",
     "rivers_pop_density_1.png"
   ),
-  height = 9 * size_var,
-  width = 16 * size_var,
-  units = "px",
-  bg = "white"
+  height = 50,
+  width = 40,
+  units = "cm",
+  bg = bg_col
 )
 ```
-
-![](images/rivers_pop_density_1.png)
